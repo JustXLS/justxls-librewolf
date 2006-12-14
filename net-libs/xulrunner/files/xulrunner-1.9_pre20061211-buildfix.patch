@@ -1,0 +1,80 @@
+? BUG_363046_bustage.diff
+Index: libxul-config.mk
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/library/libxul-config.mk,v
+retrieving revision 1.36
+diff -p -u -8 -r1.36 libxul-config.mk
+--- libxul-config.mk	25 Oct 2006 19:12:13 -0000	1.36
++++ libxul-config.mk	7 Dec 2006 08:41:01 -0000
+@@ -266,17 +266,16 @@ endif
+ ifdef MOZ_IPCD
+ DEFINES += -DMOZ_IPCD
+ COMPONENT_LIBS += ipcdc
+ endif
+ 
+ ifdef MOZ_ENABLE_POSTSCRIPT
+ DEFINES += -DMOZ_ENABLE_POSTSCRIPT
+ STATIC_LIBS += gfxpsshar
+-COMPONENT_LIBS += gfxps
+ endif
+ ifneq (,$(filter icon,$(MOZ_IMG_DECODERS)))
+ ifndef MOZ_ENABLE_GNOMEUI
+ DEFINES += -DICON_DECODER
+ COMPONENT_LIBS += imgicon
+ endif
+ endif
+ 
+Index: nsStaticXULComponents.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/library/nsStaticXULComponents.cpp,v
+retrieving revision 1.39
+diff -p -u -8 -r1.39 nsStaticXULComponents.cpp
+--- nsStaticXULComponents.cpp	26 Sep 2006 05:21:50 -0000	1.39
++++ nsStaticXULComponents.cpp	7 Dec 2006 08:41:01 -0000
+@@ -75,17 +75,17 @@
+ 
+ #ifdef MOZ_IPCD
+ #define IPC_MODULE MODULE(ipcdclient)
+ #else
+ #define IPC_MODULE
+ #endif
+ 
+ #ifdef MOZ_ENABLE_POSTSCRIPT
+-#define POSTSCRIPT_MODULES MODULE(nsGfxPSModule)
++#define POSTSCRIPT_MODULES
+ #else
+ #define POSTSCRIPT_MODULES
+ #endif
+ 
+ #ifdef MOZ_CAIRO_GFX
+ #  define GFX_MODULES MODULE(nsGfxModule)
+ #else
+ #  if defined(MOZ_WIDGET_GTK) || defined(MOZ_WIDGET_GTK2)
+
+Index: Makefile.in
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/library/Makefile.in,v
+retrieving revision 1.44
+diff -p -u -8 -r1.44 Makefile.in
+--- Makefile.in	4 Dec 2006 10:50:02 -0000	1.44
++++ Makefile.in	7 Dec 2006 08:49:06 -0000
+@@ -192,16 +192,20 @@ endif
+ ifdef MOZ_ENABLE_XINERAMA
+ EXTRA_DSO_LDOPTS += $(MOZ_XINERAMA_LIBS)
+ endif
+ 
+ ifneq (,$(filter gtk gtk2 qt xlib,$(MOZ_WIDGET_TOOLKIT)))
+ EXTRA_DSO_LDOPTS += $(XLDFLAGS) $(XLIBS) $(MOZ_GTK_LDFLAGS) $(MOZ_XFT_LIBS) $(MOZ_GTK2_LIBS) $(XT_LIBS)
+ endif
+ 
++ifdef MOZ_ENABLE_GNOME_COMPONENT
++EXTRA_DSO_LDOPTS += $(MOZ_GNOMEVFS_LIBS)
++endif
++
+ ifdef MOZ_ENABLE_XFT
+ EXTRA_DSO_LDOPTS += $(FT2_LIBS)
+ endif
+ 
+ ifdef MOZ_ENABLE_XPRINT
+ EXTRA_DSO_LDOPTS += $(MOZ_XPRINT_LDFLAGS)
+ endif
