@@ -2,7 +2,7 @@
 # Copyright 1999-2006 Gentoo Foundation; Distributed under the GPL v2
 # $Header: $
 
-  14 Dec 2006; Jory A. Pratt <anarchy@gentoo.org>
+  14 Dec 2006; Jory A. Pratt <geekypenguin@gmail.com>
   +xulrunner-1.9_pre20061211.ebuild,
   +files/xulrunner-1.9_pre20061211-buildfix.patch, +files/xulrunner.conf:
   initial overlay commit, alot closer to upstream, provides sdk to support
