@@ -1,0 +1,132 @@
+Index: gfx/thebes/public/gfxASurface.h
+===================================================================
+RCS file: /cvsroot/mozilla/gfx/thebes/public/gfxASurface.h,v
+retrieving revision 1.18
+diff -u -B -u -8 -p -r1.18 gfxASurface.h
+--- gfx/thebes/public/gfxASurface.h	9 Aug 2006 20:25:07 -0000	1.18
++++ gfx/thebes/public/gfxASurface.h	17 Dec 2006 02:37:47 -0000
+@@ -33,17 +33,17 @@
+  * the provisions above, a recipient may use your version of this file under
+  * the terms of any one of the MPL, the GPL or the LGPL.
+  *
+  * ***** END LICENSE BLOCK ***** */
+ 
+ #ifndef GFX_ASURFACE_H
+ #define GFX_ASURFACE_H
+ 
+-#include <cairo.h>
++#include "cairo.h"
+ 
+ #include "gfxTypes.h"
+ #include "gfxRect.h"
+ #include "nsStringFwd.h"
+ 
+ /**
+  * A surface is something you can draw on. Instantiate a subclass of this
+  * abstract class, and use gfxContext to draw on this surface.
+Index: gfx/thebes/public/gfxContext.h
+===================================================================
+RCS file: /cvsroot/mozilla/gfx/thebes/public/gfxContext.h,v
+retrieving revision 1.38
+diff -u -B -u -8 -p -r1.38 gfxContext.h
+--- gfx/thebes/public/gfxContext.h	1 Dec 2006 05:24:49 -0000	1.38
++++ gfx/thebes/public/gfxContext.h	17 Dec 2006 02:37:47 -0000
+@@ -34,17 +34,17 @@
+  * the provisions above, a recipient may use your version of this file under
+  * the terms of any one of the MPL, the GPL or the LGPL.
+  *
+  * ***** END LICENSE BLOCK ***** */
+ 
+ #ifndef GFX_CONTEXT_H
+ #define GFX_CONTEXT_H
+ 
+-#include <cairo.h>
++#include "cairo.h"
+ 
+ #include "gfxASurface.h"
+ #include "gfxColor.h"
+ #include "gfxPoint.h"
+ #include "gfxRect.h"
+ #include "gfxTypes.h"
+ #include "gfxMatrix.h"
+ #include "gfxPattern.h"
+Index: gfx/thebes/public/gfxMatrix.h
+===================================================================
+RCS file: /cvsroot/mozilla/gfx/thebes/public/gfxMatrix.h,v
+retrieving revision 1.17
+diff -u -B -u -8 -p -r1.17 gfxMatrix.h
+--- gfx/thebes/public/gfxMatrix.h	26 Oct 2006 15:24:15 -0000	1.17
++++ gfx/thebes/public/gfxMatrix.h	17 Dec 2006 02:37:48 -0000
+@@ -33,17 +33,17 @@
+  * the provisions above, a recipient may use your version of this file under
+  * the terms of any one of the MPL, the GPL or the LGPL.
+  *
+  * ***** END LICENSE BLOCK ***** */
+ 
+ #ifndef GFX_MATRIX_H
+ #define GFX_MATRIX_H
+ 
+-#include <cairo.h>
++#include "cairo.h"
+ 
+ #include "gfxPoint.h"
+ #include "gfxTypes.h"
+ #include "gfxRect.h"
+ 
+ // XX - I don't think this class should use gfxFloat at all,
+ // but should use 'double' and be called gfxDoubleMatrix;
+ // we can then typedef that to gfxMatrix where we typedef
+Index: gfx/thebes/public/gfxPattern.h
+===================================================================
+RCS file: /cvsroot/mozilla/gfx/thebes/public/gfxPattern.h,v
+retrieving revision 1.11
+diff -u -B -u -8 -p -r1.11 gfxPattern.h
+--- gfx/thebes/public/gfxPattern.h	26 Sep 2006 22:21:56 -0000	1.11
++++ gfx/thebes/public/gfxPattern.h	17 Dec 2006 02:37:48 -0000
+@@ -33,17 +33,17 @@
+  * the provisions above, a recipient may use your version of this file under
+  * the terms of any one of the MPL, the GPL or the LGPL.
+  *
+  * ***** END LICENSE BLOCK ***** */
+ 
+ #ifndef GFX_PATTERN_H
+ #define GFX_PATTERN_H
+ 
+-#include <cairo.h>
++#include "cairo.h"
+ 
+ #include "gfxColor.h"
+ #include "gfxASurface.h"
+ #include "gfxMatrix.h"
+ #include "gfxTypes.h"
+ 
+ class gfxContext;
+ 
+Index: gfx/thebes/public/gfxXlibSurface.h
+===================================================================
+RCS file: /cvsroot/mozilla/gfx/thebes/public/gfxXlibSurface.h,v
+retrieving revision 1.9
+diff -u -B -u -8 -p -r1.9 gfxXlibSurface.h
+--- gfx/thebes/public/gfxXlibSurface.h	24 Jun 2006 01:45:26 -0000	1.9
++++ gfx/thebes/public/gfxXlibSurface.h	17 Dec 2006 02:37:48 -0000
+@@ -36,18 +36,18 @@
+  *
+  * ***** END LICENSE BLOCK ***** */
+ 
+ #ifndef GFX_XLIBSURFACE_H
+ #define GFX_XLIBSURFACE_H
+ 
+ #include "gfxASurface.h"
+ 
+-#include <cairo-xlib.h>
+-#include <cairo-xlib-xrender.h>
++#include "cairo-xlib.h"
++#include "cairo-xlib-xrender.h"
+ 
+ class THEBES_API gfxXlibSurface : public gfxASurface {
+ public:
+     // create a surface for the specified dpy/drawable/visual.
+     // Will use XGetGeometry to query the window/pixmap size.
+     gfxXlibSurface(Display *dpy, Drawable drawable, Visual *visual);
+ 
+     // create a surface for the specified dpy/drawable/visual,

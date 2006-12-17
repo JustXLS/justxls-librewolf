@@ -1,6 +1,6 @@
 # Copyright 1999-2004 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mozcoreconf.eclass,v 1.11 2006/11/24 02:15:13 tester Exp $
+# $Header: $
 #
 # mozcoreconf.eclass : core options for mozilla
 # inherit mozconfig-2 if you need USE flags
@@ -162,7 +162,6 @@ mozconfig_init() {
 	# mozconfig setup
 	#
 	####################################
-
 	mozconfig_annotate gentoo \
 		--disable-installer \
 		--disable-pedantic \
@@ -171,20 +170,13 @@ mozconfig_init() {
 		--with-system-png \
 		--with-system-zlib \
 		--disable-updater \
-		--enable-default-toolkit=gtk2 \
+		--enable-default-toolkit=cairo-gtk2 \
 		--enable-pango \
+		--enable-svg \
+		--enable-svg-renderer=cairo \
+		--disable-system-cairo \
 		--disable-strip \
 		--disable-strip-libs
-
-	if [[ ${PN} != xulrunner ]]; then
-		mozconfig_annotate gentoo \
-			--enable-svg \
-			--enable-svg-renderer=cairo \
-			--enable-system-cairo
-	else
-		mozconfig_annotate gentoo \
-			--disable-svg
-	fi
 
 	if [[ ${PN} != seamonkey ]]; then
 		mozconfig_annotate gentoo \

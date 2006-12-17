@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.8.0.4.ebuild,v 1.1 2006/07/27 23:58:32 genstef Exp $
 
-inherit flag-o-matic toolchain-funcs eutils makeedit multilib autotools mozconfig-2 java-pkg-opt-2 mozilla-launcher
+inherit flag-o-matic toolchain-funcs eutils makeedit multilib autotools mozconfig-3 java-pkg-opt-2 mozilla-launcher
 PVER="0.1"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
