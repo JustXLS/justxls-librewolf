@@ -6,9 +6,9 @@ WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-2 mozilla-launcher makeedit multilib fdo-mime mozextension autotools
 
-PATCH="${PN}-2.0-patches-0.5"
-#LANGS="ar bg ca cs da de el en-GB es-AR es-ES eu fi fr fy-NL ga-IE gu-IN hu it ja ko lt mk mn nb-NO nl nn-NO pl pt-BR pt-PT ru sk sl sv-SE tr zh-CN zh-TW"
-#NOSHORTLANGS="en-GB es-AR pt-BR zh-TW"
+PATCH="${PN}-2.0-patches-0.6"
+LANGS="ar bg ca cs da de el en-GB es-AR es-ES eu fi fr fy-NL ga-IE gu-IN he hu it ja ka ko ku lt mk mn nb-NO nl nn-NO pa-IN pl pt-BR pt-PT ru sk sl sv-SE tr zh-CN zh-TW"
+NOSHORTLANGS="en-GB es-AR pt-BR zh-TW"
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.org/projects/firefox/"
@@ -16,30 +16,29 @@ HOMEPAGE="http://www.mozilla.org/projects/firefox/"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~sparc ~x86"
 SLOT="0"
 LICENSE="MPL-1.1 NPL-1.1"
-IUSE="java mozdevelop mozbranding xforms restrict-javascript"
+IUSE="java mozdevelop mozbranding xforms restrict-javascript filepicker"
 
-MOZ_URI="ftp://ftp.mozilla.org/pub/mozilla.org/firefox/nightly"
-SRC_URI="${MOZ_URI}/${PV/_rc2/}-candidates/rc2/firefox-${PV/_rc2/}-source.tar.bz2
+MOZ_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${PV}"
+SRC_URI="${MOZ_URI}/source/firefox-${PV}-source.tar.bz2
 	http://dev.gentooexperimental.org/~anarchy/dist/${PATCH}.tar.bz2
 	mirror://gentoo/${PATCH}.tar.bz2"
-
 
 # These are in
 #
 #  http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${PV}/linux-i686/xpi/
 #
 # for i in $LANGS $SHORTLANGS; do wget $i.xpi -O ${P}-$i.xpi; done
-#for X in ${LANGS} ; do
-#	SRC_URI="${SRC_URI}
-#		linguas_${X/-/_}? ( http://gentooexperimental.org/~genstef/dist/${P}-xpi/${P}-${X}.xpi )"
-#	IUSE="${IUSE} linguas_${X/-/_}"
-#	# english is handled internally
-#	if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
-#		SRC_URI="${SRC_URI}
-#			linguas_${X%%-*}? ( http://gentooexperimental.org/~genstef/dist/${P}-xpi/${P}-${X}.xpi )"
-#		IUSE="${IUSE} linguas_${X%%-*}"
-#	fi
-#done
+for X in ${LANGS} ; do
+	SRC_URI="${SRC_URI}
+		linguas_${X/-/_}? ( http://gentooexperimental.org/~genstef/dist/${P}-xpi/${P}-${X}.xpi )"
+	IUSE="${IUSE} linguas_${X/-/_}"
+	# english is handled internally
+	if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
+		SRC_URI="${SRC_URI}
+			linguas_${X%%-*}? ( http://gentooexperimental.org/~genstef/dist/${P}-xpi/${P}-${X}.xpi )"
+		IUSE="${IUSE} linguas_${X%%-*}"
+	fi
+done
 
 RDEPEND="java? ( virtual/jre )
 	>=www-client/mozilla-launcher-1.39
@@ -54,28 +53,28 @@ PDEPEND="restrict-javascript? ( x11-plugins/noscript )"
 
 S="${WORKDIR}/mozilla"
 
-#linguas() {
-#	local LANG SLANG
-#	for LANG in ${LINGUAS}; do
-#		if has ${LANG} en en_US; then
-#			has en ${linguas} || linguas="${linguas:+"${linguas} "}en"
-#			continue
-#		elif has ${LANG} ${LANGS//-/_}; then
-#			has ${LANG//_/-} ${linguas} || linguas="${linguas:+"${linguas} "}${LANG//_/-}"
-#			continue
-#		elif [[ " ${LANGS} " == *" ${LANG}-"* ]]; then
-#			for X in ${LANGS}; do
-#				if [[ "${X}" == "${LANG}-"* ]] && \
-#					[[ " ${NOSHORTLANGS} " != *" ${X} "* ]]; then
-#					has ${X} ${linguas} || linguas="${linguas:+"${linguas} "}${X}"
-#					continue 2
-#				fi
-#			done
-#		fi
-#		ewarn "Sorry, but mozilla-firefox does not support the ${LANG} LINGUA"
-#	done
-#	einfo "Selected language packs (first will be default): $linguas"
-#}
+linguas() {
+	local LANG SLANG
+	for LANG in ${LINGUAS}; do
+		if has ${LANG} en en_US; then
+			has en ${linguas} || linguas="${linguas:+"${linguas} "}en"
+			continue
+		elif has ${LANG} ${LANGS//-/_}; then
+			has ${LANG//_/-} ${linguas} || linguas="${linguas:+"${linguas} "}${LANG//_/-}"
+			continue
+		elif [[ " ${LANGS} " == *" ${LANG}-"* ]]; then
+			for X in ${LANGS}; do
+				if [[ "${X}" == "${LANG}-"* ]] && \
+					[[ " ${NOSHORTLANGS} " != *" ${X} "* ]]; then
+					has ${X} ${linguas} || linguas="${linguas:+"${linguas} "}${X}"
+					continue 2
+				fi
+			done
+		fi
+		ewarn "Sorry, but mozilla-firefox does not support the ${LANG} LINGUA"
+	done
+	einfo "Selected language packs (first will be default): $linguas"
+}
 
 pkg_setup(){
 	if ! built_with_use x11-libs/cairo X; then
@@ -99,17 +98,19 @@ src_unpack() {
 
 	unpack ${A%bz2*}bz2
 
-#	linguas
-#	for X in ${linguas}; do
-#		[[ ${X} != "en" ]] && xpi_unpack "${P}-${X}.xpi"
-#	done
+	linguas
+	for X in ${linguas}; do
+		[[ ${X} != "en" ]] && xpi_unpack "${P}-${X}.xpi"
+	done
 
 	cd "${S}"
 
 	# Apply our patches
 	EPATCH_FORCE="yes" epatch "${WORKDIR}"/patch
 
-	epatch ${FILESDIR}/mozilla-filepicker.patch
+	if use filepicker; then
+		epatch ${FILESDIR}/mozilla-filepicker.patch
+	fi
 
 	# Fix a compilation issue using the 32-bit userland with 64-bit kernel on
 	# PowerPC, because with that configuration, it detects a ppc64 system.
@@ -211,19 +212,19 @@ src_install() {
 	dodir "${MOZILLA_FIVE_HOME}"
 	cp -RL "${S}"/dist/bin/* "${D}"/"${MOZILLA_FIVE_HOME}"/ || die "cp failed"
 
-#	linguas
-#	for X in ${linguas}; do
-#		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${P}-${X}"
-#	done
-#
-#	local LANG=${linguas%% *}
-#	if [[ -n ${LANG} && ${LANG} != "en" ]]; then
-#		einfo "Setting default locale to ${LANG}"
-#		dosed -e "s:general.useragent.locale\", \"en-US\":general.useragent.locale\", \"${LANG}\":" \
-#			"${MOZILLA_FIVE_HOME}"/defaults/pref/firefox.js \
-#			"${MOZILLA_FIVE_HOME}"/defaults/pref/firefox-l10n.js || \
-#			die "sed failed to change locale"
-#	fi
+	linguas
+	for X in ${linguas}; do
+		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${P}-${X}"
+	done
+
+	local LANG=${linguas%% *}
+	if [[ -n ${LANG} && ${LANG} != "en" ]]; then
+		einfo "Setting default locale to ${LANG}"
+		dosed -e "s:general.useragent.locale\", \"en-US\":general.useragent.locale\", \"${LANG}\":" \
+			"${MOZILLA_FIVE_HOME}"/defaults/pref/firefox.js \
+			"${MOZILLA_FIVE_HOME}"/defaults/pref/firefox-l10n.js || \
+			die "sed failed to change locale"
+	fi
 
 	# Create /usr/bin/firefox
 	install_mozilla_launcher_stub firefox "${MOZILLA_FIVE_HOME}"
