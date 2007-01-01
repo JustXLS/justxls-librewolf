@@ -246,16 +246,6 @@ src_install() {
 	doins "${S}"/dist/branding/mozicon16.xpm
 	doins "${S}"/dist/branding/mozicon50.xpm
 
-
-	# Install files necessary for applications to build against firefox
-	einfo "Installing includes and idl files..."
-	cp -LfR "${S}"/dist/include "${D}"/"${MOZILLA_FIVE_HOME}" || die "cp failed"
-	cp -LfR "${S}"/dist/idl "${D}"/"${MOZILLA_FIVE_HOME}" || die "cp failed"
-
-	# Dirty hack to get some applications using this header running
-	dosym "${MOZILLA_FIVE_HOME}"/include/necko/nsIURI.h \
-		"${MOZILLA_FIVE_HOME}"/include/nsIURI.h
-
 	# Install pkgconfig files
 	insinto /usr/"$(get_libdir)"/pkgconfig
 	doins "${S}"/build/unix/*.pc
