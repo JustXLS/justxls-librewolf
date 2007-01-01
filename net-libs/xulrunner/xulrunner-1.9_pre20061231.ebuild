@@ -86,6 +86,7 @@ src_compile() {
 	# regardless of java setting.
 	mozconfig_annotate '' --enable-oji --enable-mathml
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
+	mozconfig_annotate '' --with-user-appdir=.xulrunner
 
 	#disable java 
 	if ! use java ; then
@@ -151,14 +152,18 @@ src_install() {
 	declare MOZILLA_FIVE_HOME=/usr/$(get_libdir)/${PN}
 
 	# create all our directories
-	dodir "${MOZILLA_FIVE_HOME}" \
-		"${MOZILLA_FIVE_HOME}"/sdk/bin
+	dodir "${MOZILLA_FIVE_HOME}"
 
 	# Core installation of runtime and development tools
 	einfo "Installing xulrunner runtime components..."
-	einstall || die "failed to install"
+	cp -RL "${S}"/dist/bin/* "${D}"/"${MOZILLA_FIVE_HOME}"/  || die "cp failed"
 	einfo "Installing sdk files..."
-	cp -RL "${S}"/dist/{chrome-stage,host,idl,include,lib,sdk,xpi-stage} "${D}"/"${MOZILLA_FIVE_HOME}"/sdk/ || die "cp failed"
+	cp -RL "${S}"/dist/sdk "${D}"/"${MOZILLA_FIVE_HOME}"/  || die "cp failed"
+
+	# Install pkg-config files
+	einfo "Installing pkg-config files"
+	insinto /usr/$(get_libdir)/pkgconfig
+	doins build/unix/*.pc
 
 	if use java ; then
 	    java-pkg_dojar ${D}${MOZILLA_FIVE_HOME}/javaxpcom.jar
