@@ -41,6 +41,8 @@ src_unpack() {
 
 	EPATCH_FORCE="yes" epatch ${WORKDIR}/patch
 
+	epatch "${FILESDIR}"/gentoo-xulrunner-pkgconfig-sdk-path-fix.patch
+
 	# Fix a compilation issue using the 32-bit userland with 64-bit kernel on
 	# PowerPC, because with that configuration, it detects a ppc64 system.
 	# -- hansmi, 2005-11-13

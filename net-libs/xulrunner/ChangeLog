@@ -3,6 +3,11 @@
 # $Header: $
 
   01 Jan 2007; Jory A. Pratt <geekypenguin@gmail.com>
+  xulrunner-1.9_pre20061231.ebuild,
+  +files/gentoo-xulrunner-pkgconfig-sdk-path-fix.patch:
+  Thanks to Priit Laes for path fix in pkg-config files
+
+  01 Jan 2007; Jory A. Pratt <geekypenguin@gmail.com>
   +xulrunner-1.9_pre20061231.ebuild,
   +files/xulrunner-1.9_pre20061211-buildfix-1.patch:
   new snapshot, reintroduce the pkg-config files
