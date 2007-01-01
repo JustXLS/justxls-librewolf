@@ -43,7 +43,8 @@ RDEPEND="java? ( virtual/jre )
 	>=www-client/mozilla-launcher-1.39
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.11.1-r1
-	>=dev-libs/nspr-4.6.1"
+	>=dev-libs/nspr-4.6.1
+	>=net-libs/xulrunner-1.9_pre20061231"
 
 DEPEND="${RDEPEND}
 	java? ( >=dev-java/java-config-0.2.0 )"
