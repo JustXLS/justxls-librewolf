@@ -1,0 +1,27 @@
+Index: Makefile.in
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/library/Makefile.in,v
+retrieving revision 1.44
+diff -p -u -8 -r1.44 Makefile.in
+--- Makefile.in	4 Dec 2006 10:50:02 -0000	1.44
++++ Makefile.in	7 Dec 2006 08:49:06 -0000
+@@ -192,16 +192,20 @@ endif
+ ifdef MOZ_ENABLE_XINERAMA
+ EXTRA_DSO_LDOPTS += $(MOZ_XINERAMA_LIBS)
+ endif
+ 
+ ifneq (,$(filter gtk gtk2 qt xlib,$(MOZ_WIDGET_TOOLKIT)))
+ EXTRA_DSO_LDOPTS += $(XLDFLAGS) $(XLIBS) $(MOZ_GTK_LDFLAGS) $(MOZ_XFT_LIBS) $(MOZ_GTK2_LIBS) $(XT_LIBS)
+ endif
+ 
++ifdef MOZ_ENABLE_GNOME_COMPONENT
++EXTRA_DSO_LDOPTS += $(MOZ_GNOMEVFS_LIBS)
++endif
++
+ ifdef MOZ_ENABLE_XFT
+ EXTRA_DSO_LDOPTS += $(FT2_LIBS)
+ endif
+ 
+ ifdef MOZ_ENABLE_XPRINT
+ EXTRA_DSO_LDOPTS += $(MOZ_XPRINT_LDFLAGS)
+ endif
