@@ -3,7 +3,7 @@
 # $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.8.0.4.ebuild,v 1.1 2006/07/27 23:58:32 genstef Exp $
 
 inherit flag-o-matic toolchain-funcs eutils makeedit multilib autotools mozconfig-3 java-pkg-opt-2 mozilla-launcher
-PATCH="${PN}-1.9_pre20061211-patches-0.1"
+PATCH="${P}-patches-0.1"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
