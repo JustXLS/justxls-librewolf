@@ -6,7 +6,7 @@ WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 mozilla-launcher makeedit multilib fdo-mime mozextension autotools
 
-PATCH="${P}-patches-0.1"
+PATCH="${PN}-3.0_pre20061216-patches-0.1"
 #LANGS="ar bg ca cs da de el en-GB es-AR es-ES eu fi fr fy-NL ga-IE gu-IN hu it ja ko lt mk mn nb-NO nl nn-NO pl pt-BR pt-PT ru sk sl sv-SE tr zh-CN zh-TW"
 #NOSHORTLANGS="en-GB es-AR pt-BR zh-TW"
 
