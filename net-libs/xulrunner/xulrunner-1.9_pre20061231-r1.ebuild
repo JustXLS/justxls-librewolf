@@ -1,14 +1,14 @@
-# Copyright 1999-2006 Gentoo Foundation
+# Copyright 1999-2007 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.8.0.4.ebuild,v 1.1 2006/07/27 23:58:32 genstef Exp $
 
 inherit flag-o-matic toolchain-funcs eutils makeedit multilib autotools mozconfig-3 java-pkg-opt-2 mozilla-launcher
-PVER="0.1"
+PATCH="${P}-patches-0.1"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
 SRC_URI="http://dev.gentooexperimental.org/~anarchy/dist/${P}-source.tar.bz2
-	http://dev.gentooexperimental.org/~anarchy/dist/${P}-patches-${PVER}.tar.bz2"
+	http://dev.gentooexperimental.org/~anarchy/dist/${PATCH}.tar.bz2"
 
 LICENSE="MPL-1.1 NPL-1.1"
 SLOT="0"
@@ -34,14 +34,10 @@ export BUILD_OFFICIAL=1
 export MOZILLA_OFFICIAL=1
 
 src_unpack() {
-	unpack ${P}-source.tar.bz2  ${P}-patches-${PVER}.tar.bz2
+	unpack ${P}-source.tar.bz2  ${PATCH}.tar.bz2
 
 	# Apply our patches
 	cd ${S} || die "cd failed"
-
-	# exclude the xpcomglue-shared.patch from debian for now
-	# until we figured out if we need also the versioning patch
-	EPATCH_EXCLUDE="030_pango-cairo-1.patch.bz2"
 
 	EPATCH_FORCE="yes" epatch ${WORKDIR}/patch
 
@@ -56,7 +52,7 @@ src_unpack() {
 	fi
 
 	cd ${S}/toolkit/library
-	epatch ${FILESDIR}/xulrunner-1.9_pre20061211-buildfix.patch
+	epatch ${FILESDIR}/xulrunner-1.9_pre20061211-buildfix-1.patch
 	cd ${S}
 
 	WANT_AUTOCONF="2.1" \
@@ -90,6 +86,7 @@ src_compile() {
 	# regardless of java setting.
 	mozconfig_annotate '' --enable-oji --enable-mathml
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
+	mozconfig_annotate '' --with-user-appdir=.xulrunner
 
 	#disable java 
 	if ! use java ; then
@@ -155,14 +152,26 @@ src_install() {
 	declare MOZILLA_FIVE_HOME=/usr/$(get_libdir)/${PN}
 
 	# create all our directories
-	dodir "${MOZILLA_FIVE_HOME}" \
-		"${MOZILLA_FIVE_HOME}"/sdk/bin
+	dodir "${MOZILLA_FIVE_HOME}" "${MOZILLA_FIVE_HOME}"/bin
 
 	# Core installation of runtime and development tools
 	einfo "Installing xulrunner runtime components..."
-	cp -RL "${S}"/dist/bin/* "${D}"/"${MOZILLA_FIVE_HOME}"/ || die "cp failed"
+	cp -RL "${S}"/dist/bin/* "${D}"/"${MOZILLA_FIVE_HOME}"/  || die "cp failed"
+	
+	# dirty hack to keep the sdk intact
+	for i in $(cd "${D}"/"${MOZILLA_FIVE_HOME}" ; ls ) ; do
+		dosym ${MOZILLA_FIVE_HOME}/${i} ${MOZILLA_FIVE_HOME}/bin/${i}
+	done 
+	rm ${D}/"${MOZILLA_FIVE_HOME}"/bin/bin
+	cd ${S}
+
 	einfo "Installing sdk files..."
-	cp -RL "${S}"/dist/{chrome-stage,host,idl,include,lib,sdk,xpi-stage} "${D}"/"${MOZILLA_FIVE_HOME}"/sdk/ || die "cp failed"
+	cp -RL "${S}"/dist/{chrome-stage,host,idl,include,lib,sdk,xpi-stage} "${D}"/"${MOZILLA_FIVE_HOME}"/|| die "cp failed"
+
+	# Install pkg-config files
+	einfo "Installing pkg-config files"
+	insinto /usr/$(get_libdir)/pkgconfig
+	doins build/unix/*.pc
 
 	if use java ; then
 	    java-pkg_dojar ${D}${MOZILLA_FIVE_HOME}/javaxpcom.jar
@@ -176,12 +185,6 @@ src_install() {
 		"s|version|${PV}|
 			s|instpath|${MOZILLA_FIVE_HOME}|" \
 		${D}/etc/gre.d/${PV}.conf
-
-	# Create symlinks for sdk to function properly
-	for i in $(cd "${D}"/"${MOZILLA_FIVE_HOME}" ; ls ) ; do
-		dosym ${MOZILLA_FIVE_HOME}/${i} ${MOZILLA_FIVE_HOME}/sdk/bin/${i}
-	done 
-	rm ${D}/"${MOZILLA_FIVE_HOME}"/sdk/bin/sdk
 
 	# Create /usr/bin/xulrunner
 	install_mozilla_launcher_stub xulrunner "${MOZILLA_FIVE_HOME}"

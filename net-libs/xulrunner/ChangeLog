@@ -2,6 +2,13 @@
 # Copyright 1999-2007 Gentoo Foundation; Distributed under the GPL v2
 # $Header: $
 
+  02 Jan 2007; Jory A. Pratt <geekypenguin@gmail.com>
+  -xulrunner-1.9_pre20061211.ebuild, -xulrunner-1.9_pre20061231.ebuild,
+  +xulrunner-1.9_pre20061231-r1.ebuild,
+  -files/xulrunner-1.9_pre20061211-buildfix.patch,
+  -files/gentoo-xulrunner-pkgconfig-sdk-path-fix.patch:
+  modified sdk install heavily as we were missing a ton
+
   01 Jan 2007; Jory A. Pratt <geekypenguin@gmail.com>
   xulrunner-1.9_pre20061231.ebuild,
   +files/gentoo-xulrunner-pkgconfig-sdk-path-fix.patch:
