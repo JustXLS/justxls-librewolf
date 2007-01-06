@@ -16,7 +16,7 @@ HOMEPAGE="http://www.mozilla.org/projects/firefox/"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~sparc ~x86"
 SLOT="0"
 LICENSE="MPL-1.1 NPL-1.1"
-IUSE="java mozdevelop mozbranding xforms restrict-javascript"
+IUSE="java mozdevelop mozbranding xforms restrict-javascript filepicker"
 
 SRC_URI="http://dev.gentooexperimental.org/~anarchy/dist/firefox-${PV}-source.tar.bz2
 	http://dev.gentooexperimental.org/~anarchy/dist/${PATCH}.tar.bz2"
@@ -106,7 +106,9 @@ src_unpack() {
 	# Apply our patches
 	EPATCH_FORCE="yes" epatch "${WORKDIR}"/patch
 
-	epatch ${FILESDIR}/mozilla-filepicker.patch
+	if use filepicker; then
+		epatch ${FILESDIR}/mozilla-filepicker.patch
+	fi
 
 	epatch ${FILESDIR}/firefox-3.0-cairoheaderfixes.patch
 

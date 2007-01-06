@@ -2,6 +2,11 @@
 # Copyright 1999-2007 Gentoo Foundation; Distributed under the GPL v2
 # $Header: $
 
+  06 Jan 2007; Jory A. Pratt <geekypenguin@gmail.com>
+  -mozilla-firefox-3.0_pre20061216.ebuild,
+  mozilla-firefox-3.0_pre20070101.ebuild:
+  fixes filepicker useflag
+
   01 Jan 2007; Jory A. Pratt <geekypenguin@gmail.com>
   +mozilla-firefox-3.0_pre20070101.ebuild:
   new snapshot
