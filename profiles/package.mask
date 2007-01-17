@@ -1,4 +1,0 @@
-# Jory A. Pratt <geekypenguin@gmail.com> (21 Dec 2006)
-# Very expieremental firefox masking until we get closer to upstream
-# final release.
->=www-client/mozilla-firefox-3.0_pre20061216
