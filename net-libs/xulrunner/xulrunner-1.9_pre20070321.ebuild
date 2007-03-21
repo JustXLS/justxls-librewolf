@@ -7,7 +7,7 @@ inherit flag-o-matic toolchain-funcs eutils makeedit multilib autotools mozconfi
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
-SRC_URI="${P}-source.tar.bz2"
+SRC_URI="http://plaes.org/files/2007-Q1/${P}-source.tar.bz2"
 
 LICENSE="MPL-1.1 NPL-1.1"
 SLOT="0"
@@ -50,7 +50,6 @@ src_unpack() {
 			${S}/security/coreconf/arch.mk
 	fi
 
-#	cd ${S}/toolkit/library
 	epatch ${FILESDIR}/system-cairo-inttypes-check.patch
 	epatch ${FILESDIR}/system-cairo-no-internal-api-use.patch
 	cd ${S}
