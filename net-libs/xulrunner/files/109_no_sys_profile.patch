@@ -1,0 +1,21 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 01_no_sys_profile.dpatch by  <glandium@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Don't install system profile
+
+@DPATCH@
+
+=== xulrunner/app/Makefile.in
+==================================================================
+--- xulrunner/xulrunner/app/Makefile.in	(revision 61)
++++ xulrunner/xulrunner/app/Makefile.in	(local)
+@@ -49,8 +49,6 @@
+ 
+ MOZILLA_INTERNAL_API = 1
+ 
+-DIRS		= profile
+-
+ PREF_JS_EXPORTS = $(srcdir)/xulrunner.js
+ GARBAGE += $(addprefix $(DIST)/bin/defaults/pref/,xulrunner.js)
+ 

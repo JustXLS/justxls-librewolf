@@ -1,0 +1,26 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 01_killAll.dpatch by  <glandium@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Correctly install the killAll component. bz#333289.
+
+@DPATCH@
+
+=== xpfe/components/killAll/Makefile.in
+==================================================================
+--- xulrunner/xpfe/components/killAll/Makefile.in	(revision 69)
++++ xulrunner/xpfe/components/killAll/Makefile.in	(local)
+@@ -42,11 +42,10 @@
+ 
+ include $(DEPTH)/config/autoconf.mk
+ 
++EXTRA_COMPONENTS = nsKillAll.js
++
+ include $(topsrcdir)/config/rules.mk
+ 
+-libs::
+-	$(INSTALL) $(srcdir)/nsKillAll.js $(DIST)/bin/components
+-
+ clean::
+ 	rm -f $(DIST)/bin/components/nsKillAll.js
+ 

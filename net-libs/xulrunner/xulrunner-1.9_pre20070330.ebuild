@@ -50,6 +50,22 @@ src_unpack() {
 			${S}/security/coreconf/arch.mk
 	fi
 
+	epatch ${FILESDIR}/000_flex-configure-LANG.patch
+	epatch ${FILESDIR}/004_mozilla-hppa.patch
+	epatch ${FILESDIR}/007_mozilla-firefox-1.5-asneeded.patch
+	epatch ${FILESDIR}/008_xulrunner-gentoo-pkgconfig-1.patch
+	epatch ${FILESDIR}/008_xulrunner-gentoo-pkgconfig-2.patch
+#	epatch ${FILESDIR}/031_firefox-1.1-uriloader-1.patch
+	epatch ${FILESDIR}/063_mozilla-rpath-3.patch
+	epatch ${FILESDIR}/104_installer_path_1.patch
+	epatch ${FILESDIR}/105_enable_js_binary.patch
+	epatch ${FILESDIR}/106_fix_locale.patch
+	epatch ${FILESDIR}/109_no_sys_profile.patch
+	epatch ${FILESDIR}/110_add_sidebar.patch
+	epatch ${FILESDIR}/112_remove_useragent.patch
+	epatch ${FILESDIR}/114_xrender_bug.patch
+	epatch ${FILESDIR}/118_killall.patch
+
 	epatch ${FILESDIR}/system-cairo-inttypes-check.patch
 	epatch ${FILESDIR}/system-cairo-no-internal-api-use.patch
 	cd ${S}
@@ -152,31 +168,31 @@ src_install() {
 	declare MOZILLA_FIVE_HOME=/usr/$(get_libdir)/${PN}
 
 	# create all our directories
-#	dodir "${MOZILLA_FIVE_HOME}" "${MOZILLA_FIVE_HOME}"/bin
+	dodir "${MOZILLA_FIVE_HOME}" "${MOZILLA_FIVE_HOME}"/bin
 
 	# Core installation of runtime and development tools
-#	einfo "Installing xulrunner runtime components..."
-#	cp -RL "${S}"/dist/bin/* "${D}"/"${MOZILLA_FIVE_HOME}"/  || die "cp failed"
+	einfo "Installing xulrunner runtime components..."
+	cp -RL "${S}"/dist/bin/* "${D}"/"${MOZILLA_FIVE_HOME}"/  || die "cp failed"
 	
 	# dirty hack to keep the sdk intact
-#	for i in $(cd "${D}"/"${MOZILLA_FIVE_HOME}" ; ls ) ; do
-#		dosym ${MOZILLA_FIVE_HOME}/${i} ${MOZILLA_FIVE_HOME}/bin/${i}
-#	done 
-#	rm ${D}/"${MOZILLA_FIVE_HOME}"/bin/bin
-#	cd ${S}
+	for i in $(cd "${D}"/"${MOZILLA_FIVE_HOME}" ; ls ) ; do
+		dosym ${MOZILLA_FIVE_HOME}/${i} ${MOZILLA_FIVE_HOME}/bin/${i}
+	done 
+	rm ${D}/"${MOZILLA_FIVE_HOME}"/bin/bin
+	cd ${S}
 
-#	einfo "Installing sdk files..."
-#	cp -RL "${S}"/dist/{chrome-stage,host,idl,include,lib,sdk,xpi-stage} "${D}"/"${MOZILLA_FIVE_HOME}"/|| die "cp failed"
+	einfo "Installing sdk files..."
+	cp -RL "${S}"/dist/{chrome-stage,host,idl,include,lib,sdk,xpi-stage} "${D}"/"${MOZILLA_FIVE_HOME}"/|| die "cp failed"
 
 	# Install pkg-config files
-#	einfo "Installing pkg-config files"
-#	insinto /usr/$(get_libdir)/pkgconfig
-#	doins build/unix/*.pc
+	einfo "Installing pkg-config files"
+	insinto /usr/$(get_libdir)/pkgconfig
+	doins build/unix/*.pc
 
-#	if use java ; then
-#	    java-pkg_dojar ${D}${MOZILLA_FIVE_HOME}/javaxpcom.jar
-#	    rm -f ${D}${MOZILLA_FIVE_HOME}/javaxpcom.jar
-#	fi
+	if use java ; then
+	    java-pkg_dojar ${D}${MOZILLA_FIVE_HOME}/javaxpcom.jar
+	    rm -f ${D}${MOZILLA_FIVE_HOME}/javaxpcom.jar
+	fi
 
 	# xulrunner registration, the gentoo way
 	insinto /etc/gre.d
@@ -186,8 +202,9 @@ src_install() {
 			s|instpath|${MOZILLA_FIVE_HOME}|" \
 		${D}/etc/gre.d/${PV}.conf
 
-	# Create /usr/bin/xulrunner
-#	install_mozilla_launcher_stub xulrunner "${MOZILLA_FIVE_HOME}"
+#	emake DESTDIR="${D}" install || die "Install failed"
 
-	emake DESTDIR="${D}" install || die "Install failed"
+	# Create /usr/bin/xulrunner
+	install_mozilla_launcher_stub xulrunner "${MOZILLA_FIVE_HOME}"
+
 }
