@@ -7,7 +7,7 @@ inherit flag-o-matic toolchain-funcs eutils makeedit multilib autotools mozconfi
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
-SRC_URI="http://plaes.org/files/2007-Q1/${P}-source.tar.bz2"
+SRC_URI="http://plaes.org/files/2007-Q2/${P}-source.tar.bz2"
 
 LICENSE="MPL-1.1 NPL-1.1"
 SLOT="0"
@@ -16,7 +16,7 @@ KEYWORDS="-* ~amd64 ~x86"
 RDEPEND=">=sys-libs/zlib-1.1.4
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.10
-	>=dev-libs/nspr-4.6.1
+	>=dev-libs/nspr-4.6.6-r1
 	java? ( >=virtual/jre-1.4 )"
 
 DEPEND="java? ( >=virtual/jdk-1.4 )
@@ -67,7 +67,8 @@ src_unpack() {
 	epatch ${FILESDIR}/118_killall.patch
 
 	epatch ${FILESDIR}/system-cairo-inttypes-check.patch
-	epatch ${FILESDIR}/system-cairo-no-internal-api-use.patch
+# Fixed! :)
+#	epatch ${FILESDIR}/system-cairo-no-internal-api-use.patch
 	cd ${S}
 
 	WANT_AUTOCONF="2.1" \
