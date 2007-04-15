@@ -27,7 +27,7 @@ RDEPEND="|| ( ( x11-libs/libXrender
 	gnome? ( >=gnome-base/gnome-vfs-2.3.5
 		>=gnome-base/libgnomeui-2.2.0 )
 	!<x11-base/xorg-x11-6.7.0-r2
-	>=x11-libs/cairo-1.3.16"
+	>=x11-libs/cairo-1.4.2"
 
 DEPEND="${RDEPEND}
 	xinerama? ( || ( x11-proto/xineramaproto virtual/x11 ) )
