@@ -52,7 +52,7 @@ src_unpack() {
 
 	epatch ${FILESDIR}/000_flex-configure-LANG.patch
 	epatch ${FILESDIR}/004_mozilla-hppa.patch
-	epatch ${FILESDIR}/007_mozilla-firefox-1.5-asneeded.patch
+#	epatch ${FILESDIR}/007_mozilla-firefox-1.5-asneeded.patch
 	epatch ${FILESDIR}/008_xulrunner-gentoo-pkgconfig-1.patch
 	epatch ${FILESDIR}/008_xulrunner-gentoo-pkgconfig-2.patch
 #	epatch ${FILESDIR}/031_firefox-1.1-uriloader-1.patch
