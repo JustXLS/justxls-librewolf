@@ -23,7 +23,9 @@ src_unpack() {
 	epatch "${FILESDIR}"/${PN}-4.6.1-config-1.patch
 	epatch "${FILESDIR}"/${PN}-4.6.1-lang.patch
 	epatch "${FILESDIR}"/${PN}-4.6.1-prtime.patch
+	# Here come the compile time assertion moves :)
 	epatch "${FILESDIR}"/prerror.h.diff
+	epatch "${FILESDIR}"/nspr.patch
 }
 
 src_compile() {
