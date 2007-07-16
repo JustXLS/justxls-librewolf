@@ -7,7 +7,7 @@ inherit flag-o-matic toolchain-funcs eutils makeedit multilib autotools mozconfi
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
-SRC_URI="http://plaes.org/files/2007-Q2/${P}-source.tar.bz2"
+SRC_URI="http://plaes.org/files/2007-Q3/${P}-source.tar.bz2"
 
 LICENSE="MPL-1.1 NPL-1.1"
 SLOT="0"
@@ -16,7 +16,7 @@ KEYWORDS="-* ~amd64 ~x86"
 RDEPEND=">=sys-libs/zlib-1.1.4
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.10
-	>=dev-libs/nspr-4.6.6-r1
+	>=dev-libs/nspr-4.6.7-r1
 	java? ( >=virtual/jre-1.4 )"
 
 DEPEND="java? ( >=virtual/jdk-1.4 )
@@ -52,23 +52,19 @@ src_unpack() {
 
 	epatch ${FILESDIR}/000_flex-configure-LANG.patch
 	epatch ${FILESDIR}/004_mozilla-hppa.patch
-#	epatch ${FILESDIR}/007_mozilla-firefox-1.5-asneeded.patch
 	epatch ${FILESDIR}/008_xulrunner-gentoo-pkgconfig-1.patch
-	epatch ${FILESDIR}/008_xulrunner-gentoo-pkgconfig-2.patch
-#	epatch ${FILESDIR}/031_firefox-1.1-uriloader-1.patch
 	epatch ${FILESDIR}/063_mozilla-rpath-3.patch
 	epatch ${FILESDIR}/104_installer_path_1.patch
 	epatch ${FILESDIR}/105_enable_js_binary.patch
 	epatch ${FILESDIR}/106_fix_locale.patch
 	epatch ${FILESDIR}/109_no_sys_profile.patch
 	epatch ${FILESDIR}/110_add_sidebar.patch
-	epatch ${FILESDIR}/112_remove_useragent.patch
-	epatch ${FILESDIR}/114_xrender_bug.patch
+#	epatch ${FILESDIR}/112_remove_useragent.patch
+# FIXED???
+#	epatch ${FILESDIR}/114_xrender_bug.patch
 	epatch ${FILESDIR}/118_killall.patch
 
 	epatch ${FILESDIR}/system-cairo-inttypes-check.patch
-# Fixed! :)
-#	epatch ${FILESDIR}/system-cairo-no-internal-api-use.patch
 	cd ${S}
 
 	WANT_AUTOCONF="2.1" \

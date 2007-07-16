@@ -167,7 +167,6 @@ mozconfig_init() {
 		--disable-pedantic \
 		--enable-crypto \
 		--with-system-jpeg \
-		--with-system-png \
 		--with-system-zlib \
 		--disable-updater \
 		--enable-default-toolkit=cairo-gtk2 \
@@ -177,6 +176,8 @@ mozconfig_init() {
 		--enable-system-cairo \
 		--disable-strip \
 		--disable-strip-libs
+# 		System png is disabled until it gets APNG support
+#		--with-system-png 
 
 	if [[ ${PN} != seamonkey ]]; then
 		mozconfig_annotate gentoo \
