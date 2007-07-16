@@ -1,0 +1,17 @@
+--- mozilla/nsprpub/pr/include/prlog.h 2007-07-10 09:48:09.000000000 +0000
++++ mozilla/nsprpub/pr/include/prlog.h 2007-07-16 10:19:08.000000000 +0000
+@@ -251,6 +251,14 @@
+ 
+ #endif /* defined(DEBUG) || defined(FORCE_PR_ASSERT) */
+ 
++/*
++** Compile-time assert. "condition" must be a constant expression.
++** The macro can be used only in places where an "extern" declaration is
++** allowed.
++*/
++#define PR_STATIC_ASSERT(condition) \
++    extern void pr_static_assert(int arg[(condition) ? 1 : -1])
++
+ PR_END_EXTERN_C
+ 
+ #endif /* prlog_h___ */
