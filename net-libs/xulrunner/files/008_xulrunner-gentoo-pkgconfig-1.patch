@@ -59,7 +59,7 @@
 +	-e "s|%FULL_NSS_CFLAGS%|$(FULL_NSS_CFLAGS)|" \
 +	-e "s|%NSS_NAME%|$(NSS_NAME)|" \
 +	-e "s|%NSS_VERSION%|$(NSS_VERSION)|" \
-+	-e "s|\(^Libs: -L.*\)|\1 -Wl,-R\$$\{libdir}|" > $@
++	-e "s|\(^Libs: -L.*\)|\1 -Wl,-R\$$\{libdir} -L\$$\{libdir}/lib|" > $@
  
  libs:: $(MOZ_APP_NAME)-config
  	chmod 755 $<
