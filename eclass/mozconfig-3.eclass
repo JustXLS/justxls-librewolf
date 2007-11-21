@@ -4,7 +4,7 @@
 #
 # mozconfig.eclass: the new mozilla.eclass
 
-inherit multilib flag-o-matic mozcoreconf-1
+inherit multilib flag-o-matic mozcoreconf-3
 
 IUSE="debug gnome ipv6 xinerama"
 # xprint - disabled, see https://bugzilla.mozilla.org/show_bug.cgi?id=368844
