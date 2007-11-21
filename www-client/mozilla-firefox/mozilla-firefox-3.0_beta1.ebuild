@@ -1,14 +1,16 @@
 # Copyright 1999-2007 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Header: /var/cvsroot/gentoo-x86/www-client/mozilla-firefox/mozilla-firefox-2.0.0.9.ebuild,v 1.7 2007/11/12 16:57:25 drac Exp $
 
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-2 mozilla-launcher makeedit multilib fdo-mime mozextension autotools
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 mozilla-launcher makeedit multilib fdo-mime mozextension autotools
 
-PATCH="${P}-patches-0.1"
-LANGS="af ar be bg ca cs da de el en-GB es-AR es-ES eu fi fr fy-NL ga-IE gu-IN he hu it ja ka ko ku lt mk mn nb-NO nl nn-NO pa-IN pl pt-BR pt-PT ro ru sk sl sv-SE tr zh-CN zh-TW"
-NOSHORTLANGS="en-GB es-AR pt-BR zh-TW"
+BETAVER="3.0b1"
+
+#PATCH="${PN}-2.0.0.8-patches-0.2"
+#LANGS="af ar be bg ca cs da de el en-GB es-AR es-ES eu fi fr fy-NL ga-IE gu-IN he hu it ja ka ko ku lt mk mn nb-NO nl nn-NO pa-IN pl pt-BR pt-PT ro ru sk sl sv-SE tr zh-CN zh-TW"
+#NOSHORTLANGS="en-GB es-AR pt-BR zh-TW"
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.org/projects/firefox/"
@@ -18,26 +20,27 @@ SLOT="0"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
 IUSE="java mozdevelop bindist xforms restrict-javascript filepicker"
 
-MOZ_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${PV}"
-SRC_URI="${MOZ_URI}/source/firefox-${PV}-source.tar.bz2
-	mirror://gentoo/${PATCH}.tar.bz2"
+MOZ_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${BETAVER}"
+SRC_URI="${MOZ_URI}/source/firefox-${BETAVER}-source.tar.bz2"
+#	mirror://gentoo/${PATCH}.tar.bz2"
+
 
 # These are in
 #
 #  http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${PV}/linux-i686/xpi/
 #
 # for i in $LANGS $SHORTLANGS; do wget $i.xpi -O ${P}-$i.xpi; done
-for X in ${LANGS} ; do
-	SRC_URI="${SRC_URI}
-		linguas_${X/-/_}? ( http://dev.gentooexperimental.org/~armin76/dist/${P}-xpi/${P}-${X}.xpi )"
-	IUSE="${IUSE} linguas_${X/-/_}"
-	# english is handled internally
-	if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
-		SRC_URI="${SRC_URI}
-			linguas_${X%%-*}? ( http://dev.gentooexperimental.org/~armin76/dist/${P}-xpi/${P}-${X}.xpi )"
-		IUSE="${IUSE} linguas_${X%%-*}"
-	fi
-done
+#for X in ${LANGS} ; do
+#	SRC_URI="${SRC_URI}
+#		linguas_${X/-/_}? ( http://dev.gentooexperimental.org/~armin76/dist/${P}-xpi/${P}-${X}.xpi )"
+#	IUSE="${IUSE} linguas_${X/-/_}"
+#	# english is handled internally
+#	if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
+#		SRC_URI="${SRC_URI}
+#			linguas_${X%%-*}? ( http://dev.gentooexperimental.org/~armin76/dist/${P}-xpi/${P}-${X}.xpi )"
+#		IUSE="${IUSE} linguas_${X%%-*}"
+#	fi
+#done
 
 RDEPEND="java? ( virtual/jre )
 	>=www-client/mozilla-launcher-1.39
@@ -79,7 +82,6 @@ linguas() {
 		fi
 		ewarn "Sorry, but mozilla-firefox does not support the ${LANG} LINGUA"
 	done
-	elog "Selected language packs (first will be default): $linguas"
 }
 
 pkg_setup(){
@@ -92,32 +94,37 @@ pkg_setup(){
 	if ! use bindist; then
 		elog "You are enabling official branding. You may not redistribute this build"
 		elog "to any users on your network or the internet. Doing so puts yourself into"
-		elog "a legal problem with mozilla foundation"
+		elog "a legal problem with Mozilla Foundation"
+		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
+
 	fi
 
 	use moznopango && warn_mozilla_launcher_stub
 }
 
 src_unpack() {
-	unpack firefox-${PV}-source.tar.bz2  ${PATCH}.tar.bz2
+#	unpack firefox-${PV}-source.tar.bz2  ${PATCH}.tar.bz2
+	unpack ${A}
 
 	linguas
 	for X in ${linguas}; do
 		[[ ${X} != "en" ]] && xpi_unpack "${P}-${X}.xpi"
 	done
+	if [[ ${linguas} != "" ]]; then
+		einfo "Selected language packs (first will be default): ${linguas}"
+	fi
 
 	# Apply our patches
 	cd "${S}" || die "cd failed"
-	EPATCH_EXCLUDE="064_firefox-nsplugins-v2.patch"
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
-	epatch "${WORKDIR}"/patch
+#	epatch "${WORKDIR}"/patch
 
-	if use filepicker; then
-		epatch ${FILESDIR}/mozilla-filepicker.patch
-	fi
+#	if use filepicker; then
+#		epatch "${FILESDIR}"/mozilla-filepicker.patch
+#	fi
 
-	eautoreconf
+#	eautoreconf
 }
 
 src_compile() {
@@ -129,13 +136,13 @@ src_compile() {
 	mozconfig_annotate '' --enable-application=browser
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
-	mozconfig_annotate '' --with-system-nspr
-	mozconfig_annotate '' --with-system-nss
+#	mozconfig_annotate '' --with-system-nspr
+#	mozconfig_annotate '' --with-system-nss
 
 	if use xforms; then
 		mozconfig_annotate '' --enable-extensions=default,xforms,schema-validation,typeaheadfind
 	else
-		mozconfig_annotate '' --enable-extensions=default,typeaheadfind
+		mozconfig_annotate '' --enable-extensions=default
 	fi
 
 	if use ia64; then
@@ -173,24 +180,33 @@ src_compile() {
 	#
 	####################################
 
-	CPPFLAGS="${CPPFLAGS}" \
+	CPPFLAGS="${CPPFLAGS} -DARON_WAS_HERE" \
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
 	econf || die
+
+	# It would be great if we could pass these in via CPPFLAGS or CFLAGS prior
+	# to econf, but the quotes cause configure to fail.
+	sed -i -e \
+		's|-DARON_WAS_HERE|-DGENTOO_NSPLUGINS_DIR=\\\"/usr/'"$(get_libdir)"'/nsplugins\\\" -DGENTOO_NSBROWSER_PLUGINS_DIR=\\\"/usr/'"$(get_libdir)"'/nsbrowser/plugins\\\"|' \
+		"${S}"/config/autoconf.mk \
+		"${S}"/toolkit/content/buildconfig.html
 
 	# This removes extraneous CFLAGS from the Makefiles to reduce RAM
 	# requirements while compiling
 	edit_makefiles
 
-	emake -j1 || die
+	# Should the build use multiprocessing? Not enabled by default, as it tends to break
+	[ "${WANT_MP}" = "true" ] && jobs=${MAKEOPTS} || jobs="-j1"
+	emake ${jobs} || die
 }
 
 pkg_preinst() {
 	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 
-	elog "Removing old installs though some really ugly code.  It potentially"
-	elog "eliminates any problems during the install, however suggestions to"
-	elog "replace this are highly welcome.  Send comments and suggestions to"
-	elog "mozilla@gentoo.org."
+	einfo "Removing old installs with some really ugly code.  It potentially"
+	einfo "eliminates any problems during the install, however suggestions to"
+	einfo "replace this are highly welcome.  Send comments and suggestions to"
+	einfo "mozilla@gentoo.org."
 	rm -rf "${ROOT}"/"${MOZILLA_FIVE_HOME}"
 }
 
@@ -235,7 +251,7 @@ src_install() {
 	doins "${S}"/dist/branding/mozicon50.xpm
 
 	# Install files necessary for applications to build against firefox
-	elog "Installing includes and idl files..."
+	einfo "Installing includes and idl files..."
 	cp -LfR "${S}"/dist/include "${D}"/"${MOZILLA_FIVE_HOME}" || die "cp failed"
 	cp -LfR "${S}"/dist/idl "${D}"/"${MOZILLA_FIVE_HOME}" || die "cp failed"
 
@@ -265,10 +281,10 @@ pkg_postinst() {
 	fdo-mime_desktop_database_update
 
 	elog "Please remember to rebuild any packages that you have built"
-	elog "against firefox. Some packages might be broken by the upgrade; if this"
+	elog "against Firefox. Some packages might be broken by the upgrade; if this"
 	elog "is the case, please search at http://bugs.gentoo.org and open a new bug"
-	elog "if one does not exist. Before filing any bugs, please move or remove ~/.mozilla"
-	elog "and test with a clean profile directory."
+	elog "if one does not exist. Before filing any bugs, please move or remove"
+	elog " ~/.mozilla and test with a clean profile directory."
 }
 
 pkg_postrm() {
