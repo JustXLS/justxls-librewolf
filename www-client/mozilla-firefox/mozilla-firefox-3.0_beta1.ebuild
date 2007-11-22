@@ -164,6 +164,9 @@ src_compile() {
 	mozconfig_use_extension mozdevelop venkman
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 
+	# crashreporter needs curl - does not work with curl version 7.17.1
+	mozconfig_annotate '' --disable-crashreporter
+
 	# Finalize and report settings
 	mozconfig_final
 
