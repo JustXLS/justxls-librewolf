@@ -6,11 +6,12 @@ WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 mozilla-launcher makeedit multilib fdo-mime mozextension autotools
 
-BETAVER="3.0b1"
-
 #PATCH="${PN}-2.0.0.8-patches-0.2"
-#LANGS="af ar be bg ca cs da de el en-GB es-AR es-ES eu fi fr fy-NL ga-IE gu-IN he hu it ja ka ko ku lt mk mn nb-NO nl nn-NO pa-IN pl pt-BR pt-PT ro ru sk sl sv-SE tr zh-CN zh-TW"
-#NOSHORTLANGS="en-GB es-AR pt-BR zh-TW"
+LANGS="be cs de el es-ES fi fr fy-NL gu-IN ja ka ko lt nl pl ru sk sv-SE uk zh-CN"
+NOSHORTLANGS=""
+
+MY_PV=${PV/_beta/b}
+MY_P="${PN}-${MY_PV}"
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.org/projects/firefox/"
@@ -20,8 +21,8 @@ SLOT="0"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
 IUSE="java mozdevelop bindist xforms restrict-javascript filepicker"
 
-MOZ_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${BETAVER}"
-SRC_URI="${MOZ_URI}/source/firefox-${BETAVER}-source.tar.bz2"
+MOZ_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}"
+SRC_URI="${MOZ_URI}/source/firefox-${MY_PV}-source.tar.bz2"
 #	mirror://gentoo/${PATCH}.tar.bz2"
 
 
@@ -30,17 +31,17 @@ SRC_URI="${MOZ_URI}/source/firefox-${BETAVER}-source.tar.bz2"
 #  http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${PV}/linux-i686/xpi/
 #
 # for i in $LANGS $SHORTLANGS; do wget $i.xpi -O ${P}-$i.xpi; done
-#for X in ${LANGS} ; do
-#	SRC_URI="${SRC_URI}
-#		linguas_${X/-/_}? ( http://dev.gentooexperimental.org/~armin76/dist/${P}-xpi/${P}-${X}.xpi )"
-#	IUSE="${IUSE} linguas_${X/-/_}"
-#	# english is handled internally
-#	if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
-#		SRC_URI="${SRC_URI}
-#			linguas_${X%%-*}? ( http://dev.gentooexperimental.org/~armin76/dist/${P}-xpi/${P}-${X}.xpi )"
-#		IUSE="${IUSE} linguas_${X%%-*}"
-#	fi
-#done
+for X in ${LANGS} ; do
+	SRC_URI="${SRC_URI}
+		linguas_${X/-/_}? ( http://dev.gentooexperimental.org/~armin76/dist/${MY_P}-xpi/${MY_P}-${X}.xpi )"
+	IUSE="${IUSE} linguas_${X/-/_}"
+	# english is handled internally
+	if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
+		SRC_URI="${SRC_URI}
+			linguas_${X%%-*}? ( http://dev.gentooexperimental.org/~armin76/dist/${MY_P}-xpi/${MY_P}-${X}.xpi )"
+		IUSE="${IUSE} linguas_${X%%-*}"
+	fi
+done
 
 RDEPEND="java? ( virtual/jre )
 	>=www-client/mozilla-launcher-1.39
@@ -108,7 +109,7 @@ src_unpack() {
 
 	linguas
 	for X in ${linguas}; do
-		[[ ${X} != "en" ]] && xpi_unpack "${P}-${X}.xpi"
+		[[ ${X} != "en" ]] && xpi_unpack "${MY_P}-${X}.xpi"
 	done
 	if [[ ${linguas} != "" ]]; then
 		einfo "Selected language packs (first will be default): ${linguas}"
@@ -219,7 +220,7 @@ src_install() {
 
 	linguas
 	for X in ${linguas}; do
-		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${P}-${X}"
+		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${MY_P}-${X}"
 	done
 
 	local LANG=${linguas%% *}
