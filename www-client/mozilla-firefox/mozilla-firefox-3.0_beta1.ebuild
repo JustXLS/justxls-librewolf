@@ -16,7 +16,7 @@ MY_P="${PN}-${MY_PV}"
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.org/projects/firefox/"
 
-KEYWORDS="~amd64 ~sparc ~x86"
+KEYWORDS="~amd64 ~x86"
 SLOT="0"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
 IUSE="java mozdevelop bindist xforms restrict-javascript filepicker"
@@ -46,8 +46,8 @@ done
 RDEPEND="java? ( virtual/jre )
 	>=www-client/mozilla-launcher-1.39
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.11.5
-	>=dev-libs/nspr-4.6.5"
+	>=dev-libs/nss-3.12_alpha1
+	>=dev-libs/nspr-4.7.0_pre20071016"
 
 DEPEND="${RDEPEND}
 	java? ( >=dev-java/java-config-0.2.0 )"
@@ -121,6 +121,8 @@ src_unpack() {
 	EPATCH_FORCE="yes" \
 #	epatch "${WORKDIR}"/patch
 
+	epatch "${FILESDIR}"/888_fix_nss_fix_389872.patch
+
 #	if use filepicker; then
 #		epatch "${FILESDIR}"/mozilla-filepicker.patch
 #	fi
@@ -137,11 +139,11 @@ src_compile() {
 	mozconfig_annotate '' --enable-application=browser
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
-#	mozconfig_annotate '' --with-system-nspr
-#	mozconfig_annotate '' --with-system-nss
+	mozconfig_annotate '' --with-system-nspr
+	mozconfig_annotate '' --with-system-nss
 
 	if use xforms; then
-		mozconfig_annotate '' --enable-extensions=default,xforms,schema-validation,typeaheadfind
+		mozconfig_annotate '' --enable-extensions=default,xforms,schema-validation
 	else
 		mozconfig_annotate '' --enable-extensions=default
 	fi
@@ -163,9 +165,6 @@ src_compile() {
 	mozconfig_use_enable mozdevelop xpctools
 	mozconfig_use_extension mozdevelop venkman
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
-
-	# crashreporter needs curl - does not work with curl version 7.17.1
-	mozconfig_annotate '' --disable-crashreporter
 
 	# Finalize and report settings
 	mozconfig_final

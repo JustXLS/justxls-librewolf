@@ -9,18 +9,18 @@ inherit flag-o-matic toolchain-funcs eutils makeedit multilib autotools mozconfi
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
-SRC_URI="http://dev.gentooexperimental.org/~armin76/dist/${P}.tar.bz2"
+SRC_URI="mirror://gentoo/${P}.tar.bz2"
 #	mirror://gentoo/${PATCH}.tar.bz2"
 
 SLOT="0"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="alpha amd64 ~arm hppa ia64 ppc ppc64 sparc x86 ~x86-fbsd"
 IUSE=""
 
 RDEPEND=">=sys-libs/zlib-1.1.4
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.11.5
-	>=dev-libs/nspr-4.6.5-r1
+	>=dev-libs/nss-3.12_alpha1
+	>=dev-libs/nspr-4.7.0_pre20071016
 	java? ( >=virtual/jre-1.4 )"
 
 DEPEND="java? ( >=virtual/jdk-1.4 )
@@ -46,6 +46,8 @@ src_unpack() {
 	EPATCH_FORCE="yes" \
 #	epatch "${WORKDIR}"/patch
 
+	epatch "${FILESDIR}"/888_fix_nss_fix_389872.patch
+
 	eautoreconf || die "failed  running eautoreconf"
 }
 
@@ -67,8 +69,8 @@ src_compile() {
 	mozconfig_annotate '' --enable-canvas
 	#mozconfig_annotate '' --enable-js-binary
 	mozconfig_annotate '' --enable-embedding-tests
-#	mozconfig_annotate '' --with-system-nspr
-#	mozconfig_annotate '' --with-system-nss
+	mozconfig_annotate '' --with-system-nspr
+	mozconfig_annotate '' --with-system-nss
 	mozconfig_annotate '' --with-system-bz2
 	mozconfig_annotate '' --enable-jsd
 	mozconfig_annotate '' --enable-xpctools
