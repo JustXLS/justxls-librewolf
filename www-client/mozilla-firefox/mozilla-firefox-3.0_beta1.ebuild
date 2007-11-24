@@ -276,6 +276,10 @@ src_install() {
 pkg_postinst() {
 	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 
+	ewarn "This is a preliminary version of mozilla-firefox"
+	ewarn "so all the stuff against, won't work, please don't"
+	ewarn "file any bugs about this"
+
 	# This should be called in the postinst and postrm of all the
 	# mozilla, mozilla-bin, firefox, firefox-bin, thunderbird and
 	# thunderbird-bin ebuilds.
