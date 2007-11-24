@@ -104,8 +104,9 @@ pkg_setup(){
 }
 
 src_unpack() {
-#	unpack firefox-${PV}-source.tar.bz2  ${PATCH}.tar.bz2
-	unpack ${A}
+	unpack firefox-${MY_PV}-source.tar.bz2 
+# ${PATCH}.tar.bz2
+	
 
 	linguas
 	for X in ${linguas}; do
