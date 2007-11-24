@@ -14,7 +14,7 @@ SRC_URI="mirror://gentoo/${P}.tar.bz2"
 
 SLOT="0"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
-KEYWORDS="alpha amd64 ~arm hppa ia64 ppc ppc64 sparc x86 ~x86-fbsd"
+KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 RDEPEND=">=sys-libs/zlib-1.1.4
