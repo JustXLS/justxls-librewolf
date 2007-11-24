@@ -46,6 +46,7 @@ src_unpack() {
 	EPATCH_FORCE="yes" \
 #	epatch "${WORKDIR}"/patch
 
+	epatch "${FILESDIR}"/000_flex-configure-LANG.patch
 	epatch "${FILESDIR}"/888_fix_nss_fix_389872.patch
 
 	eautoreconf || die "failed  running eautoreconf"
