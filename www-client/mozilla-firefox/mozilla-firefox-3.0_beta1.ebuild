@@ -144,6 +144,9 @@ src_compile() {
 	mozconfig_annotate '' --with-system-nspr
 	mozconfig_annotate '' --with-system-nss
 
+	# Doesn't work
+	mozconfig_annotate '' --disable-crashreporter
+
 	if use xforms; then
 		mozconfig_annotate '' --enable-extensions=default,xforms,schema-validation
 	else
