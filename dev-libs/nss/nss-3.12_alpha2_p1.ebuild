@@ -12,7 +12,7 @@ SRC_URI="http://dev.gentooexperimental.org/~armin76/dist/${P}.tar.bz2"
 
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
 SLOT="0"
-KEYWORDS="~amd64 ~sparc ~x86"
+KEYWORDS="~amd64 ~ppc ~sparc ~x86"
 IUSE="utils"
 
 DEPEND=">=dev-libs/nspr-${NSPR_VER}"

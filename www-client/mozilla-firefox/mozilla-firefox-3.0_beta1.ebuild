@@ -16,7 +16,7 @@ MY_P="${PN}-${MY_PV}"
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.org/projects/firefox/"
 
-KEYWORDS="~amd64 ~sparc ~x86"
+KEYWORDS="~amd64 ~ppc ~sparc ~x86"
 SLOT="0"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
 IUSE="java mozdevelop bindist xforms restrict-javascript filepicker"
@@ -123,6 +123,7 @@ src_unpack() {
 #	epatch "${WORKDIR}"/patch
 
 	epatch "${FILESDIR}"/888_fix_nss_fix_389872.patch
+	epatch "${FILESDIR}"/033_firefox-2.0_ppc_powerpc.patch
 
 #	if use filepicker; then
 #		epatch "${FILESDIR}"/mozilla-filepicker.patch
