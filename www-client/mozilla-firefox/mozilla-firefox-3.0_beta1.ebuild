@@ -16,7 +16,7 @@ MY_P="${PN}-${MY_PV}"
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.org/projects/firefox/"
 
-KEYWORDS="~amd64 ~ppc ~sparc ~x86"
+KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~sparc ~x86"
 SLOT="0"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
 IUSE="java mozdevelop bindist xforms restrict-javascript filepicker"
@@ -47,7 +47,10 @@ RDEPEND="java? ( virtual/jre )
 	>=www-client/mozilla-launcher-1.39
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12_alpha1
-	>=dev-libs/nspr-4.7.0_pre20071016"
+	>=dev-libs/nspr-4.7.0_pre20071016
+	>=app-text/hunspell-1.1.9
+	>=media-libs/lcms-1.17"
+
 
 DEPEND="${RDEPEND}
 	java? ( >=dev-java/java-config-0.2.0 )"
@@ -107,7 +110,6 @@ src_unpack() {
 	unpack firefox-${MY_PV}-source.tar.bz2 
 # ${PATCH}.tar.bz2
 	
-
 	linguas
 	for X in ${linguas}; do
 		[[ ${X} != "en" ]] && xpi_unpack "${MY_P}-${X}.xpi"
@@ -122,14 +124,17 @@ src_unpack() {
 	EPATCH_FORCE="yes" \
 #	epatch "${WORKDIR}"/patch
 
+	epatch "${FILESDIR}"/ia64.patch
 	epatch "${FILESDIR}"/888_fix_nss_fix_389872.patch
 	epatch "${FILESDIR}"/033_firefox-2.0_ppc_powerpc.patch
+
+	epatch "${FILESDIR}"/100_system_myspell-v2.patch
 
 #	if use filepicker; then
 #		epatch "${FILESDIR}"/mozilla-filepicker.patch
 #	fi
 
-#	eautoreconf
+	eautoreconf
 }
 
 src_compile() {
@@ -144,6 +149,9 @@ src_compile() {
 	mozconfig_annotate '' --with-system-nspr
 	mozconfig_annotate '' --with-system-nss
 
+	mozconfig_annotate '' --enable-system-lcms
+	mozconfig_annotate '' --enable-system-hunspell
+
 	# Doesn't work
 	mozconfig_annotate '' --disable-crashreporter
 
@@ -153,9 +161,10 @@ src_compile() {
 		mozconfig_annotate '' --enable-extensions=default
 	fi
 
-	if use ia64; then
-		echo "ac_cv_visibility_pragma=no" >>  "${S}/.mozconfig"
-	fi
+        use ia64 && echo "ac_cv_visibility_pragma=no" >>  "${S}/.mozconfig"
+
+        # It doesn't compile on alpha without this LDFLAGS
+        use alpha && append-ldflags "-Wl,--no-relax"
 
 	if ! use bindist; then
 		mozconfig_annotate '' --enable-official-branding
