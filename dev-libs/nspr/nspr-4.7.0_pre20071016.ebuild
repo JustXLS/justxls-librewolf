@@ -26,7 +26,7 @@ src_unpack() {
 }
 
 src_compile() {
-	cd build
+	cd "${S}"/build
 
 	if use amd64 || use ppc64 || use ia64 || use s390; then
 		myconf="${myconf} --enable-64bit"
@@ -49,7 +49,7 @@ src_compile() {
 src_install () {
 	# Their build system is royally fucked, as usual
 	MINOR_VERSION=7
-	cd build
+	cd "${S}"/build
 	emake DESTDIR="${D}" install || die "emake install failed"
 	#insinto /usr
 	#doins -r dist/*
@@ -73,7 +73,7 @@ src_install () {
 	#fi
 	#and while at it move them to files with versions-ending
 	#and link them back :)
-	cd ${D}/usr/$(get_libdir)/nspr
+	cd "${D}"/usr/$(get_libdir)/nspr
 	for file in *.so; do
 		mv ${file} ${file}.${MINOR_VERSION}
 		ln -s ${file}.${MINOR_VERSION} ${file}
@@ -83,12 +83,12 @@ src_install () {
 	echo "LDPATH=/usr/$(get_libdir)/nspr" > ${D}/etc/env.d/08nspr
 
 	# install nspr-config
-	insinto	 /usr/bin
-	doins ${S}/build/config/nspr-config
-	chmod a+x ${D}/usr/bin/nspr-config
+	dobin "${S}"/build/config/nspr-config
 
 	# create pkg-config file
 	insinto /usr/$(get_libdir)/pkgconfig/
-	doins ${S}/build/config/nspr.pc
-}
+	doins "${S}"/build/config/nspr.pc
 
+	# Remove stupid files in /usr/bin
+	rm "${D}"/usr/bin/{prerr.properties,nspr.pc}
+}
