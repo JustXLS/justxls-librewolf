@@ -80,9 +80,6 @@ mozconfig_init() {
 		mozconfig_annotate "from CFLAGS" --enable-optimize=-O0
 	elif [[ ${ARCH} == hppa ]]; then
 		mozconfig_annotate "more than -O0 causes segfaults on hppa" --enable-optimize=-O0
-	elif [[ ${ARCH} == alpha || ${ARCH} == ia64 || ${ARCH} == ppc64 ]]; then
-		mozconfig_annotate "more than -O1 causes segfaults on 64-bit (bug 33767)" \
-			--enable-optimize=-O1
 	elif is-flag -O1; then
 		mozconfig_annotate "from CFLAGS" --enable-optimize=-O1
 	else
