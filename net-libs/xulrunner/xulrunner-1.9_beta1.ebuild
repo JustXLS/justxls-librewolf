@@ -9,7 +9,8 @@ inherit flag-o-matic toolchain-funcs eutils makeedit multilib autotools mozconfi
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
-SRC_URI="mirror://gentoo/${P}.tar.bz2"
+SRC_URI="http://dev.gentooexperimental.org/~armin76/dist/${P}.tar.bz2"
+#mirror://gentoo/${P}.tar.bz2"
 #	mirror://gentoo/${PATCH}.tar.bz2"
 
 SLOT="0"
