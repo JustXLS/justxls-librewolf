@@ -16,7 +16,7 @@ MY_P="${PN}-${MY_PV}"
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.org/projects/firefox/"
 
-KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~sparc ~x86"
+KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~sparc ~x86 ~x86-fbsd"
 SLOT="0"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
 IUSE="java mozdevelop bindist xforms restrict-javascript filepicker"
@@ -124,7 +124,10 @@ src_unpack() {
 	EPATCH_FORCE="yes" \
 #	epatch "${WORKDIR}"/patch
 
+	epatch "${FILESDIR}"/hppa.patch
 	epatch "${FILESDIR}"/ia64.patch
+	epatch "${FILESDIR}"/fbsd.patch
+	epatch "${FILESDIR}"/055_firefox-2.0_gfbsd-pthreads.patch
 	epatch "${FILESDIR}"/888_fix_nss_fix_389872.patch
 	epatch "${FILESDIR}"/033_firefox-2.0_ppc_powerpc.patch
 
