@@ -4,7 +4,7 @@
 
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-minefield makeedit multilib cvs fdo-mime autotools
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 mozilla-launcher makeedit multilib fdo-mime mozextension autotools
 
 #PATCH="${PN}-2.0.0.8-patches-0.2"
 LANGS="be cs de el es-ES fi fr fy-NL gu-IN ja ka ko lt nl pl ru sk sv-SE uk zh-CN"
@@ -24,7 +24,6 @@ IUSE="java mozdevelop bindist xforms restrict-javascript filepicker"
 MOZ_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}"
 SRC_URI="${MOZ_URI}/source/firefox-${MY_PV}-source.tar.bz2"
 #	mirror://gentoo/${PATCH}.tar.bz2"
-#SRC_URI="mirror://gentoo/${P}.tar.bz2
 
 
 # These are in
@@ -129,88 +128,60 @@ src_unpack() {
 	epatch "${FILESDIR}"/ia64.patch
 	epatch "${FILESDIR}"/fbsd.patch
 	epatch "${FILESDIR}"/055_firefox-2.0_gfbsd-pthreads.patch
-#	epatch "${FILESDIR}"/888_fix_nss_fix_389872.patch
+	epatch "${FILESDIR}"/888_fix_nss_fix_389872.patch
 	epatch "${FILESDIR}"/033_firefox-2.0_ppc_powerpc.patch
 
-#	epatch "${FILESDIR}"/100_system_myspell-v2.patch
-
-	#correct the cairo/glitz mess, if using system libs
-	epatch "${FILESDIR}"/666_mozilla-glitz-cairo.patch
-	#add the standard gentoo plugins dir
-	epatch "${FILESDIR}"/064_firefox-nsplugins-v3.patch
-	#make it use the system iconv
-	epatch "${FILESDIR}"/165_native_uconv.patch
-	#make it use system hunspell and correct the loading of dicts
 	epatch "${FILESDIR}"/100_system_myspell-v2.patch
-	#make it use system sqlite3
-	#epatch "${FILESDIR}"/101_system_sqlite3.patch
-	#make loading certs behave with system nss
-	epatch "${FILESDIR}"/068_firefox-nss-gentoo-fix.patch
-	#
-	epatch "${FILESDIR}"/667_typeahead-broken-v2.patch
-	#system headers should be wrapped thanks b33fc0d3 for the hint
-	#epatch "${FILESDIR}"/668_system-headers.patch
-	#some forgotten parts of some revised patch, breaking happily builds
-	epatch "${FILESDIR}"/669_forgotten_tales_387196.patch
-	#make minefield install its icon 
-#	epatch "${FILESDIR}"/998_install_icon.patch
-	#make minefield build against xulrunner
-	epatch "${FILESDIR}"/999_minefield_against_xulrunner-v2.patch
-	#fix the unfixable gnome loves firefox
-#	if ! use gnome; then
-#		epatch "${FILESDIR}"/777_minefield-no-icons.patch
+
+#	if use filepicker; then
+#		epatch "${FILESDIR}"/mozilla-filepicker.patch
 #	fi
 
-
-	####################################
-	#
-	# behavioral fixes
-	#
-	####################################
-
-	#rpath patch
-	epatch "${FILESDIR}"/063_firefox-rpath-3.patch
-	eautoreconf || die "failed  running eautoreconf"
+	eautoreconf
 }
 
 src_compile() {
 	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
-	MEXTENSIONS="default,typeaheadfind"
-
-	#if use xforms; then
-	#	MEXTENSIONS="${MEXTENSIONS},xforms"
-	#fi
-	####################################
-	#
-	# mozconfig, CFLAGS and CXXFLAGS setup
-	#
-	####################################
 
 	mozconfig_init
 	mozconfig_config
 
-	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
-	mozconfig_annotate '' --disable-mailnews
-	mozconfig_annotate 'broken' --disable-mochitest
-	mozconfig_annotate 'broken' --disable-crashreporter
-	mozconfig_annotate '' --enable-native-uconv
-	mozconfig_annotate '' --enable-system-hunspell
-	#mozconfig_annotate '' --enable-system-sqlite3
+	mozconfig_annotate '' --enable-application=browser
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate '' --with-system-nspr
 	mozconfig_annotate '' --with-system-nss
+
 	mozconfig_annotate '' --enable-system-lcms
+	mozconfig_annotate '' --enable-system-hunspell
+
+	# Doesn't work
+	mozconfig_annotate '' --disable-crashreporter
+
+	if use xforms; then
+		mozconfig_annotate '' --enable-extensions=default,xforms,schema-validation
+	else
+		mozconfig_annotate '' --enable-extensions=default
+	fi
+
+        use ia64 && echo "ac_cv_visibility_pragma=no" >>  "${S}/.mozconfig"
+
+        # It doesn't compile on alpha without this LDFLAGS
+        use alpha && append-ldflags "-Wl,--no-relax"
+
+	if ! use bindist; then
+		mozconfig_annotate '' --enable-official-branding
+	fi
+
+	# Bug 60668: Galeon doesn't build without oji enabled, so enable it
+	# regardless of java setting.
 	mozconfig_annotate '' --enable-oji --enable-mathml
-	mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks
 
 	# Other ff-specific settings
-	#mozconfig_use_enable mozdevelop jsd
-	#mozconfig_use_enable mozdevelop xpctools
+	mozconfig_use_enable mozdevelop jsd
+	mozconfig_use_enable mozdevelop xpctools
 	mozconfig_use_extension mozdevelop venkman
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
-	# Add xulrunner variable
-	mozconfig_annotate '' --with-libxul-sdk
 
 	# Finalize and report settings
 	mozconfig_final
@@ -221,7 +192,7 @@ src_compile() {
 	else
 		gcc-specs-ssp && append-flags -fno-stack-protector-all
 	fi
-	filter-flags -fstack-protector -fstack-protector-all
+		filter-flags -fstack-protector -fstack-protector-all
 
 	####################################
 	#
@@ -237,8 +208,8 @@ src_compile() {
 	# to econf, but the quotes cause configure to fail.
 	sed -i -e \
 		's|-DARON_WAS_HERE|-DGENTOO_NSPLUGINS_DIR=\\\"/usr/'"$(get_libdir)"'/nsplugins\\\" -DGENTOO_NSBROWSER_PLUGINS_DIR=\\\"/usr/'"$(get_libdir)"'/nsbrowser/plugins\\\"|' \
-		${S}/config/autoconf.mk \
-		${S}/toolkit/content/buildconfig.html
+		"${S}"/config/autoconf.mk \
+		"${S}"/toolkit/content/buildconfig.html
 
 	# This removes extraneous CFLAGS from the Makefiles to reduce RAM
 	# requirements while compiling
@@ -261,10 +232,6 @@ pkg_preinst() {
 
 src_install() {
 	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
-	PKG_CONFIG=`which pkg-config`
-	X_DATE=`date +%Y%m%d`
-	XULRUNNER_VERSION=`${PKG_CONFIG} --modversion xulrunner-xpcom`
-	XULRUNNER=`which xulrunner`
 
 	# Most of the installation happens here
 	dodir "${MOZILLA_FIVE_HOME}"
@@ -298,19 +265,28 @@ src_install() {
 			mozilla-firefox-2.0.desktop
 	fi
 
-	dodir ${MOZILLA_FIVE_HOME}/greprefs
-	cp ${FILESDIR}/gentoo-default-prefs.js ${D}${MOZILLA_FIVE_HOME}/greprefs/all-gentoo.js
-	dodir ${MOZILLA_FIVE_HOME}/defaults/pref
-	cp ${FILESDIR}/gentoo-default-prefs.js ${D}${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js
-	#set the application.ini
-	sed -i -e "s|BuildID=.*$|BuildID=${X_DATE}GentooMozillaFirefox|"	"${D}"/usr/$(get_libdir)/${PN}/application.ini
-	sed -i -e "s|MinVersion=.*$|MinVersion=${XULRUNNER_VERSION}|" "${D}"/usr/$(get_libdir)/${PN}/application.ini
-	sed -i -e "s|MaxVersion=.*$|MaxVersion=${XULRUNNER_VERSION}|" "${D}"/usr/$(get_libdir)/${PN}/application.ini
+	# Fix icons to look the same everywhere
+	insinto "${MOZILLA_FIVE_HOME}"/icons
+	doins "${S}"/dist/branding/mozicon16.xpm
+	doins "${S}"/dist/branding/mozicon50.xpm
 
-	echo "#!/bin/bash" > "${T}"/firefox
-	echo "${XULRUNNER} ${MOZILLA_FIVE_HOME}/application.ini \"\$@\"" >> "${T}"/firefox
-	dobin ${T}/firefox
+	# Install files necessary for applications to build against firefox
+	einfo "Installing includes and idl files..."
+	cp -LfR "${S}"/dist/include "${D}"/"${MOZILLA_FIVE_HOME}" || die "cp failed"
+	cp -LfR "${S}"/dist/idl "${D}"/"${MOZILLA_FIVE_HOME}" || die "cp failed"
 
+	# Dirty hack to get some applications using this header running
+	dosym "${MOZILLA_FIVE_HOME}"/include/necko/nsIURI.h \
+		"${MOZILLA_FIVE_HOME}"/include/nsIURI.h
+
+	# Install pkgconfig files
+	insinto /usr/"$(get_libdir)"/pkgconfig
+	doins "${S}"/build/unix/*.pc
+
+	insinto "${MOZILLA_FIVE_HOME}"/greprefs
+	newins "${FILESDIR}"/gentoo-default-prefs.js all-gentoo.js
+	insinto "${MOZILLA_FIVE_HOME}"/defaults/pref
+	newins "${FILESDIR}"/gentoo-default-prefs.js all-gentoo.js
 }
 
 pkg_postinst() {
