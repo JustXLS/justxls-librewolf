@@ -1,0 +1,172 @@
+--- config/rules.mk.orig	2007-07-31 21:53:29.000000000 +0200
++++ config/rules.mk	2007-07-31 21:54:10.000000000 +0200
+@@ -89,7 +89,7 @@
+ # Add $(DIST)/lib to VPATH so that -lfoo dependencies are followed
+ VPATH += $(DIST)/lib
+ ifdef LIBXUL_SDK
+-VPATH += $(LIBXUL_SDK)/lib
++VPATH += $(LIBXUL_SDK_LIBDIR)
+ endif
+ 
+ # EXPAND_LIBNAME - $(call EXPAND_LIBNAME,foo)
+--- config/autoconf.mk.in.orig	2007-07-31 21:54:22.000000000 +0200
++++ config/autoconf.mk.in	2007-07-31 21:55:59.000000000 +0200
+@@ -69,10 +69,14 @@
+ mrelibdir	= $(mredir)/lib
+ 
+ DIST		= $(DEPTH)/dist
+-LIBXUL_SDK      = @LIBXUL_SDK@
++LIBXUL_SDK      	= @LIBXUL_SDK@
++LIBXUL_SDK_LIBDIR	= @LIBXUL_SDK_LIBDIR@
++LIBXUL_SDK_INCLUDEDIR	= @LIBXUL_SDK_INCLUDEDIR@
++LIBXUL_SDK_IDLDIR	= @LIBXUL_SDK_IDLDIR@
++SKIP_COPY_XULRUNNER    = 1
+ 
+ ifdef LIBXUL_SDK
+-LIBXUL_DIST = $(LIBXUL_SDK)
++LIBXUL_DIST = $(LIBXUL_SDK_LIBDIR)
+ else
+ LIBXUL_DIST = $(DIST)
+ endif
+--- config/config.mk.orig	2007-07-31 21:56:09.000000000 +0200
++++ config/config.mk	2007-07-31 21:57:51.000000000 +0200
+@@ -148,7 +148,8 @@
+ FINAL_LINK_COMPS = $(DEPTH)/config/final-link-comps
+ FINAL_LINK_COMP_NAMES = $(DEPTH)/config/final-link-comp-names
+ 
+-MOZ_UNICHARUTIL_LIBS = $(LIBXUL_DIST)/lib/$(LIB_PREFIX)unicharutil_s.$(LIB_SUFFIX)
++MOZ_UNICHARUTIL_LIBS = -L$(LIBXUL_SDK_LIBDIR) -lunicharutil_s
++MOZ_REG_LIBS = -L$(LIBXUL_SDK_LIBDIR) -lmozreg_s
+ MOZ_WIDGET_SUPPORT_LIBS    = $(DIST)/lib/$(LIB_PREFIX)widgetsupport_s.$(LIB_SUFFIX)
+ 
+ # determine debug-related options
+@@ -509,8 +509,8 @@
+ XPIDL_COMPILE 	= $(CYGWIN_WRAPPER) $(LIBXUL_DIST)/host/bin/host_xpidl$(HOST_BIN_SUFFIX)
+ XPIDL_LINK	= $(CYGWIN_WRAPPER) $(LIBXUL_DIST)/host/bin/host_xpt_link$(HOST_BIN_SUFFIX)
+ else
+-XPIDL_COMPILE 	= $(CYGWIN_WRAPPER) $(LIBXUL_DIST)/bin/xpidl$(BIN_SUFFIX)
+-XPIDL_LINK	= $(CYGWIN_WRAPPER) $(LIBXUL_DIST)/bin/xpt_link$(BIN_SUFFIX)
++XPIDL_COMPILE 	= $(CYGWIN_WRAPPER) $(LIBXUL_DIST)/xpidl$(BIN_SUFFIX)
++XPIDL_LINK	= $(CYGWIN_WRAPPER) $(LIBXUL_DIST)/xpt_link$(BIN_SUFFIX)
+ endif
+ 
+ # Java macros
+@@ -520,13 +520,13 @@
+ 
+ REQ_INCLUDES	= $(foreach d,$(REQUIRES),-I$(DIST)/include/$d) -I$(DIST)/include 
+ ifdef LIBXUL_SDK
+-REQ_INCLUDES_SDK = $(foreach d,$(REQUIRES),-I$(LIBXUL_SDK)/include/$d) -I$(LIBXUL_SDK)/include
++REQ_INCLUDES_SDK = $(foreach d,$(REQUIRES),-I$(LIBXUL_SDK_INCLUDEDIR)/$d) -I$(LIBXUL_SDK_INCLUDEDIR)
+ endif
+ 
+ INCLUDES	= $(LOCAL_INCLUDES) $(REQ_INCLUDES) $(REQ_INCLUDES_SDK) -I$(PUBLIC) $(OS_INCLUDES)
+ 
+ ifndef MOZILLA_INTERNAL_API
+-INCLUDES	+= -I$(LIBXUL_DIST)/sdk/include
++INCLUDES	+= -I$(LIBXUL_SDK_INCLUDEDIR)
+ endif
+ 
+ CFLAGS		= $(OS_CFLAGS)
+@@ -620,7 +620,7 @@
+ ifneq (,$(filter-out WINCE,$(OS_ARCH)))
+ LIBS_DIR	= -L$(DIST)/bin -L$(DIST)/lib
+ ifdef LIBXUL_SDK
+-LIBS_DIR	+= -L$(LIBXUL_SDK)/bin -L$(LIBXUL_SDK)/lib
++LIBS_DIR	+= -L$(LIBXUL_SDK_LIBDIR) -L$(LIBXUL_SDK_LIBDIR)
+ endif
+ endif
+ endif
+@@ -636,7 +636,7 @@
+ 
+ XPIDL_FLAGS = -I$(srcdir) -I$(IDL_DIR)
+ ifdef LIBXUL_SDK
+-XPIDL_FLAGS += -I$(LIBXUL_SDK)/idl
++XPIDL_FLAGS += -I$(LIBXUL_SDK_IDLDIR)
+ endif
+ 
+ SDK_PUBLIC  = $(DIST)/sdk/include
+--- browser/components/places/src/Makefile.in.orig	2007-08-01 00:10:14.000000000 +0200
++++ browser/components/places/src/Makefile.in	2007-08-01 00:10:24.000000000 +0200
+@@ -62,6 +62,7 @@
+ 		  content \
+ 		  places \
+ 		  microsummaries \
++		  pref \
+ 		  $(NULL)
+ 
+ CPPSRCS = nsPlacesImportExportService.cpp
+--- browser/components/build/Makefile.in.orig	2007-08-01 02:09:48.000000000 +0200
++++ browser/components/build/Makefile.in	2007-08-01 02:11:34.000000000 +0200
+@@ -20,6 +20,7 @@
+ 	docshell \
+ 	xpcom \
+ 	string \
++	libreg \
+ 	pref \
+ 	rdf \
+ 	uriloader \
+@@ -77,9 +77,9 @@
+ endif
+ 
+ EXTRA_DSO_LDOPTS += \
+-	$(call EXPAND_LIBNAME_PATH,unicharutil_external_s,$(LIBXUL_DIST)/lib) \
+-	$(LIBXUL_DIST)/lib/$(LIB_PREFIX)mozreg_s.$(LIB_SUFFIX) \
+-	$(LIBXUL_DIST)/lib/$(LIB_PREFIX)xpcomglue_s.$(LIB_SUFFIX) \
++	$(MOZ_UNICHARUTIL_LIBS) \
++	$(MOZ_REG_LIBS) \
++	$(XPCOM_GLUE_LDOPTS) \
+ 	$(MOZ_COMPONENT_LIBS) \
+ 	$(NULL)
+ 
+--- configure.in.orig	2007-08-05 19:48:15.000000000 +0200
++++ configure.in	2007-08-05 19:58:28.000000000 +0200
+@@ -3799,20 +3799,27 @@
+ MOZ_ENABLE_LIBXUL=
+ 
+ MOZ_ARG_WITH_STRING(libxul-sdk,
+-[  --with-libxul-sdk=PFX   Use the libXUL SDK at <PFX>],
+-  LIBXUL_SDK_DIR=$withval)
+-
+-if test "$LIBXUL_SDK_DIR" = "yes"; then
+-    AC_MSG_ERROR([--with-libxul-sdk must specify a path])
+-elif test -n "$LIBXUL_SDK_DIR" -a "$LIBXUL_SDK_DIR" != "no"; then
+-    LIBXUL_SDK=`cd "$LIBXUL_SDK_DIR" && pwd`
+-
+-    if test ! -f "$LIBXUL_SDK/sdk/include/xpcom-config.h"; then
+-        AC_MSG_ERROR([$LIBXUL_SDK/sdk/include/xpcom-config.h doesn't exist])
+-    fi
++[  --with-libxul-sdk   Use the libXUL SDK],
++    LIBXUL_SDK=1)
+ 
++if test -n "$LIBXUL_SDK"; then
++    PKG_CHECK_MODULES(XXXX_XXXX, libxul)
++    LIBXUL_SDK_INCLUDEDIR=`$PKG_CONFIG --variable=includedir libxul`/unstable
++    LIBXUL_SDK_LIBDIR=`$PKG_CONFIG --variable=sdkdir libxul`
++    LIBXUL_SDK_IDLDIR=`$PKG_CONFIG --variable=idldir libxul`/unstable
++    MOZ_FIX_LINK_PATHS='-Wl,-rpath,$(LIBXUL_SDK_LIBDIR)'
++    MOZ_JS_LIBS='-L$(LIBXUL_SDK_LIBDIR) $(MOZ_FIX_LINK_PATHS) -lmozjs'
++    DYNAMIC_XPCOM_LIBS='-L$(LIBXUL_SDK_LIBDIR) $(MOZ_FIX_LINK_PATHS) -lxpcom -lxpcom_core'
++    XPCOM_FROZEN_LDOPTS='-L$(LIBXUL_SDK_LIBDIR) $(MOZ_FIX_LINK_PATHS) -lxpcom'
++    LIBXUL_LIBS='$(XPCOM_FROZEN_LDOPTS) -lxul'
++    XPCOM_GLUE_LDOPTS='-L$(LIBXUL_SDK_LIBDIR) -lxpcomglue_s $(XPCOM_FROZEN_LDOPTS)'
++    XPCOM_STANDALONE_GLUE_LDOPTS='-L$(LIBXUL_SDK_LIBDIR) -lxpcomglue'
++    
+     MOZ_ENABLE_LIBXUL=1
+ fi
++AC_SUBST(LIBXUL_SDK_INCLUDEDIR)
++AC_SUBST(LIBXUL_SDK_LIBDIR)
++AC_SUBST(LIBXUL_SDK_IDLDIR)
+ AC_SUBST(LIBXUL_SDK)
+ 
+ dnl ========================================================
+--- browser/app/Makefile.in.orig	2007-08-05 21:37:19.000000000 +0200
++++ browser/app/Makefile.in	2007-08-05 21:38:03.000000000 +0200
+@@ -408,7 +408,7 @@
+ else
+ ifdef LIBXUL_SDK
+ libs::
+-	cp $(LIBXUL_DIST)/bin/xulrunner-stub$(BIN_SUFFIX) $(DIST)/bin/firefox$(BIN_SUFFIX)
++	cp $(LIBXUL_DIST)/xulrunner-stub$(BIN_SUFFIX) $(DIST)/bin/minefield$(BIN_SUFFIX)
+ endif
+ endif
+ 

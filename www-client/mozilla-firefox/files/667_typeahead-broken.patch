@@ -1,0 +1,22 @@
+--- extensions/typeaheadfind/src/Makefile.in.orig	2007-06-19 22:55:23.000000000 +0200
++++ extensions/typeaheadfind/src/Makefile.in	2007-06-19 22:58:33.000000000 +0200
+@@ -46,8 +46,7 @@
+ ifneq ($(OS_ARCH),WINNT)
+ SHORT_LIBNAME = typahead
+ endif
+-GRE_MODULE	= 1
+-MOZILLA_INTERNAL_API = 1
++LIBXUL_LIBRARY = 1
+ 
+ PACKAGE_FILE = typeaheadfind.pkg
+ 
+@@ -84,9 +83,6 @@
+   nsTypeAheadFindRegistration.cpp \
+   $(NULL)
+ 
+-EXTRA_DSO_LIBS = \
+-    gkgfx \
+-    $(NULL)
+ 
+ EXTRA_DSO_LDOPTS += \
+ 		$(LIBS_DIR) \

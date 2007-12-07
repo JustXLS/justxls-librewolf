@@ -1,0 +1,40 @@
+--- config/config.mk.orig	2007-08-04 12:01:47.000000000 +0200
++++ config/config.mk	2007-08-04 12:07:16.000000000 +0200
+@@ -73,6 +73,7 @@
+  INSTALL_EXTENSION_ID \
+  $(NULL)
+ 
++NSDISTMODE=copy
+ # checks for internal spaces or trailing spaces in the variable
+ # named by $x
+ check-variable = $(if $(filter-out 0 1,$(words $($(x))z)),$(error Spaces are not allowed in $(x)))
+@@ -627,11 +628,11 @@
+ endif
+ 
+ # Default location of include files
+-IDL_DIR		= $(DIST)/idl
++IDL_DIR		= $(DIST)/idl/unstable
+ ifdef MODULE
+-PUBLIC		= $(DIST)/include/$(MODULE)
++PUBLIC		= $(DIST)/include/unstable
+ else
+-PUBLIC		= $(DIST)/include
++PUBLIC		= $(DIST)/include/unstable
+ endif
+ 
+ XPIDL_FLAGS = -I$(srcdir) -I$(IDL_DIR)
+@@ -639,10 +640,10 @@
+ XPIDL_FLAGS += -I$(LIBXUL_SDK)/idl
+ endif
+ 
+-SDK_PUBLIC  = $(DIST)/sdk/include
+-SDK_IDL_DIR = $(DIST)/sdk/idl
+-SDK_LIB_DIR = $(DIST)/sdk/lib
+-SDK_BIN_DIR = $(DIST)/sdk/bin
++SDK_PUBLIC  = $(DIST)/include/stable
++SDK_IDL_DIR = $(DIST)/idl/stable
++SDK_LIB_DIR = $(DIST)/bin
++SDK_BIN_DIR = $(DIST)/bin
+ 
+ DEPENDENCIES	= .md
+ 

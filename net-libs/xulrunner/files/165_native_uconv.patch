@@ -1,0 +1,683 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 165_native_uconv.dpatch by Mike Hommey <glandium@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: - Fix for the build to succeed when iconv support is enabled.
+## DP: (Makefile.in  ; borrowed from upstream fix in version 1.7 of the file)
+## DP: - Don't build what is useless when native uconv is enabled. bz#331780.
+## DP: - Properly load invalid UTF-8 files. bz#331748 
+## DP: - Add the scriptableunicodeconverter component. bz#333261
+## DP: - Correct aliases for gbk and euc-tw.
+## DP: - Allow claimed iso-8859-1 actually encoded as windows-1252 to be converted
+## DP:   flawlessly
+
+@DPATCH@
+
+--- xulrunner/intl/uconv/native/nsINativeUConvService.idl	(revision 158)
++++ xulrunner/intl/uconv/native/nsINativeUConvService.idl	(local)
+@@ -45,8 +45,9 @@
+  *  nsIUnicodeEncoder 
+  *  nsICharRepresentable
+  */
+-[uuid(c60097ba-c79d-461b-9116-80a66404c0b0)]
++[uuid(99e23ae8-c334-44de-a208-a7aa6923f8f5)]
+ interface nsINativeUConvService : nsISupports
+ {
+-  nsISupports getNativeConverter(in string from, in string to);
++  nsISupports getNativeUnicodeDecoder(in string from);
++  nsISupports getNativeUnicodeEncoder(in string to);
+ };
+--- xulrunner/intl/uconv/src/charsetalias.properties	(revision 158)
++++ xulrunner/intl/uconv/src/charsetalias.properties	(local)
+@@ -120,13 +120,13 @@
+ t.61-8bit=T.61-8bit
+ hz-gb-2312=HZ-GB-2312
+ big5-hkscs=Big5-HKSCS
+-gbk=x-gbk
+-cns11643=x-euc-tw
++gbk=gbk
++cns11643=euc-tw
+ #
+ # Netscape private ...
+ #
+ x-imap4-modified-utf7=x-imap4-modified-utf7
+-x-euc-tw=x-euc-tw
++x-euc-tw=euc-tw
+ x-mac-roman=x-mac-roman
+ x-mac-ce=x-mac-ce
+ x-mac-turkish=x-mac-turkish
+@@ -475,7 +475,7 @@
+ #
+ # Aliases for x-euc-tw
+ #
+-zh_tw-euc=x-euc-tw
++zh_tw-euc=euc-tw
+ #
+ # Following names appears in unix nl_langinfo(CODESET)
+ # They can be compiled as platform specific if necessary
+@@ -513,6 +513,6 @@
+ x-obsoleted-shift_jis=x-obsoleted-Shift_JIS
+ x-obsoleted-iso-2022-jp=x-obsoleted-ISO-2022-JP
+ x-obsoleted-euc-jp=x-obsoleted-EUC-JP
+-x-gbk=x-gbk
++x-gbk=gbk
+ windows-936=windows-936
+ ansi-1251=windows-1251
+--- xulrunner/intl/uconv/src/nsCharsetConverterManager.cpp	(revision 158)
++++ xulrunner/intl/uconv/src/nsCharsetConverterManager.cpp	(local)
+@@ -191,9 +191,8 @@
+ #ifdef MOZ_USE_NATIVE_UCONV
+   if (mNativeUC) {
+     nsCOMPtr<nsISupports> supports;
+-    mNativeUC->GetNativeConverter("UCS-2", 
+-                                  aDest,
+-                                  getter_AddRefs(supports));
++    mNativeUC->GetNativeUnicodeEncoder(aDest,
++                                       getter_AddRefs(supports));
+ 
+     encoder = do_QueryInterface(supports);
+ 
+@@ -202,7 +201,8 @@
+       return NS_OK;
+     }
+   }
+-#endif  
++  return NS_ERROR_UCONV_NOCONV;
++#else
+   nsresult rv = NS_OK;
+ 
+   nsCAutoString
+@@ -220,6 +220,7 @@
+     NS_ADDREF(*aResult);
+   }
+   return rv;
++#endif
+ }
+ 
+ NS_IMETHODIMP
+@@ -246,9 +247,8 @@
+ #ifdef MOZ_USE_NATIVE_UCONV
+   if (mNativeUC) {
+     nsCOMPtr<nsISupports> supports;
+-    mNativeUC->GetNativeConverter(aSrc,
+-                                  "UCS-2", 
+-                                  getter_AddRefs(supports));
++    mNativeUC->GetNativeUnicodeDecoder(aSrc,
++                                       getter_AddRefs(supports));
+     
+     decoder = do_QueryInterface(supports);
+ 
+@@ -257,7 +257,8 @@
+       return NS_OK;
+     }
+   }
+-#endif
++  return NS_ERROR_UCONV_NOCONV;
++#else
+   nsresult rv = NS_OK;
+ 
+   NS_NAMED_LITERAL_CSTRING(kUnicodeDecoderContractIDBase,
+@@ -285,6 +286,7 @@
+     NS_ADDREF(*aResult);
+   }
+   return rv;
++#endif
+ }
+ 
+ nsresult 
+--- xulrunner/intl/uconv/native/nsNativeUConvService.cpp.orig	2007-05-16 05:43:57.000000000 +0200
++++ xulrunner/intl/uconv/native/nsNativeUConvService.cpp	2007-05-16 06:14:57.000000000 +0200
+@@ -53,7 +53,15 @@
+ #include <langinfo.h> // nl_langinfo
+ #include <iconv.h>    // iconv_open, iconv, iconv_close
+ #include <errno.h>
+-
++#include <string.h>   // memcpy
++ 
++#ifdef IS_LITTLE_ENDIAN
++const char UTF16[] = "UTF-16LE";
++#else
++const char UTF16[] = "UTF-16BE";
++#endif
++ 
++#define NS_UCONV_CONTINUATION_BUFFER_LENGTH 8
+ 
+ class IConvAdaptor : public nsIUnicodeDecoder, 
+                      public nsIUnicodeEncoder, 
+@@ -103,21 +111,13 @@
+     
+     
+ private:
+-    nsresult ConvertInternal(void * aSrc, 
+-                             PRInt32 * aSrcLength, 
+-                             PRInt32 aSrcCharSize,
+-                             void * aDest, 
+-                             PRInt32 * aDestLength,
+-                             PRInt32 aDestCharSize);
+-    
+-    
+     iconv_t mConverter;
+     PRBool    mReplaceOnError;
+     PRUnichar mReplaceChar;
++    char mContinuationBuffer[NS_UCONV_CONTINUATION_BUFFER_LENGTH];
++    PRInt32 mContinuationLength;
+ 
+-#ifdef DEBUG
+-    nsCString mFrom, mTo;
+-#endif
++    const char *mFrom, *mTo;
+ };
+ 
+ NS_IMPL_ISUPPORTS3(IConvAdaptor, 
+@@ -129,6 +129,7 @@
+ {
+     mConverter = 0;
+     mReplaceOnError = PR_FALSE;
++    mContinuationLength = 0;
+ }
+ 
+ IConvAdaptor::~IConvAdaptor()
+@@ -140,10 +141,8 @@
+ nsresult 
+ IConvAdaptor::Init(const char* from, const char* to)
+ {
+-#ifdef DEBUG
+     mFrom = from;
+     mTo = to;
+-#endif
+ 
+     mConverter = iconv_open(to, from);
+     if (mConverter == (iconv_t) -1 )    
+@@ -154,22 +153,130 @@
+         mConverter = nsnull;
+         return NS_ERROR_FAILURE;
+     }
++    mContinuationLength = 0;
++
+     return NS_OK;
+ }
+ 
+-// From some charset to ucs2
++// From some charset to UTF-16
+ nsresult 
+ IConvAdaptor::Convert(const char * aSrc, 
+                      PRInt32 * aSrcLength, 
+                      PRUnichar * aDest, 
+                      PRInt32 * aDestLength)
+ {
+-    return ConvertInternal( (void*) aSrc, 
+-                            aSrcLength, 
+-                            1,
+-                            (void*) aDest, 
+-                            aDestLength,
+-                            2);
++
++    nsresult res = NS_OK;
++    size_t inLeft, outLeft;
++
++    if (!mConverter) {
++        NS_WARNING("Converter Not Initialized");
++        return NS_ERROR_NOT_INITIALIZED;
++    }
++
++    if (mTo != UTF16) {
++        NS_WARNING("Not an UnicodeDecoder");
++        return NS_ERROR_UNEXPECTED;
++    }
++
++    inLeft = (size_t) *aSrcLength;
++    outLeft = (size_t) *aDestLength * sizeof(PRUnichar);
++
++    if (mContinuationLength > 0) {
++        PRInt32 bufLength = NS_UCONV_CONTINUATION_BUFFER_LENGTH - mContinuationLength,
++                oneChar = 2, continuationLength = mContinuationLength;
++
++#ifdef DEBUG
++        printf(" * IConvAdaptor - Have %d bytes in continuation buffer\n", mContinuationLength);
++#endif
++
++        bufLength = bufLength > *aSrcLength ? *aSrcLength : bufLength;
++        memcpy(&mContinuationBuffer[mContinuationLength],
++               aSrc, bufLength);
++        bufLength = mContinuationLength + bufLength;
++        
++        mContinuationLength = 0; // We don't want to enter an infinite loop
++
++        res = Convert(mContinuationBuffer, &bufLength, aDest, &oneChar);
++        switch (res) {
++        case NS_OK_UDEC_MOREINPUT: // Contination buffer ended before filling the 2
++                                   // output words, with an incomplete sequence, filling
++                                   // a new continuation buffer.
++            if (bufLength < continuationLength) { // still not enough data
++              *aSrcLength = 0;
++              *aDestLength = 0;
++              return NS_OK_UDEC_MOREINPUT;
++            }
++            mContinuationLength = 0;
++        case NS_OK: // Continuation buffer ended, unlikely (8 input bytes leading
++                    // exactly to 2 output words is quite unlikely)
++        case NS_OK_UDEC_MOREOUTPUT: // Standard case, we continue with the
++                                    // normal conversion
++            inLeft = (size_t) *aSrcLength - (bufLength - continuationLength);
++            outLeft -= oneChar * sizeof(PRUnichar);
++            aSrc += bufLength - continuationLength;
++            aDest += oneChar;
++            break;
++        case NS_ERROR_UDEC_ILLEGALINPUT:
++            *aSrcLength = 0; // Corner case: replacement won't be done as
++                             // if it were in the middle of the buffer, since
++                             // we can't tell the caller the bad character is
++                             // at -mContinuationLength
++            *aDestLength = 0;
++            return res;
++        }
++    }
++
++    do {
++        if ( iconv(mConverter,
++                   (char **)&aSrc,
++                   &inLeft,
++                   (char **)&aDest,
++                   &outLeft) == (size_t) -1 ) {
++            switch (errno) {
++            case EILSEQ: // Invalid multibyte sequence
++                if (mReplaceOnError) {
++                    *(aDest++) = mReplaceChar;
++                    outLeft -= sizeof(PRUnichar);
++                    aSrc++;
++                    inLeft--;
++                    res = NS_OK;
++#ifdef DEBUG
++                    printf(" * IConvAdaptor - Replacing char in output ( %s -> %s )\n",
++                           mFrom, mTo);
++#endif
++                } else {
++#ifdef DEBUG
++                    printf(" * IConvAdaptor - Bad input ( %s -> %s )\n",
++                           mFrom, mTo);
++#endif
++                    res = NS_ERROR_UDEC_ILLEGALINPUT;
++                }
++                break;
++            case EINVAL: // Incomplete multibyte sequence
++                mContinuationLength = inLeft;
++                memmove(mContinuationBuffer, aSrc, inLeft);
++#ifdef DEBUG
++                printf(" * IConvAdaptor - Incomplete multibyte sequence in input ( %s -> %s )\n",
++                       mFrom, mTo);
++#endif
++                res = NS_OK_UDEC_MOREINPUT;
++                break;
++            case E2BIG: // Output buffer full
++#ifdef DEBUG
++                printf(" * IConvAdaptor - Output buffer full ( %s -> %s )\n",
++                       mFrom, mTo);
++#endif
++                res = NS_OK_UDEC_MOREOUTPUT;
++                break;
++            }
++        }
++    } while (mReplaceOnError && (res == NS_OK) && (inLeft != 0));
++
++    *aSrcLength -= inLeft;
++    *aDestLength -= (outLeft / sizeof(PRUnichar));
++
++    return res;
+ }
+ 
+ nsresult
+@@ -177,12 +284,14 @@
+                           PRInt32 aSrcLength, 
+                           PRInt32 * aDestLength)
+ {
+-    if (!mConverter)
+-        return NS_ERROR_UENC_NOMAPPING;
++    if (!mConverter) {
++        NS_WARNING("Converter Not Initialized");
++        return NS_ERROR_NOT_INITIALIZED;
++    }
+ 
+     *aDestLength = aSrcLength*4; // sick
+ #ifdef DEBUG
+-    printf(" * IConvAdaptor - - GetMaxLength %d ( %s -> %s )\n", *aDestLength, mFrom.get(), mTo.get());
++    printf(" * IConvAdaptor - GetMaxLength %d ( %s -> %s )\n", *aDestLength, mFrom, mTo);
+ #endif
+     return NS_OK;
+ }
+@@ -191,19 +300,15 @@
+ nsresult 
+ IConvAdaptor::Reset()
+ {
+-    const char *zero_char_in_ptr  = NULL;
+-    char       *zero_char_out_ptr = NULL;
+-    size_t      zero_size_in      = 0,
+-                zero_size_out     = 0;
+-
+-    iconv(mConverter, 
+-          (char **)&zero_char_in_ptr,
+-          &zero_size_in,
+-          &zero_char_out_ptr,
+-          &zero_size_out);
++    if (!mConverter) {
++        NS_WARNING("Converter Not Initialized");
++        return NS_ERROR_NOT_INITIALIZED;
++    }
+ 
++    iconv(mConverter, NULL, NULL, NULL, NULL);
++    mContinuationLength = 0;
+ #ifdef DEBUG
+-    printf(" * IConvAdaptor - - Reset\n");
++    printf(" * IConvAdaptor - Reset\n");
+ #endif
+     return NS_OK;
+ }
+@@ -216,19 +321,138 @@
+                      char * aDest, 
+                      PRInt32 * aDestLength)
+ {
+-    return ConvertInternal( (void*) aSrc, 
+-                            aSrcLength, 
+-                            2,
+-                            (void*) aDest, 
+-                            aDestLength,
+-                            1);
++    nsresult res = NS_OK;
++    size_t inLeft, outLeft;
++
++    if (!mConverter) {
++        NS_WARNING("Converter Not Initialized");
++        return NS_ERROR_NOT_INITIALIZED;
++    }
++
++    if (mFrom != UTF16) {
++        NS_WARNING("Not an UnicodeEncoder");
++        return NS_ERROR_UNEXPECTED;
++    }
++
++    inLeft = (size_t) *aSrcLength * sizeof(PRUnichar);
++    outLeft = (size_t) *aDestLength;
++
++    if (mContinuationLength > 0) {
++        // If we're continuing, that means we have a word in the buffer, and
++        // that we only need one more word, UTF-16 characters being 2 or 4 bytes
++        // long.
++        PRInt32 bufLength = 2, destLength = *aDestLength;
++
++#ifdef DEBUG
++        printf(" * IConvAdaptor - Have %d bytes in continuation buffer\n", mContinuationLength);
++#endif
++
++        mContinuationLength = 0; // We don't want to enter an infinite loop
++
++        ((PRUnichar *) mContinuationBuffer)[1] = *aSrc;
++
++        int i;
++        for (i = 0; i < 4; i++) {
++        printf("%02x ", mContinuationBuffer[i]);
++        }
++        printf("\n");
++
++        res = Convert((PRUnichar *) mContinuationBuffer, &bufLength, aDest, &destLength);
++        switch (res) {
++        case NS_OK_UENC_MOREOUTPUT:
++        case NS_ERROR_UENC_NOMAPPING:
++            *aSrcLength = 0;
++            *aDestLength = 0;
++            return res;
++        case NS_OK:
++            printf("NS_OK %d\n", bufLength);
++            outLeft -= destLength;
++            inLeft -= sizeof(PRUnichar); // We necessarily have consumed 1 word
++            aSrc++;
++            aDest += destLength;
++        }
++    }
++
++    do {
++        if ( iconv(mConverter,
++                   (char **)&aSrc,
++                   &inLeft,
++                   (char **)&aDest,
++                   &outLeft) == (size_t) -1 ) {
++            switch (errno) {
++            case EILSEQ: // Invalid multibyte sequence ; there's no way
++                         // to know if it's invalid input or input that
++                         // doesn't have mapping in the output charset,
++                         // but we'll assume our input UTF-16 is valid.
++                if (mReplaceOnError) {
++                    *(aDest++) = (char)mReplaceChar;
++                    outLeft--;
++                    aSrc++;
++                    inLeft -= sizeof(PRUnichar);
++                    res = NS_OK;
++#ifdef DEBUG
++                    printf(" * IConvAdaptor - Replacing char in output ( %s -> %s )\n",
++                           mFrom, mTo);
++#endif
++                } else {
++#ifdef DEBUG
++                    printf(" * IConvAdaptor - No mapping in output charset ( %s -> %s )\n",
++                           mFrom, mTo);
++#endif
++                    res = NS_ERROR_UENC_NOMAPPING;
++                }
++                break;
++            case EINVAL: // Incomplete UTF-16 sequence. Happens when dealing with characters
++                         // outside BMP split between 2 buffers.
++#ifdef DEBUG
++                printf(" * IConvAdaptor - Incomplete UTF-16 character in input. ( %s -> %s )\n",
++                       mFrom, mTo);
++#endif
++                mContinuationLength = 2;
++                ((PRUnichar *) mContinuationBuffer)[0] = *aSrc;
++                res = NS_OK_UENC_MOREINPUT;
++                break;
++            case E2BIG: // Output buffer full
++#ifdef DEBUG
++                printf(" * IConvAdaptor - Output buffer full ( %s -> %s )\n",
++                       mFrom, mTo);
++#endif
++                res = NS_OK_UENC_MOREOUTPUT;
++                break;
++            }
++        }
++    } while (mReplaceOnError && (res == NS_OK) && (inLeft != 0));
++
++    *aSrcLength -= (inLeft / sizeof(PRUnichar));
++    *aDestLength -= outLeft;
++
++    return res;
+ }
+ 
+ 
+ nsresult 
+ IConvAdaptor::Finish(char * aDest, PRInt32 * aDestLength)
+ {
+-    *aDestLength = 0;
++    PRInt32 length = *aDestLength;
++
++    if (!mConverter) {
++        NS_WARNING("Converter Not Initialized");
++        return NS_ERROR_NOT_INITIALIZED;
++    }
++
++#ifdef DEBUG
++    printf(" * IConvAdaptor - Finish\n");
++#endif
++     *aDestLength = 0;
++    // Flush continuation and send replacement character.
++    if ((mContinuationLength > 0) && (mReplaceOnError)) {
++        if (length > 0 ) {
++            *(aDest++) = (char) mReplaceChar;
++            *aDestLength = 1;
++        } else {
++            return NS_OK_UENC_MOREOUTPUT;
++        }
++    }
+     return NS_OK;
+ }
+ 
+@@ -237,8 +461,10 @@
+                           PRInt32 aSrcLength, 
+                           PRInt32 * aDestLength)
+ {
+-    if (!mConverter)
+-        return NS_ERROR_UENC_NOMAPPING;
++    if (!mConverter) {
++        NS_WARNING("Converter Not Initialized");
++        return NS_ERROR_NOT_INITIALIZED;
++    }
+ 
+     *aDestLength = aSrcLength*4; // sick
+ 
+@@ -255,13 +481,13 @@
+         mReplaceOnError = PR_FALSE;
+         return NS_OK;
+     }
+-    else if (aBehavior != nsIUnicodeEncoder::kOnError_Replace) {
++    else if (aBehavior == nsIUnicodeEncoder::kOnError_Replace) {
+         mReplaceOnError = PR_TRUE;
+         mReplaceChar = aChar;
+         return NS_OK;
+     }
+ 
+-    NS_WARNING("Uconv Error Behavior not support");
++    NS_WARNING("Uconv Error Behavior not supported");
+     return NS_ERROR_FAILURE;
+ }
+ 
+@@ -276,103 +502,39 @@
+ }
+ 
+ 
+-nsresult 
+-IConvAdaptor::ConvertInternal(void * aSrc, 
+-                             PRInt32 * aSrcLength, 
+-                             PRInt32 aSrcCharSize,
+-                             void * aDest, 
+-                             PRInt32 * aDestLength,
+-                             PRInt32 aDestCharSize)
++NS_IMPL_ISUPPORTS1(NativeUConvService, nsINativeUConvService)
++
++NS_IMETHODIMP 
++NativeUConvService::GetNativeUnicodeDecoder(const char* from,
++                                            nsISupports** aResult) 
+ {
+-    if (!mConverter) {
+-        NS_WARNING("Converter Not Initialize");
+-        return NS_ERROR_NOT_INITIALIZED;
+-    }
+-    size_t res = 0;
+-    size_t inLeft = (size_t) *aSrcLength * aSrcCharSize;
+-    size_t outLeft = (size_t) *aDestLength * aDestCharSize;
+-    size_t outputAvail = outLeft;
+-
+-    while (true){
+-
+-        res = iconv(mConverter, 
+-                    (char**)&aSrc, 
+-                    &inLeft, 
+-                    (char**)&aDest, 
+-                    &outLeft);
+-        
+-        if (res == (size_t) -1) {
+-            // on some platforms (e.g., linux) iconv will fail with
+-            // E2BIG if it cannot convert _all_ of its input.  it'll
+-            // still adjust all of the in/out params correctly, so we
+-            // can ignore this error.  the assumption is that we will
+-            // be called again to complete the conversion.
+-            if ((errno == E2BIG) && (outLeft < outputAvail)) {
+-                res = 0;
+-                break;
+-            }
+-            
+-            if (errno == EILSEQ) {
++    *aResult = nsnull;
+ 
+-                if (mReplaceOnError) {
+-                    if (aDestCharSize == 1) {
+-                        (*(char*)aDest) = (char)mReplaceChar;
+-                        aDest = (char*)aDest + sizeof(char);
+-                    }
+-                    else
+-                    {
+-                        (*(PRUnichar*)aDest) = (PRUnichar)mReplaceChar;
+-                        aDest = (PRUnichar*)aDest + sizeof(PRUnichar);
+-                    
+-                    }
+-                    inLeft -= aSrcCharSize;
+-                    outLeft -= aDestCharSize;
++    IConvAdaptor* ucl = new IConvAdaptor();
++    if (!ucl)
++        return NS_ERROR_OUT_OF_MEMORY;
+ 
+-#ifdef DEBUG
+-                    printf(" * IConvAdaptor - replacing char in output  ( %s -> %s )\n", 
+-                           mFrom.get(), mTo.get());
++    // Trick to allow conversion of 0x5c into U+005c instead of U+00a5 with glibc's iconv
++    if (strcmp(from, "Shift_JIS") == 0)
++        from = "sjis-open";
++
++    // Trick to allow claimed iso-8859-1 actually encoded as windows-1252 to be converted flawlessly
++    if (strcmp(from, "ISO-8859-1") == 0)
++        from = "windows-1252";
+ 
+-#endif
+-                    res = 0;
+-                }
+-            }
+-
+-            if (res == -1) {
+-#ifdef DEBUG
+-                printf(" * IConvAdaptor - Bad input ( %s -> %s )\n", mFrom.get(), mTo.get());
+-#endif
+-                return NS_ERROR_UENC_NOMAPPING;
+-            }
+-        }
++    nsresult rv = ucl->Init(from, UTF16);
+ 
+-        if (inLeft <= 0 || outLeft <= 0 || res == -1)
+-            break;
++    if (NS_SUCCEEDED(rv)) {
++        NS_ADDREF(*aResult = (nsISupports*)(nsIUnicodeDecoder*)ucl);
+     }
+ 
+-
+-    if (res != (size_t) -1) {
+-
+-        // xp_iconv deals with how much is remaining in a given buffer
+-        // but what uconv wants how much we read/written already.  So
+-        // we fix it up here.
+-        *aSrcLength  -= (inLeft  / aSrcCharSize);
+-        *aDestLength -= (outLeft / aDestCharSize);
+-        return NS_OK;
+-    }
+-    
+-#ifdef DEBUG
+-    printf(" * IConvAdaptor - - xp_iconv error( %s -> %s )\n", mFrom.get(), mTo.get());
+-#endif
+-    Reset();    
+-    return NS_ERROR_UENC_NOMAPPING;
++    return rv;
+ }
+ 
+-NS_IMPL_ISUPPORTS1(NativeUConvService, nsINativeUConvService)
+ 
+ NS_IMETHODIMP 
+-NativeUConvService::GetNativeConverter(const char* from,
+-                                       const char* to,
+-                                       nsISupports** aResult) 
++NativeUConvService::GetNativeUnicodeEncoder(const char* to,
++                                            nsISupports** aResult) 
+ {
+     *aResult = nsnull;
+ 
+@@ -383,7 +545,7 @@
+         return NS_ERROR_OUT_OF_MEMORY;
+ 
+     //nsresult rv = ucl->Init(from, to);
+-    nsresult rv=adaptor->Init(from,to);   
++    nsresult rv = adaptor->Init(UTF16, to);
+     if (NS_SUCCEEDED(rv))
+         NS_ADDREF(*aResult = ucl);
+ 

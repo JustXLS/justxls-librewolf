@@ -1,0 +1,164 @@
+--- embedding/browser/gtk/src/Makefile.in.orig	2007-06-09 23:11:57.000000000 +0200
++++ embedding/browser/gtk/src/Makefile.in	2007-06-09 23:13:54.000000000 +0200
+@@ -45,6 +45,7 @@
+ 
+ MODULE          = gtkembedmoz
+ LIBRARY_NAME    = gtkembedmoz
++#SO_VERSION	= 2
+ LIBXUL_LIBRARY  = 1
+ FORCE_STATIC_LIB = 1
+ 
+--- js/src/Makefile.in.orig	2007-06-09 23:14:22.000000000 +0200
++++ js/src/Makefile.in	2007-06-09 23:15:05.000000000 +0200
+@@ -48,6 +48,7 @@
+ LIBRARY_NAME	= mozjs
+ LIB_IS_C_ONLY	= 1
+ GRE_MODULE	= 1
++SO_VERSION	= 2
+ 
+ ifeq (,$(filter-out WINNT WINCE,$(OS_ARCH)))
+ LIBRARY_NAME	= js$(MOZ_BITS)$(VERSION_NUMBER)
+--- toolkit/library/Makefile.in.orig	2007-06-09 23:15:36.000000000 +0200
++++ toolkit/library/Makefile.in	2007-06-09 23:16:29.000000000 +0200
+@@ -52,6 +52,7 @@
+ FORCE_USE_PIC = 1
+ FORCE_SHARED_LIB = 1
+ MOZILLA_INTERNAL_API = 1
++SO_VERSION	= 2
+ 
+ ifneq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
+ # This is going to be a framework named "XUL", not an ordinary library named
+--- xpcom/stub/Makefile.in.orig	2007-06-09 23:16:46.000000000 +0200
++++ xpcom/stub/Makefile.in	2007-06-09 23:17:35.000000000 +0200
+@@ -44,6 +44,7 @@
+ 
+ MODULE		= xpcom
+ LIBRARY_NAME	= xpcom
++SO_VERSION	= 2
+ 
+ # The XPCOM glue uses realpath() on libxpcom.so to resolve any symlinks. We
+ # want it to find dist/bin and not xpcom/stub so we copy instead of symlinking.
+--- xpcom/stub/Makefile.in.orig	2007-07-14 00:27:29.000000000 +0200
++++ xpcom/stub/Makefile.in	2007-07-14 00:27:53.000000000 +0200
+@@ -65,14 +65,6 @@
+ CPPSRCS         += nsOS2VACLegacy.cpp
+ endif
+ 
+-# If we have an import library, then copy that to the SDK.  Otherwise,
+-# copy the shared library.
+-ifneq (,$(filter OS2 WINCE WINNT,$(OS_ARCH)))
+-SDK_LIBRARY = $(IMPORT_LIBRARY)
+-else
+-SDK_LIBRARY = $(SHARED_LIBRARY)
+-endif
+-
+ # Force use of PIC
+ FORCE_USE_PIC	= 1 
+ 
+--- configure.in.orig	2007-08-03 23:26:45.000000000 +0200
++++ configure.in	2007-08-03 23:30:54.000000000 +0200
+@@ -1207,8 +1207,8 @@
+ dnl GNU specific defaults
+ dnl ========================================================
+ if test "$GNU_CC"; then
+-    MKSHLIB='$(CXX) $(CXXFLAGS) $(DSO_PIC_CFLAGS) $(DSO_LDOPTS) -Wl,-h,$@ -o $@'
+-    MKCSHLIB='$(CC) $(CFLAGS) $(DSO_PIC_CFLAGS) $(DSO_LDOPTS) -Wl,-h,$@ -o $@'
++    MKSHLIB='$(CXX) $(CXXFLAGS) $(DSO_PIC_CFLAGS) $(DSO_LDOPTS) -Wl,-h,$(SONAME) -o $@'
++    MKCSHLIB='$(CC) $(CFLAGS) $(DSO_PIC_CFLAGS) $(DSO_LDOPTS) -Wl,-h,$(SONAME) -o $@'
+     DSO_LDOPTS='-shared'
+     if test "$GCC_USE_GNU_LD"; then
+         # Don't allow undefined symbols in libraries
+@@ -1238,8 +1238,8 @@
+     _DEFINES_CFLAGS='-include $(DEPTH)/mozilla-config.h -DMOZILLA_CLIENT'
+     _USE_CPP_INCLUDE_FLAG=1
+ else
+-    MKSHLIB='$(LD) $(DSO_LDOPTS) -h $@ -o $@'
+-    MKCSHLIB='$(LD) $(DSO_LDOPTS) -h $@ -o $@'
++    MKSHLIB='$(LD) $(DSO_LDOPTS) -h $(SONAME) -o $@'
++    MKCSHLIB='$(LD) $(DSO_LDOPTS) -h $(SONAME) -o $@'
+ 
+     DSO_LDOPTS='-shared'
+     if test "$GNU_LD"; then
+--- config/rules.mk.orig	2007-10-11 01:03:15.000000000 +0200
++++ config/rules.mk	2007-10-13 11:50:13.000000000 +0200
+@@ -155,6 +155,26 @@
+ SHARED_LIBRARY		:= $(DLL_PREFIX)$(LIBRARY_NAME)$(DLL_SUFFIX)
+ endif
+ 
++SONAME			:= $(notdir $(SHARED_LIBRARY))
++
++ifdef SO_VERSION
++ifneq (,$(findstring $(SONAME),$(MKSHLIB)))
++SO_VERSION_MAJOR	:= $(shell echo $(SO_VERSION) | sed 's/^\([^.]*\)\(\.[^.]*\)\?\(\.[^.]*\)\?/\1/')
++SO_VERSION_MINOR	:= $(shell echo $(SO_VERSION) | sed 's/^\([^.]*\)\(\.[^.]*\)\?\(\.[^.]*\)\?/\2/')
++SO_VERSION_MICRO	:= $(shell echo $(SO_VERSION) | sed 's/^\([^.]*\)\(\.[^.]*\)\?\(\.[^.]*\)\?/\3/')
++
++SHARED_LIBRARY_LINKS	:= $(SONAME)
++ifdef SO_VERSION_MINOR
++SHARED_LIBRARY_LINKS	+= $(SONAME).$(SO_VERSION_MAJOR)
++endif
++
++SONAME			:= $(SONAME).$(SO_VERSION_MAJOR)
++SHARED_LIBRARY		:= $(SHARED_LIBRARY).$(SO_VERSION)
++
++MKSHLINKS		= (cd $(1) && for link in $(SHARED_LIBRARY_LINKS); do rm -f $$link; ln -s $(notdir $(SHARED_LIBRARY)) $$link; done)
++endif
++endif
++
+ ifeq ($(OS_ARCH),OS2)
+ DEF_FILE		:= $(SHARED_LIBRARY:.dll=.def)
+ endif
+@@ -310,7 +330,7 @@
+ 	$(HOST_PROGOBJS) $(HOST_OBJS) $(IMPORT_LIBRARY) $(DEF_FILE)\
+ 	$(EXE_DEF_FILE) so_locations _gen _stubs $(wildcard *.res) $(wildcard *.RES) \
+ 	$(wildcard *.pdb) $(CODFILE) $(MAPFILE) $(IMPORT_LIBRARY) \
+-	$(SHARED_LIBRARY:$(DLL_SUFFIX)=.exp) $(wildcard *.ilk) \
++	$(SHARED_LIBRARY:$(DLL_SUFFIX)=.exp) $(SHARED_LIBRARY_LINKS) $(wildcard *.ilk) \
+ 	$(PROGRAM:$(BIN_SUFFIX)=.exp) $(SIMPLE_PROGRAMS:$(BIN_SUFFIX)=.exp) \
+ 	$(PROGRAM:$(BIN_SUFFIX)=.lib) $(SIMPLE_PROGRAMS:$(BIN_SUFFIX)=.lib) \
+ 	$(SIMPLE_PROGRAMS:$(BIN_SUFFIX)=.$(OBJ_SUFFIX)) \
+@@ -731,6 +751,8 @@
+ ifdef IS_COMPONENT
+ 	$(INSTALL) $(IFLAGS2) $(SHARED_LIBRARY) $(FINAL_TARGET)/components
+ 	$(ELF_DYNSTR_GC) $(FINAL_TARGET)/components/$(SHARED_LIBRARY)
++	$(call MKSHLINKS, $(FINAL_TARGET)/components)
++	$(call MKSHLINKS, $(FINAL_TARGET)/components/$(SHARED_LIBRARY))
+ ifdef BEOS_ADDON_WORKAROUND
+ 	( cd $(FINAL_TARGET)/components && $(CC) -nostart -o $(SHARED_LIBRARY).stub $(SHARED_LIBRARY) )
+ endif
+@@ -739,8 +761,10 @@
+ 	$(INSTALL) $(IFLAGS2) $(IMPORT_LIBRARY) $(DIST)/lib
+ else
+ 	$(INSTALL) $(IFLAGS2) $(SHARED_LIBRARY) $(DIST)/lib
++	$(call MKSHLINKS,$(DIST)/lib)
+ endif
+ 	$(INSTALL) $(IFLAGS2) $(SHARED_LIBRARY) $(FINAL_TARGET)
++	$(call MKSHLINKS,$(FINAL_TARGET))
+ ifdef BEOS_ADDON_WORKAROUND
+ 	( cd $(FINAL_TARGET) && $(CC) -nostart -o $(SHARED_LIBRARY).stub $(SHARED_LIBRARY) )
+ endif
+@@ -1051,6 +1075,8 @@
+ # symlinks back to the originals. The symlinks are a no-op for stabs debugging,
+ # so no need to conditionalize on OS version or debugging format.
+ 
++$(SHARED_LIBRARY_LINKS): %: $(SHARED_LIBRARY)
++
+ $(SHARED_LIBRARY): $(OBJS) $(LOBJS) $(DEF_FILE) $(RESFILE) $(SHARED_LIBRARY_LIBS) $(EXTRA_DEPS) $(DSO_LDOPTS_DEPS) Makefile Makefile.in
+ ifndef INCREMENTAL_LINKER
+ 	rm -f $@
+@@ -1085,6 +1111,7 @@
+ 		$(AR_DELETE) $${lib} $$ofiles; \
+ 	done
+ 	$(MKSHLIB) $(SHLIB_LDSTARTFILE) $(OBJS) $(LOBJS) $(SUB_SHLOBJS) $(DTRACE_PROBE_OBJ) $(PROBE_LOBJS) $(RESFILE) $(LDFLAGS) $(EXTRA_DSO_LDOPTS) $(OS_LIBS) $(EXTRA_LIBS) $(DEF_FILE) $(SHLIB_LDENDFILE)
++	$(call MKSHLINKS,.)
+ 	@rm -f $(PROBE_LOBJS)
+ 	@rm -f $(DTRACE_PROBE_OBJ)
+ 	@for lib in $(MOZILLA_PROBE_LIBS); do \
+@@ -1094,6 +1121,7 @@
+ 
+ else
+ 	$(MKSHLIB) $(SHLIB_LDSTARTFILE) $(OBJS) $(DTRACE_PROBE_OBJ) $(LOBJS) $(SUB_SHLOBJS) $(RESFILE) $(LDFLAGS) $(EXTRA_DSO_LDOPTS) $(OS_LIBS) $(EXTRA_LIBS) $(DEF_FILE) $(SHLIB_LDENDFILE)
++	$(call MKSHLINKS,.)
+ endif # DTRACE_LIB_DEPENDENT
+ 
+ ifeq (_WINNT,$(GNU_CC)_$(OS_ARCH))

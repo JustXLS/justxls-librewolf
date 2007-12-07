@@ -1,0 +1,107 @@
+--- configure.in.orig	2007-06-23 17:23:42.000000000 +0200
++++ configure.in	2007-06-23 17:35:11.000000000 +0200
+@@ -107,6 +107,7 @@
+ MOZZLIB=0x1230
+ NSPR_VERSION=4
+ NSS_VERSION=3
++SQLITE_VERSION=3.3
+ 
+ dnl Set the minimum version of toolkit libs used by mozilla
+ dnl ========================================================
+@@ -5828,6 +5829,7 @@
+     fi
+ fi
+ 
++
+ dnl ========================================================
+ dnl = Enable mozStorage
+ dnl = XXX need to implement --with-system-sqlite3 (see bug 263381)
+@@ -5842,6 +5844,23 @@
+ fi
+ 
+ dnl ========================================================
++dnl = Enable system sqlite3 --enable-system-sqlite3
++dnl ========================================================
++if test -n "$MOZ_STORAGE"; then 
++    MOZ_ARG_ENABLE_BOOL(system-sqlite3, 
++    [  --enable-system-sqlite3   Use system sqlite3 (located with pkgconfig)],
++    SYSTEM_SQLITE3=1 )
++
++    if test -n "$SYSTEM_SQLITE3"; then
++        PKG_CHECK_MODULES(MOZ_SQLITE3, sqlite3 >= $SQLITE_VERSION)
++    fi
++
++    AC_SUBST(SYSTEM_SQLITE3)
++    AC_SUBST(MOZ_SQLITE3_LIBS)
++    AC_SUBST(MOZ_SQLITE3_CFLAGS)
++fi
++
++dnl ========================================================
+ dnl = Enable safe browsing (anti-phishing)
+ dnl ========================================================
+ MOZ_ARG_ENABLE_BOOL(safe-browsing,
+--- config/autoconf.mk.in.orig	2007-06-23 17:35:29.000000000 +0200
++++ config/autoconf.mk.in	2007-06-23 17:38:03.000000000 +0200
+@@ -212,6 +212,10 @@
+ MOZ_NATIVE_PNG	= @SYSTEM_PNG@
+ MOZ_TREE_CAIRO = @MOZ_TREE_CAIRO@
+ 
++MOZ_NATIVE_SQLITE3 = @SYSTEM_SQLITE3@
++MOZ_SQLITE3_LIBS = @MOZ_SQLITE3_LIBS@
++MOZ_SQLITE3_CFLAGS = @MOZ_SQLITE3_CFLAGS@
++
+ MOZ_UPDATE_XTERM = @MOZ_UPDATE_XTERM@
+ MOZ_MATHML = @MOZ_MATHML@
+ MOZ_PERMISSIONS = @MOZ_PERMISSIONS@
+--- storage/Makefile.in.orig	2007-06-23 17:38:56.000000000 +0200
++++ storage/Makefile.in	2007-06-23 17:42:11.000000000 +0200
+@@ -44,11 +44,19 @@
+ include $(DEPTH)/config/autoconf.mk
+ 
+ MODULE		= storage
++
++ifndef MOZ_NATIVE_SQLITE3
+ DIRS		= ../db/sqlite3/src \
+ 		  public \
+ 		  src \
+ 		  build \
+ 		  $(NULL)
++else
++DIRS		= public \
++		  src \
++		  build \
++		  $(NULL)
++endif
+ 
+ ifdef ENABLE_TESTS
+ TOOL_DIRS += test
+--- storage/src/Makefile.in.orig	2007-06-23 17:42:45.000000000 +0200
++++ storage/src/Makefile.in	2007-06-23 17:47:32.000000000 +0200
+@@ -54,11 +54,14 @@
+            intl \
+            necko \
+            string \
+-           sqlite3 \
+            js \
+            xpconnect \
+            $(NULL)
+ 
++ifndef MOZ_NATIVE_SQLITE3
++REQUIRES += sqlite3
++endif
++
+ CPPSRCS = \
+ 	mozStorageAsyncIO.cpp \
+ 	mozStorageService.cpp \
+@@ -68,4 +71,11 @@
+ 	mozStorageValueArray.cpp \
+ 	$(NULL)
+ 
++ifdef MOZ_NATIVE_SQLITE3
++LOCAL_INCLUDES += 	$(MOZ_SQLITE3_CFLAGS) \
++			$(topsrcdir)/db/sqlite3/src \
++			$(NULL)
++EXTRA_DSO_LDOPTS += $(MOZ_SQLITE3_LIBS)
++endif
++
+ include $(topsrcdir)/config/rules.mk

@@ -7,8 +7,8 @@ WANT_AUTOCONF="2.1"
 inherit flag-o-matic toolchain-funcs eutils mozconfig-minefield makeedit multilib cvs fdo-mime autotools
 
 #PATCH="${PN}-2.0.0.8-patches-0.2"
-LANGS="be cs de el es-ES fi fr fy-NL gu-IN ja ka ko lt nl pl ru sk sv-SE uk zh-CN"
-NOSHORTLANGS=""
+#LANGS="be cs de el es-ES fi fr fy-NL gu-IN ja ka ko lt nl pl ru sk sv-SE uk zh-CN"
+#NOSHORTLANGS=""
 
 MY_PV=${PV/_beta/b}
 MY_P="${PN}-${MY_PV}"
@@ -21,10 +21,10 @@ SLOT="0"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
 IUSE="java mozdevelop bindist xforms restrict-javascript filepicker"
 
-MOZ_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}"
-SRC_URI="${MOZ_URI}/source/firefox-${MY_PV}-source.tar.bz2"
+#MOZ_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}"
+#SRC_URI="${MOZ_URI}/source/firefox-${MY_PV}-source.tar.bz2"
 #	mirror://gentoo/${PATCH}.tar.bz2"
-#SRC_URI="mirror://gentoo/${P}.tar.bz2
+SRC_URI="http://dev.gentooexperimental.org/~armin76/dist/${P}.tar.bz2"
 
 
 # These are in
@@ -108,16 +108,16 @@ pkg_setup(){
 }
 
 src_unpack() {
-	unpack firefox-${MY_PV}-source.tar.bz2 
+	unpack ${P}.tar.bz2 
 # ${PATCH}.tar.bz2
 	
-	linguas
-	for X in ${linguas}; do
-		[[ ${X} != "en" ]] && xpi_unpack "${MY_P}-${X}.xpi"
-	done
-	if [[ ${linguas} != "" ]]; then
-		einfo "Selected language packs (first will be default): ${linguas}"
-	fi
+#	linguas
+#	for X in ${linguas}; do
+#		[[ ${X} != "en" ]] && xpi_unpack "${MY_P}-${X}.xpi"
+#	done
+#	if [[ ${linguas} != "" ]]; then
+#		einfo "Selected language packs (first will be default): ${linguas}"
+#	fi
 
 	# Apply our patches
 	cd "${S}" || die "cd failed"
@@ -126,13 +126,11 @@ src_unpack() {
 #	epatch "${WORKDIR}"/patch
 
 	epatch "${FILESDIR}"/hppa.patch
-	epatch "${FILESDIR}"/ia64.patch
+#	epatch "${FILESDIR}"/ia64.patch
 	epatch "${FILESDIR}"/fbsd.patch
 	epatch "${FILESDIR}"/055_firefox-2.0_gfbsd-pthreads.patch
 #	epatch "${FILESDIR}"/888_fix_nss_fix_389872.patch
-	epatch "${FILESDIR}"/033_firefox-2.0_ppc_powerpc.patch
-
-#	epatch "${FILESDIR}"/100_system_myspell-v2.patch
+#	epatch "${FILESDIR}"/033_firefox-2.0_ppc_powerpc.patch
 
 	#correct the cairo/glitz mess, if using system libs
 	epatch "${FILESDIR}"/666_mozilla-glitz-cairo.patch
@@ -153,13 +151,13 @@ src_unpack() {
 	#some forgotten parts of some revised patch, breaking happily builds
 	epatch "${FILESDIR}"/669_forgotten_tales_387196.patch
 	#make minefield install its icon 
-#	epatch "${FILESDIR}"/998_install_icon.patch
+	epatch "${FILESDIR}"/998_install_icon.patch
 	#make minefield build against xulrunner
 	epatch "${FILESDIR}"/999_minefield_against_xulrunner-v2.patch
 	#fix the unfixable gnome loves firefox
-#	if ! use gnome; then
-#		epatch "${FILESDIR}"/777_minefield-no-icons.patch
-#	fi
+	if ! use gnome; then
+		epatch "${FILESDIR}"/777_minefield-no-icons.patch
+	fi
 
 
 	####################################
@@ -211,6 +209,10 @@ src_compile() {
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 	# Add xulrunner variable
 	mozconfig_annotate '' --with-libxul-sdk
+
+	if ! use bindist; then
+		mozconfig_annotate '' --enable-official-branding
+	fi
 
 	# Finalize and report settings
 	mozconfig_final
@@ -270,19 +272,19 @@ src_install() {
 	dodir "${MOZILLA_FIVE_HOME}"
 	cp -RL "${S}"/dist/bin/* "${D}"/"${MOZILLA_FIVE_HOME}"/ || die "cp failed"
 
-	linguas
-	for X in ${linguas}; do
-		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${MY_P}-${X}"
-	done
+#	linguas
+#	for X in ${linguas}; do
+#		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${MY_P}-${X}"
+#	done
 
-	local LANG=${linguas%% *}
-	if [[ -n ${LANG} && ${LANG} != "en" ]]; then
-		elog "Setting default locale to ${LANG}"
-		dosed -e "s:general.useragent.locale\", \"en-US\":general.useragent.locale\", \"${LANG}\":" \
-			"${MOZILLA_FIVE_HOME}"/defaults/pref/firefox.js \
-			"${MOZILLA_FIVE_HOME}"/defaults/pref/firefox-l10n.js || \
-			die "sed failed to change locale"
-	fi
+#	local LANG=${linguas%% *}
+#	if [[ -n ${LANG} && ${LANG} != "en" ]]; then
+#		elog "Setting default locale to ${LANG}"
+#		dosed -e "s:general.useragent.locale\", \"en-US\":general.useragent.locale\", \"${LANG}\":" \
+#			"${MOZILLA_FIVE_HOME}"/defaults/pref/firefox.js \
+#			"${MOZILLA_FIVE_HOME}"/defaults/pref/firefox-l10n.js || \
+#			die "sed failed to change locale"
+#	fi
 
 	# Create /usr/bin/firefox
 	install_mozilla_launcher_stub firefox "${MOZILLA_FIVE_HOME}"
@@ -309,8 +311,7 @@ src_install() {
 
 	echo "#!/bin/bash" > "${T}"/firefox
 	echo "${XULRUNNER} ${MOZILLA_FIVE_HOME}/application.ini \"\$@\"" >> "${T}"/firefox
-	dobin ${T}/firefox
-
+	dobin "${T}"/firefox
 }
 
 pkg_postinst() {

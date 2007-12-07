@@ -1,0 +1,283 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 181_sonames.dpatch by Mike Hommey <glandium@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Add soname support
+
+@DPATCH@
+
+=== config/rules.mk
+==================================================================
+--- xulrunner/config/rules.mk.orig	2007-03-18 00:59:30.000000000 +0100
++++ xulrunner/config/rules.mk	2007-03-18 01:31:27.000000000 +0100
+@@ -133,6 +133,26 @@
+ 
+ SHARED_LIBRARY		:= $(DLL_PREFIX)$(LIBRARY_NAME)$(DLL_SUFFIX)
+ 
++SONAME			:= $(notdir $(SHARED_LIBRARY))
++
++ifdef SO_VERSION
++ifneq (,$(findstring $(SONAME),$(MKSHLIB)))
++SO_VERSION_MAJOR	:= $(shell echo $(SO_VERSION) | sed 's/^\([^.]*\)\(\.[^.]*\)\?\(\.[^.]*\)\?/\1/')
++SO_VERSION_MINOR	:= $(shell echo $(SO_VERSION) | sed 's/^\([^.]*\)\(\.[^.]*\)\?\(\.[^.]*\)\?/\2/')
++SO_VERSION_MICRO	:= $(shell echo $(SO_VERSION) | sed 's/^\([^.]*\)\(\.[^.]*\)\?\(\.[^.]*\)\?/\3/')
++
++SHARED_LIBRARY_LINKS	:= $(SONAME)
++ifdef SO_VERSION_MINOR
++SHARED_LIBRARY_LINKS	+= $(SONAME).$(SO_VERSION_MAJOR)
++endif
++
++SONAME			:= $(SONAME).$(SO_VERSION_MAJOR)
++SHARED_LIBRARY		:= $(SHARED_LIBRARY).$(SO_VERSION)
++
++MKSHLINKS		= (cd $(1) && for link in $(SHARED_LIBRARY_LINKS); do rm -f $$link; ln -s $(notdir $(SHARED_LIBRARY)) $$link; done)
++endif
++endif
++
+ ifeq ($(OS_ARCH),OS2)
+ DEF_FILE		:= $(SHARED_LIBRARY:.dll=.def)
+ endif
+@@ -264,7 +284,7 @@
+ 	$(HOST_PROGOBJS) $(HOST_OBJS) $(IMPORT_LIBRARY) $(DEF_FILE)\
+ 	$(EXE_DEF_FILE) so_locations _gen _stubs $(wildcard *.res) $(wildcard *.RES) \
+ 	$(wildcard *.pdb) $(CODFILE) $(MAPFILE) $(IMPORT_LIBRARY) \
+-	$(SHARED_LIBRARY:$(DLL_SUFFIX)=.exp) $(wildcard *.ilk) \
++	$(SHARED_LIBRARY:$(DLL_SUFFIX)=.exp) $(SHARED_LIBRARY_LINKS) $(wildcard *.ilk) \
+ 	$(PROGRAM:$(BIN_SUFFIX)=.exp) $(SIMPLE_PROGRAMS:$(BIN_SUFFIX)=.exp) \
+ 	$(PROGRAM:$(BIN_SUFFIX)=.lib) $(SIMPLE_PROGRAMS:$(BIN_SUFFIX)=.lib) \
+ 	$(SIMPLE_PROGRAMS:$(BIN_SUFFIX)=.$(OBJ_SUFFIX)) \
+@@ -662,6 +682,8 @@
+ ifdef IS_COMPONENT
+ 	$(INSTALL) $(IFLAGS2) $(SHARED_LIBRARY) $(FINAL_TARGET)/components
+ 	$(ELF_DYNSTR_GC) $(FINAL_TARGET)/components/$(SHARED_LIBRARY)
++	$(call MKSHLINKS, $(FINAL_TARGET)/components)
++	$(call MKSHLINKS, $(FINAL_TARGET)/components/$(SHARED_LIBRARY))
+ ifdef BEOS_ADDON_WORKAROUND
+ 	( cd $(FINAL_TARGET)/components && $(CC) -nostart -o $(SHARED_LIBRARY).stub $(SHARED_LIBRARY) )
+ endif
+@@ -670,8 +692,10 @@
+ 	$(INSTALL) $(IFLAGS2) $(IMPORT_LIBRARY) $(DIST)/lib
+ else
+ 	$(INSTALL) $(IFLAGS2) $(SHARED_LIBRARY) $(DIST)/lib
++	$(call MKSHLINKS,$(DIST)/lib)
+ endif
+ 	$(INSTALL) $(IFLAGS2) $(SHARED_LIBRARY) $(FINAL_TARGET)
++	$(call MKSHLINKS,$(FINAL_TARGET))
+ ifdef BEOS_ADDON_WORKAROUND
+ 	( cd $(FINAL_TARGET) && $(CC) -nostart -o $(SHARED_LIBRARY).stub $(SHARED_LIBRARY) )
+ endif
+@@ -717,45 +741,32 @@
+ endif
+ endif
+ 
++ifdef MRE_DIST
++DESTSUBDIR=$(mredir)
++else
++DESTSUBDIR=$(mozappdir)
++endif
++
+ install:: $(SHARED_LIBRARY) $(IMPORT_LIBRARY) $(LIBRARY) $(PROGRAM) $(SIMPLE_PROGRAMS)
+ ifndef NO_INSTALL
+ #ifdef LIBRARY
+ #ifndef IS_COMPONENT
+-#ifdef MRE_DIST
+-#	$(SYSINSTALL) $(IFLAGS1) $(LIBRARY) $(DESTDIR)$(mredir)
+-#else
+-#	$(SYSINSTALL) $(IFLAGS1) $(LIBRARY) $(DESTDIR)$(mozappdir)
+-#endif
++#	$(SYSINSTALL) $(IFLAGS1) $(LIBRARY) $(DESTDIR)$(DESTSUBDIR)
+ #endif # !IS_COMPONENT
+ #endif # LIBRARY
+ ifdef SHARED_LIBRARY
+ ifdef IS_COMPONENT
+-ifdef MRE_DIST
+-	$(SYSINSTALL) $(IFLAGS2) $(SHARED_LIBRARY) $(IMPORT_LIBRARY) $(DESTDIR)$(mredir)/components
++	$(SYSINSTALL) $(IFLAGS2) $(SHARED_LIBRARY) $(IMPORT_LIBRARY) $(DESTDIR)$(DESTSUBDIR)/components
+ else
+-	$(SYSINSTALL) $(IFLAGS2) $(SHARED_LIBRARY) $(IMPORT_LIBRARY) $(DESTDIR)$(mozappdir)/components
+-endif
+-else
+-ifdef MRE_DIST
+-	$(SYSINSTALL) $(IFLAGS2) $(SHARED_LIBRARY) $(IMPORT_LIBRARY) $(DESTDIR)$(mredir)
+-else
+-	$(SYSINSTALL) $(IFLAGS2) $(SHARED_LIBRARY) $(IMPORT_LIBRARY) $(DESTDIR)$(mozappdir)
+-endif
++	$(SYSINSTALL) $(IFLAGS2) $(SHARED_LIBRARY) $(IMPORT_LIBRARY) $(DESTDIR)$(DESTSUBDIR)
++	$(call MKSHLINKS,$(DESTDIR)$(DESTSUBDIR))
+ endif
+ endif # SHARED_LIBRARY
+ ifdef PROGRAM
+-ifdef MRE_DIST
+-	$(SYSINSTALL) $(IFLAGS2) $(PROGRAM) $(DESTDIR)$(mredir)
+-else
+-	$(SYSINSTALL) $(IFLAGS2) $(PROGRAM) $(DESTDIR)$(mozappdir)
+-endif
++	$(SYSINSTALL) $(IFLAGS2) $(PROGRAM) $(DESTDIR)$(DESTSUBDIR)
+ endif # PROGRAM
+ ifdef SIMPLE_PROGRAMS
+-ifdef MRE_DIST
+-	$(SYSINSTALL) $(IFLAGS2) $(SIMPLE_PROGRAMS) $(DESTDIR)$(mredir)
+-else
+-	$(SYSINSTALL) $(IFLAGS2) $(SIMPLE_PROGRAMS) $(DESTDIR)$(mozappdir)
+-endif
++	$(SYSINSTALL) $(IFLAGS2) $(SIMPLE_PROGRAMS) $(DESTDIR)$(DESTSUBDIR)
+ endif # SIMPLE_PROGRAMS
+ endif # NO_INSTALL
+ 
+@@ -987,6 +998,8 @@
+ SUB_SHLOBJS = $(SUB_LOBJS)
+ endif
+ 
++$(SHARED_LIBRARY_LINKS): %: $(SHARED_LIBRARY)
++
+ $(SHARED_LIBRARY): $(OBJS) $(LOBJS) $(DEF_FILE) $(RESFILE) $(SHARED_LIBRARY_LIBS) $(EXTRA_DEPS) $(DSO_LDOPTS_DEPS) Makefile Makefile.in
+ ifndef INCREMENTAL_LINKER
+ 	rm -f $@
+@@ -1013,6 +1026,7 @@
+ endif # SHARED_LIBRARY_LIBS
+ endif # NO_LD_ARCHIVE_FLAGS
+ 	$(MKSHLIB) $(SHLIB_LDSTARTFILE) $(OBJS) $(LOBJS) $(SUB_SHLOBJS) $(RESFILE) $(LDFLAGS) $(EXTRA_DSO_LDOPTS) $(OS_LIBS) $(EXTRA_LIBS) $(DEF_FILE) $(SHLIB_LDENDFILE)
++	$(call MKSHLINKS,.)
+ 	@rm -f foodummyfilefoo $(SUB_SHLOBJS) $(DELETE_AFTER_LINK)
+ else # os2 vacpp
+ 	$(MKSHLIB) -O:$@ -DLL -INC:_dllentry $(LDFLAGS) $(OBJS) $(LOBJS) $(EXTRA_DSO_LDOPTS) $(OS_LIBS) $(EXTRA_LIBS) $(DEF_FILE)
+@@ -1352,11 +1366,7 @@
+ 
+ install:: $(XPIDL_GEN_DIR)/$(XPIDL_MODULE).xpt
+ ifndef NO_INSTALL
+-ifdef MRE_DIST
+-	$(SYSINSTALL) $(IFLAGS1) $(XPIDL_GEN_DIR)/$(XPIDL_MODULE).xpt $(DESTDIR)$(mredir)/components
+-else 
+-	$(SYSINSTALL) $(IFLAGS1) $(XPIDL_GEN_DIR)/$(XPIDL_MODULE).xpt $(DESTDIR)$(mozappdir)/components
+-endif 
++	$(SYSINSTALL) $(IFLAGS1) $(XPIDL_GEN_DIR)/$(XPIDL_MODULE).xpt $(DESTDIR)$(DESTSUBDIR)/components
+ endif # NO_INSTALL
+ endif # NO_GEN_XPT
+
+=== configure.in
+--- xulrunner/configure.in.orig	2007-03-18 02:07:01.000000000 +0100
++++ xulrunner/configure.in	2007-03-18 02:38:19.000000000 +0100
+@@ -1121,8 +1121,8 @@
+ dnl GNU specific defaults
+ dnl ========================================================
+ if test "$GNU_CC"; then
+-    MKSHLIB='$(CXX) $(CXXFLAGS) $(DSO_PIC_CFLAGS) $(DSO_LDOPTS) -Wl,-h,$@ -o $@'
+-    MKCSHLIB='$(CC) $(CFLAGS) $(DSO_PIC_CFLAGS) $(DSO_LDOPTS) -Wl,-h,$@ -o $@'
++    MKSHLIB='$(CXX) $(CXXFLAGS) $(DSO_PIC_CFLAGS) $(DSO_LDOPTS) -Wl,-h,$(SONAME) -o $@'
++    MKCSHLIB='$(CC) $(CFLAGS) $(DSO_PIC_CFLAGS) $(DSO_LDOPTS) -Wl,-h,$(SONAME) -o $@'
+     DSO_LDOPTS='-shared'
+     if test "$GCC_USE_GNU_LD"; then
+         # Don't allow undefined symbols in libraries
+@@ -1152,8 +1152,9 @@
+     _DEFINES_CFLAGS='-include $(DEPTH)/mozilla-config.h -DMOZILLA_CLIENT'
+     _USE_CPP_INCLUDE_FLAG=1
+ else
+-    MKSHLIB='$(LD) $(DSO_LDOPTS) -h $@ -o $@'
+-    MKCSHLIB='$(LD) $(DSO_LDOPTS) -h $@ -o $@'
++    MKSHLIB='$(LD) $(DSO_LDOPTS) -h $(SONAME) -o $@'
++    MKCSHLIB='$(LD) $(DSO_LDOPTS) -h $(SONAME) -o $@'
++
+ 
+     DSO_LDOPTS='-shared'
+     if test "$GNU_LD"; then
+@@ -1389,7 +1390,7 @@
+ 
+ *-beos*)
+     no_x=yes
+-    MKSHLIB='$(CXX) $(CXXFLAGS) $(DSO_LDOPTS) -Wl,-h,$@ -o $@'
++    MKSHLIB='$(CXX) $(CXXFLAGS) $(DSO_LDOPTS) -Wl,-h,$(SONAME) -o $@'
+     _PLATFORM_DEFAULT_TOOLKIT="beos"
+     DSO_LDOPTS='-nostart'
+     TK_LIBS='-lbe -lroot'
+@@ -1902,8 +1903,9 @@
+     if test "$LIBRUNPATH"; then
+ 	DSO_LDOPTS="-Wl,-R$LIBRUNPATH $DSO_LDOPTS"
+     fi
+-    MKSHLIB='$(CXX) $(CXXFLAGS) $(DSO_PIC_CFLAGS) $(DSO_LDOPTS) -Wl,-soname,lib$(LIBRARY_NAME)$(DLL_SUFFIX) -o $@'
+-    MKCSHLIB='$(CC) $(CFLAGS) $(DSO_PIC_CFLAGS) $(DSO_LDOPTS) -Wl,-soname,lib$(LIBRARY_NAME)$(DLL_SUFFIX) -o $@'
++    MKSHLIB='$(CXX) $(CXXFLAGS) $(DSO_PIC_CFLAGS) $(DSO_LDOPTS) -Wl,-soname,$(SONAME) -o $@'
++    MKCSHLIB='$(CC) $(CFLAGS) $(DSO_PIC_CFLAGS) $(DSO_LDOPTS) -Wl,-soname,$(SONAME) -o $@'
++
+     ;;
+ 
+ *-nto*) 
+@@ -2070,8 +2072,9 @@
+ 
+ alpha*-*-osf*)
+     if test "$GNU_CC"; then
+-      MKSHLIB='$(CXX) $(CXXFLAGS) $(DSO_PIC_CFLAGS) $(DSO_LDOPTS) -Wl,-soname,$@ -o $@'
+-      MKCSHLIB='$(CC) $(CFLAGS) $(DSO_PIC_CFLAGS) $(DSO_LDOPTS) -Wl,-soname,$@ -o $@'
++      MKSHLIB='$(CXX) $(CXXFLAGS) $(DSO_PIC_CFLAGS) $(DSO_LDOPTS) -Wl,-soname,$(SONAME) -o $@'
++      MKCSHLIB='$(CC) $(CFLAGS) $(DSO_PIC_CFLAGS) $(DSO_LDOPTS) -Wl,-soname,$(SONAME) -o $@'
++
+ 
+     else
+ 	MOZ_DEBUG_FLAGS='-g'
+@@ -2081,8 +2084,9 @@
+ 	DSO_LDOPTS='-shared -msym -expect_unresolved \* -update_registry $(DIST)/so_locations'
+ 	DSO_CFLAGS=
+ 	DSO_PIC_CFLAGS=
+-	MKCSHLIB='$(CC) $(CFLAGS) $(DSO_PIC_CFLAGS) $(DSO_LDOPTS) -soname $@ -o $@'
+-	MKSHLIB='$(CXX) $(CXXFLAGS) $(DSO_PIC_CFLAGS) $(DSO_LDOPTS) -soname $@ -o $@'
++	MKCSHLIB='$(CC) $(CFLAGS) $(DSO_PIC_CFLAGS) $(DSO_LDOPTS) -soname $(SONAME) -o $@'
++	MKSHLIB='$(CXX) $(CXXFLAGS) $(DSO_PIC_CFLAGS) $(DSO_LDOPTS) -soname $(SONAME) -o $@'
++
+ 	MKSHLIB_FORCE_ALL='-all'
+ 	MKSHLIB_UNFORCE_ALL='-none'
+ 	dnl Might fix the libxpcom.so breakage on this platform as well....
+@@ -2139,8 +2143,9 @@
+                        [LDFLAGS=$_SAVE_LDFLAGS])
+        fi
+        MOZ_OPTIMIZE_FLAGS="-xO4"
+-       MKSHLIB='$(CXX) $(CXXFLAGS) $(DSO_PIC_FLAGS) $(DSO_LDOPTS) -h $@ -o $@'
+-       MKCSHLIB='$(CC) $(CFLAGS) $(DSO_PIC_FLAGS) -G -Wl,-z -Wl,muldefs -h $@ -o $@'
++       MKSHLIB='$(CXX) $(CXXFLAGS) $(DSO_PIC_FLAGS) $(DSO_LDOPTS) -h $(SONAME) -o $@'
++       MKCSHLIB='$(CC) $(CFLAGS) $(DSO_PIC_FLAGS) -G -Wl,-z -Wl,muldefs -h $(SONAME) -o $@'
++
+        MKSHLIB_FORCE_ALL='-Qoption ld -z,allextract'
+        MKSHLIB_UNFORCE_ALL=''
+        DSO_LDOPTS='-G -Qoption ld -z,muldefs'
+=== embedding/browser/gtk/src/Makefile.in
+--- xulrunner/embedding/browser/gtk/src/Makefile.in	(revision 8)
++++ xulrunner/embedding/browser/gtk/src/Makefile.in	(local)
+@@ -46,6 +46,7 @@
+ MODULE		= gtkembedmoz
+ LIBRARY_NAME	= gtkembedmoz
+ MOZILLA_INTERNAL_API = 1
++SO_VERSION	= 1
+ 
+ REQUIRES	= xpcom \
+ 		  string \
+=== js/src/Makefile.in
+--- xulrunner/js/src/Makefile.in	(revision 8)
++++ xulrunner/js/src/Makefile.in	(local)
+@@ -48,6 +48,7 @@
+ LIBRARY_NAME	= mozjs
+ LIB_IS_C_ONLY	= 1
+ GRE_MODULE	= 1
++SO_VERSION	= 2
+ 
+ ifeq (,$(filter-out WINNT WINCE,$(OS_ARCH)))
+ LIBRARY_NAME	= js$(MOZ_BITS)$(VERSION_NUMBER)
+=== toolkit/library/Makefile.in
+--- xulrunner/toolkit/library/Makefile.in	(revision 8)
++++ xulrunner/toolkit/library/Makefile.in	(local)
+@@ -48,6 +48,7 @@
+ FORCE_USE_PIC = 1
+ FORCE_SHARED_LIB = 1
+ MOZILLA_INTERNAL_API = 1
++SO_VERSION = 2
+ 
+ ifeq ($(OS_ARCH),Darwin)
+ # This is going to be a framework named "XUL", not an ordinary library named
+=== xpcom/stub/Makefile.in
+--- xulrunner/xpcom/stub/Makefile.in	(revision 8)
++++ xulrunner/xpcom/stub/Makefile.in	(local)
+@@ -44,6 +44,7 @@
+ 
+ MODULE		= xpcom
+ LIBRARY_NAME	= xpcom
++SO_VERSION	= 2
+ 
+ # The XPCOM glue uses realpath() on libxpcom.so to resolve any symlinks. We
+ # want it to find dist/bin and not xpcom/stub so we copy instead of symlinking.

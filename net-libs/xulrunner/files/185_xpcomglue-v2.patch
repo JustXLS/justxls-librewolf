@@ -1,0 +1,1035 @@
+--- xpcom/glue/Makefile.in.orig	2007-06-10 01:50:03.000000000 +0200
++++ xpcom/glue/Makefile.in	2007-06-10 01:55:22.000000000 +0200
+@@ -47,6 +47,7 @@
+ 
+ DIRS            = standalone
+ 
++ifeq (1,0)
+ MODULE		= xpcom
+ LIBRARY_NAME	= xpcomglue_s
+ DIST_INSTALL	= 1
+@@ -67,6 +68,7 @@
+ 		$(XPCOM_GLUE_SRC_LCPPSRCS) \
+ 		$(XPCOM_GLUENS_SRC_LCPPSRCS) \
+ 		$(NULL)
++endif
+ 
+ SDK_HEADERS = \
+ 		pldhash.h \
+@@ -118,6 +120,7 @@
+ 		nsXPTCUtils.h \
+ 		$(NULL)
+ 
++ifeq (1,0)
+ SDK_LIBRARY     =                        \
+ 		$(LIB_PREFIX)xpcomglue_s.$(LIB_SUFFIX) \
+ 		$(NULL)
+@@ -132,6 +135,7 @@
+ # avoids "msvcrp" and assembly dependencies from creeping into the directives
+ # for this library on Windows.
+ USE_STATIC_LIBS = 1
++endif
+ 
+ include $(topsrcdir)/config/rules.mk
+ 
+--- xpcom/glue/standalone/nsGlueLinking.h.orig	2007-06-10 01:59:45.000000000 +0200
++++ xpcom/glue/standalone/nsGlueLinking.h	2007-06-10 02:01:24.000000000 +0200
+@@ -42,15 +42,15 @@
+ 
+ #define XPCOM_DEPENDENT_LIBS_LIST "dependentlibs.list"
+ 
+-NS_HIDDEN_(GetFrozenFunctionsFunc)
++NS_EXPORT_(GetFrozenFunctionsFunc)
+ XPCOMGlueLoad(const char *xpcomFile);
+ 
+-NS_HIDDEN_(void)
++NS_EXPORT_(void)
+ XPCOMGlueUnload();
+ 
+ typedef void (*DependentLibsCallback)(const char *aDependentLib);
+ 
+-NS_HIDDEN_(void)
++NS_EXPORT_(void)
+ XPCOMGlueLoadDependentLibs(const char *xpcomDir, DependentLibsCallback cb);
+ 
+ #endif // nsGlueLinking_h__
+--- xpcom/glue/standalone/nsXPCOMGlue.h.orig	2007-06-10 02:01:47.000000000 +0200
++++ xpcom/glue/standalone/nsXPCOMGlue.h	2007-06-10 02:04:50.000000000 +0200
+@@ -99,7 +99,7 @@
+  * Initialize the XPCOM glue by dynamically linking against the XPCOM
+  * shared library indicated by xpcomFile.
+  */
+-extern "C" NS_HIDDEN_(nsresult)
++extern "C" NS_EXPORT_(nsresult)
+ XPCOMGlueStartup(const char* xpcomFile);
+ 
+ typedef void (*NSFuncPtr)();
+@@ -118,13 +118,13 @@
+  * @throws NS_ERROR_LOSS_OF_SIGNIFICANT_DATA if only some of the required
+  *         functions were found.
+  */
+-extern "C" NS_HIDDEN_(nsresult)
++extern "C" NS_EXPORT_(nsresult)
+ XPCOMGlueLoadXULFunctions(const nsDynamicFunctionLoad *symbols);
+ 
+ /**
+  * Finish the XPCOM glue after it is no longer needed.
+  */
+-extern "C" NS_HIDDEN_(nsresult)
++extern "C" NS_EXPORT_(nsresult)
+ XPCOMGlueShutdown();
+ 
+ 
+@@ -139,7 +139,7 @@
+  *         not need to free this buffer.
+  * @status DEPRECATED - Use GRE_GetGREPathWithProperties
+  */
+-extern "C" NS_HIDDEN_(char const *)
++extern "C" NS_EXPORT_(char const *)
+ GRE_GetXPCOMPath();
+ 
+ 
+@@ -148,7 +148,7 @@
+  *
+  * @param _retval   Ordinary XPCOM getter, returns an addrefed interface.
+  */
+-extern "C" NS_HIDDEN_(nsresult)
++extern "C" NS_EXPORT_(nsresult)
+ GRE_GetGREDirectory(nsILocalFile* *_retval);
+ 
+ 
+@@ -157,14 +157,14 @@
+  * directoryserviceprovider may use GRE_Startup to start the XPCOM
+  * glue and initialize the GRE in one step.
+  */
+-extern "C" NS_HIDDEN_(nsresult)
++extern "C" NS_EXPORT_(nsresult)
+ GRE_Startup();
+ 
+ 
+ /**
+  * Shut down XPCOM and the XPCOM glue in one step.
+  */
+-extern "C" NS_HIDDEN_(nsresult)
++extern "C" NS_EXPORT_(nsresult)
+ GRE_Shutdown();
+ 
+ #endif // XPCOM_GLUE
+--- configure.in.orig	2007-06-10 02:08:52.000000000 +0200
++++ configure.in	2007-06-10 02:12:10.000000000 +0200
+@@ -893,7 +893,7 @@
+ MOZ_FIX_LINK_PATHS='-Wl,-rpath-link,$(LIBXUL_DIST)/bin'
+ XPCOM_FROZEN_LDOPTS='-L$(LIBXUL_DIST)/bin $(MOZ_FIX_LINK_PATHS) -lxpcom'
+ LIBXUL_LIBS='$(XPCOM_FROZEN_LDOPTS) -lxul'
+-XPCOM_GLUE_LDOPTS='$(LIBXUL_DIST)/lib/$(LIB_PREFIX)xpcomglue_s.$(LIB_SUFFIX) $(XPCOM_FROZEN_LDOPTS)'
+-XPCOM_STANDALONE_GLUE_LDOPTS='$(LIBXUL_DIST)/lib/$(LIB_PREFIX)xpcomglue.$(LIB_SUFFIX)'
++XPCOM_GLUE_LDOPTS='$(XPCOM_FROZEN_LDOPTS) -L$(LIBXUL_DIST)/lib -lxpcomglue'
++XPCOM_STANDALONE_GLUE_LDOPTS='-L$(LIBXUL_DIST)/lib -lxpcomglue'
+ 
+ MOZ_COMPONENT_NSPR_LIBS='-L$(LIBXUL_DIST)/bin $(NSPR_LIBS)'
+ MOZ_XPCOM_OBSOLETE_LIBS='-L$(LIBXUL_DIST)/lib -lxpcom_compat'
+--- xpcom/glue/standalone/nsGlueLinkingDlopen.cpp.orig	2007-06-10 02:12:32.000000000 +0200
++++ xpcom/glue/standalone/nsGlueLinkingDlopen.cpp	2007-06-10 02:17:26.000000000 +0200
+@@ -86,19 +86,20 @@
+ GetFrozenFunctionsFunc
+ XPCOMGlueLoad(const char *xpcomFile)
+ {
+-    char xpcomDir[MAXPATHLEN];
+-    if (realpath(xpcomFile, xpcomDir)) {
+-        char *lastSlash = strrchr(xpcomDir, '/');
+-        if (lastSlash) {
+-            *lastSlash = '\0';
+-
+-            XPCOMGlueLoadDependentLibs(xpcomDir, ReadDependentCB);
++    char xulFile[MAXPATHLEN];
++    char *lastSlash = strrchr(xpcomFile, '/');
++    if (!lastSlash) {
++        snprintf(xulFile, MAXPATHLEN, "./%s", xpcomFile);
++        return XPCOMGlueLoad(xulFile);
++    }
++    *lastSlash = '\0';
++    XPCOMGlueLoadDependentLibs(xpcomFile, ReadDependentCB);
+ 
+-            snprintf(lastSlash, MAXPATHLEN - strlen(xpcomDir), "/" XUL_DLL);
++    snprintf(xulFile, MAXPATHLEN - strlen(xpcomFile), "%s/" XUL_DLL, xpcomFile);
+ 
+-            sXULLibHandle = dlopen(xpcomDir, RTLD_GLOBAL | RTLD_LAZY);
+-        }
+-    }
++    sXULLibHandle = dlopen(xulFile, RTLD_GLOBAL | RTLD_LAZY);
++ 
++    *lastSlash = '/';
+ 
+     // RTLD_DEFAULT is not defined in non-GNU toolchains, and it is
+     // (void*) 0 in any case.
+--- xpcom/glue/nsStringAPI.h.orig	2007-06-10 03:42:07.000000000 +0200
++++ xpcom/glue/nsStringAPI.h	2007-06-10 03:47:03.000000000 +0200
+@@ -63,22 +63,22 @@
+   /**
+    * Returns the length, beginning, and end of a string in one operation.
+    */
+-  NS_HIDDEN_(PRUint32) BeginReading(const char_type **begin,
++  NS_EXPORT_(PRUint32) BeginReading(const char_type **begin,
+                                     const char_type **end = nsnull) const;
+ 
+-  NS_HIDDEN_(const char_type*) BeginReading() const;
+-  NS_HIDDEN_(const char_type*) EndReading() const;
++  NS_EXPORT_(const char_type*) BeginReading() const;
++  NS_EXPORT_(const char_type*) EndReading() const;
+ 
+-  NS_HIDDEN_(char_type) CharAt(PRUint32 aPos) const
++  NS_EXPORT_(char_type) CharAt(PRUint32 aPos) const
+   {
+     NS_ASSERTION(aPos < Length(), "Out of bounds");
+     return BeginReading()[aPos];
+   }
+-  NS_HIDDEN_(char_type) operator [](PRUint32 aPos) const
++  NS_EXPORT_(char_type) operator [](PRUint32 aPos) const
+   {
+     return CharAt(aPos);
+   }
+-  NS_HIDDEN_(char_type) First() const
++  NS_EXPORT_(char_type) First() const
+   {
+     return CharAt(0);
+   }
+@@ -91,88 +91,88 @@
+    *                  to leave the length unchanged.
+    * @return  The new length of the string, or 0 if resizing failed.
+    */
+-  NS_HIDDEN_(PRUint32) BeginWriting(char_type **begin,
++  NS_EXPORT_(PRUint32) BeginWriting(char_type **begin,
+                                     char_type **end = nsnull,
+                                     PRUint32 newSize = PR_UINT32_MAX);
+ 
+-  NS_HIDDEN_(char_type*) BeginWriting(PRUint32 = PR_UINT32_MAX);
+-  NS_HIDDEN_(char_type*) EndWriting();
++  NS_EXPORT_(char_type*) BeginWriting(PRUint32 = PR_UINT32_MAX);
++  NS_EXPORT_(char_type*) EndWriting();
+ 
+-  NS_HIDDEN_(PRBool) SetLength(PRUint32 aLen);
++  NS_EXPORT_(PRBool) SetLength(PRUint32 aLen);
+ 
+-  NS_HIDDEN_(size_type) Length() const
++  NS_EXPORT_(size_type) Length() const
+   {
+     const char_type* data;
+     return NS_StringGetData(*this, &data);
+   }
+ 
+-  NS_HIDDEN_(PRBool) IsEmpty() const
++  NS_EXPORT_(PRBool) IsEmpty() const
+   {
+     return Length() == 0;
+   }
+ 
+-  NS_HIDDEN_(void) Assign(const self_type& aString)
++  NS_EXPORT_(void) Assign(const self_type& aString)
+   {
+     NS_StringCopy(*this, aString);
+   }
+-  NS_HIDDEN_(void) Assign(const char_type* aData, size_type aLength = PR_UINT32_MAX)
++  NS_EXPORT_(void) Assign(const char_type* aData, size_type aLength = PR_UINT32_MAX)
+   {
+     NS_StringSetData(*this, aData, aLength);
+   }
+-  NS_HIDDEN_(void) Assign(char_type aChar)
++  NS_EXPORT_(void) Assign(char_type aChar)
+   {
+     NS_StringSetData(*this, &aChar, 1);
+   }
+ 
+-  NS_HIDDEN_(void) AssignLiteral(const char *aStr);
++  NS_EXPORT_(void) AssignLiteral(const char *aStr);
+ 
+-  NS_HIDDEN_(self_type&) operator=(const self_type& aString) { Assign(aString);   return *this; }
+-  NS_HIDDEN_(self_type&) operator=(const char_type* aPtr)    { Assign(aPtr);      return *this; }
+-  NS_HIDDEN_(self_type&) operator=(char_type aChar)          { Assign(aChar);     return *this; }
++  NS_EXPORT_(self_type&) operator=(const self_type& aString) { Assign(aString);   return *this; }
++  NS_EXPORT_(self_type&) operator=(const char_type* aPtr)    { Assign(aPtr);      return *this; }
++  NS_EXPORT_(self_type&) operator=(char_type aChar)          { Assign(aChar);     return *this; }
+ 
+-  NS_HIDDEN_(void) Replace( index_type cutStart, size_type cutLength, const char_type* data, size_type length = size_type(-1) )
++  NS_EXPORT_(void) Replace( index_type cutStart, size_type cutLength, const char_type* data, size_type length = size_type(-1) )
+   {
+     NS_StringSetDataRange(*this, cutStart, cutLength, data, length);
+   }
+-  NS_HIDDEN_(void) Replace( index_type cutStart, size_type cutLength, char_type c )
++  NS_EXPORT_(void) Replace( index_type cutStart, size_type cutLength, char_type c )
+   {
+     Replace(cutStart, cutLength, &c, 1);
+   }
+-  NS_HIDDEN_(void) Replace( index_type cutStart, size_type cutLength, const self_type& readable )
++  NS_EXPORT_(void) Replace( index_type cutStart, size_type cutLength, const self_type& readable )
+   {
+     const char_type* data;
+     PRUint32 dataLen = NS_StringGetData(readable, &data);
+     NS_StringSetDataRange(*this, cutStart, cutLength, data, dataLen);
+   }
+ 
+-  NS_HIDDEN_(void) Append( char_type c )                                                              { Replace(size_type(-1), 0, c); }
+-  NS_HIDDEN_(void) Append( const char_type* data, size_type length = size_type(-1) )                  { Replace(size_type(-1), 0, data, length); }
+-  NS_HIDDEN_(void) Append( const self_type& readable )                                                { Replace(size_type(-1), 0, readable); }
+-  NS_HIDDEN_(void) AppendLiteral( const char *aASCIIStr );
+-
+-  NS_HIDDEN_(self_type&) operator+=( char_type c )                                                    { Append(c);        return *this; }
+-  NS_HIDDEN_(self_type&) operator+=( const char_type* data )                                          { Append(data);     return *this; }
+-  NS_HIDDEN_(self_type&) operator+=( const self_type& readable )                                      { Append(readable); return *this; }
+-
+-  NS_HIDDEN_(void) Insert( char_type c, index_type pos )                                              { Replace(pos, 0, c); }
+-  NS_HIDDEN_(void) Insert( const char_type* data, index_type pos, size_type length = size_type(-1) )  { Replace(pos, 0, data, length); }
+-  NS_HIDDEN_(void) Insert( const self_type& readable, index_type pos )                                { Replace(pos, 0, readable); }
++  NS_EXPORT_(void) Append( char_type c )                                                              { Replace(size_type(-1), 0, c); }
++  NS_EXPORT_(void) Append( const char_type* data, size_type length = size_type(-1) )                  { Replace(size_type(-1), 0, data, length); }
++  NS_EXPORT_(void) Append( const self_type& readable )                                                { Replace(size_type(-1), 0, readable); }
++  NS_EXPORT_(void) AppendLiteral( const char *aASCIIStr );
++
++  NS_EXPORT_(self_type&) operator+=( char_type c )                                                    { Append(c);        return *this; }
++  NS_EXPORT_(self_type&) operator+=( const char_type* data )                                          { Append(data);     return *this; }
++  NS_EXPORT_(self_type&) operator+=( const self_type& readable )                                      { Append(readable); return *this; }
++
++  NS_EXPORT_(void) Insert( char_type c, index_type pos )                                              { Replace(pos, 0, c); }
++  NS_EXPORT_(void) Insert( const char_type* data, index_type pos, size_type length = size_type(-1) )  { Replace(pos, 0, data, length); }
++  NS_EXPORT_(void) Insert( const self_type& readable, index_type pos )                                { Replace(pos, 0, readable); }
+ 
+-  NS_HIDDEN_(void) Cut( index_type cutStart, size_type cutLength )                                    { Replace(cutStart, cutLength, nsnull, 0); }
++  NS_EXPORT_(void) Cut( index_type cutStart, size_type cutLength )                                    { Replace(cutStart, cutLength, nsnull, 0); }
+ 
+-  NS_HIDDEN_(void) Truncate() { SetLength(0); }
++  NS_EXPORT_(void) Truncate() { SetLength(0); }
+ 
+   /**
+    * Remove all occurences of characters in aSet from the string.
+    */
+-  NS_HIDDEN_(void) StripChars(const char *aSet);
++  NS_EXPORT_(void) StripChars(const char *aSet);
+ 
+   /**
+    * Strip whitespace characters from the string.
+    */
+-  NS_HIDDEN_(void) StripWhitespace() { StripChars(" \t\n\r"); }
++  NS_EXPORT_(void) StripWhitespace() { StripChars(" \t\n\r"); }
+ 
+-  NS_HIDDEN_(void) Trim(const char *aSet, PRBool aLeading = PR_TRUE,
++  NS_EXPORT_(void) Trim(const char *aSet, PRBool aLeading = PR_TRUE,
+                         PRBool aTrailing = PR_TRUE);
+ 
+   /**
+@@ -182,89 +182,89 @@
+                                     const char_type *b,
+                                     PRUint32 length);
+ 
+-  static NS_HIDDEN_(PRInt32) DefaultComparator(const char_type *a,
++  static NS_EXPORT_(PRInt32) DefaultComparator(const char_type *a,
+                                                const char_type *b,
+                                                PRUint32 length);
+ 
+-  NS_HIDDEN_(PRInt32) Compare( const char_type *other,
++  NS_EXPORT_(PRInt32) Compare( const char_type *other,
+                                ComparatorFunc c = DefaultComparator ) const;
+ 
+-  NS_HIDDEN_(PRInt32) Compare( const self_type &other,
++  NS_EXPORT_(PRInt32) Compare( const self_type &other,
+                                ComparatorFunc c = DefaultComparator ) const;
+ 
+-  NS_HIDDEN_(PRBool) Equals( const char_type *other,
++  NS_EXPORT_(PRBool) Equals( const char_type *other,
+                              ComparatorFunc c = DefaultComparator ) const;
+ 
+-  NS_HIDDEN_(PRBool) Equals( const self_type &other,
++  NS_EXPORT_(PRBool) Equals( const self_type &other,
+                              ComparatorFunc c = DefaultComparator ) const;
+ 
+-  NS_HIDDEN_(PRBool) operator < (const self_type &other) const
++  NS_EXPORT_(PRBool) operator < (const self_type &other) const
+   {
+     return Compare(other) < 0;
+   }
+-  NS_HIDDEN_(PRBool) operator < (const char_type *other) const
++  NS_EXPORT_(PRBool) operator < (const char_type *other) const
+   {
+     return Compare(other) < 0;
+   }
+ 
+-  NS_HIDDEN_(PRBool) operator <= (const self_type &other) const
++  NS_EXPORT_(PRBool) operator <= (const self_type &other) const
+   {
+     return Compare(other) <= 0;
+   }
+-  NS_HIDDEN_(PRBool) operator <= (const char_type *other) const
++  NS_EXPORT_(PRBool) operator <= (const char_type *other) const
+   {
+     return Compare(other) <= 0;
+   }
+ 
+-  NS_HIDDEN_(PRBool) operator == (const self_type &other) const
++  NS_EXPORT_(PRBool) operator == (const self_type &other) const
+   {
+     return Equals(other);
+   }
+-  NS_HIDDEN_(PRBool) operator == (const char_type *other) const
++  NS_EXPORT_(PRBool) operator == (const char_type *other) const
+   {
+     return Equals(other);
+   }
+ 
+-  NS_HIDDEN_(PRBool) operator >= (const self_type &other) const
++  NS_EXPORT_(PRBool) operator >= (const self_type &other) const
+   {
+     return Compare(other) >= 0;
+   }
+-  NS_HIDDEN_(PRBool) operator >= (const char_type *other) const
++  NS_EXPORT_(PRBool) operator >= (const char_type *other) const
+   {
+     return Compare(other) >= 0;
+   }
+ 
+-  NS_HIDDEN_(PRBool) operator > (const self_type &other) const
++  NS_EXPORT_(PRBool) operator > (const self_type &other) const
+   {
+     return Compare(other) > 0;
+   }
+-  NS_HIDDEN_(PRBool) operator > (const char_type *other) const
++  NS_EXPORT_(PRBool) operator > (const char_type *other) const
+   {
+     return Compare(other) > 0;
+   }
+ 
+-  NS_HIDDEN_(PRBool) operator != (const self_type &other) const
++  NS_EXPORT_(PRBool) operator != (const self_type &other) const
+   {
+     return !Equals(other);
+   }
+-  NS_HIDDEN_(PRBool) operator != (const char_type *other) const
++  NS_EXPORT_(PRBool) operator != (const char_type *other) const
+   {
+     return !Equals(other);
+   }
+ 
+-  NS_HIDDEN_(PRBool) EqualsLiteral(const char *aASCIIString) const;
++  NS_EXPORT_(PRBool) EqualsLiteral(const char *aASCIIString) const;
+ 
+   /**
+    * Case-insensitive match this string to a lowercase ASCII string.
+    */
+-  NS_HIDDEN_(PRBool) LowerCaseEqualsLiteral(const char *aASCIIString) const;
++  NS_EXPORT_(PRBool) LowerCaseEqualsLiteral(const char *aASCIIString) const;
+ 
+   /**
+    * Find the first occurence of aStr in this string.
+    *
+    * @return the offset of aStr, or -1 if not found
+    */
+-  NS_HIDDEN_(PRInt32) Find(const self_type& aStr,
++  NS_EXPORT_(PRInt32) Find(const self_type& aStr,
+                            ComparatorFunc c = DefaultComparator) const
+   { return Find(aStr, 0, c); }
+ 
+@@ -273,7 +273,7 @@
+    *
+    * @return the offset of aStr, or -1 if not found
+    */
+-  NS_HIDDEN_(PRInt32) Find(const self_type& aStr, PRUint32 aOffset,
++  NS_EXPORT_(PRInt32) Find(const self_type& aStr, PRUint32 aOffset,
+                            ComparatorFunc c = DefaultComparator) const;
+ 
+   /**
+@@ -281,10 +281,10 @@
+    *
+    * @return the offset of aStr, or -1 if not found.
+    */
+-  NS_HIDDEN_(PRInt32) Find(const char *aStr, PRBool aIgnoreCase = PR_FALSE) const
++  NS_EXPORT_(PRInt32) Find(const char *aStr, PRBool aIgnoreCase = PR_FALSE) const
+   { return Find(aStr, 0, aIgnoreCase); }
+ 
+-  NS_HIDDEN_(PRInt32) Find(const char *aStr, PRUint32 aOffset, PRBool aIgnoreCase = PR_FALSE) const;
++  NS_EXPORT_(PRInt32) Find(const char *aStr, PRUint32 aOffset, PRBool aIgnoreCase = PR_FALSE) const;
+ 
+   /**
+    * Search for the offset of the first occurrence of a character in a
+@@ -295,7 +295,7 @@
+    * @return The offset of the character from the beginning of the string,
+    *         or -1 if not found.
+    */
+-  NS_HIDDEN_(PRInt32) FindChar(char_type aChar, PRUint32 aOffset = 0) const;
++  NS_EXPORT_(PRInt32) FindChar(char_type aChar, PRUint32 aOffset = 0) const;
+ 
+   /**
+    * Search for the offset of the last occurrence of a character in a
+@@ -304,12 +304,12 @@
+    * @return The offset of the character from the beginning of the string,
+    *         or -1 if not found.
+    */
+-  NS_HIDDEN_(PRInt32) RFindChar(char_type aChar) const;
++  NS_EXPORT_(PRInt32) RFindChar(char_type aChar) const;
+ 
+   /**
+    * Append a string representation of a number.
+    */
+-  NS_HIDDEN_(void) AppendInt(int aInt, PRInt32 aRadix = 10);
++  NS_EXPORT_(void) AppendInt(int aInt, PRInt32 aRadix = 10);
+ 
+ #ifndef XPCOM_GLUE_AVOID_NSPR
+   /**
+@@ -318,7 +318,7 @@
+    * @param aErrorCode pointer to contain result code.
+    * @param aRadix must be 10 or 16
+    */
+-  NS_HIDDEN_(PRInt32) ToInteger(nsresult* aErrorCode,
++  NS_EXPORT_(PRInt32) ToInteger(nsresult* aErrorCode,
+                                 PRUint32 aRadix = 10) const;
+ #endif // XPCOM_GLUE_AVOID_NSPR
+ 
+@@ -338,22 +338,22 @@
+   /**
+    * Returns the length, beginning, and end of a string in one operation.
+    */
+-  NS_HIDDEN_(PRUint32) BeginReading(const char_type **begin,
++  NS_EXPORT_(PRUint32) BeginReading(const char_type **begin,
+                                     const char_type **end = nsnull) const;
+ 
+-  NS_HIDDEN_(const char_type*) BeginReading() const;
+-  NS_HIDDEN_(const char_type*) EndReading() const;
++  NS_EXPORT_(const char_type*) BeginReading() const;
++  NS_EXPORT_(const char_type*) EndReading() const;
+ 
+-  NS_HIDDEN_(char_type) CharAt(PRUint32 aPos) const
++  NS_EXPORT_(char_type) CharAt(PRUint32 aPos) const
+   {
+     NS_ASSERTION(aPos < Length(), "Out of bounds");
+     return BeginReading()[aPos];
+   }
+-  NS_HIDDEN_(char_type) operator [](PRUint32 aPos) const
++  NS_EXPORT_(char_type) operator [](PRUint32 aPos) const
+   {
+     return CharAt(aPos);
+   }
+-  NS_HIDDEN_(char_type) First() const
++  NS_EXPORT_(char_type) First() const
+   {
+     return CharAt(0);
+   }
+@@ -366,90 +366,90 @@
+    *                  to leave the length unchanged.
+    * @return  The new length of the string, or 0 if resizing failed.
+    */
+-  NS_HIDDEN_(PRUint32) BeginWriting(char_type **begin,
++  NS_EXPORT_(PRUint32) BeginWriting(char_type **begin,
+                                     char_type **end = nsnull,
+                                     PRUint32 newSize = PR_UINT32_MAX);
+ 
+-  NS_HIDDEN_(char_type*) BeginWriting(PRUint32 aLen = PR_UINT32_MAX);
+-  NS_HIDDEN_(char_type*) EndWriting();
++  NS_EXPORT_(char_type*) BeginWriting(PRUint32 aLen = PR_UINT32_MAX);
++  NS_EXPORT_(char_type*) EndWriting();
+ 
+-  NS_HIDDEN_(PRBool) SetLength(PRUint32 aLen);
++  NS_EXPORT_(PRBool) SetLength(PRUint32 aLen);
+ 
+-  NS_HIDDEN_(size_type) Length() const
++  NS_EXPORT_(size_type) Length() const
+   {
+     const char_type* data;
+     return NS_CStringGetData(*this, &data);
+   }
+ 
+-  NS_HIDDEN_(PRBool) IsEmpty() const
++  NS_EXPORT_(PRBool) IsEmpty() const
+   {
+     return Length() == 0;
+   }
+ 
+-  NS_HIDDEN_(void) Assign(const self_type& aString)
++  NS_EXPORT_(void) Assign(const self_type& aString)
+   {
+     NS_CStringCopy(*this, aString);
+   }
+-  NS_HIDDEN_(void) Assign(const char_type* aData, size_type aLength = PR_UINT32_MAX)
++  NS_EXPORT_(void) Assign(const char_type* aData, size_type aLength = PR_UINT32_MAX)
+   {
+     NS_CStringSetData(*this, aData, aLength);
+   }
+-  NS_HIDDEN_(void) Assign(char_type aChar)
++  NS_EXPORT_(void) Assign(char_type aChar)
+   {
+     NS_CStringSetData(*this, &aChar, 1);
+   }
+-  NS_HIDDEN_(void) AssignLiteral(const char_type *aData)
++  NS_EXPORT_(void) AssignLiteral(const char_type *aData)
+   {
+     Assign(aData);
+   }
+ 
+-  NS_HIDDEN_(self_type&) operator=(const self_type& aString) { Assign(aString);   return *this; }
+-  NS_HIDDEN_(self_type&) operator=(const char_type* aPtr)    { Assign(aPtr);      return *this; }
+-  NS_HIDDEN_(self_type&) operator=(char_type aChar)          { Assign(aChar);     return *this; }
++  NS_EXPORT_(self_type&) operator=(const self_type& aString) { Assign(aString);   return *this; }
++  NS_EXPORT_(self_type&) operator=(const char_type* aPtr)    { Assign(aPtr);      return *this; }
++  NS_EXPORT_(self_type&) operator=(char_type aChar)          { Assign(aChar);     return *this; }
+ 
+-  NS_HIDDEN_(void) Replace( index_type cutStart, size_type cutLength, const char_type* data, size_type length = size_type(-1) )
++  NS_EXPORT_(void) Replace( index_type cutStart, size_type cutLength, const char_type* data, size_type length = size_type(-1) )
+   {
+     NS_CStringSetDataRange(*this, cutStart, cutLength, data, length);
+   }
+-  NS_HIDDEN_(void) Replace( index_type cutStart, size_type cutLength, char_type c )
++  NS_EXPORT_(void) Replace( index_type cutStart, size_type cutLength, char_type c )
+   {
+     Replace(cutStart, cutLength, &c, 1);
+   }
+-  NS_HIDDEN_(void) Replace( index_type cutStart, size_type cutLength, const self_type& readable )
++  NS_EXPORT_(void) Replace( index_type cutStart, size_type cutLength, const self_type& readable )
+   {
+     const char_type* data;
+     PRUint32 dataLen = NS_CStringGetData(readable, &data);
+     NS_CStringSetDataRange(*this, cutStart, cutLength, data, dataLen);
+   }
+ 
+-  NS_HIDDEN_(void) Append( char_type c )                                                              { Replace(size_type(-1), 0, c); }
+-  NS_HIDDEN_(void) Append( const char_type* data, size_type length = size_type(-1) )                  { Replace(size_type(-1), 0, data, length); }
+-  NS_HIDDEN_(void) Append( const self_type& readable )                                                { Replace(size_type(-1), 0, readable); }
+-  NS_HIDDEN_(void) AppendLiteral( const char *aASCIIStr )                                             { Append(aASCIIStr); }
+-
+-  NS_HIDDEN_(self_type&) operator+=( char_type c )                                                    { Append(c);        return *this; }
+-  NS_HIDDEN_(self_type&) operator+=( const char_type* data )                                          { Append(data);     return *this; }
+-  NS_HIDDEN_(self_type&) operator+=( const self_type& readable )                                      { Append(readable); return *this; }
+-
+-  NS_HIDDEN_(void) Insert( char_type c, index_type pos )                                              { Replace(pos, 0, c); }
+-  NS_HIDDEN_(void) Insert( const char_type* data, index_type pos, size_type length = size_type(-1) )  { Replace(pos, 0, data, length); }
+-  NS_HIDDEN_(void) Insert( const self_type& readable, index_type pos )                                { Replace(pos, 0, readable); }
++  NS_EXPORT_(void) Append( char_type c )                                                              { Replace(size_type(-1), 0, c); }
++  NS_EXPORT_(void) Append( const char_type* data, size_type length = size_type(-1) )                  { Replace(size_type(-1), 0, data, length); }
++  NS_EXPORT_(void) Append( const self_type& readable )                                                { Replace(size_type(-1), 0, readable); }
++  NS_EXPORT_(void) AppendLiteral( const char *aASCIIStr )                                             { Append(aASCIIStr); }
++
++  NS_EXPORT_(self_type&) operator+=( char_type c )                                                    { Append(c);        return *this; }
++  NS_EXPORT_(self_type&) operator+=( const char_type* data )                                          { Append(data);     return *this; }
++  NS_EXPORT_(self_type&) operator+=( const self_type& readable )                                      { Append(readable); return *this; }
++
++  NS_EXPORT_(void) Insert( char_type c, index_type pos )                                              { Replace(pos, 0, c); }
++  NS_EXPORT_(void) Insert( const char_type* data, index_type pos, size_type length = size_type(-1) )  { Replace(pos, 0, data, length); }
++  NS_EXPORT_(void) Insert( const self_type& readable, index_type pos )                                { Replace(pos, 0, readable); }
+ 
+-  NS_HIDDEN_(void) Cut( index_type cutStart, size_type cutLength )                                    { Replace(cutStart, cutLength, nsnull, 0); }
++  NS_EXPORT_(void) Cut( index_type cutStart, size_type cutLength )                                    { Replace(cutStart, cutLength, nsnull, 0); }
+ 
+-  NS_HIDDEN_(void) Truncate() { SetLength(0); }
++  NS_EXPORT_(void) Truncate() { SetLength(0); }
+ 
+   /**
+    * Remove all occurences of characters in aSet from the string.
+    */
+-  NS_HIDDEN_(void) StripChars(const char *aSet);
++  NS_EXPORT_(void) StripChars(const char *aSet);
+ 
+   /**
+    * Strip whitespace characters from the string.
+    */
+-  NS_HIDDEN_(void) StripWhitespace() { StripChars(" \t\r\n"); }
++  NS_EXPORT_(void) StripWhitespace() { StripChars(" \t\r\n"); }
+ 
+-  NS_HIDDEN_(void) Trim(const char *aSet, PRBool aLeading = PR_TRUE,
++  NS_EXPORT_(void) Trim(const char *aSet, PRBool aLeading = PR_TRUE,
+                         PRBool aTrailing = PR_TRUE);
+ 
+   /**
+@@ -459,77 +459,77 @@
+                                     const char_type *b,
+                                     PRUint32 length);
+ 
+-  static NS_HIDDEN_(PRInt32) DefaultComparator(const char_type *a,
++  static NS_EXPORT_(PRInt32) DefaultComparator(const char_type *a,
+                                                const char_type *b,
+                                                PRUint32 length);
+ 
+-  NS_HIDDEN_(PRInt32) Compare( const char_type *other,
++  NS_EXPORT_(PRInt32) Compare( const char_type *other,
+                                ComparatorFunc c = DefaultComparator ) const;
+ 
+-  NS_HIDDEN_(PRInt32) Compare( const self_type &other,
++  NS_EXPORT_(PRInt32) Compare( const self_type &other,
+                                ComparatorFunc c = DefaultComparator ) const;
+ 
+-  NS_HIDDEN_(PRBool) Equals( const char_type *other,
++  NS_EXPORT_(PRBool) Equals( const char_type *other,
+                              ComparatorFunc c = DefaultComparator ) const;
+ 
+-  NS_HIDDEN_(PRBool) Equals( const self_type &other,
++  NS_EXPORT_(PRBool) Equals( const self_type &other,
+                              ComparatorFunc c = DefaultComparator ) const;
+ 
+-  NS_HIDDEN_(PRBool) operator < (const self_type &other) const
++  NS_EXPORT_(PRBool) operator < (const self_type &other) const
+   {
+     return Compare(other) < 0;
+   }
+-  NS_HIDDEN_(PRBool) operator < (const char_type *other) const
++  NS_EXPORT_(PRBool) operator < (const char_type *other) const
+   {
+     return Compare(other) < 0;
+   }
+ 
+-  NS_HIDDEN_(PRBool) operator <= (const self_type &other) const
++  NS_EXPORT_(PRBool) operator <= (const self_type &other) const
+   {
+     return Compare(other) <= 0;
+   }
+-  NS_HIDDEN_(PRBool) operator <= (const char_type *other) const
++  NS_EXPORT_(PRBool) operator <= (const char_type *other) const
+   {
+     return Compare(other) <= 0;
+   }
+ 
+-  NS_HIDDEN_(PRBool) operator == (const self_type &other) const
++  NS_EXPORT_(PRBool) operator == (const self_type &other) const
+   {
+     return Equals(other);
+   }
+-  NS_HIDDEN_(PRBool) operator == (const char_type *other) const
++  NS_EXPORT_(PRBool) operator == (const char_type *other) const
+   {
+     return Equals(other);
+   }
+ 
+-  NS_HIDDEN_(PRBool) operator >= (const self_type &other) const
++  NS_EXPORT_(PRBool) operator >= (const self_type &other) const
+   {
+     return Compare(other) >= 0;
+   }
+-  NS_HIDDEN_(PRBool) operator >= (const char_type *other) const
++  NS_EXPORT_(PRBool) operator >= (const char_type *other) const
+   {
+     return Compare(other) >= 0;
+   }
+ 
+-  NS_HIDDEN_(PRBool) operator > (const self_type &other) const
++  NS_EXPORT_(PRBool) operator > (const self_type &other) const
+   {
+     return Compare(other) > 0;
+   }
+-  NS_HIDDEN_(PRBool) operator > (const char_type *other) const
++  NS_EXPORT_(PRBool) operator > (const char_type *other) const
+   {
+     return Compare(other) > 0;
+   }
+ 
+-  NS_HIDDEN_(PRBool) operator != (const self_type &other) const
++  NS_EXPORT_(PRBool) operator != (const self_type &other) const
+   {
+     return !Equals(other);
+   }
+-  NS_HIDDEN_(PRBool) operator != (const char_type *other) const
++  NS_EXPORT_(PRBool) operator != (const char_type *other) const
+   {
+     return !Equals(other);
+   }
+ 
+-  NS_HIDDEN_(PRBool) EqualsLiteral( const char_type *other ) const
++  NS_EXPORT_(PRBool) EqualsLiteral( const char_type *other ) const
+   {
+     return Equals(other);
+   }
+@@ -539,7 +539,7 @@
+    *
+    * @return the offset of aStr, or -1 if not found
+    */
+-  NS_HIDDEN_(PRInt32) Find(const self_type& aStr,
++  NS_EXPORT_(PRInt32) Find(const self_type& aStr,
+                            ComparatorFunc c = DefaultComparator) const
+   { return Find(aStr, 0, c); }
+ 
+@@ -548,7 +548,7 @@
+    *
+    * @return the offset of aStr, or -1 if not found
+    */
+-  NS_HIDDEN_(PRInt32) Find(const self_type& aStr, PRUint32 aOffset,
++  NS_EXPORT_(PRInt32) Find(const self_type& aStr, PRUint32 aOffset,
+                            ComparatorFunc c = DefaultComparator) const;
+ 
+   /**
+@@ -556,10 +556,10 @@
+    *
+    * @return the offset of aStr, or -1 if not found
+    */
+-  NS_HIDDEN_(PRInt32) Find(const char_type *aStr,
++  NS_EXPORT_(PRInt32) Find(const char_type *aStr,
+                            ComparatorFunc c = DefaultComparator) const;
+ 
+-  NS_HIDDEN_(PRInt32) Find(const char_type *aStr, PRUint32 aLen,
++  NS_EXPORT_(PRInt32) Find(const char_type *aStr, PRUint32 aLen,
+                            ComparatorFunc c = DefaultComparator) const;
+ 
+   /**
+@@ -571,7 +571,7 @@
+    * @return The offset of the character from the beginning of the string,
+    *         or -1 if not found.
+    */
+-  NS_HIDDEN_(PRInt32) FindChar(char_type aChar, PRUint32 aOffset = 0) const;
++  NS_EXPORT_(PRInt32) FindChar(char_type aChar, PRUint32 aOffset = 0) const;
+ 
+   /**
+    * Search for the offset of the last occurrence of a character in a
+@@ -580,12 +580,12 @@
+    * @return The offset of the character from the beginning of the string,
+    *         or -1 if not found.
+    */
+-  NS_HIDDEN_(PRInt32) RFindChar(char_type aChar) const;
++  NS_EXPORT_(PRInt32) RFindChar(char_type aChar) const;
+ 
+   /**
+    * Append a string representation of a number.
+    */
+-  NS_HIDDEN_(void) AppendInt(int aInt, PRInt32 aRadix = 10);
++  NS_EXPORT_(void) AppendInt(int aInt, PRInt32 aRadix = 10);
+ 
+ #ifndef XPCOM_GLUE_AVOID_NSPR
+   /**
+@@ -594,7 +594,7 @@
+    * @param aErrorCode pointer to contain result code.
+    * @param aRadix must be 10 or 16
+    */
+-  NS_HIDDEN_(PRInt32) ToInteger(nsresult* aErrorCode,
++  NS_EXPORT_(PRInt32) ToInteger(nsresult* aErrorCode,
+                                 PRUint32 aRadix = 10) const;
+ #endif // XPCOM_GLUE_AVOID_NSPR
+ 
+@@ -1260,7 +1260,7 @@
+  * Trim whitespace from the beginning and end of a string; then compress
+  * remaining runs of whitespace characters to a single space.
+  */
+-NS_HIDDEN_(void)
++NS_EXPORT_(void)
+ CompressWhitespace(nsAString& aString);
+ 
+ #define EmptyCString() nsCString()
+@@ -1270,22 +1270,22 @@
+  * Convert an ASCII string to all upper/lowercase (a-z,A-Z only). As a bonus,
+  * returns the string length.
+  */
+-NS_HIDDEN_(PRUint32)
++NS_EXPORT_(PRUint32)
+ ToLowerCase(nsACString& aStr);
+ 
+-NS_HIDDEN_(PRUint32)
++NS_EXPORT_(PRUint32)
+ ToUpperCase(nsACString& aStr);
+ 
+-NS_HIDDEN_(PRUint32)
++NS_EXPORT_(PRUint32)
+ ToLowerCase(const nsACString& aSrc, nsACString& aDest);
+ 
+-NS_HIDDEN_(PRUint32)
++NS_EXPORT_(PRUint32)
+ ToUpperCase(const nsACString& aSrc, nsACString& aDest);
+ 
+ /**
+  * Comparison function for use with nsACString::Equals
+  */
+-NS_HIDDEN_(PRInt32)
++NS_EXPORT_(PRInt32)
+ CaseInsensitiveCompare(const char *a, const char *b,
+                        PRUint32 length);
+ 
+--- toolkit/system/gnome/Makefile.in.orig	2007-06-10 07:43:42.000000000 +0200
++++ toolkit/system/gnome/Makefile.in	2007-06-10 07:44:14.000000000 +0200
+@@ -60,7 +60,7 @@
+ 	$(NULL)
+ 
+ EXTRA_DSO_LDOPTS += \
+-		$(XPCOM_GLUE_LDOPTS) \
++		$(XPCOM_STANDALONE_GLUE_LDOPTS) \
+ 		$(XPCOM_FROZEN_LDOPTS) \
+ 		$(NSPR_LIBS) \
+ 		$(MOZ_GCONF_LIBS) \
+--- xpcom/glue/nsISupportsImpl.h.orig	2007-06-10 09:53:30.000000000 +0200
++++ xpcom/glue/nsISupportsImpl.h	2007-06-10 09:45:09.000000000 +0200
+@@ -46,14 +46,6 @@
+ #include "nsISupportsBase.h"
+ #endif
+ 
+-#if defined(XPCOM_GLUE) && !defined(XPCOM_GLUE_USE_NSPR)
+-// If we're being linked as standalone glue, we don't want a dynamic dependency
+-// on NSPR libs, so we skip the debug thread-safety checks, and we cannot use
+-// the THREADSAFE_ISUPPORTS macros.
+-
+-#define XPCOM_GLUE_AVOID_NSPR
+-
+-#endif
+ 
+ 
+ #if !defined(XPCOM_GLUE_AVOID_NSPR)
+--- xpcom/glue/standalone/Makefile.in.orig	2007-06-10 09:54:49.000000000 +0200
++++ xpcom/glue/standalone/Makefile.in	2007-06-10 09:54:34.000000000 +0200
+@@ -47,11 +47,17 @@
+ 
+ MODULE		= xpcom
+ LIBRARY_NAME	= xpcomglue
++SO_VERSION	= 2
++VISIBILITY_FLAGS=
+ DIST_INSTALL	= 1
+ 
+ REQUIRES	= string \
+ 		  $(NULL)
+ 
++EXTRA_DSO_LDOPTS += $(NSSLIBS) \
++		$(NSPR_LIBS)
++
++
+ LOCAL_INCLUDES	= \
+ 		-I$(srcdir)/../../build \
+ 		$(NULL)
+@@ -82,7 +88,8 @@
+ 		$(NULL)
+ 
+ CPPSRCS		= \
+-		$(XPCOM_GLUE_SRC_LCPPSRCS)   \
++		$(XPCOM_GLUE_SRC_LCPPSRCS)  \
++		$(XPCOM_GLUENS_SRC_LCPPSRCS)  \
+ 		nsXPCOMGlue.cpp              \
+ 		nsGREDirServiceProvider.cpp  \
+ 		$(LINKSRC)                   \
+@@ -93,11 +100,11 @@
+ 		$(NULL)
+ 
+ SDK_LIBRARY     	= \
+-		$(LIB_PREFIX)xpcomglue.$(LIB_SUFFIX) \
++		$(DLL_PREFIX)xpcomglue$(DLL_SUFFIX) \
+ 		$(NULL)
+ 
+ # we don't want the shared lib, but we want to force the creation of a static lib.
+-FORCE_STATIC_LIB = 1
++#FORCE_STATIC_LIB = 1
+ 
+ # Force use of PIC
+ FORCE_USE_PIC	= 1
+@@ -107,7 +114,7 @@
+ # for this library on Windows.
+ USE_STATIC_LIBS = 1
+ 
+-GARBAGE         += $(XPCOM_GLUE_SRC_LCSRCS) $(XPCOM_GLUE_SRC_LCPPSRCS) $(wildcard *.$(OBJ_SUFFIX))
++GARBAGE         += $(XPCOM_GLUE_SRC_LCSRCS) $(XPCOM_GLUE_SRC_LCPPSRCS) $(XPCOM_GLUENS_SRC_CPPSRCS) $(wildcard *.$(OBJ_SUFFIX))
+ 
+ SRCS_IN_OBJDIR	= 1
+ 
+@@ -120,7 +127,7 @@
+ DEFINES += -D_USE_ANSI_CPP
+ endif
+ 
+-export:: $(XPCOM_GLUE_SRC_CSRCS) $(XPCOM_GLUE_SRC_CPPSRCS)
++export:: $(XPCOM_GLUE_SRC_CSRCS) $(XPCOM_GLUE_SRC_CPPSRCS) $(XPCOM_GLUENS_SRC_CPPSRCS)
+ 	$(INSTALL) $^ .
+ 
+ DEFINES		+= -DXPCOM_GLUE
+--- xpcom/tools/registry/Makefile.in.orig	2007-06-10 17:51:40.000000000 +0200
++++ xpcom/tools/registry/Makefile.in	2007-06-10 17:51:53.000000000 +0200
+@@ -54,6 +54,7 @@
+ SIMPLE_PROGRAMS	= $(CPPSRCS:.cpp=$(BIN_SUFFIX))
+ 
+ LIBS            = \
++		$(XPCOM_FROZEN_LDOPTS) \
+ 		$(XPCOM_STANDALONE_GLUE_LDOPTS) \
+ 		$(NULL)
+ 
+--- js/src/xpconnect/shell/Makefile.in.orig	2007-06-10 18:21:06.000000000 +0200
++++ js/src/xpconnect/shell/Makefile.in	2007-06-10 18:21:29.000000000 +0200
+@@ -55,7 +55,7 @@
+ CPPSRCS		= xpcshell.cpp
+ 
+ LIBS		= \
+-		$(DIST)/lib/$(LIB_PREFIX)xpcomglue_s.$(LIB_SUFFIX) \
++		$(XPCOM_STANDALONE_GLUE_LDOPTS) \
+ 		$(MOZ_JS_LIBS) \
+ 		$(XPCOM_LIBS) \
+ 		$(NSPR_LIBS) \
+--- xulrunner/stub/Makefile.in.orig	2007-06-10 19:46:52.000000000 +0200
++++ xulrunner/stub/Makefile.in	2007-06-10 19:47:16.000000000 +0200
+@@ -66,7 +66,7 @@
+ DEFINES  += -DXPCOM_GLUE
+ 
+ LIBS = \
+-  $(XPCOM_STANDALONE_GLUE_LDOPTS) \
++  $(XPCOM_GLUE_LDOPTS) \
+   $(NULL)
+ 
+ # Need to link with CoreFoundation on Mac
+--- xulrunner/app/Makefile.in.orig	2007-06-10 20:21:32.000000000 +0200
++++ xulrunner/app/Makefile.in	2007-06-10 20:21:50.000000000 +0200
+@@ -105,7 +105,7 @@
+ LIBS += \
+ 	$(EXTRA_DSO_LIBS) \
+ 	$(MOZ_JS_LIBS) \
+-	$(DIST)/lib/$(LIB_PREFIX)xpcomglue_s.$(LIB_SUFFIX) \
++	$(XPCOM_STANDALONE_GLUE_LDOPTS) \
+ 	$(XPCOM_LIBS) \
+ 	$(NSPR_LIBS) \
+ 	$(TK_LIBS) \
+--- extensions/wallet/build/Makefile.in.orig	2007-06-10 22:58:58.000000000 +0200
++++ extensions/wallet/build/Makefile.in	2007-06-10 23:00:25.000000000 +0200
+@@ -48,7 +48,7 @@
+ SHORT_LIBNAME	= wlltvwrs
+ IS_COMPONENT	= 1
+ MODULE_NAME	= nsWalletViewerModule
+-MOZILLA_INTERNAL_API = 1
++LIBXUL_LIBRARY = 1
+ 
+ PACKAGE_FILE = walletviewer.pkg
+ 
+@@ -73,6 +73,8 @@
+ 		$(MOZ_COMPONENT_LIBS) \
+ 		$(NULL)
+ 
++
++#		$(XPCOM_STANDALONE_GLUE_LDOPTS)
+ ifeq ($(OS_ARCH),WINNT)
+ OS_LIBS		+= $(call EXPAND_LIBNAME,shell32)
+ endif
+--- extensions/wallet/src/Makefile.in.orig	2007-06-10 22:59:17.000000000 +0200
++++ extensions/wallet/src/Makefile.in	2007-06-10 22:59:44.000000000 +0200
+@@ -48,7 +48,7 @@
+ IS_COMPONENT	= 1
+ MODULE_NAME	= nsWalletModule
+ GRE_MODULE	= 1
+-MOZILLA_INTERNAL_API = 1
++LIBXUL_LIBRARY = 1
+ 
+ PACKAGE_FILE = wallet.pkg
+ 
+@@ -94,6 +94,7 @@
+ 		$(MOZ_COMPONENT_LIBS) \
+ 		$(NULL)
+ 
++#		$(XPCOM_STANDALONE_GLUE_LDOPTS)
+ include $(topsrcdir)/config/rules.mk
+ 
+ libs::
+--- xpcom/base/nscore.h.orig	2007-06-12 02:29:56.000000000 +0200
++++ xpcom/base/nscore.h	2007-06-11 04:03:44.000000000 +0200
+@@ -274,12 +274,12 @@
+ #define XPCOM_API(type) IMPORT_XPCOM_API(type)
+ #endif
+ 
+-#ifdef MOZ_ENABLE_LIBXUL
+-#define NS_COM
+-#elif defined(_IMPL_NS_COM)
++#if defined(_IMPL_NS_COM)
+ #define NS_COM NS_EXPORT
+-#elif defined(XPCOM_GLUE)
++#elif defined (MOZ_ENABLE_LIBXUL)
+ #define NS_COM
++#elif defined(XPCOM_GLUE)
++#define NS_COM 
+ #else
+ #define NS_COM NS_IMPORT
+ #endif
+@@ -296,11 +296,7 @@
+ #  define nsAString nsAString_internal
+ #  define nsACString nsACString_internal
+ #else
+-#  ifdef HAVE_VISIBILITY_ATTRIBUTE
+-#    define NS_COM_GLUE NS_VISIBILITY_HIDDEN
+-#  else
+ #    define NS_COM_GLUE
+-#  endif
+ #endif
+ 
+ 

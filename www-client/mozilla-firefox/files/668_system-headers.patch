@@ -1,0 +1,15 @@
+--- config/system-headers.orig	2007-07-23 00:50:59.000000000 +0200
++++ config/system-headers	2007-07-23 01:26:58.000000000 +0200
+@@ -360,6 +360,12 @@
+ libgnomevfs/gnome-vfs-mime-utils.h
+ libgnomevfs/gnome-vfs-ops.h
+ libgnomevfs/gnome-vfs-standard-callbacks.h
++libsn/sn-common.h
++libsn/sn-launchee.h
++libsn/sn-launcher.h
++libsn/sn-monitor.h
++libsn/sn-util.h
++libsn/sn.h
+ libIDL/IDL.h
+ lib$routines.h
+ limits
