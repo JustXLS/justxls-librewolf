@@ -49,6 +49,7 @@ RDEPEND="java? ( virtual/jre )
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12_alpha1
 	>=dev-libs/nspr-4.7.0_pre20071016
+	>=net-libs/xulrunner-1.9_pre20071201
 	>=app-text/hunspell-1.1.9
 	>=media-libs/lcms-1.17"
 
