@@ -3,7 +3,7 @@
 # $Header: Exp $
 
 WANT_AUTOCONF="2.1"
-inherit flag-o-matic toolchain-funcs eutils mozconfig-minefield makeedit multilib cvs java-pkg-opt-2 python autotools
+inherit flag-o-matic toolchain-funcs eutils mozconfig-minefield makeedit multilib java-pkg-opt-2 python autotools
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
