@@ -1,2 +1,3 @@
-# This is an older version than beta1
-=net-libs/xulrunner-1.9_pre20070716-r1
+# P.mask pre versions, so ppl use beta2
+=net-libs/xulrunner-1.9_pre*
+=www-client/mozilla-firefox-3.0_pre*
