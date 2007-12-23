@@ -1,0 +1,30 @@
+Index: toolkit/components/passwordmgr/src/nsLoginManagerPrompter.js
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/components/passwordmgr/src/nsLoginManagerPrompter.js,v
+retrieving revision 1.15
+diff -u -8 -p -r1.15 nsLoginManagerPrompter.js
+--- toolkit/components/passwordmgr/src/nsLoginManagerPrompter.js	5 Dec 2007 21:16:34 -0000	1.15
++++ toolkit/components/passwordmgr/src/nsLoginManagerPrompter.js	14 Dec 2007 16:18:23 -0000
+@@ -608,20 +608,20 @@ LoginManagerPrompter.prototype = {
+             this.log("No notification box available: " + e)
+         }
+ 
+         return null;
+     },
+ 
+ 
+     /*
+-     * _getLocalisedString
++     * _getLocalizedString
+      *
+      * Can be called as:
+-     *   _getLocalisedString("key1");
++     *   _getLocalizedString("key1");
+      *   _getLocalizedString("key2", ["arg1"]);
+      *   _getLocalizedString("key3", ["arg1", "arg2"]);
+      *   (etc)
+      *
+      * Returns the localized string for the specified key,
+      * formatted if required.
+      *
+      */ 

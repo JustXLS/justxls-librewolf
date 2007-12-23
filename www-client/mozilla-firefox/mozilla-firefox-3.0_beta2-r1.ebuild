@@ -133,6 +133,9 @@ src_unpack() {
 #	epatch "${FILESDIR}"/888_fix_nss_fix_389872.patch
 #	epatch "${FILESDIR}"/033_firefox-2.0_ppc_powerpc.patch
 
+	# Upstream, bug 408373
+	epatch "${FILESDIR}"/bug408373.patch
+
 	#correct the cairo/glitz mess, if using system libs
 	epatch "${FILESDIR}"/666_mozilla-glitz-cairo.patch
 	#add the standard gentoo plugins dir
