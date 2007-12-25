@@ -16,7 +16,7 @@ MY_P="${PN}-${MY_PV}"
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.org/projects/firefox/"
 
-KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~sparc ~x86 ~x86-fbsd"
+KEYWORDS="~alpha ~amd64 ~ia64 ~ppc -sparc ~x86 ~x86-fbsd"
 SLOT="0"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
 IUSE="java mozdevelop bindist xforms restrict-javascript filepicker +xulrunner"
