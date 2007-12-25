@@ -58,6 +58,8 @@ src_unpack() {
 	# Upstream bug #408373
 	epatch "${FILESDIR}"/bug408373.patch
 
+	epatch "${FILESDIR}"/hppa.patch
+
 	#correct the pkg-config files and xulrunner-config
 	epatch "${FILESDIR}"/008_xulrunner-gentoo-pkgconfig-3.patch
 	#use so-names
