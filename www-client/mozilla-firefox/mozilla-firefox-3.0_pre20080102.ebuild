@@ -4,11 +4,11 @@
 
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-minefield makeedit multilib fdo-mime autotools
+inherit flag-o-matic toolchain-funcs eutils mozconfig-minefield makeedit multilib fdo-mime autotools mozilla-launcher
 
 #PATCH="${PN}-2.0.0.8-patches-0.2"
-#LANGS="be cs de el es-ES fi fr fy-NL gu-IN ja ka ko lt nl pl ru sk sv-SE uk zh-CN"
-#NOSHORTLANGS=""
+#LANGS="be ca cs de el es-AR es-ES eu fi fr fy-NL gu-IN ja ko nb-NO nl pa-IN  pl pt-PT ro ru sk sv-SE tr uk zh-CN"
+#NOSHORTLANGS="es-AR"
 
 MY_PV=${PV/_beta/b}
 MY_P="${PN}-${MY_PV}"
@@ -16,7 +16,7 @@ MY_P="${PN}-${MY_PV}"
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.org/projects/firefox/"
 
-KEYWORDS="~alpha ~amd64 ~ia64 ~ppc -sparc ~x86 ~x86-fbsd"
+KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~sparc ~x86 ~x86-fbsd"
 SLOT="0"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
 IUSE="java mozdevelop bindist xforms restrict-javascript filepicker"
@@ -25,7 +25,6 @@ IUSE="java mozdevelop bindist xforms restrict-javascript filepicker"
 #SRC_URI="${MOZ_URI}/source/firefox-${MY_PV}-source.tar.bz2"
 #	mirror://gentoo/${PATCH}.tar.bz2"
 SRC_URI="http://dev.gentooexperimental.org/~armin76/dist/${P}.tar.bz2"
-
 
 # These are in
 #
@@ -48,10 +47,10 @@ RDEPEND="java? ( virtual/jre )
 	>=www-client/mozilla-launcher-1.39
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12_alpha1
-	>=dev-libs/nspr-4.7.0_pre20071016
-	>=net-libs/xulrunner-1.9_pre20071201
-	>=app-text/hunspell-1.1.9
+	>=dev-libs/nspr-4.7.0_pre20071218
 	>=media-libs/lcms-1.17"
+#	>=app-text/hunspell-1.1.9
+#	xulrunner? ( >=net-libs/xulrunner-1.9_beta2 )"
 
 
 DEPEND="${RDEPEND}
@@ -109,7 +108,7 @@ pkg_setup(){
 }
 
 src_unpack() {
-	unpack ${P}.tar.bz2 
+	unpack ${A} 
 # ${PATCH}.tar.bz2
 	
 #	linguas
@@ -126,12 +125,9 @@ src_unpack() {
 	EPATCH_FORCE="yes" \
 #	epatch "${WORKDIR}"/patch
 
-	epatch "${FILESDIR}"/hppa.patch
 #	epatch "${FILESDIR}"/ia64.patch
 	epatch "${FILESDIR}"/fbsd.patch
 	epatch "${FILESDIR}"/055_firefox-2.0_gfbsd-pthreads.patch
-#	epatch "${FILESDIR}"/888_fix_nss_fix_389872.patch
-#	epatch "${FILESDIR}"/033_firefox-2.0_ppc_powerpc.patch
 
 	#correct the cairo/glitz mess, if using system libs
 	epatch "${FILESDIR}"/666_mozilla-glitz-cairo.patch
@@ -140,7 +136,7 @@ src_unpack() {
 	#make it use the system iconv
 	epatch "${FILESDIR}"/165_native_uconv.patch
 	#make it use system hunspell and correct the loading of dicts
-	epatch "${FILESDIR}"/100_system_myspell-v2.patch
+#	epatch "${FILESDIR}"/100_system_myspell-v2.patch
 	#make it use system sqlite3
 	#epatch "${FILESDIR}"/101_system_sqlite3.patch
 	#make loading certs behave with system nss
@@ -153,8 +149,10 @@ src_unpack() {
 	epatch "${FILESDIR}"/669_forgotten_tales_387196.patch
 	#make minefield install its icon 
 	epatch "${FILESDIR}"/998_install_icon.patch
-	#make minefield build against xulrunner
-	epatch "${FILESDIR}"/999_minefield_against_xulrunner-v2.patch
+	if use xulrunner; then
+		#make minefield build against xulrunner
+		epatch "${FILESDIR}"/999_minefield_against_xulrunner-v2.patch
+	fi
 	#fix the unfixable gnome loves firefox
 	if ! use gnome; then
 		epatch "${FILESDIR}"/777_minefield-no-icons.patch
@@ -193,7 +191,7 @@ src_compile() {
 	mozconfig_annotate 'broken' --disable-mochitest
 	mozconfig_annotate 'broken' --disable-crashreporter
 	mozconfig_annotate '' --enable-native-uconv
-	mozconfig_annotate '' --enable-system-hunspell
+#	mozconfig_annotate '' --enable-system-hunspell
 	#mozconfig_annotate '' --enable-system-sqlite3
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
@@ -208,8 +206,10 @@ src_compile() {
 	#mozconfig_use_enable mozdevelop xpctools
 	mozconfig_use_extension mozdevelop venkman
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
-	# Add xulrunner variable
-	mozconfig_annotate '' --with-libxul-sdk
+	if use xulrunner; then
+		# Add xulrunner variable
+		mozconfig_annotate '' --with-libxul-sdk
+	fi
 
 	if ! use bindist; then
 		mozconfig_annotate '' --enable-official-branding
@@ -264,10 +264,12 @@ pkg_preinst() {
 
 src_install() {
 	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
-	PKG_CONFIG=`which pkg-config`
-	X_DATE=`date +%Y%m%d`
-	XULRUNNER_VERSION=`${PKG_CONFIG} --modversion xulrunner-xpcom`
-	XULRUNNER=`which xulrunner`
+	if use xulrunner; then
+		PKG_CONFIG=`which pkg-config`
+		X_DATE=`date +%Y%m%d`
+		XULRUNNER_VERSION=`${PKG_CONFIG} --modversion xulrunner-xpcom`
+		XULRUNNER=`which xulrunner`
+	fi
 
 	# Most of the installation happens here
 	dodir "${MOZILLA_FIVE_HOME}"
@@ -287,9 +289,6 @@ src_install() {
 #			die "sed failed to change locale"
 #	fi
 
-	# Create /usr/bin/firefox
-	install_mozilla_launcher_stub firefox "${MOZILLA_FIVE_HOME}"
-
 	# Install icon and .desktop for menu entry
 	if ! use bindist; then
 		doicon "${FILESDIR}"/icon/firefox-icon.png
@@ -305,14 +304,34 @@ src_install() {
 	cp ${FILESDIR}/gentoo-default-prefs.js ${D}${MOZILLA_FIVE_HOME}/greprefs/all-gentoo.js
 	dodir ${MOZILLA_FIVE_HOME}/defaults/pref
 	cp ${FILESDIR}/gentoo-default-prefs.js ${D}${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js
-	#set the application.ini
-	sed -i -e "s|BuildID=.*$|BuildID=${X_DATE}GentooMozillaFirefox|"	"${D}"/usr/$(get_libdir)/${PN}/application.ini
-	sed -i -e "s|MinVersion=.*$|MinVersion=${XULRUNNER_VERSION}|" "${D}"/usr/$(get_libdir)/${PN}/application.ini
-	sed -i -e "s|MaxVersion=.*$|MaxVersion=${XULRUNNER_VERSION}|" "${D}"/usr/$(get_libdir)/${PN}/application.ini
 
-	echo "#!/bin/bash" > "${T}"/firefox
-	echo "${XULRUNNER} ${MOZILLA_FIVE_HOME}/application.ini \"\$@\"" >> "${T}"/firefox
-	dobin "${T}"/firefox
+	if use xulrunner; then
+		#set the application.ini
+		sed -i -e "s|BuildID=.*$|BuildID=${X_DATE}GentooMozillaFirefox|"	"${D}"/usr/$(get_libdir)/${PN}/application.ini
+		sed -i -e "s|MinVersion=.*$|MinVersion=${XULRUNNER_VERSION}|" "${D}"/usr/$(get_libdir)/${PN}/application.ini
+		sed -i -e "s|MaxVersion=.*$|MaxVersion=${XULRUNNER_VERSION}|" "${D}"/usr/$(get_libdir)/${PN}/application.ini
+
+		echo "#!/bin/bash" > "${T}"/firefox
+		echo "${XULRUNNER} ${MOZILLA_FIVE_HOME}/application.ini \"\$@\"" >> "${T}"/firefox
+		dobin "${T}"/firefox
+	else
+		# Create /usr/bin/firefox
+		install_mozilla_launcher_stub firefox "${MOZILLA_FIVE_HOME}"
+
+		# Install files necessary for applications to build against firefox
+		einfo "Installing includes and idl files..."
+		cp -LfR "${S}"/dist/include "${D}"/"${MOZILLA_FIVE_HOME}" || die "cp failed"
+		cp -LfR "${S}"/dist/idl "${D}"/"${MOZILLA_FIVE_HOME}" || die "cp failed"
+		# Dirty hack to get some applications using this header running
+		dosym "${MOZILLA_FIVE_HOME}"/include/necko/nsIURI.h \
+			"${MOZILLA_FIVE_HOME}"/include/nsIURI.h
+
+		# Install pkgconfig files
+#		insinto /usr/"$(get_libdir)"/pkgconfig
+#		doins "${S}"/build/unix/*.pc
+	fi
+
+	
 }
 
 pkg_postinst() {
