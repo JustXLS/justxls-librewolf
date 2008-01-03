@@ -142,7 +142,8 @@ src_unpack() {
 	#make it use the system iconv
 	epatch "${FILESDIR}"/165_native_uconv.patch
 	#make it use system hunspell and correct the loading of dicts
-	epatch "${FILESDIR}"/100_system_myspell-v2.patch
+	epatch "${FILESDIR}"/100-system-hunspell.patch
+#	epatch "${FILESDIR}"/100_system_myspell-v2.patch
 	#make it use system sqlite3
 	#epatch "${FILESDIR}"/101_system_sqlite3.patch
 	#make loading certs behave with system nss
