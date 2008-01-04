@@ -160,11 +160,6 @@ src_unpack() {
 		#make minefield build against xulrunner
 		epatch "${FILESDIR}"/999_minefield_against_xulrunner-v2.patch
 	fi
-	#fix the unfixable gnome loves firefox
-	if ! use gnome; then
-		epatch "${FILESDIR}"/777_minefield-no-icons.patch
-	fi
-
 
 	####################################
 	#
