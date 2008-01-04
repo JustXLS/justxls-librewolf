@@ -55,15 +55,10 @@ src_unpack() {
 	EPATCH_FORCE="yes" \
 #	epatch "${WORKDIR}"/patch
 
-	# Upstream bug #408373
-	epatch "${FILESDIR}"/bug408373.patch
-
-	epatch "${FILESDIR}"/hppa.patch
-
 	#correct the pkg-config files and xulrunner-config
 	epatch "${FILESDIR}"/008_xulrunner-gentoo-pkgconfig-3.patch
 	#use so-names
-	epatch "${FILESDIR}"/181_sonames-v3.patch
+	epatch "${FILESDIR}"/181_sonames-v4.patch
 	#xpcomglue as a shared library
 	#epatch "${FILESDIR}"/185_xpcomglue-v2.patch
 	#epatch "${FILESDIR}"/186_wallet.patch
@@ -74,9 +69,9 @@ src_unpack() {
 	#make it use the system iconv
 	epatch "${FILESDIR}"/165_native_uconv.patch
 	#make it use system hunspell and correct the loading of dicts
-	epatch "${FILESDIR}"/100_system_myspell-v2.patch
+	epatch "${FILESDIR}"/100-system-hunspell.patch
 	#fix the mouse selection in the embedders (thanks amd)
-	epatch "${FILESDIR}"/200_fix-mouse-selection-373196.patch
+#	epatch "${FILESDIR}"/200_fix-mouse-selection-373196.patch
 	#make loading certs behave with system nss
 	epatch "${FILESDIR}"/068_firefox-nss-gentoo-fix.patch
 	#correct the mozilla ini mess

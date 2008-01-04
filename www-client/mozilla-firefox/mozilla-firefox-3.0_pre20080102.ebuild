@@ -19,7 +19,7 @@ HOMEPAGE="http://www.mozilla.org/projects/firefox/"
 KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~sparc ~x86 ~x86-fbsd"
 SLOT="0"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
-IUSE="java mozdevelop bindist xforms restrict-javascript filepicker"
+IUSE="java mozdevelop bindist xforms restrict-javascript filepicker xulrunner"
 
 #MOZ_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}"
 #SRC_URI="${MOZ_URI}/source/firefox-${MY_PV}-source.tar.bz2"
@@ -49,8 +49,8 @@ RDEPEND="java? ( virtual/jre )
 	>=dev-libs/nss-3.12_alpha1
 	>=dev-libs/nspr-4.7.0_pre20071218
 	>=media-libs/lcms-1.17
-	>=app-text/hunspell-1.1.9"
-#	xulrunner? ( >=net-libs/xulrunner-1.9_beta2 )"
+	>=app-text/hunspell-1.1.9
+	xulrunner? ( >=net-libs/xulrunner-1.9_pre20080102 )"
 
 
 DEPEND="${RDEPEND}
