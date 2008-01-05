@@ -93,6 +93,8 @@ mozconfig_init() {
 		mozconfig_annotate "more than -O0 causes segfaults on hppa" --enable-optimize=-O0
 	elif is-flag -O1; then
 		mozconfig_annotate "from CFLAGS" --enable-optimize=-O1
+	elif is-flag -Os; then
+		mozconfig_annotate "from CFLAGS" --enable-optimize=-Os
 	else
 		mozconfig_annotate "mozilla fallback" --enable-optimize=-O2
 	fi
