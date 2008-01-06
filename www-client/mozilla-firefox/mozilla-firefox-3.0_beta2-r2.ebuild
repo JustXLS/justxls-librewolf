@@ -4,7 +4,7 @@
 
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-minefield makeedit multilib fdo-mime autotools mozilla-launcher
+inherit flag-o-matic toolchain-funcs eutils mozconfig-minefield makeedit multilib fdo-mime autotools mozilla-launcher mozextension
 
 #PATCH="${PN}-2.0.0.8-patches-0.2"
 LANGS="be ca cs de el es-AR es-ES eu fi fr fy-NL gu-IN ja ko nb-NO nl pa-IN  pl pt-PT ro ru sk sv-SE tr uk zh-CN"
