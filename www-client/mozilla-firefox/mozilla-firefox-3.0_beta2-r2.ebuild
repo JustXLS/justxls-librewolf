@@ -44,7 +44,7 @@ for X in ${LANGS} ; do
 done
 
 RDEPEND="java? ( virtual/jre )
-	>=www-client/mozilla-launcher-1.39
+	>=www-client/mozilla-launcher-1.58
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12_alpha1
 	>=dev-libs/nspr-4.7.0_pre20071218
@@ -307,19 +307,15 @@ src_install() {
 	dodir ${MOZILLA_FIVE_HOME}/defaults/pref
 	cp ${FILESDIR}/gentoo-default-prefs.js ${D}${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js
 
+	# Create /usr/bin/firefox
+	install_mozilla_launcher_stub firefox "${MOZILLA_FIVE_HOME}"
+
 	if use xulrunner; then
 		#set the application.ini
 		sed -i -e "s|BuildID=.*$|BuildID=${X_DATE}GentooMozillaFirefox|"	"${D}"/usr/$(get_libdir)/${PN}/application.ini
 		sed -i -e "s|MinVersion=.*$|MinVersion=${XULRUNNER_VERSION}|" "${D}"/usr/$(get_libdir)/${PN}/application.ini
 		sed -i -e "s|MaxVersion=.*$|MaxVersion=${XULRUNNER_VERSION}|" "${D}"/usr/$(get_libdir)/${PN}/application.ini
-
-		echo "#!/bin/bash" > "${T}"/firefox
-		echo "${XULRUNNER} ${MOZILLA_FIVE_HOME}/application.ini \"\$@\"" >> "${T}"/firefox
-		dobin "${T}"/firefox
 	else
-		# Create /usr/bin/firefox
-		install_mozilla_launcher_stub firefox "${MOZILLA_FIVE_HOME}"
-
 		# Install files necessary for applications to build against firefox
 		einfo "Installing includes and idl files..."
 		cp -LfR "${S}"/dist/include "${D}"/"${MOZILLA_FIVE_HOME}" || die "cp failed"

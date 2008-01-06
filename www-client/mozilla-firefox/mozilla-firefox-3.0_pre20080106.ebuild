@@ -16,7 +16,7 @@ MY_P="${PN}-${MY_PV}"
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.org/projects/firefox/"
 
-KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~sparc ~x86 ~x86-fbsd"
+KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
 SLOT="0"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
 IUSE="java mozdevelop bindist xforms restrict-javascript filepicker xulrunner"
@@ -50,7 +50,7 @@ RDEPEND="java? ( virtual/jre )
 	>=dev-libs/nspr-4.7.0_pre20071218
 	>=media-libs/lcms-1.17
 	>=app-text/hunspell-1.1.9
-	xulrunner? ( >=net-libs/xulrunner-1.9_pre20080102 )"
+	xulrunner? ( >=net-libs/xulrunner-1.9_pre20080106 )"
 
 
 DEPEND="${RDEPEND}
@@ -154,6 +154,11 @@ src_unpack() {
 		#make minefield build against xulrunner
 		epatch "${FILESDIR}"/999_minefield_against_xulrunner-v2.patch
 	fi
+	#fix the unfixable gnome loves firefox
+#	if ! use gnome; then
+#		epatch "${FILESDIR}"/777_minefield-no-icons.patch
+#	fi
+
 
 	####################################
 	#
@@ -301,19 +306,16 @@ src_install() {
 	dodir ${MOZILLA_FIVE_HOME}/defaults/pref
 	cp ${FILESDIR}/gentoo-default-prefs.js ${D}${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js
 
+	# Create /usr/bin/firefox
+	install_mozilla_launcher_stub firefox "${MOZILLA_FIVE_HOME}"
+
 	if use xulrunner; then
 		#set the application.ini
 		sed -i -e "s|BuildID=.*$|BuildID=${X_DATE}GentooMozillaFirefox|"	"${D}"/usr/$(get_libdir)/${PN}/application.ini
 		sed -i -e "s|MinVersion=.*$|MinVersion=${XULRUNNER_VERSION}|" "${D}"/usr/$(get_libdir)/${PN}/application.ini
 		sed -i -e "s|MaxVersion=.*$|MaxVersion=${XULRUNNER_VERSION}|" "${D}"/usr/$(get_libdir)/${PN}/application.ini
-
-		echo "#!/bin/bash" > "${T}"/firefox
-		echo "${XULRUNNER} ${MOZILLA_FIVE_HOME}/application.ini \"\$@\"" >> "${T}"/firefox
 		dobin "${T}"/firefox
 	else
-		# Create /usr/bin/firefox
-		install_mozilla_launcher_stub firefox "${MOZILLA_FIVE_HOME}"
-
 		# Install files necessary for applications to build against firefox
 		einfo "Installing includes and idl files..."
 		cp -LfR "${S}"/dist/include "${D}"/"${MOZILLA_FIVE_HOME}" || die "cp failed"
