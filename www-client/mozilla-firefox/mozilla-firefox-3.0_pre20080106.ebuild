@@ -19,7 +19,8 @@ HOMEPAGE="http://www.mozilla.org/projects/firefox/"
 KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
 SLOT="0"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
-IUSE="java mozdevelop bindist xforms restrict-javascript filepicker xulrunner"
+EAPI="1"
+IUSE="java mozdevelop bindist xforms restrict-javascript filepicker +xulrunner"
 
 #MOZ_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}"
 #SRC_URI="${MOZ_URI}/source/firefox-${MY_PV}-source.tar.bz2"
@@ -44,7 +45,7 @@ for X in ${LANGS} ; do
 done
 
 RDEPEND="java? ( virtual/jre )
-	>=www-client/mozilla-launcher-1.39
+	>=www-client/mozilla-launcher-1.58
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12_alpha1
 	>=dev-libs/nspr-4.7.0_pre20071218
@@ -108,9 +109,9 @@ pkg_setup(){
 }
 
 src_unpack() {
-	unpack ${A} 
+	unpack ${A}
 # ${PATCH}.tar.bz2
-	
+
 #	linguas
 #	for X in ${linguas}; do
 #		[[ ${X} != "en" ]] && xpi_unpack "${MY_P}-${X}.xpi"
@@ -125,7 +126,6 @@ src_unpack() {
 	EPATCH_FORCE="yes" \
 #	epatch "${WORKDIR}"/patch
 
-#	epatch "${FILESDIR}"/ia64.patch
 	epatch "${FILESDIR}"/fbsd.patch
 	epatch "${FILESDIR}"/055_firefox-2.0_gfbsd-pthreads.patch
 
@@ -137,12 +137,11 @@ src_unpack() {
 	epatch "${FILESDIR}"/165_native_uconv.patch
 	#make it use system hunspell and correct the loading of dicts
 	epatch "${FILESDIR}"/100-system-hunspell.patch
-#	epatch "${FILESDIR}"/100_system_myspell-v2.patch
 	#make it use system sqlite3
 	#epatch "${FILESDIR}"/101_system_sqlite3.patch
 	#make loading certs behave with system nss
 	epatch "${FILESDIR}"/068_firefox-nss-gentoo-fix.patch
-	#
+	# typeahead failing to compile
 	epatch "${FILESDIR}"/667_typeahead-broken-v2.patch
 	#system headers should be wrapped thanks b33fc0d3 for the hint
 	#epatch "${FILESDIR}"/668_system-headers.patch
@@ -150,15 +149,12 @@ src_unpack() {
 	epatch "${FILESDIR}"/669_forgotten_tales_387196.patch
 	#make minefield install its icon 
 	epatch "${FILESDIR}"/998_install_icon.patch
+	# Fix SSL error page, upstream bug #411037
+	epatch "${FILESDIR}"/060_ssl-errorpage-bz411037.patch
 	if use xulrunner; then
 		#make minefield build against xulrunner
-		epatch "${FILESDIR}"/999_minefield_against_xulrunner-v2.patch
+		epatch "${FILESDIR}"/999_minefield_against_xulrunner-v3.patch
 	fi
-	#fix the unfixable gnome loves firefox
-#	if ! use gnome; then
-#		epatch "${FILESDIR}"/777_minefield-no-icons.patch
-#	fi
-
 
 	####################################
 	#
@@ -168,6 +164,7 @@ src_unpack() {
 
 	#rpath patch
 	epatch "${FILESDIR}"/063_firefox-rpath-3.patch
+
 	eautoreconf || die "failed  running eautoreconf"
 }
 
@@ -241,8 +238,8 @@ src_compile() {
 	# to econf, but the quotes cause configure to fail.
 	sed -i -e \
 		's|-DARON_WAS_HERE|-DGENTOO_NSPLUGINS_DIR=\\\"/usr/'"$(get_libdir)"'/nsplugins\\\" -DGENTOO_NSBROWSER_PLUGINS_DIR=\\\"/usr/'"$(get_libdir)"'/nsbrowser/plugins\\\"|' \
-		${S}/config/autoconf.mk \
-		${S}/toolkit/content/buildconfig.html
+		"${S}"/config/autoconf.mk \
+		"${S}"/toolkit/content/buildconfig.html
 
 	# This removes extraneous CFLAGS from the Makefiles to reduce RAM
 	# requirements while compiling
@@ -260,7 +257,7 @@ pkg_preinst() {
 	einfo "eliminates any problems during the install, however suggestions to"
 	einfo "replace this are highly welcome.  Send comments and suggestions to"
 	einfo "mozilla@gentoo.org."
-	rm -rf "${ROOT}"/"${MOZILLA_FIVE_HOME}"
+	rm -rf "${ROOT}"${MOZILLA_FIVE_HOME}
 }
 
 src_install() {
@@ -273,8 +270,8 @@ src_install() {
 	fi
 
 	# Most of the installation happens here
-	dodir "${MOZILLA_FIVE_HOME}"
-	cp -RL "${S}"/dist/bin/* "${D}"/"${MOZILLA_FIVE_HOME}"/ || die "cp failed"
+	dodir ${MOZILLA_FIVE_HOME}
+	cp -RL "${S}"/dist/bin/* "${D}"${MOZILLA_FIVE_HOME} || die "cp failed"
 
 #	linguas
 #	for X in ${linguas}; do
@@ -285,8 +282,8 @@ src_install() {
 #	if [[ -n ${LANG} && ${LANG} != "en" ]]; then
 #		elog "Setting default locale to ${LANG}"
 #		dosed -e "s:general.useragent.locale\", \"en-US\":general.useragent.locale\", \"${LANG}\":" \
-#			"${MOZILLA_FIVE_HOME}"/defaults/pref/firefox.js \
-#			"${MOZILLA_FIVE_HOME}"/defaults/pref/firefox-l10n.js || \
+#			${MOZILLA_FIVE_HOME}/defaults/pref/firefox.js \
+#			${MOZILLA_FIVE_HOME}/defaults/pref/firefox-l10n.js || \
 #			die "sed failed to change locale"
 #	fi
 
@@ -302,34 +299,31 @@ src_install() {
 	fi
 
 	dodir ${MOZILLA_FIVE_HOME}/greprefs
-	cp ${FILESDIR}/gentoo-default-prefs.js ${D}${MOZILLA_FIVE_HOME}/greprefs/all-gentoo.js
+	cp "${FILESDIR}"/gentoo-default-prefs.js "${D}"${MOZILLA_FIVE_HOME}/greprefs/all-gentoo.js
 	dodir ${MOZILLA_FIVE_HOME}/defaults/pref
-	cp ${FILESDIR}/gentoo-default-prefs.js ${D}${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js
+	cp "${FILESDIR}"/gentoo-default-prefs.js "${D}"${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js
 
 	# Create /usr/bin/firefox
-	install_mozilla_launcher_stub firefox "${MOZILLA_FIVE_HOME}"
+	install_mozilla_launcher_stub firefox ${MOZILLA_FIVE_HOME}
 
 	if use xulrunner; then
 		#set the application.ini
-		sed -i -e "s|BuildID=.*$|BuildID=${X_DATE}GentooMozillaFirefox|"	"${D}"/usr/$(get_libdir)/${PN}/application.ini
-		sed -i -e "s|MinVersion=.*$|MinVersion=${XULRUNNER_VERSION}|" "${D}"/usr/$(get_libdir)/${PN}/application.ini
-		sed -i -e "s|MaxVersion=.*$|MaxVersion=${XULRUNNER_VERSION}|" "${D}"/usr/$(get_libdir)/${PN}/application.ini
-		dobin "${T}"/firefox
+		sed -i -e "s|BuildID=.*$|BuildID=${X_DATE}GentooMozillaFirefox|"	"${D}"${MOZILLA_FIVE_HOME}/application.ini
+		sed -i -e "s|MinVersion=.*$|MinVersion=${XULRUNNER_VERSION}|" "${D}"${MOZILLA_FIVE_HOME}/application.ini
+		sed -i -e "s|MaxVersion=.*$|MaxVersion=${XULRUNNER_VERSION}|" "${D}"${MOZILLA_FIVE_HOME}/application.ini
 	else
 		# Install files necessary for applications to build against firefox
 		einfo "Installing includes and idl files..."
-		cp -LfR "${S}"/dist/include "${D}"/"${MOZILLA_FIVE_HOME}" || die "cp failed"
-		cp -LfR "${S}"/dist/idl "${D}"/"${MOZILLA_FIVE_HOME}" || die "cp failed"
+		cp -LfR "${S}"/dist/include "${D}"${MOZILLA_FIVE_HOME} || die "cp failed"
+		cp -LfR "${S}"/dist/idl "${D}"${MOZILLA_FIVE_HOME} || die "cp failed"
 		# Dirty hack to get some applications using this header running
-		dosym "${MOZILLA_FIVE_HOME}"/include/necko/nsIURI.h \
-			"${MOZILLA_FIVE_HOME}"/include/nsIURI.h
+		dosym ${MOZILLA_FIVE_HOME}/include/necko/nsIURI.h \
+			${MOZILLA_FIVE_HOME}/include/nsIURI.h
 
 		# Install pkgconfig files
-#		insinto /usr/"$(get_libdir)"/pkgconfig
+#		insinto /usr/$(get_libdir)/pkgconfig
 #		doins "${S}"/build/unix/*.pc
 	fi
-
-	
 }
 
 pkg_postinst() {
