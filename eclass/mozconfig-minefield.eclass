@@ -43,7 +43,7 @@ mozconfig_config() {
 	mozconfig_use_enable ipv6
 
 	if ! use dbus; then
-		mozconfig-annotate '' --disable-dbus
+		mozconfig_annotate '' --disable-dbus
 	fi
 	mozconfig_use_enable startup-notification
 	# We use --enable-pango to do truetype fonts, and currently pango
