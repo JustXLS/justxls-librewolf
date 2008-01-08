@@ -16,7 +16,7 @@ MY_P="${PN}-${MY_PV}"
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.org/projects/firefox/"
 
-KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
+KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
 EAPI="1"
@@ -126,7 +126,7 @@ src_unpack() {
 	EPATCH_FORCE="yes" \
 #	epatch "${WORKDIR}"/patch
 
-	epatch "${FILESDIR}"/fbsd.patch
+#	epatch "${FILESDIR}"/fbsd.patch
 	epatch "${FILESDIR}"/055_firefox-2.0_gfbsd-pthreads.patch
 
 	#correct the cairo/glitz mess, if using system libs
@@ -149,8 +149,6 @@ src_unpack() {
 	epatch "${FILESDIR}"/669_forgotten_tales_387196.patch
 	#make minefield install its icon 
 	epatch "${FILESDIR}"/998_install_icon.patch
-	# Fix SSL error page, upstream bug #411037
-	epatch "${FILESDIR}"/060_ssl-errorpage-bz411037.patch
 	if use xulrunner; then
 		#make minefield build against xulrunner
 		epatch "${FILESDIR}"/999_minefield_against_xulrunner-v3.patch
