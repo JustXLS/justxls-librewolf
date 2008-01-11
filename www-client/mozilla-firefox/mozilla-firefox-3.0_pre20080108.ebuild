@@ -1,7 +1,7 @@
 # Copyright 1999-2008 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/www-client/mozilla-firefox/mozilla-firefox-2.0.0.9.ebuild,v 1.7 2007/11/12 16:57:25 drac Exp $
-
+EAPI="1"
 WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-minefield makeedit multilib fdo-mime autotools mozilla-launcher
@@ -19,7 +19,6 @@ HOMEPAGE="http://www.mozilla.org/projects/firefox/"
 KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
-EAPI="1"
 IUSE="java mozdevelop bindist xforms restrict-javascript filepicker +xulrunner"
 
 #MOZ_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}"
