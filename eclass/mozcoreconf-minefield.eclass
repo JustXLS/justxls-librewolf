@@ -180,10 +180,10 @@ mozconfig_init() {
 		--enable-pango \
 		--enable-svg \
 		--enable-svg-renderer=cairo \
-		--enable-system-cairo \
 		--disable-strip \
 		--disable-strip-libs
 
+#		--enable-system-cairo
 #		--with-system-png
 	if [[ ${PN} != seamonkey ]]; then
 		mozconfig_annotate gentoo \
