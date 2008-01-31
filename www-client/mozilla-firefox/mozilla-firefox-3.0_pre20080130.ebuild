@@ -129,7 +129,7 @@ src_unpack() {
 	epatch "${FILESDIR}"/055_firefox-2.0_gfbsd-pthreads.patch
 
 	#correct the cairo/glitz mess, if using system libs
-	epatch "${FILESDIR}"/666_mozilla-glitz-cairo.patch
+	epatch "${FILESDIR}"/666_mozilla-glitz-cairo-v2.patch
 	#add the standard gentoo plugins dir
 	epatch "${FILESDIR}"/064_firefox-nsplugins-v3.patch
 	#make it use the system iconv
@@ -144,10 +144,8 @@ src_unpack() {
 	epatch "${FILESDIR}"/667_typeahead-broken-v2.patch
 	#system headers should be wrapped thanks b33fc0d3 for the hint
 	#epatch "${FILESDIR}"/668_system-headers.patch
-	#some forgotten parts of some revised patch, breaking happily builds
-	epatch "${FILESDIR}"/669_forgotten_tales_387196.patch
 	#make minefield install its icon 
-	epatch "${FILESDIR}"/998_install_icon.patch
+	epatch "${FILESDIR}"/998_install_icon-v2.patch
 	if use xulrunner; then
 		#make minefield build against xulrunner
 		epatch "${FILESDIR}"/999_minefield_against_xulrunner-v3.patch

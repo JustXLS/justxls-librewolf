@@ -17,8 +17,8 @@ IUSE="python offline glitz"
 RDEPEND="java? ( >=virtual/jre-1.4 )
 	glitz? ( >=media-libs/glitz-0.5.6 )
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12_alpha2_p1
-	>=dev-libs/nspr-4.7.0_pre20071016
+	>=dev-libs/nss-3.12_alpha2_p2
+	>=dev-libs/nspr-4.7.0_pre20080113
 	>=app-text/hunspell-1.1.9
 	>=media-libs/lcms-1.17"
 #	>=dev-db/sqlite-3.3.17"
@@ -56,14 +56,14 @@ src_unpack() {
 #	epatch "${WORKDIR}"/patch
 
 	#correct the pkg-config files and xulrunner-config
-	epatch "${FILESDIR}"/008_xulrunner-gentoo-pkgconfig-3.patch
+	epatch "${FILESDIR}"/008_xulrunner-gentoo-pkgconfig-4.patch
 	#use so-names
 	epatch "${FILESDIR}"/181_sonames-v4.patch
 	#xpcomglue as a shared library
 	#epatch "${FILESDIR}"/185_xpcomglue-v2.patch
 	#epatch "${FILESDIR}"/186_wallet.patch
 	#correct the cairo/glitz mess, if using system libs
-	epatch "${FILESDIR}"/666_mozilla-glitz-cairo.patch
+	epatch "${FILESDIR}"/666_mozilla-glitz-cairo-v2.patch
 	#add the standard gentoo plugins dir
 	epatch "${FILESDIR}"/064_firefox-nsplugins-v3.patch
 	#make it use the system iconv
@@ -83,7 +83,7 @@ src_unpack() {
 	epatch "${FILESDIR}"/888_install_needed.patch
 	#try to depackage, what should never be packaged in the first place
 	epatch "${FILESDIR}"/989_repackager.patch
-	epatch "${FILESDIR}"/898_fake_pkgconfig.patch
+	epatch "${FILESDIR}"/898_fake_pkgconfig-v2.patch
 	#some more patching
 	epatch "${FILESDIR}"/188_fix_includes.patch
 

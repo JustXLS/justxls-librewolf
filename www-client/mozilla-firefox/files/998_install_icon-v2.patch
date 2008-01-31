@@ -1,0 +1,17 @@
+--- browser/app/Makefile.in.orig	2008-01-30 22:07:09.000000000 +0000
++++ browser/app/Makefile.in	2008-01-30 22:10:05.000000000 +0000
+@@ -74,6 +74,14 @@
+ 
+ ifdef LIBXUL_SDK
+ include $(topsrcdir)/config/rules.mk
++libs::
++	$(INSTALL) $(DIST)/branding/default16.png $(DIST)/bin/chrome/icons/default
++
++export::
++ifndef MOZ_BRANDING_DIRECTORY
++	$(NSINSTALL) -D $(DIST)/branding
++	cp $(srcdir)/default16.png   $(DIST)/branding/default16.png
++endif
+ else
+ # Build a binary bootstrapping with XRE_main
+ 

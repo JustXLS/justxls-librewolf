@@ -57,10 +57,10 @@
  
 --- configure.in.orig	2007-08-03 23:26:45.000000000 +0200
 +++ configure.in	2007-08-03 23:30:54.000000000 +0200
-@@ -1207,8 +1207,8 @@
- dnl GNU specific defaults
- dnl ========================================================
+@@ -1235,8 +1235,8 @@
  if test "$GNU_CC"; then
+     # FIXME: Let us build with strict aliasing. bug 414641.
+     CFLAGS="$CFLAGS -fno-strict-aliasing"
 -    MKSHLIB='$(CXX) $(CXXFLAGS) $(DSO_PIC_CFLAGS) $(DSO_LDOPTS) -Wl,-h,$@ -o $@'
 -    MKCSHLIB='$(CC) $(CFLAGS) $(DSO_PIC_CFLAGS) $(DSO_LDOPTS) -Wl,-h,$@ -o $@'
 +    MKSHLIB='$(CXX) $(CXXFLAGS) $(DSO_PIC_CFLAGS) $(DSO_LDOPTS) -Wl,-h,$(SONAME) -o $@'
