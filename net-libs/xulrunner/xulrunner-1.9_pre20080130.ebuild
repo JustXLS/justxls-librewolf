@@ -9,7 +9,7 @@ DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM app
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
 SRC_URI="http://dev.gentooexperimental.org/~armin76/dist/${P}.tar.bz2"
 
-KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 -sparc ~x86"
+KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
 IUSE="python offline glitz"
@@ -17,8 +17,8 @@ IUSE="python offline glitz"
 RDEPEND="java? ( >=virtual/jre-1.4 )
 	glitz? ( >=media-libs/glitz-0.5.6 )
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12_alpha2_p2
-	>=dev-libs/nspr-4.7.0_pre20080113
+	>=dev-libs/nss-3.12_beta1
+	>=dev-libs/nspr-4.7.0_pre20080129
 	>=app-text/hunspell-1.1.9
 	>=media-libs/lcms-1.17"
 #	>=dev-db/sqlite-3.3.17"

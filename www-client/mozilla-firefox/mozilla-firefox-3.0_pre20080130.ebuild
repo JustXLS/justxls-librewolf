@@ -16,7 +16,7 @@ MY_P="${PN}-${MY_PV}"
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.org/projects/firefox/"
 
-KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 -sparc ~x86"
+KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
 IUSE="java mozdevelop bindist xforms restrict-javascript filepicker +xulrunner"
@@ -46,8 +46,8 @@ done
 RDEPEND="java? ( virtual/jre )
 	>=www-client/mozilla-launcher-1.58
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12_alpha2_p2
-	>=dev-libs/nspr-4.7.0_pre20080113
+	>=dev-libs/nss-3.12_beta1
+	>=dev-libs/nspr-4.7.0_pre20080129
 	>=media-libs/lcms-1.17
 	>=app-text/hunspell-1.1.9
 	xulrunner? ( >=net-libs/xulrunner-1.9_pre20080106 )"
