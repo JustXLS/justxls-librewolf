@@ -129,7 +129,7 @@ src_unpack() {
 	epatch "${FILESDIR}"/055_firefox-2.0_gfbsd-pthreads.patch
 
 	#correct the cairo/glitz mess, if using system libs
-	epatch "${FILESDIR}"/666_mozilla-glitz-cairo-v2.patch
+#	epatch "${FILESDIR}"/666_mozilla-glitz-cairo-v2.patch
 	#add the standard gentoo plugins dir
 	epatch "${FILESDIR}"/064_firefox-nsplugins-v3.patch
 	#make it use the system iconv

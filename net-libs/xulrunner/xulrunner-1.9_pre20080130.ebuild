@@ -12,16 +12,17 @@ SRC_URI="http://dev.gentooexperimental.org/~armin76/dist/${P}.tar.bz2"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
-IUSE="python offline glitz"
+IUSE="python offline"
 
 RDEPEND="java? ( >=virtual/jre-1.4 )
-	glitz? ( >=media-libs/glitz-0.5.6 )
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12_beta1
 	>=dev-libs/nspr-4.7.0_pre20080129
 	>=app-text/hunspell-1.1.9
 	>=media-libs/lcms-1.17"
 #	>=dev-db/sqlite-3.3.17"
+#	glitz? ( >=media-libs/glitz-0.5.6 )
+
 
 DEPEND="java? ( >=virtual/jdk-1.4 )
 	${RDEPEND}
@@ -35,16 +36,6 @@ S="${WORKDIR}/mozilla"
 export MOZ_CO_PROJECT=xulrunner
 export BUILD_OFFICIAL=1
 export MOZILLA_OFFICIAL=1
-
-pkg_setup() {
-	if use glitz; then
-		if ! built_with_use x11-libs/cairo glitz; then
-			ewarn "You need cairo built with the glitz USE-flag."
-			ewarn "Enable the glitz USE-flag and re-emerge cairo."
-			die "re-emerge cairo with the glitz USE-flag set"
-		fi
-	fi
-}
 
 src_unpack() {
 	unpack ${A}
@@ -63,7 +54,7 @@ src_unpack() {
 	#epatch "${FILESDIR}"/185_xpcomglue-v2.patch
 	#epatch "${FILESDIR}"/186_wallet.patch
 	#correct the cairo/glitz mess, if using system libs
-	epatch "${FILESDIR}"/666_mozilla-glitz-cairo-v2.patch
+#	epatch "${FILESDIR}"/666_mozilla-glitz-cairo-v2.patch
 	#add the standard gentoo plugins dir
 	epatch "${FILESDIR}"/064_firefox-nsplugins-v3.patch
 	#make it use the system iconv
@@ -144,9 +135,9 @@ src_compile() {
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 
 	#use enable glitz
-	if use glitz; then
-		mozconfig_annotate thebes --enable-glitz
-	fi
+#	if use glitz; then
+#		mozconfig_annotate thebes --enable-glitz
+#	fi
 
 	#disable java 
 	if ! use java ; then
