@@ -50,7 +50,7 @@ RDEPEND="java? ( virtual/jre )
 	>=dev-libs/nspr-4.7.0_pre20080129
 	>=media-libs/lcms-1.17
 	>=app-text/hunspell-1.1.9
-	xulrunner? ( >=net-libs/xulrunner-1.9_pre20080106 )"
+	xulrunner? ( >=net-libs/xulrunner-1.9_pre20080130 )"
 
 
 DEPEND="${RDEPEND}
