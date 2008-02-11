@@ -18,7 +18,7 @@ RDEPEND="java? ( >=virtual/jre-1.4 )
 	glitz? ( >=media-libs/glitz-0.5.6 )
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12_alpha2_p1
-	>=dev-libs/nspr-4.7.0_pre20071016
+	>=dev-libs/nspr-4.7
 	>=app-text/hunspell-1.1.9
 	>=media-libs/lcms-1.17"
 #	>=dev-db/sqlite-3.3.17"
