@@ -19,7 +19,7 @@ HOMEPAGE="http://www.mozilla.org/projects/firefox/"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
-IUSE="java mozdevelop bindist xforms restrict-javascript filepicker +xulrunner"
+IUSE="java mozdevelop bindist xforms restrict-javascript +xulrunner"
 
 #MOZ_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}"
 #SRC_URI="${MOZ_URI}/source/firefox-${MY_PV}-source.tar.bz2"
