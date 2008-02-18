@@ -48,11 +48,6 @@ src_unpack() {
 	epatch "${FILESDIR}"/008_xulrunner-gentoo-pkgconfig-4.patch
 	#use so-names
 	epatch "${FILESDIR}"/181_sonames-v4.patch
-	#xpcomglue as a shared library
-	#epatch "${FILESDIR}"/185_xpcomglue-v2.patch
-	#epatch "${FILESDIR}"/186_wallet.patch
-	#correct the cairo/glitz mess, if using system libs
-#	epatch "${FILESDIR}"/666_mozilla-glitz-cairo.patch
 	#add the standard gentoo plugins dir
 	epatch "${FILESDIR}"/064_firefox-nsplugins-v3.patch
 	#make it use the system iconv
@@ -65,8 +60,6 @@ src_unpack() {
 	epatch "${FILESDIR}"/068_firefox-nss-gentoo-fix.patch
 	#correct the mozilla ini mess
 	epatch "${FILESDIR}"/667_383167_borkage.patch
-	#correct the mozilla system headers mess
-	#epatch "${FILESDIR}"/668_system-headers.patch
 	#install them in one place, in order for make install to 
 	#really install them - it is simply piteous
 	epatch "${FILESDIR}"/888_install_needed.patch
