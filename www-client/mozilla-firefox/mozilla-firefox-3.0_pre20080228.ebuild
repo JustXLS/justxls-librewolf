@@ -46,11 +46,12 @@ done
 RDEPEND="java? ( virtual/jre )
 	>=www-client/mozilla-launcher-1.58
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12_beta1
+	>=dev-libs/nss-3.12_beta2
 	>=dev-libs/nspr-4.7
 	>=media-libs/lcms-1.17
 	>=app-text/hunspell-1.1.9
-	xulrunner? ( >=net-libs/xulrunner-1.9_pre20080130 )"
+	>=dev-db/sqlite-3.3.17
+	xulrunner? ( >=net-libs/xulrunner-1.9_pre20080228 )"
 
 
 DEPEND="${RDEPEND}
@@ -135,20 +136,18 @@ src_unpack() {
 	#make it use the system iconv
 	epatch "${FILESDIR}"/165_native_uconv.patch
 	#make it use system hunspell and correct the loading of dicts
-	epatch "${FILESDIR}"/100-system-hunspell.patch
+	epatch "${FILESDIR}"/100-system-hunspell-corrections.patch
 	#make it use system sqlite3
 	#epatch "${FILESDIR}"/101_system_sqlite3.patch
 	#make loading certs behave with system nss
 	epatch "${FILESDIR}"/068_firefox-nss-gentoo-fix.patch
 	# typeahead failing to compile
-	epatch "${FILESDIR}"/667_typeahead-broken-v2.patch
-	#system headers should be wrapped thanks b33fc0d3 for the hint
-	#epatch "${FILESDIR}"/668_system-headers.patch
+	epatch "${FILESDIR}"/667_typeahead-broken-v4.patch
 	#make minefield install its icon 
 	epatch "${FILESDIR}"/998_install_icon-v2.patch
 	if use xulrunner; then
 		#make minefield build against xulrunner
-		epatch "${FILESDIR}"/999_minefield_against_xulrunner-v3.patch
+		epatch "${FILESDIR}"/999_minefield_against_xulrunner-v4.patch
 	fi
 
 	####################################
@@ -185,7 +184,7 @@ src_compile() {
 	mozconfig_annotate 'broken' --disable-crashreporter
 	mozconfig_annotate '' --enable-native-uconv
 	mozconfig_annotate '' --enable-system-hunspell
-	#mozconfig_annotate '' --enable-system-sqlite3
+	mozconfig_annotate '' --enable-system-sqlite
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate '' --with-system-nspr

@@ -16,11 +16,11 @@ IUSE="python offline"
 
 RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12_beta1
+	>=dev-libs/nss-3.12_beta2
 	>=dev-libs/nspr-4.7
 	>=app-text/hunspell-1.1.9
-	>=media-libs/lcms-1.17"
-#	>=dev-db/sqlite-3.3.17"
+	>=media-libs/lcms-1.17
+	>=dev-db/sqlite-3.3.17"
 #	glitz? ( >=media-libs/glitz-0.5.6 )
 
 
@@ -60,7 +60,7 @@ src_unpack() {
 	#make it use the system iconv
 	epatch "${FILESDIR}"/165_native_uconv.patch
 	#make it use system hunspell and correct the loading of dicts
-	epatch "${FILESDIR}"/100-system-hunspell.patch
+	epatch "${FILESDIR}"/100-system-hunspell-corrections.patch
 	#fix the mouse selection in the embedders (thanks amd)
 #	epatch "${FILESDIR}"/200_fix-mouse-selection-373196.patch
 	#make loading certs behave with system nss
@@ -115,6 +115,7 @@ src_compile() {
 	mozconfig_annotate 'broken' --disable-crashreporter
 	mozconfig_annotate '' --enable-native-uconv
 	mozconfig_annotate '' --enable-system-hunspell
+	mozconfig_annotate '' --enable-system-sqlite
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
 	#mozconfig_annotate '' --enable-js-binary
