@@ -15,7 +15,7 @@ RDEPEND="x11-libs/libXrender
 	dev-libs/expat
 	app-arch/zip
 	app-arch/unzip
-	>=www-client/mozilla-launcher-1.42
+	>=www-client/mozilla-launcher-1.58
 	>=x11-libs/gtk+-2.8.6
 	>=dev-libs/glib-2.8.2
 	>=x11-libs/pango-1.10.1
@@ -27,7 +27,7 @@ RDEPEND="x11-libs/libXrender
 	dbus? ( >=dev-libs/dbus-glib-0.72 )
 	startup-notification? ( >=x11-libs/startup-notification-0.8 )
 	!<x11-base/xorg-x11-6.7.0-r2"
-#	>=x11-libs/cairo-1.5.2"
+	>=x11-libs/cairo-1.5.12"
 	#According to bugs #18573, #204520, and couple of others in Mozilla's
 	#bugzilla. libmng and mng support has been removed in 2003.
 
