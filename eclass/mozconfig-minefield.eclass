@@ -26,7 +26,7 @@ RDEPEND="x11-libs/libXrender
 		>=gnome-base/libgnome-2.16.0 )
 	dbus? ( >=dev-libs/dbus-glib-0.72 )
 	startup-notification? ( >=x11-libs/startup-notification-0.8 )
-	!<x11-base/xorg-x11-6.7.0-r2"
+	!<x11-base/xorg-x11-6.7.0-r2
 	>=x11-libs/cairo-1.5.12"
 	#According to bugs #18573, #204520, and couple of others in Mozilla's
 	#bugzilla. libmng and mng support has been removed in 2003.
