@@ -52,8 +52,8 @@ src_unpack() {
 	epatch "${FILESDIR}"/064_firefox-nsplugins-v3.patch
 	#make it use the system iconv
 	epatch "${FILESDIR}"/165_native_uconv.patch
-	#make it use system hunspell and correct the loading of dicts
-	epatch "${FILESDIR}"/100-system-hunspell.patch
+	#Fix when using system hunspell
+	epatch "${FILESDIR}"/100-system-hunspell-corrections.patch
 	#fix the mouse selection in the embedders (thanks amd)
 #	epatch "${FILESDIR}"/200_fix-mouse-selection-373196.patch
 	#make loading certs behave with system nss

@@ -8,8 +8,8 @@ WANT_AUTOCONF="2.1"
 inherit flag-o-matic toolchain-funcs eutils mozconfig-minefield makeedit multilib fdo-mime autotools mozilla-launcher mozextension
 
 #PATCH="${PN}-2.0.0.8-patches-0.2"
-LANGS="ar be ca cs de es-ES eu fi fr fy-NL ga-IE gu-IN he hu it ja ka ko lt nb-NO nl pa-IN pl pt-BR pt-PT ro ru sk sv-SE tr uk zh-CN zh-TW"
-NOSHORTLANGS="pt-BR zh-CN"
+LANGS="ar be ca cs de el en-GB es-AR es-ES eu fi fr fy-NL ga-IE gu-IN he hu it ja ka ko lt mk nb-NO nl pa-IN pl pt-BR pt-PT ro ru sk sq sv-SE tr uk zh-CN zh-TW"
+NOSHORTLANGS="en-GB es-AR pt-BR zh-CN"
 
 MY_PV=${PV/_beta/b}
 MY_P="${PN}-${MY_PV}"
@@ -135,21 +135,19 @@ src_unpack() {
 	epatch "${FILESDIR}"/064_firefox-nsplugins-v3.patch
 	#make it use the system iconv
 	epatch "${FILESDIR}"/165_native_uconv.patch
-	#make it use system hunspell and correct the loading of dicts
-	epatch "${FILESDIR}"/100-system-hunspell.patch
-	#make it use system sqlite3
-	#epatch "${FILESDIR}"/101_system_sqlite3.patch
+	#Fix when using system hunspell
+	epatch "${FILESDIR}"/100-system-hunspell-corrections.patch
 	#make loading certs behave with system nss
 	epatch "${FILESDIR}"/068_firefox-nss-gentoo-fix.patch
 	#
-	epatch "${FILESDIR}"/667_typeahead-broken-v3.patch
+	epatch "${FILESDIR}"/667_typeahead-broken-v4.patch
 	#system headers should be wrapped thanks b33fc0d3 for the hint
 	#epatch "${FILESDIR}"/668_system-headers.patch
 	#make minefield install its icon 
 	epatch "${FILESDIR}"/998_install_icon-v2.patch
 	if use xulrunner; then
 		#make minefield build against xulrunner
-		epatch "${FILESDIR}"/999_minefield_against_xulrunner-v3.patch
+		epatch "${FILESDIR}"/999_minefield_against_xulrunner-v4.patch
 	fi
 
 	####################################

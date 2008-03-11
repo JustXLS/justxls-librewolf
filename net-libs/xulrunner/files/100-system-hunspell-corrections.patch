@@ -73,10 +73,10 @@
  endif
  
  EXTRA_DSO_LDOPTS = \
-@@ -103,3 +119,18 @@
- 	-framework Foundation \
+@@ -96,3 +112,18 @@
+ LOCAL_INCLUDES += \
+ 	-I$(topsrcdir)/xpcom/io \
  	$(NULL)
- endif
 +
 +ifdef MOZ_NATIVE_HUNSPELL
 +export:: $(srcdir)/../hunspell/src/mozHunspell.cpp
