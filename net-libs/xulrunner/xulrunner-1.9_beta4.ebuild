@@ -10,7 +10,7 @@ HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
 SRC_URI="http://dev.gentooexperimental.org/~armin76/dist/${P}.tar.bz2"
 
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
-SLOT="0"
+SLOT="1.9"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
 IUSE="python offline"
 
