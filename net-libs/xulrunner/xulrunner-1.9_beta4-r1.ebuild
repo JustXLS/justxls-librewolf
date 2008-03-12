@@ -45,7 +45,7 @@ src_unpack() {
 #	epatch "${WORKDIR}"/patch
 
 	#correct the pkg-config files and xulrunner-config
-	epatch "${FILESDIR}"/008_xulrunner-gentoo-pkgconfig-4.patch
+	epatch "${FILESDIR}"/008_xulrunner-gentoo-pkgconfig-5.patch
 	#use so-names
 	epatch "${FILESDIR}"/181_sonames-v4.patch
 	#add the standard gentoo plugins dir
@@ -65,7 +65,7 @@ src_unpack() {
 	epatch "${FILESDIR}"/888_install_needed.patch
 	#try to depackage, what should never be packaged in the first place
 	epatch "${FILESDIR}"/989_repackager.patch
-	epatch "${FILESDIR}"/898_fake_pkgconfig-v2.patch
+	epatch "${FILESDIR}"/898_fake_pkgconfig-v3.patch
 	#some more patching
 	epatch "${FILESDIR}"/188_fix_includes.patch
 
