@@ -296,14 +296,13 @@ src_install() {
 	dodir ${MOZILLA_FIVE_HOME}/defaults/pref
 	cp "${FILESDIR}"/gentoo-default-prefs.js "${D}"${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js
 
-	# Create /usr/bin/firefox
-	install_mozilla_launcher_stub firefox ${MOZILLA_FIVE_HOME}
-
 	if use xulrunner; then
 		#set the application.ini
 		sed -i -e "s|BuildID=.*$|BuildID=${X_DATE}GentooMozillaFirefox|"	"${D}"${MOZILLA_FIVE_HOME}/application.ini
 		sed -i -e "s|MinVersion=.*$|MinVersion=${XULRUNNER_VERSION}|" "${D}"${MOZILLA_FIVE_HOME}/application.ini
 		sed -i -e "s|MaxVersion=.*$|MaxVersion=${XULRUNNER_VERSION}|" "${D}"${MOZILLA_FIVE_HOME}/application.ini
+		# Create /usr/bin/firefox
+		install_mozilla_launcher_stub firefoxxul ${MOZILLA_FIVE_HOME}
 	else
 		# Install files necessary for applications to build against firefox
 		einfo "Installing includes and idl files..."
@@ -312,6 +311,9 @@ src_install() {
 		# Dirty hack to get some applications using this header running
 		dosym ${MOZILLA_FIVE_HOME}/include/necko/nsIURI.h \
 			${MOZILLA_FIVE_HOME}/include/nsIURI.h
+
+		# Create /usr/bin/firefox
+		install_mozilla_launcher_stub firefox ${MOZILLA_FIVE_HOME}
 
 		# Install pkgconfig files
 #		insinto /usr/$(get_libdir)/pkgconfig

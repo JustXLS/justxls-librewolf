@@ -69,7 +69,7 @@ install_mozilla_launcher_stub() {
 	declare libdir=$2
 
 	# If we use xulrunner, the name of the binary should be the same
-	if [[ ! ${PV} < 3.0_beta1 ]] && [[ ${PN: -4} != "-bin" ]] && use xulrunner ; then
+	if [[ ${name: -3} == "xul" ]]; then
 		declare appname=xulrunner
 		declare xulparams="export XUL_PARAMS=${libdir}/application.ini"
 		declare libdir="/usr/$(get_libdir)/xulrunner-1.9"

@@ -177,21 +177,20 @@ src_install() {
 	emake DESTDIR="${D}" install || die "emake install failed"
 
 	#install the sdk and the xulrunner in one - our way
-	dodir "${MOZILLA_FIVE_HOME}"
-	cp -a "${S}"/dist/bin/* "${D}"/"${MOZILLA_FIVE_HOME}"/ || die "cp failed"
+	insinto "${MOZILLA_FIVE_HOME}"
+	doins -r "${S}"/dist/bin/* || die "bin install failed"
+  
+        #install the includes and the idls
+	insinto /usr/include/${PN}/
+	doins -r "${S}"/dist/include/{un,}stable || die "installing headers failed"
+	insinto /usr/include/${PN}/unstable
+	doins "${S}"/dist/include/mozilla-config.h "${S}"/dist/include/nsStaticComponents.h || die "installing headers failed"
+	insinto /usr/include/${PN}/stable
+	doins "${S}"/dist/include/mozilla-config.h "${S}"/dist/include/nsStaticComponents.h || die "installing headers failed"
+  
+	insinto /usr/include/${PN}
+	doins -r "${S}"/dist/idl || die "installing idl failed"
 
-	#install the includes and the idls
-	dodir /usr/include/"${PN}"/stable
-	cp -a "${S}"/dist/include/stable "${D}"/usr/include/"${PN}" || die "cp failed"
-	dodir /usr/include/"${PN}"/unstable
-	cp -a "${S}"/dist/include/unstable "${D}"/usr/include/"${PN}" || die "cp failed"
-	cp -a "${S}"/dist/include/mozilla-config.h "${D}"/usr/include/"${PN}"/unstable || die "cp failed"
-	cp -a "${S}"/dist/include/mozilla-config.h "${D}"/usr/include/"${PN}"/stable || die "cp failed"
-	cp -a "${S}"/dist/include/nsStaticComponents.h "${D}"/usr/include/"${PN}"/unstable || die "cp failed"
-	cp -a "${S}"/dist/include/nsStaticComponents.h "${D}"/usr/include/"${PN}"/stable || die "cp failed"
-
-	dodir /usr/include/"${PN}"/idl
-	cp -a "${S}"/dist/idl "${D}"/usr/include/"${PN}" || die "cp failed"
 
 	dodir /usr/bin
 	dosym ${D}${MOZILLA_FIVE_HOME}/xulrunner-bin /usr/bin/xulrunner

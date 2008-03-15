@@ -5,7 +5,7 @@
 EAPI="1"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-minefield makeedit multilib fdo-mime autotools mozilla-launcher mozextension
+inherit flag-o-matic toolchain-funcs eutils mozconfig-minefield makeedit multilib fdo-mime autotools mozilla-launcher-2 mozextension
 
 #PATCH="${PN}-2.0.0.8-patches-0.2"
 LANGS="ar be ca cs de el en-GB es-AR es-ES eu fi fr fy-NL ga-IE gu-IN he hu it ja ka ko lt mk nb-NO nl pa-IN pl pt-BR pt-PT ro ru sk sq sv-SE tr uk zh-CN zh-TW"
@@ -51,7 +51,7 @@ RDEPEND="java? ( virtual/jre )
 	>=dev-libs/nspr-4.7
 	>=app-text/hunspell-1.1.9
 	>=media-libs/lcms-1.17
-	xulrunner? ( ~net-libs/xulrunner-1.9_beta4 )"
+	xulrunner? ( =net-libs/xulrunner-1.9_beta4 )"
 
 
 DEPEND="${RDEPEND}
@@ -260,7 +260,6 @@ src_install() {
 		PKG_CONFIG=`which pkg-config`
 		X_DATE=`date +%Y%m%d`
 		XULRUNNER_VERSION=`${PKG_CONFIG} --modversion xulrunner-xpcom`
-		XULRUNNER=`which xulrunner`
 	fi
 
 	# Most of the installation happens here
@@ -297,14 +296,13 @@ src_install() {
 	dodir ${MOZILLA_FIVE_HOME}/defaults/pref
 	cp "${FILESDIR}"/gentoo-default-prefs.js "${D}"${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js
 
-	# Create /usr/bin/firefox
-	install_mozilla_launcher_stub firefox ${MOZILLA_FIVE_HOME}
-
 	if use xulrunner; then
 		#set the application.ini
 		sed -i -e "s|BuildID=.*$|BuildID=${X_DATE}GentooMozillaFirefox|"	"${D}"${MOZILLA_FIVE_HOME}/application.ini
 		sed -i -e "s|MinVersion=.*$|MinVersion=${XULRUNNER_VERSION}|" "${D}"${MOZILLA_FIVE_HOME}/application.ini
 		sed -i -e "s|MaxVersion=.*$|MaxVersion=${XULRUNNER_VERSION}|" "${D}"${MOZILLA_FIVE_HOME}/application.ini
+		# Create /usr/bin/firefox
+		install_mozilla_launcher_stub firefoxxul ${MOZILLA_FIVE_HOME}
 	else
 		# Install files necessary for applications to build against firefox
 		einfo "Installing includes and idl files..."
@@ -313,6 +311,9 @@ src_install() {
 		# Dirty hack to get some applications using this header running
 		dosym ${MOZILLA_FIVE_HOME}/include/necko/nsIURI.h \
 			${MOZILLA_FIVE_HOME}/include/nsIURI.h
+
+		# Create /usr/bin/firefox
+		install_mozilla_launcher_stub firefox ${MOZILLA_FIVE_HOME}
 
 		# Install pkgconfig files
 #		insinto /usr/$(get_libdir)/pkgconfig
