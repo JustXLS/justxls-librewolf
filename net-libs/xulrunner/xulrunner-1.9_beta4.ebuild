@@ -177,8 +177,8 @@ src_install() {
 	emake DESTDIR="${D}" install || die "emake install failed"
 
 	#install the sdk and the xulrunner in one - our way
-	insinto "${MOZILLA_FIVE_HOME}"
-	doins -r "${S}"/dist/bin/* || die "bin install failed"
+	dodir "${MOZILLA_FIVE_HOME}"
+	cp -RL "${S}"/dist/bin/* "${D}"${MOZILLA_FIVE_HOME} || die "cp failed" 
   
         #install the includes and the idls
 	insinto /usr/include/${PN}/
