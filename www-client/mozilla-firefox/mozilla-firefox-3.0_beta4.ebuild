@@ -184,7 +184,7 @@ src_compile() {
 	mozconfig_annotate 'broken' --disable-crashreporter
 	mozconfig_annotate '' --enable-native-uconv
 	mozconfig_annotate '' --enable-system-hunspell
-	#mozconfig_annotate '' --enable-system-sqlite3
+	mozconfig_annotate '' --enable-system-sqlite
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate '' --with-system-nspr
@@ -314,19 +314,16 @@ src_install() {
 
 		# Create /usr/bin/firefox
 		install_mozilla_launcher_stub firefox ${MOZILLA_FIVE_HOME}
-
-		# Install pkgconfig files
-#		insinto /usr/$(get_libdir)/pkgconfig
-#		doins "${S}"/build/unix/*.pc
 	fi
 }
 
 pkg_postinst() {
 	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 
-	ewarn "This is a preliminary version of mozilla-firefox"
-	ewarn "so all the stuff against, won't work, please don't"
-	ewarn "file any bugs about this"
+	ewarn "All the packages built against ${PN} won't compile,"
+	ewarn "since they should be built against net-libs/xulrunner,"
+	ewarn "therefore you should check if your package builds against"
+	ewarn "xulrunner and if it doesn't, file a bug, thanks."
 
 	# This should be called in the postinst and postrm of all the
 	# mozilla, mozilla-bin, firefox, firefox-bin, thunderbird and
@@ -335,12 +332,6 @@ pkg_postinst() {
 
 	# Update mimedb for the new .desktop file
 	fdo-mime_desktop_database_update
-
-	elog "Please remember to rebuild any packages that you have built"
-	elog "against Firefox. Some packages might be broken by the upgrade; if this"
-	elog "is the case, please search at http://bugs.gentoo.org and open a new bug"
-	elog "if one does not exist. Before filing any bugs, please move or remove"
-	elog " ~/.mozilla and test with a clean profile directory."
 }
 
 pkg_postrm() {
