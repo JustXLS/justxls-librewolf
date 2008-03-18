@@ -20,7 +20,7 @@ HOMEPAGE="http://www.mozilla.org/projects/firefox/"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
 SLOT="0"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
-IUSE="java mozdevelop bindist restrict-javascript +xulrunner"
+IUSE="java mozdevelop bindist restrict-javascript elibc_FreeBSD +xulrunner"
 
 MOZ_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}"
 SRC_URI="${MOZ_URI}/source/firefox-${MY_PV}-source.tar.bz2"
@@ -126,8 +126,12 @@ src_unpack() {
 	EPATCH_FORCE="yes" \
 #	epatch "${WORKDIR}"/patch
 
-#	epatch "${FILESDIR}"/fbsd.patch
+        #gfbsd stuff
 	epatch "${FILESDIR}"/055_firefox-2.0_gfbsd-pthreads.patch
+	epatch "${FILESDIR}"/bsd_include.patch
+	#This breaks linux, so make it only if gfbsd
+	use elibc_FreeBSD && epatch "${FILESDIR}"/iconvconst.patch
+
 
 	#correct the cairo/glitz mess, if using system libs
 #	epatch "${FILESDIR}"/666_mozilla-glitz-cairo.patch

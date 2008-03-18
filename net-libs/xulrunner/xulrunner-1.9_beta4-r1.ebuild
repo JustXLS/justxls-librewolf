@@ -12,7 +12,7 @@ SRC_URI="http://dev.gentooexperimental.org/~armin76/dist/${P}.tar.bz2"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="1.9"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
-IUSE="glitz"
+IUSE="glitz elibc_FreeBSD"
 
 RDEPEND="java? ( >=virtual/jre-1.4 )
 	glitz? ( >=media-libs/glitz-0.5.6 )
@@ -44,6 +44,12 @@ src_unpack() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 #	epatch "${WORKDIR}"/patch
+
+	#gfbsd stuff
+	epatch "${FILESDIR}"/055_firefox-2.0_gfbsd-pthreads.patch
+	epatch "${FILESDIR}"/bsd_include.patch
+	#This breaks linux, so make it only if gfbsd
+	use elibc_FreeBSD && epatch "${FILESDIR}"/iconvconst.patch
 
 	#correct the pkg-config files and xulrunner-config
 	epatch "${FILESDIR}"/008_xulrunner-gentoo-pkgconfig-4.patch
