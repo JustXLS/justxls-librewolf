@@ -12,15 +12,16 @@ SRC_URI="http://dev.gentooexperimental.org/~armin76/dist/${P}.tar.bz2"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="1.9"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
-IUSE="python offline"
+IUSE="glitz"
 
 RDEPEND="java? ( >=virtual/jre-1.4 )
+	glitz? ( >=media-libs/glitz-0.5.6 )
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12_beta1
 	>=dev-libs/nspr-4.7
 	>=app-text/hunspell-1.1.9
-	>=media-libs/lcms-1.17"
-#	>=dev-db/sqlite-3.3.17"
+	>=media-libs/lcms-1.17
+	>=dev-db/sqlite-3.5"
 
 DEPEND="java? ( >=virtual/jdk-1.4 )
 	${RDEPEND}
@@ -58,6 +59,8 @@ src_unpack() {
 #	epatch "${FILESDIR}"/200_fix-mouse-selection-373196.patch
 	#make loading certs behave with system nss
 	epatch "${FILESDIR}"/068_firefox-nss-gentoo-fix.patch
+	#correct the cairo/glitz mess, if using system libs
+	epatch "${FILESDIR}"/666_mozilla-glitz-cairo-v2.patch
 	#correct the mozilla ini mess
 	epatch "${FILESDIR}"/667_383167_borkage.patch
 	#install them in one place, in order for make install to 
@@ -65,7 +68,6 @@ src_unpack() {
 	epatch "${FILESDIR}"/888_install_needed.patch
 	#try to depackage, what should never be packaged in the first place
 	epatch "${FILESDIR}"/989_repackager.patch
-	epatch "${FILESDIR}"/898_fake_pkgconfig-v2.patch
 	#some more patching
 	epatch "${FILESDIR}"/188_fix_includes.patch
 
@@ -81,16 +83,19 @@ src_unpack() {
 	eautoreconf || die "failed  running eautoreconf"
 }
 
-src_compile() {
-	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
-	MEXTENSIONS="default"
-	#if use python ; then
-	#	MEXTENSIONS="${MEXTENSIONS},python/xpcom"
-	#fi
+pkg_setup() {
+	if use glitz; then
+		if ! built_with_use x11-libs/cairo glitz; then
+			ewarn "You need cairo built with the glitz USE-flag."
+			ewarn "Enable the glitz USE-flag and re-emerge cairo."
+			die "re-emerge cairo with the glitz USE-flag set"
+		fi
+	fi
+}
 
-	#if use xforms; then
-	#	MEXTENSIONS="${MEXTENSIONS},xforms"
-	#fi
+src_compile() {
+	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}-1.9"
+
 	####################################
 	#
 	# mozconfig, CFLAGS and CXXFLAGS setup
@@ -106,6 +111,7 @@ src_compile() {
 	mozconfig_annotate 'broken' --disable-crashreporter
 	mozconfig_annotate '' --enable-native-uconv
 	mozconfig_annotate '' --enable-system-hunspell
+	mozconfig_annotate '' --enable-system-sqlite
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
 	#mozconfig_annotate '' --enable-js-binary
@@ -126,9 +132,9 @@ src_compile() {
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 
 	#use enable glitz
-#	if use glitz; then
-#		mozconfig_annotate thebes --enable-glitz
-#	fi
+	if use glitz; then
+		mozconfig_annotate thebes --enable-glitz
+	fi
 
 	#disable java 
 	if ! use java ; then
@@ -171,7 +177,7 @@ src_compile() {
 }
 
 src_install() {
-	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}-1.9"
 	#fake install some small portions, the other parts of
 	#this abomination are patched away in oblivion
 	emake DESTDIR="${D}" install || die "emake install failed"
@@ -181,14 +187,14 @@ src_install() {
 	cp -RL "${S}"/dist/bin/* "${D}"${MOZILLA_FIVE_HOME} || die "cp failed" 
   
         #install the includes and the idls
-	insinto /usr/include/${PN}/
+	insinto /usr/include/${PN}-1.9/
 	doins -r "${S}"/dist/include/{un,}stable || die "installing headers failed"
-	insinto /usr/include/${PN}/unstable
+	insinto /usr/include/${PN}-1.9/unstable
 	doins "${S}"/dist/include/mozilla-config.h "${S}"/dist/include/nsStaticComponents.h || die "installing headers failed"
-	insinto /usr/include/${PN}/stable
+	insinto /usr/include/${PN}-1.9/stable
 	doins "${S}"/dist/include/mozilla-config.h "${S}"/dist/include/nsStaticComponents.h || die "installing headers failed"
   
-	insinto /usr/include/${PN}
+	insinto /usr/include/${PN}-1.9
 	doins -r "${S}"/dist/idl || die "installing idl failed"
 
 
@@ -199,38 +205,17 @@ src_install() {
 
 	# Add Gentoo package version to preferences - copied from debian rules
 	echo // Gentoo package version \
-		> ${D}/usr/$(get_libdir)/xulrunner/defaults/pref/vendor.js
+		> "${D}"${MOZILLA_FIVE_HOME}/defaults/pref/vendor.js
 	echo "pref(\"general.useragent.product\",\"Gecko\");" \
-		>> ${D}/usr/$(get_libdir)/xulrunner/defaults/pref/vendor.js
+		>> "${D}"${MOZILLA_FIVE_HOME}/defaults/pref/vendor.js
 	echo "pref(\"general.useragent.productSub\",\"${X_DATE}\");" \
-		>> ${D}/usr/$(get_libdir)/xulrunner/defaults/pref/vendor.js
+		>> "${D}"${MOZILLA_FIVE_HOME}/defaults/pref/vendor.js
 	echo "pref(\"general.useragent.productComment\",\"Gentoo\");" \
-		>> ${D}/usr/$(get_libdir)/xulrunner/defaults/pref/vendor.js
+		>> "${D}"${MOZILLA_FIVE_HOME}/defaults/pref/vendor.js
 
 	if use java ; then
 	    java-pkg_dojar ${D}${MOZILLA_FIVE_HOME}/javaxpcom.jar
 	    rm -f ${D}${MOZILLA_FIVE_HOME}/javaxpcom.jar
 	fi
-
-	# xulrunner registration, the gentoo way
-#	insinto /etc/gre.d
-#	newins ${FILESDIR}/${PN}.conf ${PV}.conf
-#	sed -i -e \
-#		"s|version|${PV}|
-#			s|instpath|${MOZILLA_FIVE_HOME}|" \
-#		${D}/etc/gre.d/${PV}.conf
 }
 
-pkg_postinst() {
-	if use python ; then
-		python_version
-		python_mod_optimize	${ROOT}/usr/$(get_libdir)/python${PYVER}/site-packages/xpcom
-	fi
-}
-
-pkg_postrm() {
-	if use python ; then
-		python_version
-		python_mod_cleanup
-	fi
-}

@@ -5,7 +5,7 @@
  exec_prefix	= @exec_prefix@
  bindir		= @bindir@
 -includedir	= @includedir@/$(MOZ_APP_NAME)-$(MOZ_APP_VERSION)
-+includedir	= @includedir@/$(MOZ_APP_NAME)
++includedir	= @includedir@/$(MOZ_APP_NAME)-1.9
  libdir		= @libdir@
  datadir		= @datadir@
  mandir		= @mandir@
@@ -14,8 +14,8 @@
  
 -installdir	= $(libdir)/$(MOZ_APP_NAME)-$(MOZ_APP_VERSION)
 -sdkdir		= $(libdir)/$(MOZ_APP_NAME)-devel-$(MOZ_APP_VERSION)
-+installdir	= $(libdir)/$(MOZ_APP_NAME)
-+sdkdir		= $(libdir)/$(MOZ_APP_NAME)
++installdir	= $(libdir)/$(MOZ_APP_NAME)-1.9
++sdkdir		= $(libdir)/$(MOZ_APP_NAME)-1.9
  
  DIST		= $(DEPTH)/dist
  LIBXUL_SDK      = @LIBXUL_SDK@
@@ -98,3 +98,41 @@
  GARBAGE += $(MOZILLA_VERSION).system.conf $(pkg_config_files)
 
 -libs:: make-sdk
+--- xulrunner/installer/libxul-embedding-unstable.pc.in.orig	2008-03-17 20:30:34.000000000 +0000
++++ xulrunner/installer/libxul-embedding-unstable.pc.in	2008-03-17 20:31:40.000000000 +0000
+@@ -7,5 +7,5 @@
+ Name: libxul-embedding-unstable
+ Description: Static library for version-independent embedding of the Mozilla runtime (unstable API)
+ Version: %MOZILLA_VERSION%
+-Libs: -L${sdkdir}/lib -lxpcomglue
++Libs: -L${sdkdir} -lxpcomglue
+ Cflags: -DXPCOM_GLUE -I${includedir}/${includetype} -fshort-wchar
+--- xulrunner/installer/libxul-embedding.pc.in.orig	2008-03-17 20:30:34.000000000 +0000
++++ xulrunner/installer/libxul-embedding.pc.in	2008-03-17 20:31:51.000000000 +0000
+@@ -11,5 +11,5 @@
+ Name: libxul-embedding
+ Description: Static library for version-independent embedding of the Mozilla runtime
+ Version: %MOZILLA_VERSION%
+-Libs: -L${sdkdir}/lib -lxpcomglue
++Libs: -L${sdkdir} -lxpcomglue
+ Cflags: -DXPCOM_GLUE -I${includedir}/${includetype} -fshort-wchar
+--- xulrunner/installer/libxul-unstable.pc.in.orig	2008-03-17 20:30:34.000000000 +0000
++++ xulrunner/installer/libxul-unstable.pc.in	2008-03-17 20:32:02.000000000 +0000
+@@ -8,5 +8,5 @@
+ Description: The Mozilla Runtime and Embedding Engine (unstable API)
+ Version: %MOZILLA_VERSION%
+ Requires: %NSPR_NAME% >= %NSPR_VERSION%
+-Libs: -L${sdkdir}/lib -lxpcomglue_s -lxul -lxpcom
++Libs: -L${sdkdir} -lxpcomglue_s -lxul -lxpcom
+ Cflags: -I${includedir}/${includetype} -fshort-wchar
+--- xulrunner/installer/libxul.pc.in.orig	2008-03-17 20:30:34.000000000 +0000
++++ xulrunner/installer/libxul.pc.in	2008-03-17 20:32:13.000000000 +0000
+@@ -12,5 +12,5 @@
+ Description: The Mozilla Runtime and Embedding Engine
+ Version: %MOZILLA_VERSION%
+ Requires: %NSPR_NAME% >= %NSPR_VERSION%
+-Libs: -L${sdkdir}/lib -lxpcomglue_s -lxul -lxpcom
+-Cflags: -I${includedir}/${includetype} -fshort-wchar
+\ No newline at end of file
++Libs: -L${sdkdir} -lxpcomglue_s -lxul -lxpcom
++Cflags: -I${includedir}/${includetype} -fshort-wchar

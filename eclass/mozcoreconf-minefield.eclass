@@ -176,7 +176,7 @@ mozconfig_init() {
 		--enable-crypto \
 		--with-system-jpeg \
 		--with-system-zlib \
-		--enable-system-cairo
+		--enable-system-cairo \
 		--disable-updater \
 		--enable-pango \
 		--enable-svg \

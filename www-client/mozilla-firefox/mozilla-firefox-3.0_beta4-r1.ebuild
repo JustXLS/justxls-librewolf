@@ -20,7 +20,7 @@ HOMEPAGE="http://www.mozilla.org/projects/firefox/"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
 SLOT="0"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
-IUSE="java mozdevelop bindist xforms restrict-javascript +xulrunner"
+IUSE="java mozdevelop bindist restrict-javascript +xulrunner"
 
 MOZ_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}"
 SRC_URI="${MOZ_URI}/source/firefox-${MY_PV}-source.tar.bz2"
@@ -282,13 +282,13 @@ src_install() {
 
 	# Install icon and .desktop for menu entry
 	if ! use bindist; then
-		doicon "${FILESDIR}"/icon/firefox-icon.png
+		 newicon newicon "${S}"/other-licenses/branding/firefox/content/icon48.png firefox-icon.png
 		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5.desktop \
-			mozilla-firefox-2.0.desktop
+			mozilla-firefox-3.0.desktop
 	else
-		doicon "${FILESDIR}"/icon/firefox-icon-unbranded.png
+		newicon newicon "${S}"/browser/base/branding/firefox/content/icon48.png firefox-icon-unbranded.png
 		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5-unbranded.desktop \
-			mozilla-firefox-2.0.desktop
+			mozilla-firefox-3.0.desktop
 	fi
 
 	dodir ${MOZILLA_FIVE_HOME}/greprefs
