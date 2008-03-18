@@ -199,7 +199,7 @@ src_install() {
 
 
 	dodir /usr/bin
-	dosym ${D}${MOZILLA_FIVE_HOME}/xulrunner-bin /usr/bin/xulrunner
+	dosym ${D}${MOZILLA_FIVE_HOME}/xulrunner-bin /usr/bin/xulrunner-1.9
 
 	X_DATE=`date +%Y%m%d`
 

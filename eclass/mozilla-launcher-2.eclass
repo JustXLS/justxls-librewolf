@@ -71,7 +71,7 @@ install_mozilla_launcher_stub() {
 	# If we use xulrunner, the name of the binary should be the same
 	if [[ ${name: -3} == "xul" ]]; then
 		name=${name/xul/}
-		declare appname=xulrunner
+		declare appname=xulrunner-1.9
 		declare xulparams="export XUL_PARAMS=${libdir}/application.ini"
 		declare libdir="/usr/$(get_libdir)/xulrunner-1.9"
 	else
