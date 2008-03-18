@@ -275,8 +275,8 @@ src_install() {
 	if [[ -n ${LANG} && ${LANG} != "en" ]]; then
 		elog "Setting default locale to ${LANG}"
 		dosed -e "s:general.useragent.locale\", \"en-US\":general.useragent.locale\", \"${LANG}\":" \
-			${MOZILLA_FIVE_HOME}/defaults/pref/firefox.js \
-			${MOZILLA_FIVE_HOME}/defaults/pref/firefox-l10n.js || \
+			${MOZILLA_FIVE_HOME}/defaults/preferences/firefox.js \
+			${MOZILLA_FIVE_HOME}/defaults/preferences/firefox-l10n.js || \
 			die "sed failed to change locale"
 	fi
 
