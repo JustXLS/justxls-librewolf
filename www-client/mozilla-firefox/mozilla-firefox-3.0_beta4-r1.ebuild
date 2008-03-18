@@ -259,7 +259,7 @@ src_install() {
 	if use xulrunner; then
 		PKG_CONFIG=`which pkg-config`
 		X_DATE=`date +%Y%m%d`
-		XULRUNNER_VERSION=`${PKG_CONFIG} --modversion xulrunner-xpcom`
+		XULRUNNER_VERSION=`${PKG_CONFIG} --modversion libxul`
 	fi
 
 	# Most of the installation happens here
@@ -282,11 +282,11 @@ src_install() {
 
 	# Install icon and .desktop for menu entry
 	if ! use bindist; then
-		 newicon newicon "${S}"/other-licenses/branding/firefox/content/icon48.png firefox-icon.png
+		 newicon "${S}"/other-licenses/branding/firefox/content/icon48.png firefox-icon.png
 		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5.desktop \
 			mozilla-firefox-3.0.desktop
 	else
-		newicon newicon "${S}"/browser/base/branding/firefox/content/icon48.png firefox-icon-unbranded.png
+		newicon "${S}"/browser/base/branding/firefox/content/icon48.png firefox-icon-unbranded.png
 		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5-unbranded.desktop \
 			mozilla-firefox-3.0.desktop
 	fi
