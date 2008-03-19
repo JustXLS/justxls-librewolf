@@ -295,10 +295,8 @@ src_install() {
 			mozilla-firefox-3.0.desktop
 	fi
 
-	dodir ${MOZILLA_FIVE_HOME}/greprefs
-	cp "${FILESDIR}"/gentoo-default-prefs.js "${D}"${MOZILLA_FIVE_HOME}/greprefs/all-gentoo.js
-	dodir ${MOZILLA_FIVE_HOME}/defaults/pref
-	cp "${FILESDIR}"/gentoo-default-prefs.js "${D}"${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js
+	dodir ${MOZILLA_FIVE_HOME}/defaults/preferences
+	cp "${FILESDIR}"/gentoo-default-prefs.js "${D}"${MOZILLA_FIVE_HOME}/defaults/preferences/all-gentoo.js
 
 	if use xulrunner; then
 		#set the application.ini
