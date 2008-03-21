@@ -12,7 +12,7 @@ SRC_URI="http://dev.gentooexperimental.org/~armin76/dist/${P}.tar.bz2"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="1.9"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
-IUSE="glitz elibc_FreeBSD"
+IUSE="elibc_FreeBSD"
 
 RDEPEND="java? ( >=virtual/jre-1.4 )
 	glitz? ( >=media-libs/glitz-0.5.6 )
@@ -53,15 +53,10 @@ src_unpack() {
 	epatch "${FILESDIR}"/181_sonames-v4.patch
 	#add the standard gentoo plugins dir
 	epatch "${FILESDIR}"/064_firefox-nsplugins-v3.patch
-	#make it use the system iconv
-	epatch "${FILESDIR}"/165_native_uconv.patch
 	#Fix when using system hunspell
 	epatch "${FILESDIR}"/100-system-hunspell-corrections.patch
 	#make loading certs behave with system nss
 	epatch "${FILESDIR}"/068_firefox-nss-gentoo-fix.patch
-	#correct the cairo/glitz mess, if using system libs
-	epatch "${FILESDIR}"/666_mozilla-glitz-cairo-v2.patch
-
 
 	####################################
 	#
@@ -107,7 +102,6 @@ src_compile() {
 	mozconfig_annotate '' --disable-mailnews
 	mozconfig_annotate 'broken' --disable-mochitest
 	mozconfig_annotate 'broken' --disable-crashreporter
-	mozconfig_annotate '' --enable-native-uconv
 	mozconfig_annotate '' --enable-system-hunspell
 	mozconfig_annotate '' --enable-system-sqlite
 	mozconfig_annotate '' --enable-image-encoder=all

@@ -126,12 +126,8 @@ src_unpack() {
 	EPATCH_FORCE="yes" \
 #	epatch "${WORKDIR}"/patch
 
-	#correct the cairo/glitz mess, if using system libs
-#	epatch "${FILESDIR}"/666_mozilla-glitz-cairo.patch
 	#add the standard gentoo plugins dir
 	epatch "${FILESDIR}"/064_firefox-nsplugins-v3.patch
-	#make it use the system iconv
-	epatch "${FILESDIR}"/165_native_uconv.patch
 	#Fix when using system hunspell
 	epatch "${FILESDIR}"/100-system-hunspell-corrections.patch
 	#make loading certs behave with system nss
@@ -183,7 +179,6 @@ src_compile() {
 	mozconfig_annotate '' --disable-mailnews
 	mozconfig_annotate 'broken' --disable-mochitest
 	mozconfig_annotate 'broken' --disable-crashreporter
-	mozconfig_annotate '' --enable-native-uconv
 	mozconfig_annotate '' --enable-system-hunspell
 	mozconfig_annotate '' --enable-system-sqlite
 	mozconfig_annotate '' --enable-image-encoder=all
