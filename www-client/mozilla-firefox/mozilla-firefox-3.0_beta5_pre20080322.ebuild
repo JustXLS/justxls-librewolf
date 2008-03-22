@@ -137,9 +137,12 @@ src_unpack() {
 
 	epatch "${FILESDIR}"/001-firefox_gentoo_install_dirs.patch
 	epatch "${FILESDIR}"/bz386904_config_rules_install_dist_files.patch
-#	epatch "${FILESDIR}"/002-dont_depend_on_nspr_sources.patch
 	epatch "${FILESDIR}"/installer_shouldnt_copy_xulrunner.patch
-#	epatch "${FILESDIR}"/003-nspr_flags_by_pkg_config_hack.patch
+
+	if use xulrunner; then
+		epatch "${FILESDIR}"/002-dont_depend_on_nspr_sources.patch
+		epatch "${FILESDIR}"/003-nspr_flags_by_pkg_config_hack.patch
+	fi
 
 	####################################
 	#
