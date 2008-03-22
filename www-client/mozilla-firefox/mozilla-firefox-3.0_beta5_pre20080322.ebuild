@@ -12,6 +12,7 @@ inherit flag-o-matic toolchain-funcs eutils mozconfig-minefield makeedit multili
 
 MY_PV=${PV/_beta/b}
 MY_P="${PN}-${MY_PV}"
+MY_PV=${PV/3.0/}
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.org/projects/firefox/"
@@ -24,7 +25,8 @@ IUSE="java mozdevelop bindist restrict-javascript +xulrunner"
 #MOZ_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}"
 #SRC_URI="${MOZ_URI}/source/firefox-${MY_PV}-source.tar.bz2"
 #	mirror://gentoo/${PATCH}.tar.bz2"
-SRC_URI="http://dev.gentooexperimental.org/~armin76/dist/${P}.tar.bz2"
+SRC_URI="http://dev.gentooexperimental.org/~armin76/dist/${P}.tar.bz2
+	!xulrunner? ( http://dev.gentooexperimental.org/~armin76/dist/xulrunner-1.9${MY_PV}.tar.bz2 )"
 
 # These are in
 #
@@ -51,7 +53,7 @@ RDEPEND="java? ( virtual/jre )
 	>=media-libs/lcms-1.17
 	>=app-text/hunspell-1.1.9
 	>=dev-db/sqlite-3.3.17
-	xulrunner? ( >=net-libs/xulrunner-1.9_beta5_alpha )"
+	xulrunner? ( >=net-libs/xulrunner-1.9${MY_PV} )"
 
 
 DEPEND="${RDEPEND}
@@ -109,8 +111,10 @@ pkg_setup(){
 }
 
 src_unpack() {
-	unpack ${A}
+	! use xulrunner && unpack xulrunner-1.9${MY_PV}.tar.bz2
+	unpack ${P}.tar.bz2
 # ${PATCH}.tar.bz2
+
 
 #	linguas
 #	for X in ${linguas}; do
@@ -126,12 +130,19 @@ src_unpack() {
 	EPATCH_FORCE="yes" \
 #	epatch "${WORKDIR}"/patch
 
-	#add the standard gentoo plugins dir
-	epatch "${FILESDIR}"/064_firefox-nsplugins-v3.patch
+	if ! use xulrunner; then
+		#add the standard gentoo plugins dir
+		epatch "${FILESDIR}"/064_firefox-nsplugins-v3.patch
+		#make loading certs behave with system nss
+		epatch "${FILESDIR}"/068_firefox-nss-gentoo-fix.patch
+		epatch "${FILESDIR}"/bsd_include.patch
+	else
+		epatch "${FILESDIR}"/002-dont_depend_on_nspr_sources.patch
+		epatch "${FILESDIR}"/003-nspr_flags_by_pkg_config_hack.patch
+	fi
+	
 	#Fix when using system hunspell
 	epatch "${FILESDIR}"/100-system-hunspell-corrections.patch
-	#make loading certs behave with system nss
-	epatch "${FILESDIR}"/068_firefox-nss-gentoo-fix.patch
 	#Fix typeahead
 	epatch "${FILESDIR}"/667_typeahead-broken-v4.patch
 
@@ -139,10 +150,6 @@ src_unpack() {
 	epatch "${FILESDIR}"/bz386904_config_rules_install_dist_files.patch
 	epatch "${FILESDIR}"/installer_shouldnt_copy_xulrunner.patch
 
-	if use xulrunner; then
-		epatch "${FILESDIR}"/002-dont_depend_on_nspr_sources.patch
-		epatch "${FILESDIR}"/003-nspr_flags_by_pkg_config_hack.patch
-	fi
 
 	####################################
 	#
@@ -155,7 +162,6 @@ src_unpack() {
 
         #gfbsd stuff
 	epatch "${FILESDIR}"/055_firefox-2.0_gfbsd-pthreads.patch
-	epatch "${FILESDIR}"/bsd_include.patch
 
 	eautoreconf || die "failed  running eautoreconf"
 }
