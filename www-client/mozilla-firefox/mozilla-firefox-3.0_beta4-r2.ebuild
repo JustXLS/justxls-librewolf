@@ -153,8 +153,6 @@ src_unpack() {
         #gfbsd stuff
 	epatch "${FILESDIR}"/055_firefox-2.0_gfbsd-pthreads.patch
 	epatch "${FILESDIR}"/bsd_include.patch
-	#This breaks linux, so make it only if gfbsd
-	use elibc_FreeBSD && epatch "${FILESDIR}"/iconvconst.patch
 
 	eautoreconf || die "failed  running eautoreconf"
 }
@@ -260,9 +258,6 @@ src_install() {
 
 	emake DESTDIR="${D}" install || die "emake install failed"
 	rm "${D}"/usr/bin/firefox
-#	# Most of the installation happens here
-#	dodir ${MOZILLA_FIVE_HOME}
-#	cp -RL "${S}"/dist/bin/* "${D}"${MOZILLA_FIVE_HOME} || die "cp failed"
 
 	linguas
 	for X in ${linguas}; do
@@ -300,14 +295,6 @@ src_install() {
 		# Create /usr/bin/firefox
 		install_mozilla_launcher_stub firefoxxul ${MOZILLA_FIVE_HOME}
 	else
-		# Install files necessary for applications to build against firefox
-#		einfo "Installing includes and idl files..."
-#		cp -LfR "${S}"/dist/include "${D}"${MOZILLA_FIVE_HOME} || die "cp failed"
-#		cp -LfR "${S}"/dist/idl "${D}"${MOZILLA_FIVE_HOME} || die "cp failed"
-		# Dirty hack to get some applications using this header running
-#		dosym ${MOZILLA_FIVE_HOME}/include/necko/nsIURI.h \
-#			${MOZILLA_FIVE_HOME}/include/nsIURI.h
-
 		# Create /usr/bin/firefox
 		install_mozilla_launcher_stub firefox ${MOZILLA_FIVE_HOME}
 	fi

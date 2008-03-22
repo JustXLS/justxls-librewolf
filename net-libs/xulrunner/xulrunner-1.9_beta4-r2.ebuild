@@ -12,10 +12,9 @@ SRC_URI="http://dev.gentooexperimental.org/~armin76/dist/${P}.tar.bz2"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="1.9"
 LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
-IUSE="elibc_FreeBSD"
+IUSE=""
 
 RDEPEND="java? ( >=virtual/jre-1.4 )
-	glitz? ( >=media-libs/glitz-0.5.6 )
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12_beta1
 	>=dev-libs/nspr-4.7
@@ -49,8 +48,6 @@ src_unpack() {
 	epatch "${FILESDIR}"/001-xul_gentoo_install_dirs.patch
 	#Use system nspr/nss
 	epatch "${FILESDIR}"/002-bzXXX_pc_honour_system_nspr_nss.patch
-	#use so-names
-	epatch "${FILESDIR}"/181_sonames-v4.patch
 	#add the standard gentoo plugins dir
 	epatch "${FILESDIR}"/064_firefox-nsplugins-v3.patch
 	#Fix when using system hunspell
@@ -70,20 +67,8 @@ src_unpack() {
 	#gfbsd stuff
 	epatch "${FILESDIR}"/055_firefox-2.0_gfbsd-pthreads.patch
 	epatch "${FILESDIR}"/bsd_include.patch
-	#This breaks linux, so make it only if gfbsd
-	use elibc_FreeBSD && epatch "${FILESDIR}"/iconvconst.patch
 
 	eautoreconf || die "failed  running eautoreconf"
-}
-
-pkg_setup() {
-	if use glitz; then
-		if ! built_with_use x11-libs/cairo glitz; then
-			ewarn "You need cairo built with the glitz USE-flag."
-			ewarn "Enable the glitz USE-flag and re-emerge cairo."
-			die "re-emerge cairo with the glitz USE-flag set"
-		fi
-	fi
 }
 
 src_compile() {
