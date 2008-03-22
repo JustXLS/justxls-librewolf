@@ -108,11 +108,6 @@ src_compile() {
 	mozconfig_annotate '' --disable-libxul
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 
-	#use enable glitz
-	if use glitz; then
-		mozconfig_annotate thebes --enable-glitz
-	fi
-
 	#disable java 
 	if ! use java ; then
 		mozconfig_annotate '-java' --disable-javaxpcom

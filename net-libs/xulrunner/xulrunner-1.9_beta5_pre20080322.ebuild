@@ -15,7 +15,6 @@ LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
 IUSE=""
 
 RDEPEND="java? ( >=virtual/jre-1.4 )
-	glitz? ( >=media-libs/glitz-0.5.6 )
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12_beta1
 	>=dev-libs/nspr-4.7
@@ -72,16 +71,6 @@ src_unpack() {
 	eautoreconf || die "failed  running eautoreconf"
 }
 
-pkg_setup() {
-	if use glitz; then
-		if ! built_with_use x11-libs/cairo glitz; then
-			ewarn "You need cairo built with the glitz USE-flag."
-			ewarn "Enable the glitz USE-flag and re-emerge cairo."
-			die "re-emerge cairo with the glitz USE-flag set"
-		fi
-	fi
-}
-
 src_compile() {
 	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}-1.9"
 
@@ -118,11 +107,6 @@ src_compile() {
 	mozconfig_annotate '' --enable-xpctools
 	mozconfig_annotate '' --disable-libxul
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
-
-	#use enable glitz
-	if use glitz; then
-		mozconfig_annotate thebes --enable-glitz
-	fi
 
 	#disable java 
 	if ! use java ; then
