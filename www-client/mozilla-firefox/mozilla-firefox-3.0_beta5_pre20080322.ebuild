@@ -19,7 +19,7 @@ HOMEPAGE="http://www.mozilla.org/projects/firefox/"
 
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
-LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
+LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="java mozdevelop bindist restrict-javascript +xulrunner"
 
 #MOZ_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}"
@@ -52,7 +52,7 @@ RDEPEND="java? ( virtual/jre )
 	>=dev-libs/nspr-4.7
 	>=media-libs/lcms-1.17
 	>=app-text/hunspell-1.1.9
-	>=dev-db/sqlite-3.3.17
+	>=dev-db/sqlite-3.5
 	xulrunner? ( >=net-libs/xulrunner-1.9${MY_PV} )"
 
 
@@ -187,7 +187,7 @@ src_compile() {
 	mozconfig_annotate 'broken' --disable-mochitest
 	mozconfig_annotate 'broken' --disable-crashreporter
 	mozconfig_annotate '' --enable-system-hunspell
-#	mozconfig_annotate '' --enable-system-sqlite
+	mozconfig_annotate '' --enable-system-sqlite
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
 #	mozconfig_annotate '' --with-system-nspr
