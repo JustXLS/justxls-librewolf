@@ -7,8 +7,8 @@ WANT_AUTOCONF="2.1"
 inherit flag-o-matic toolchain-funcs eutils mozconfig-minefield makeedit multilib fdo-mime autotools mozilla-launcher
 
 #PATCH="${PN}-2.0.0.8-patches-0.2"
-#LANGS="be ca cs de el es-AR es-ES eu fi fr fy-NL gu-IN ja ko nb-NO nl pa-IN  pl pt-PT ro ru sk sv-SE tr uk zh-CN"
-#NOSHORTLANGS="es-AR"
+LANGS="af ar be ca cs de el en-GB es-AR es-ES eu fi fr fy-NL gu-IN he hu id it ja ka ko ku lt mk mn nb-NO nl nn-NO pa-IN pl pt-BR pt-PT ro ru sk sq sv-SE tr uk zh-CN zh-TW"
+NOSHORTLANGS="en-GB es-AR pt-BR zh-CN"
 
 MY_PV=${PV/_beta/b}
 MY_P="${PN}-${MY_PV}"
@@ -48,8 +48,8 @@ done
 RDEPEND="java? ( virtual/jre )
 	>=www-client/mozilla-launcher-1.58
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12_beta2
-	>=dev-libs/nspr-4.7
+	>=dev-libs/nss-3.12_beta3
+	>=dev-libs/nspr-4.7.1_beta2
 	>=media-libs/lcms-1.17
 	>=app-text/hunspell-1.1.9
 	>=dev-db/sqlite-3.5
@@ -116,13 +116,13 @@ src_unpack() {
 # ${PATCH}.tar.bz2
 
 
-#	linguas
-#	for X in ${linguas}; do
-#		[[ ${X} != "en" ]] && xpi_unpack "${MY_P}-${X}.xpi"
-#	done
-#	if [[ ${linguas} != "" ]]; then
-#		einfo "Selected language packs (first will be default): ${linguas}"
-#	fi
+	linguas
+	for X in ${linguas}; do
+		[[ ${X} != "en" ]] && xpi_unpack "${MY_P}-${X}.xpi"
+	done
+	if [[ ${linguas} != "" ]]; then
+		einfo "Selected language packs (first will be default): ${linguas}"
+	fi
 
 	# Apply our patches
 	cd "${S}" || die "cd failed"
@@ -190,8 +190,8 @@ src_compile() {
 	mozconfig_annotate '' --enable-system-sqlite
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
-#	mozconfig_annotate '' --with-system-nspr
-#	mozconfig_annotate '' --with-system-nss
+	mozconfig_annotate '' --with-system-nspr
+	mozconfig_annotate '' --with-system-nss
 	mozconfig_annotate '' --enable-system-lcms
 	mozconfig_annotate '' --enable-oji --enable-mathml
 	mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks
@@ -245,6 +245,16 @@ src_compile() {
 	# Should the build use multiprocessing? Not enabled by default, as it tends to break
 	[ "${WANT_MP}" = "true" ] && jobs=${MAKEOPTS} || jobs="-j1"
 	emake ${jobs} || die
+}
+
+pkg_preinst() {
+	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+
+	einfo "Removing old installs with some really ugly code.  It potentially"
+	einfo "eliminates any problems during the install, however suggestions to"
+	einfo "replace this are highly welcome.  Send comments and suggestions to"
+	einfo "mozilla@gentoo.org."
+	rm -rf "${ROOT}"${MOZILLA_FIVE_HOME}
 }
 
 src_install() {
@@ -321,5 +331,4 @@ pkg_postrm() {
 
 	update_mozilla_launcher_symlinks
 }
-
 

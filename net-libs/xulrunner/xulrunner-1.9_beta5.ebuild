@@ -16,8 +16,8 @@ IUSE=""
 
 RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12_beta1
-	>=dev-libs/nspr-4.7
+	>=dev-libs/nss-3.12_beta3
+	>=dev-libs/nspr-4.7.1_beta2
 	>=app-text/hunspell-1.1.9
 	>=media-libs/lcms-1.17
 	>=dev-db/sqlite-3.5"
@@ -96,7 +96,7 @@ src_compile() {
 	mozconfig_annotate '' --with-system-nspr
 	mozconfig_annotate '' --with-system-nss
 	mozconfig_annotate '' --enable-system-lcms
-	#mozconfig_annotate '' --with-system-bz2
+	mozconfig_annotate '' --with-system-bz2
 	# Bug 60668: Galeon doesn't build without oji enabled, so enable it
 	# regardless of java setting.
 	mozconfig_annotate '' --enable-oji --enable-mathml
