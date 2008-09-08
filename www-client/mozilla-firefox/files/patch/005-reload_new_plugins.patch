@@ -1,0 +1,74 @@
+--- browser/base/content/jsbrowser.js.orig	2008-08-29 15:50:06.000000000 +0000
++++ browser/base/content/browser.js	2008-09-08 11:05:05.000000000 +0000
+@@ -846,7 +846,7 @@
+   // binding can't fire trusted ones (runs with page privileges).
+   gBrowser.addEventListener("PluginNotFound", gMissingPluginInstaller.newMissingPlugin, true, true);
+   gBrowser.addEventListener("PluginBlocklisted", gMissingPluginInstaller.newMissingPlugin, true, true);
+-  gBrowser.addEventListener("NewPluginInstalled", gMissingPluginInstaller.refreshBrowser, false);
++  gBrowser.addEventListener("NewPluginInstalled", gMissingPluginInstaller.refreshBrowserAndPlugins, false);
+   gBrowser.addEventListener("NewTab", BrowserOpenTab, false);
+   window.addEventListener("AppCommand", HandleAppCommandEvent, true);
+ 
+@@ -5762,12 +5762,20 @@
+   var pluginInfo = getPluginInfo(aEvent.target);
+   missingPluginsArray[pluginInfo.mimetype] = pluginInfo;
+ 
++  gBrowser.selectedBrowser.addEventListener("NewPluginInstalled",
++					    gMissingPluginInstaller.refreshBrowserAndPlugins,
++					    false);
++
+   if (missingPluginsArray) {
+     window.openDialog("chrome://mozapps/content/plugins/pluginInstallerWizard.xul",
+                       "PFSWindow", "chrome,centerscreen,resizable=yes",
+                       {plugins: missingPluginsArray, browser: gBrowser.selectedBrowser});
+   }
+ 
++  tabbrowser.selectedBrowser.removeEventListener("NewPluginInstalled",
++						 gMissingPluginInstaller.refreshBrowserAndPlugins,
++						 false);
++
+   aEvent.preventDefault();
+ }
+ 
+@@ -5859,7 +5867,7 @@
+   }
+ }
+ 
+-missingPluginInstaller.prototype.refreshBrowser = function(aEvent) {
++missingPluginInstaller.prototype.refreshBrowserAndPlugins = function(aEvent) {
+   var browser = aEvent.target;
+   var notificationBox = gBrowser.getNotificationBox(browser);
+   var notification = notificationBox.getNotificationWithValue("missing-plugins");
+@@ -5870,7 +5878,13 @@
+     // reset UI
+     notificationBox.removeNotification(notification);
+   }
+-  // reload the browser to make the new plugin show.
++
++  // reload plugins
++  var pm = Components.classes["@mozilla.org/plugin/manager;1"]
++		.getService(Components.interfaces.nsIPluginManager);
++  pm.reloadPlugins(false);
++
++  // ... and reload the browser to activate new plugins available
+   browser.reload();
+ }
+ 
+@@ -5887,11 +5901,17 @@
+ {
+   // get the urls of missing plugins
+   var missingPluginsArray = gBrowser.selectedBrowser.missingPlugins;
++  tabbrowser.selectedBrowser.addEventListener("NewPluginInstalled",
++					      gMissingPluginInstaller.refreshBrowserAndPlugins,
++					      false);
+   if (missingPluginsArray) {
+     window.openDialog("chrome://mozapps/content/plugins/pluginInstallerWizard.xul",
+                       "PFSWindow", "chrome,centerscreen,resizable=yes",
+                       {plugins: missingPluginsArray, browser: gBrowser.selectedBrowser});
+   }
++  tabbrowser.selectedBrowser.removeEventListener("NewPluginInstalled",
++						 gMissingPluginInstaller.refreshBrowserAndPlugins,
++						 false);
+ }
+ 
+ var gMissingPluginInstaller = new missingPluginInstaller();

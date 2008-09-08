@@ -1,0 +1,148 @@
+---
+ modules/libpref/src/nsPrefService.cpp  |    8 ++++++++
+ toolkit/xre/nsXREDirProvider.cpp       |    4 ++++
+ xpcom/io/nsAppDirectoryServiceDefs.h   |    1 +
+ xpcom/io/nsAppFileLocationProvider.cpp |   10 ++++++++++
+ 4 files changed, 23 insertions(+)
+
+Index: mozilla/toolkit/xre/nsXREDirProvider.cpp
+===================================================================
+--- mozilla.orig/toolkit/xre/nsXREDirProvider.cpp
++++ mozilla/toolkit/xre/nsXREDirProvider.cpp
+@@ -609,16 +609,17 @@
+   nsCOMPtr<nsIFile> subdir;
+   while (NS_SUCCEEDED(files->GetNextFile(getter_AddRefs(subdir))) && subdir) {
+     mAppBundleDirectories.AppendObject(subdir);
+     LoadPlatformDirectory(subdir, mAppBundleDirectories);
+   }
+ }
+ 
+ static const char *const kAppendPrefDir[] = { "defaults", "preferences", nsnull };
++static const char *const kAppendSysPrefDir[] = { "defaults", "syspref", nsnull };
+ 
+ #ifdef DEBUG_bsmedberg
+ static void
+ DumpFileArray(const char *key,
+               nsCOMArray<nsIFile> dirs)
+ {
+   fprintf(stderr, "nsXREDirProvider::GetFilesInternal(%s)\n", key);
+ 
+@@ -665,16 +666,19 @@
+   else if (!strcmp(aProperty, NS_APP_PREFS_DEFAULTS_DIR_LIST)) {
+     nsCOMArray<nsIFile> directories;
+ 
+     LoadBundleDirectories();
+ 
+     LoadAppDirIntoArray(mXULAppDir, kAppendPrefDir, directories);
+     LoadDirsIntoArray(mAppBundleDirectories,
+                       kAppendPrefDir, directories);
++    LoadAppDirIntoArray(mXULAppDir, kAppendSysPrefDir, directories);
++    LoadDirsIntoArray(mAppBundleDirectories,
++                      kAppendSysPrefDir, directories);
+ 
+     rv = NS_NewArrayEnumerator(aResult, directories);
+   }
+   else if (!strcmp(aProperty, NS_EXT_PREFS_DEFAULTS_DIR_LIST)) {
+     nsCOMArray<nsIFile> directories;
+ 
+     LoadBundleDirectories();
+     LoadDirsIntoArray(mExtensionDirectories,
+Index: mozilla/modules/libpref/src/nsPrefService.cpp
+===================================================================
+--- mozilla.orig/modules/libpref/src/nsPrefService.cpp
++++ mozilla/modules/libpref/src/nsPrefService.cpp
+@@ -807,16 +807,24 @@
+ #endif
+   };
+ 
+   rv = pref_LoadPrefsInDir(defaultPrefDir, specialFiles, NS_ARRAY_LENGTH(specialFiles));
+   if (NS_FAILED(rv)) {
+     NS_WARNING("Error parsing application default preferences.");
+   }
+ 
++  /* now, parse the "application" default system preferences */
++  rv = NS_GetSpecialDirectory(NS_APP_SYSPREF_DEFAULTS_50_DIR, getter_AddRefs(defaultPrefDir));
++  NS_ENSURE_SUCCESS(rv, rv);
++  rv = pref_LoadPrefsInDir(defaultPrefDir, specialFiles, NS_ARRAY_LENGTH(specialFiles));
++  if (NS_FAILED(rv)) {
++    NS_WARNING("Error parsing application default preferences.");
++  }
++
+   rv = pref_LoadPrefsInDirList(NS_APP_PREFS_DEFAULTS_DIR_LIST);
+   NS_ENSURE_SUCCESS(rv, rv);
+ 
+   NS_CreateServicesFromCategory(NS_PREFSERVICE_APPDEFAULTS_TOPIC_ID,
+                                 nsnull, NS_PREFSERVICE_APPDEFAULTS_TOPIC_ID);
+ 
+   nsCOMPtr<nsIObserverService> observerService = 
+     do_GetService("@mozilla.org/observer-service;1", &rv);
+Index: mozilla/xpcom/io/nsAppDirectoryServiceDefs.h
+===================================================================
+--- mozilla.orig/xpcom/io/nsAppDirectoryServiceDefs.h
++++ mozilla/xpcom/io/nsAppDirectoryServiceDefs.h
+@@ -58,16 +58,17 @@
+ // Files and directories which exist on a per-product basis
+ // --------------------------------------------------------------------------------------
+ 
+ #define NS_APP_APPLICATION_REGISTRY_FILE        "AppRegF"
+ #define NS_APP_APPLICATION_REGISTRY_DIR         "AppRegD"
+ 
+ #define NS_APP_DEFAULTS_50_DIR                  "DefRt"         // The root dir of all defaults dirs
+ #define NS_APP_PREF_DEFAULTS_50_DIR             "PrfDef"
++#define NS_APP_SYSPREF_DEFAULTS_50_DIR          "SysPrfDef"
+ #define NS_APP_PROFILE_DEFAULTS_50_DIR          "profDef"       // The profile defaults of the "current"
+                                                                 // locale. Should be first choice.
+ #define NS_APP_PROFILE_DEFAULTS_NLOC_50_DIR     "ProfDefNoLoc"  // The profile defaults of the "default"
+                                                                 // installed locale. Second choice
+                                                                 // when above is not available.
+                                                                                                                        
+ #define NS_APP_USER_PROFILES_ROOT_DIR           "DefProfRt"     // The dir where user profile dirs live.
+ #define NS_APP_USER_PROFILES_LOCAL_ROOT_DIR     "DefProfLRt"  // The dir where user profile temp dirs live.
+Index: mozilla/xpcom/io/nsAppFileLocationProvider.cpp
+===================================================================
+--- mozilla.orig/xpcom/io/nsAppFileLocationProvider.cpp
++++ mozilla/xpcom/io/nsAppFileLocationProvider.cpp
+@@ -98,16 +98,17 @@
+ #ifdef XP_MACOSX
+ #define NS_MACOSX_USER_PLUGIN_DIR   "OSXUserPlugins"
+ #define NS_MACOSX_LOCAL_PLUGIN_DIR  "OSXLocalPlugins"
+ #define NS_MAC_CLASSIC_PLUGIN_DIR   "MacSysPlugins"
+ #endif
+ 
+ #define DEFAULTS_DIR_NAME           NS_LITERAL_CSTRING("defaults")
+ #define DEFAULTS_PREF_DIR_NAME      NS_LITERAL_CSTRING("pref")
++#define DEFAULTS_SYSPREF_DIR_NAME   NS_LITERAL_CSTRING("syspref")
+ #define DEFAULTS_PROFILE_DIR_NAME   NS_LITERAL_CSTRING("profile")
+ #define RES_DIR_NAME                NS_LITERAL_CSTRING("res")
+ #define CHROME_DIR_NAME             NS_LITERAL_CSTRING("chrome")
+ #define PLUGINS_DIR_NAME            NS_LITERAL_CSTRING("plugins")
+ #define SEARCH_DIR_NAME             NS_LITERAL_CSTRING("searchplugins")
+ 
+ //*****************************************************************************
+ // nsAppFileLocationProvider::Constructor/Destructor
+@@ -164,16 +165,25 @@
+     {
+         rv = CloneMozBinDirectory(getter_AddRefs(localFile));
+         if (NS_SUCCEEDED(rv)) {
+             rv = localFile->AppendRelativeNativePath(DEFAULTS_DIR_NAME);
+             if (NS_SUCCEEDED(rv))
+                 rv = localFile->AppendRelativeNativePath(DEFAULTS_PREF_DIR_NAME);
+         }
+     }
++    else if (nsCRT::strcmp(prop, NS_APP_SYSPREF_DEFAULTS_50_DIR) == 0)
++    {
++        rv = CloneMozBinDirectory(getter_AddRefs(localFile));
++        if (NS_SUCCEEDED(rv)) {
++            rv = localFile->AppendRelativeNativePath(DEFAULTS_DIR_NAME);
++            if (NS_SUCCEEDED(rv))
++                rv = localFile->AppendRelativeNativePath(DEFAULTS_SYSPREF_DIR_NAME);
++        }
++    }
+     else if (nsCRT::strcmp(prop, NS_APP_PROFILE_DEFAULTS_50_DIR) == 0 ||
+              nsCRT::strcmp(prop, NS_APP_PROFILE_DEFAULTS_NLOC_50_DIR) == 0)
+     {
+         rv = CloneMozBinDirectory(getter_AddRefs(localFile));
+         if (NS_SUCCEEDED(rv)) {
+             rv = localFile->AppendRelativeNativePath(DEFAULTS_DIR_NAME);
+             if (NS_SUCCEEDED(rv))
+                 rv = localFile->AppendRelativeNativePath(DEFAULTS_PROFILE_DIR_NAME);

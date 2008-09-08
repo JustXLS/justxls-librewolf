@@ -1,0 +1,51 @@
+--- configure.in.orig	2008-09-08 10:55:55.000000000 +0000
++++ configure.in	2008-09-08 10:58:40.000000000 +0000
+@@ -4037,7 +4037,8 @@
+                 AC_MSG_ERROR([system NSPR does not support PR_STATIC_ASSERT]))
+     CFLAGS=$_SAVE_CFLAGS
+ else
+-    NSPR_CFLAGS='`$(DEPTH)/nsprpub/config/nspr-config --prefix=$(LIBXUL_DIST) --includedir=$(LIBXUL_DIST)/include/nspr --cflags`'
++    NSPR_CFLAGS=`pkg-config mozilla-nspr --cflags`
++    NSPR_LIBS=`pkg-config mozilla-nspr --libs`
+     # explicitly set libs for Visual Age C++ for OS/2
+     if test "$OS_ARCH" = "OS2" -a "$VACPP" = "yes"; then
+         NSPR_LIBS='$(LIBXUL_DIST)/lib/nspr'$NSPR_VERSION'.lib $(LIBXUL_DIST)/lib/plc'$NSPR_VERSION'.lib $(LIBXUL_DIST)/lib/plds'$NSPR_VERSION'.lib '$_PTHREAD_LDFLAGS''
+@@ -4052,7 +4053,7 @@
+             NSPR_LIBS='$(LIBXUL_DIST)/lib/nspr'$NSPR_VERSION'.lib $(LIBXUL_DIST)/lib/plc'$NSPR_VERSION'.lib $(LIBXUL_DIST)/lib/plds'$NSPR_VERSION'.lib '
+         fi
+     else
+-        NSPR_LIBS='`$(DEPTH)/nsprpub/config/nspr-config --prefix=$(LIBXUL_DIST) --libdir=$(LIBXUL_DIST)/lib --libs`'
++       NSPR_LIBS=`pkg-config mozilla-nspr --libs`
+     fi
+ fi
+ 
+@@ -7998,7 +7999,9 @@
+ AC_SUBST(MOZ_PNG_LIBS)
+ 
+ AC_SUBST(NSPR_CFLAGS)
++AC_DEFINE(NSPR_CFLAGS)
+ AC_SUBST(NSPR_LIBS)
++AC_DEFINE(NSPR_LIBS)
+ AC_SUBST(MOZ_NATIVE_NSPR)
+ 
+ AC_SUBST(NSS_CFLAGS)
+@@ -8354,19 +8357,5 @@
+     ac_configure_args="$_SUBDIR_CONFIG_ARGS"
+ fi
+ 
+-if test -z "$MOZ_NATIVE_NSPR"; then
+-    # Hack to deal with the fact that we use NSPR_CFLAGS everywhere
+-    AC_MSG_WARN([Recreating autoconf.mk with updated nspr-config output])
+-    if test ! "$VACPP" && test "$OS_ARCH" != "WINNT" && test "$OS_ARCH" != "WINCE"; then
+-       _libs=`./nsprpub/config/nspr-config --prefix=$\(LIBXUL_DIST\) --exec-prefix=$\(DIST\) --libdir=$\(LIBXUL_DIST\)/lib --libs`
+-       $PERL -pi.bak -e "s '^NSPR_LIBS\\s*=.*'NSPR_LIBS = $_libs'" config/autoconf.mk
+-    fi
+-    if test "$OS_ARCH" != "WINNT" && test "$OS_ARCH" != "WINCE" ; then
+-       _cflags=`./nsprpub/config/nspr-config --prefix=$\(LIBXUL_DIST\) --exec-prefix=$\(DIST\) --includedir=$\(LIBXUL_DIST\)/include/nspr --cflags`
+-       $PERL -pi.bak -e "s '^NSPR_CFLAGS\\s*=.*'NSPR_CFLAGS = $_cflags'" config/autoconf.mk
+-    fi
+-    rm -f config/autoconf.mk.bak
+-fi
+-
+ fi # COMPILE_ENVIRONMENT
+ 

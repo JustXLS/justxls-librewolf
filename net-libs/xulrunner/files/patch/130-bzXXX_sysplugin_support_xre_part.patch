@@ -1,0 +1,126 @@
+---
+ toolkit/xre/nsXREDirProvider.cpp |   26 ++++++++++++++++++++++++++
+ toolkit/xre/nsXREDirProvider.h   |    1 +
+ 2 files changed, 27 insertions(+)
+
+Index: mozilla/toolkit/xre/nsXREDirProvider.cpp
+===================================================================
+--- mozilla.orig/toolkit/xre/nsXREDirProvider.cpp
++++ mozilla/toolkit/xre/nsXREDirProvider.cpp
+@@ -41,17 +41,19 @@
+ 
+ #include "nsAppRunner.h"
+ #include "nsXREDirProvider.h"
+ 
+ #include "jsapi.h"
+ 
+ #include "nsIJSContextStack.h"
+ #include "nsIDirectoryEnumerator.h"
++#include "nsIFile.h"
+ #include "nsILocalFile.h"
++#include "nsIProperties.h"
+ #include "nsIObserverService.h"
+ #include "nsIProfileChangeStatus.h"
+ #include "nsISimpleEnumerator.h"
+ #include "nsIToolkitChromeRegistry.h"
+ 
+ #include "nsAppDirectoryServiceDefs.h"
+ #include "nsDirectoryServiceDefs.h"
+ #include "nsDirectoryServiceUtils.h"
+@@ -96,16 +98,18 @@
+ #else
+ #define APP_REGISTRY_NAME "appreg"
+ #endif
+ 
+ #define PREF_OVERRIDE_DIRNAME "preferences"
+ 
+ nsXREDirProvider* gDirServiceProvider = nsnull;
+ 
++#define NS_SYSTEM_PLUGINS_DIR       "SysPlugins"
++
+ nsXREDirProvider::nsXREDirProvider() :
+   mProfileNotified(PR_FALSE),
+   mExtensionsLoaded(PR_FALSE)
+ {
+   gDirServiceProvider = this;
+ }
+ 
+ nsXREDirProvider::~nsXREDirProvider()
+@@ -128,16 +132,33 @@
+     nsCOMPtr<nsIDirectoryServiceProvider> app(do_QueryInterface(mAppProvider));
+     if (app) {
+       PRBool per = PR_FALSE;
+       app->GetFile(NS_APP_USER_PROFILE_50_DIR, &per, getter_AddRefs(mProfileDir));
+       NS_ASSERTION(per, "NS_APP_USER_PROFILE_50_DIR no defined! This shouldn't happen!"); 
+     }
+   }
+ 
++  nsresult rv;
++  nsCOMPtr<nsIProperties> directoryService =
++    do_GetService(NS_DIRECTORY_SERVICE_CONTRACTID, &rv);
++
++  if (NS_FAILED(rv)) {
++    mSysPluginDir = nsnull;
++    return NS_OK;
++  }
++
++  rv = directoryService->Get( NS_SYSTEM_PLUGINS_DIR,
++                              NS_GET_IID(nsIFile),
++                              getter_AddRefs(mSysPluginDir));
++
++  if (NS_FAILED(rv)) {
++    mSysPluginDir = nsnull;
++  }
++
+   return NS_OK;
+ }
+ 
+ nsresult
+ nsXREDirProvider::SetProfile(nsIFile* aDir, nsIFile* aLocalDir)
+ {
+   NS_ASSERTION(aDir && aLocalDir, "We don't support no-profile apps yet!");
+ 
+@@ -762,16 +783,21 @@
+   }
+   else if (!strcmp(aProperty, NS_APP_PLUGINS_DIR_LIST)) {
+     static const char *const kAppendPlugins[] = { "plugins", nsnull };
+     nsCOMArray<nsIFile> directories;
+ 
+     // The root dirserviceprovider does quite a bit for us: we're mainly
+     // interested in gre, xulapp, and extension-provided plugins.
+     LoadBundleDirectories();
++
++    PRBool exists;
++    if (mSysPluginDir && NS_SUCCEEDED(mSysPluginDir->Exists(&exists)) && exists)
++      directories.AppendObject(mSysPluginDir);
++
+     LoadAppDirIntoArray(mGREDir,
+                         kAppendPlugins,
+                         directories);
+     LoadDirsIntoArray(mAppBundleDirectories,
+                       kAppendPlugins,
+                       directories);
+     LoadDirsIntoArray(mExtensionDirectories,
+                       kAppendPlugins,
+Index: mozilla/toolkit/xre/nsXREDirProvider.h
+===================================================================
+--- mozilla.orig/toolkit/xre/nsXREDirProvider.h
++++ mozilla/toolkit/xre/nsXREDirProvider.h
+@@ -138,16 +138,17 @@
+   // extensions, and themes
+   void LoadBundleDirectories();
+   void LoadAppBundleDirs();
+ 
+   void Append(nsIFile* aDirectory);
+ 
+   nsCOMPtr<nsIDirectoryServiceProvider> mAppProvider;
+   nsCOMPtr<nsILocalFile> mGREDir;
++  nsCOMPtr<nsIFile>      mSysPluginDir;
+   nsCOMPtr<nsIFile>      mXULAppDir;
+   nsCOMPtr<nsIFile>      mProfileDir;
+   nsCOMPtr<nsIFile>      mProfileLocalDir;
+   PRPackedBool           mProfileNotified;
+   PRPackedBool           mExtensionsLoaded;
+   nsCOMArray<nsIFile>    mAppBundleDirectories;
+   nsCOMArray<nsIFile>    mExtensionDirectories;
+   nsCOMArray<nsIFile>    mThemeDirectories;

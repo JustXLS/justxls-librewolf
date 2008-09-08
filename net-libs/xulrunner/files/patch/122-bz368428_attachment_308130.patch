@@ -1,0 +1,147 @@
+
+ * fix Bug 368428 – XUL FastLoad cache corruption when application running
+   while upgrading ... updated patch with "antiLockZipGrip"
+
+-- 
+---
+ modules/libjar/nsJAR.cpp |   18 ++++++++++++++++--
+ modules/libjar/nsJAR.h   |    5 +++++
+ 2 files changed, 21 insertions(+), 2 deletions(-)
+
+Index: mozilla/modules/libjar/nsJAR.cpp
+===================================================================
+--- mozilla.orig/modules/libjar/nsJAR.cpp
++++ mozilla/modules/libjar/nsJAR.cpp
+@@ -122,16 +122,17 @@
+ 
+ // The following initialization makes a guess of 10 entries per jarfile.
+ nsJAR::nsJAR(): mManifestData(nsnull, nsnull, DeleteManifestEntry, nsnull, 10),
+                 mParsedManifest(PR_FALSE),
+                 mGlobalStatus(JAR_MANIFEST_NOT_PARSED),
+                 mReleaseTime(PR_INTERVAL_NO_TIMEOUT), 
+                 mCache(nsnull), 
+                 mLock(nsnull),
++                mMtime(0),
+                 mTotalItemsInManifest(0)
+ {
+ }
+ 
+ nsJAR::~nsJAR()
+ {
+   Close();
+ }
+@@ -162,26 +163,30 @@
+ 
+ //----------------------------------------------
+ // nsIZipReader implementation
+ //----------------------------------------------
+ 
+ NS_IMETHODIMP
+ nsJAR::Open(nsIFile* zipFile)
+ {
++  NS_ENSURE_TRUE(zipFile, NS_ERROR_FAILURE);
+   if (mLock) return NS_ERROR_FAILURE; // Already open!
+ 
+   mZipFile = zipFile;
++  nsresult rv = zipFile->GetLastModifiedTime(&mMtime);
++  if (NS_FAILED(rv)) return rv;
++
+   mLock = PR_NewLock();
+   NS_ENSURE_TRUE(mLock, NS_ERROR_OUT_OF_MEMORY);
+ 
+   PRFileDesc *fd = OpenFile();
+   NS_ENSURE_TRUE(fd, NS_ERROR_FAILURE);
+ 
+-  nsresult rv = mZip.OpenArchive(fd);
++  rv = mZip.OpenArchive(fd);
+   if (NS_FAILED(rv)) Close();
+ 
+   return rv;
+ }
+ 
+ NS_IMETHODIMP
+ nsJAR::GetFile(nsIFile* *result)
+ {
+@@ -1111,35 +1116,44 @@
+          mZipCacheFlushes, mZipSyncMisses);
+ #endif
+ }
+ 
+ NS_IMETHODIMP
+ nsZipReaderCache::GetZip(nsIFile* zipFile, nsIZipReader* *result)
+ {
+   nsresult rv;
++  nsCOMPtr<nsIJAR> antiLockZipGrip;
+   nsAutoLock lock(mLock);
+ 
+ #ifdef ZIP_CACHE_HIT_RATE
+   mZipCacheLookups++;
+ #endif
+ 
+   nsCAutoString path;
+   rv = zipFile->GetNativePath(path);
+   if (NS_FAILED(rv)) return rv;
+ 
++  PRInt64 Mtime;
++  rv = zipFile->GetLastModifiedTime(&Mtime);
++  if (NS_FAILED(rv)) return rv;
++
+   nsCStringKey key(path);
+   nsJAR* zip = static_cast<nsJAR*>(static_cast<nsIZipReader*>(mZips.Get(&key))); // AddRefs
+-  if (zip) {
++  if (zip && Mtime == zip->GetMtime()) {
+ #ifdef ZIP_CACHE_HIT_RATE
+     mZipCacheHits++;
+ #endif
+     zip->ClearReleaseTime();
+   }
+   else {
++    if (zip) {
++      antiLockZipGrip = zip;
++      mZips.Remove(&key);
++    }
+     zip = new nsJAR();
+     if (zip == nsnull)
+         return NS_ERROR_OUT_OF_MEMORY;
+     NS_ADDREF(zip);
+     zip->SetZipReaderCache(this);
+ 
+     rv = zip->Open(zipFile);
+     if (NS_FAILED(rv)) {
+Index: mozilla/modules/libjar/nsJAR.h
+===================================================================
+--- mozilla.orig/modules/libjar/nsJAR.h
++++ mozilla/modules/libjar/nsJAR.h
+@@ -128,27 +128,32 @@
+     void ClearReleaseTime() {
+       mReleaseTime = PR_INTERVAL_NO_TIMEOUT;
+     }
+     
+     void SetZipReaderCache(nsZipReaderCache* cache) {
+       mCache = cache;
+     }
+ 
++    PRInt64 GetMtime() {
++      return mMtime;
++    }
++
+   protected:
+     //-- Private data members
+     nsCOMPtr<nsIFile>        mZipFile;        // The zip/jar file on disk
+     nsZipArchive             mZip;            // The underlying zip archive
+     nsObjectHashtable        mManifestData;   // Stores metadata for each entry
+     PRBool                   mParsedManifest; // True if manifest has been parsed
+     nsCOMPtr<nsIPrincipal>   mPrincipal;      // The entity which signed this file
+     PRInt16                  mGlobalStatus;   // Global signature verification status
+     PRIntervalTime           mReleaseTime;    // used by nsZipReaderCache for flushing entries
+     nsZipReaderCache*        mCache;          // if cached, this points to the cache it's contained in
+     PRLock*                  mLock;	
++    PRInt64                  mMtime;
+     PRInt32                  mTotalItemsInManifest;
+     
+     //-- Private functions
+     PRFileDesc* OpenFile();
+ 
+     nsresult ParseManifest(nsISignatureVerifier* verifier);
+     void     ReportError(const char* aFilename, PRInt16 errorCode);
+     nsresult LoadEntry(const char* aFilename, char** aBuf, 

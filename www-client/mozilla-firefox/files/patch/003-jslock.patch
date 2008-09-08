@@ -1,0 +1,11 @@
+--- js/src/jslock.cpp.orig	2008-09-07 18:50:40.000000000 +0000
++++ js/src/jslock.cpp	2008-09-07 18:51:10.000000000 +0000
+@@ -195,7 +195,7 @@
+     return !failed;
+ }
+ 
+-#else
++#elif JS_HAS_NATIVE_COMPARE_AND_SWAP
+ 
+ #error "JS_HAS_NATIVE_COMPARE_AND_SWAP should be 0 if your platform lacks a compare-and-swap instruction."
+ 

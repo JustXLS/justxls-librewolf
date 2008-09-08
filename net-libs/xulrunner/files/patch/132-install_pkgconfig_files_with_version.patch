@@ -1,0 +1,76 @@
+---
+ xulrunner/installer/Makefile.in |   24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
+
+Index: mozilla/xulrunner/installer/Makefile.in
+===================================================================
+--- mozilla.orig/xulrunner/installer/Makefile.in
++++ mozilla/xulrunner/installer/Makefile.in
+@@ -77,54 +77,56 @@
+ 
+ install:: $(MOZILLA_VERSION).system.conf
+ 	$(NSINSTALL) -D $(DESTDIR)$(regdir)
+ 	$(SYSINSTALL) $^ $(DESTDIR)$(regdir)
+ endif
+ 
+ # Add pkg-config files to the install:: target
+ 
++VERSION=1.9.1
++
+ pkg_config_files = \
+-	libxul.pc \
+-	libxul-embedding.pc \
+-	libxul-unstable.pc \
+-	libxul-embedding-unstable.pc \
+-	mozilla-js.pc \
+-	mozilla-plugin.pc \
+-	mozilla-gtkmozembed.pc \
+-	mozilla-gtkmozembed-embedding.pc \
++	libxul-$(VERSION).pc \
++	libxul-embedding-$(VERSION).pc \
++	libxul-unstable-$(VERSION).pc \
++	libxul-embedding-unstable-$(VERSION).pc \
++	mozilla-js-$(VERSION).pc \
++	mozilla-plugin-$(VERSION).pc \
++	mozilla-gtkmozembed-$(VERSION).pc \
++	mozilla-gtkmozembed-embedding-$(VERSION).pc \
+ 	$(NULL)
+ 
+ ifdef MOZ_NATIVE_NSPR
+ NSPR_NAME=nspr
+ NSPR_VERSION=$(shell $(NSPR_CONFIG) --version)
+ FULL_NSPR_CFLAGS=$(shell $(NSPR_CONFIG) --cflags)
+ FULL_NSPR_LIBS=$(shell $(NSPR_CONFIG) --libs)
+ else
+ NSPR_NAME=mozilla-nspr
+ FULL_NSPR_CFLAGS=-I\$${includedir}/stable
+ FULL_NSPR_LIBS=$(subst $(prefix),\$${sdkdir},$(shell $(DEPTH)/nsprpub/config/nspr-config --libs))
+ NSPR_VERSION=$(shell $(DEPTH)/nsprpub/config/nspr-config --version)
+ endif
+-pkg_config_files += mozilla-nspr.pc
++pkg_config_files += mozilla-nspr-$(VERSION).pc
+ 
+ $(warning FULL_NSPR_CFLAGS=$(FULL_NSPR_CFLAGS))
+ 
+ ifdef MOZ_NATIVE_NSS
+ NSPR_VERSION=$(shell $(NSS_CONFIG) --version)
+ FULL_NSS_CFLAGS=$(shell $(NSS_CONFIG) --cflags)
+ FULL_NSS_LIBS=$(shell $(NSS_CONFIG) --libs)
+ else
+ NSS_VERSION=$(shell $(DEPTH)/nsprpub/config/nss-config --version)
+ FULL_NSS_CFLAGS=-I\$${includedir}/stable
+ FULL_NSS_LIBS=$(subst $(prefix),\$${sdkdir},$(shell $(DEPTH)/nsprpub/config/nss-config --libs))
+ endif
+-pkg_config_files += mozilla-nss.pc
++pkg_config_files += mozilla-nss-$(VERSION).pc
+ 
+-%.pc: $(srcdir)/%.pc.in Makefile.in Makefile $(DEPTH)/config/autoconf.mk
++%-$(VERSION).pc: $(srcdir)/%.pc.in Makefile.in Makefile $(DEPTH)/config/autoconf.mk
+ 	cat $< | sed \
+ 	-e "s|%prefix%|$(prefix)|" \
+ 	-e "s|%includedir%|$(includedir)|" \
+ 	-e "s|%idldir%|$(idldir)|" \
+ 	-e "s|%sdkdir%|$(sdkdir)|" \
+ 	-e "s|%MOZ_APP_NAME%|$(MOZ_APP_NAME)|" \
+ 	-e "s|%MOZILLA_VERSION%|$(MOZ_APP_VERSION)|" \
+ 	-e "s|%FULL_NSPR_LIBS%|$(FULL_NSPR_LIBS)|" \

@@ -1,0 +1,39 @@
+---
+ browser/branding/unofficial/Makefile.in |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+Index: mozilla/browser/branding/unofficial/Makefile.in
+===================================================================
+--- mozilla.orig/browser/branding/unofficial/Makefile.in
++++ mozilla/browser/branding/unofficial/Makefile.in
+@@ -1,28 +1,28 @@
+ # Branding Makefile
+ #  - jars chrome artwork
+ #  - copies artwork to appropriate places in objdir for bundling into app 
+ #    resources
+ 
+ DEPTH = ../../..
+-topsrcdir = @top_srcdir@
++topsrcdir = $(DEPTH)
+ srcdir = @srcdir@
+ VPATH = @srcdir@
+ 
+ include $(DEPTH)/config/autoconf.mk
+ 
+ DIRS = \
+ 	content \
+ 	locales \
+ 	$(NULL)
+ 
+ PREF_JS_EXPORTS = $(srcdir)/pref/firefox-branding.js
+ 
+-include $(topsrcdir)/config/rules.mk
++include $(DEPTH)/config/rules.mk
+ 
+ BROWSER_APP_FILES = \
+ 	default16.png \
+ 	default32.png \
+ 	default48.png \
+ 	mozicon128.png \
+ 	mozicon16.xpm \
+ 	mozicon50.xpm \
