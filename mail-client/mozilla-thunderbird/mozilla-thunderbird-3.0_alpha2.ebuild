@@ -111,8 +111,6 @@ pkg_setup(){
 }
 
 src_unpack() {
-#	! use xulrunner && unpack xulrunner-1.9_rc1.tar.bz2
-#	unpack ${P}.tar.bz2 ${PATCH}.tar.bz2
 	unpack ${A}
 
 	linguas
@@ -132,8 +130,6 @@ src_unpack() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"/patch
-
-#	epatch "${}"/*.patch
 
 	eautoreconf
 }
@@ -230,9 +226,6 @@ src_install() {
 		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${MY_P}-${X}"
 	done
 
-#	use xulrunner && prefs=preferences || prefs=pref
-	#cp "${FILESDIR}"/gentoo-default-prefs.js "${D}"${MOZILLA_FIVE_HOME}/defaults/${prefs}/all-gentoo.js
-
 	local LANG=${linguas%% *}
 	if [[ -n ${LANG} && ${LANG} != "en" ]]; then
 		elog "Setting default locale to ${LANG}"
@@ -242,14 +235,11 @@ src_install() {
 			die "sed failed to change locale"
 	fi
 
-	# Create /usr/bin/thunderbird
-	install_mozilla_launcher_stub thunderbird ${MOZILLA_FIVE_HOME}
-
 	if ! use bindist; then
-		doicon "${FILESDIR}"/icon/thunderbird-icon.png
+		newicon "${S}"/other-licenses/branding/thunderbird/content/icon48.png thunderbird-icon.png
 		domenu "${FILESDIR}"/icon/${PN}.desktop
 	else
-		doicon "${FILESDIR}"/icon/thunderbird-icon-unbranded.png
+		newicon "${S}"/mail/base/content/icon48.png thunderbird-icon-unbranded.png
 		newmenu "${FILESDIR}"/icon/${PN}-unbranded.desktop \
 			${PN}.desktop
 	fi
