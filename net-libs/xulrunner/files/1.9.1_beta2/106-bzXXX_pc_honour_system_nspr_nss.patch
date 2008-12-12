@@ -9,7 +9,7 @@ Index: mozilla/xulrunner/installer/Makefile.in
 ===================================================================
 --- mozilla.orig/xulrunner/installer/Makefile.in
 +++ mozilla/xulrunner/installer/Makefile.in
-@@ -90,40 +90,51 @@
+@@ -91,41 +91,52 @@
  	mozilla-plugin.pc \
  	mozilla-gtkmozembed.pc \
  	mozilla-gtkmozembed-embedding.pc \
@@ -52,6 +52,7 @@ Index: mozilla/xulrunner/installer/Makefile.in
  	-e "s|%sdkdir%|$(sdkdir)|" \
  	-e "s|%MOZ_APP_NAME%|$(MOZ_APP_NAME)|" \
  	-e "s|%MOZILLA_VERSION%|$(MOZ_APP_VERSION)|" \
+ 	-e "s|%WCHAR_CFLAGS%|$(WCHAR_CFLAGS)|" \
  	-e "s|%FULL_NSPR_LIBS%|$(FULL_NSPR_LIBS)|" \
  	-e "s|%FULL_NSPR_CFLAGS%|$(FULL_NSPR_CFLAGS)|" \
 +	-e "s|%FULL_NSS_LIBS%|$(FULL_NSS_LIBS)|" \
@@ -77,8 +78,8 @@ Index: mozilla/xulrunner/installer/libxul-embedding-unstable.pc.in
  Description: Static library for version-independent embedding of the Mozilla runtime (unstable API)
  Version: %MOZILLA_VERSION%
  Libs: -L${sdkdir}/lib -lxpcomglue
--Cflags: -DXPCOM_GLUE -I${includedir}/${includetype} -fshort-wchar
-+Cflags: -DXPCOM_GLUE -I${includedir}/${includetype} -fshort-wchar %FULL_NSPR_CFLAGS%
+-Cflags: -DXPCOM_GLUE -I${includedir}/${includetype} %WCHAR_CFLAGS%
++Cflags: -DXPCOM_GLUE -I${includedir}/${includetype} %WCHAR_CFLAGS% %FULL_NSPR_CFLAGS%
 Index: mozilla/xulrunner/installer/libxul-embedding.pc.in
 ===================================================================
 --- mozilla.orig/xulrunner/installer/libxul-embedding.pc.in
@@ -92,8 +93,8 @@ Index: mozilla/xulrunner/installer/libxul-embedding.pc.in
  Description: Static library for version-independent embedding of the Mozilla runtime
  Version: %MOZILLA_VERSION%
  Libs: -L${sdkdir}/lib -lxpcomglue
--Cflags: -DXPCOM_GLUE -I${includedir}/${includetype} -fshort-wchar
-+Cflags: -DXPCOM_GLUE -I${includedir}/${includetype} -fshort-wchar %FULL_NSPR_CFLAGS%
+-Cflags: -DXPCOM_GLUE -I${includedir}/${includetype} %WCHAR_CFLAGS%
++Cflags: -DXPCOM_GLUE -I${includedir}/${includetype} %WCHAR_CFLAGS% %FULL_NSPR_CFLAGS%
 Index: mozilla/xulrunner/installer/mozilla-nss.pc.in
 ===================================================================
 --- mozilla.orig/xulrunner/installer/mozilla-nss.pc.in

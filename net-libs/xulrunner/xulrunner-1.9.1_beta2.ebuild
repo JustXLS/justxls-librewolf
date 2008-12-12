@@ -6,11 +6,12 @@ WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-pkg-opt-2 python autotools
 PATCH="${P}-patches-0.1"
-MY_PV="${PV#*_}"
+MY_PV="${PV/_beta/b}"
+MY_PV="${MY_PV/1.9/3}"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
-SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/shiretoko/${MY_PV}/source/shiretoko-${MY_PV}-source.tar.bz2"
+SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/source/firefox-${MY_PV}-source.tar.bz2"
 #	mirror://gentoo/${PATCH}.tar.bz2"
 
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
@@ -20,15 +21,17 @@ IUSE=""
 
 RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12
-	>=dev-libs/nspr-4.7.1
-	media-libs/alsa-lib"
+	>=dev-libs/nss-3.12.2_rc1
+	>=dev-libs/nspr-4.7.3
+	media-libs/alsa-lib
+	>=dev-db/sqlite-3.6.2
+	>=app-text/hunspell-1.2"
 
 DEPEND="java? ( >=virtual/jdk-1.4 )
 	${RDEPEND}
 	dev-util/pkgconfig"
 
-S="${WORKDIR}"
+S="${WORKDIR}/mozilla-central"
 
 # Needed by src_compile() and src_install().
 # Would do in pkg_setup but that loses the export attribute, they
@@ -59,9 +62,13 @@ src_unpack() {
 	cd "${S}" || die "cd failed"
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
-	epatch "${FILESDIR}"/patch
+	epatch "${FILESDIR}"/1.9.1_beta2
 
-	eautoreconf || die "failed  running eautoreconf"
+	eautoreconf
+
+	cd js/src
+	eautoreconf
+
 
 	# We need to re-patch this because autoreconf overwrites it
 #	epatch "${FILESDIR}"/patch/000_flex-configure-LANG.patch
@@ -83,8 +90,8 @@ src_compile() {
 	mozconfig_annotate '' --disable-mailnews
 	mozconfig_annotate 'broken' --disable-mochitest
 	mozconfig_annotate 'broken' --disable-crashreporter
-#	mozconfig_annotate '' --enable-system-hunspell
-	#mozconfig_annotate '' --enable-system-sqlite
+	mozconfig_annotate '' --enable-system-hunspell
+	mozconfig_annotate '' --enable-system-sqlite
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
 	#mozconfig_annotate '' --enable-js-binary
@@ -102,7 +109,6 @@ src_compile() {
 	# Other ff-specific settings
 	mozconfig_annotate '' --enable-jsd
 	mozconfig_annotate '' --enable-xpctools
-	mozconfig_annotate '' --disable-libxul
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 
 	#disable java

@@ -18,11 +18,11 @@ Index: mozilla/content/xul/content/Makefile.in
  include $(DEPTH)/config/autoconf.mk
  
  MODULE		= xul
--DIRS		= src test
-+DIRS		= src
+-PARALLEL_DIRS	= src test
++PARALLEL_DIRS	= src
 +
 +ifdef ENABLE_TESTS
-+DIRS += test
++PARALLEL_DIRS += test
 +endif
  
  include $(topsrcdir)/config/rules.mk

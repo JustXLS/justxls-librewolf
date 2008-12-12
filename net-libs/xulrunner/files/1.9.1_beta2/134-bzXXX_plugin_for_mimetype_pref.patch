@@ -11,14 +11,14 @@ In case the path is not valid, we just go ahead and search for the first match
 given the mime-type.
 
 ---
- modules/plugin/base/src/nsPluginHostImpl.cpp |   23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ modules/plugin/base/src/nsPluginHostImpl.cpp |   33 +++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
 Index: mozilla/modules/plugin/base/src/nsPluginHostImpl.cpp
 ===================================================================
 --- mozilla.orig/modules/plugin/base/src/nsPluginHostImpl.cpp
 +++ mozilla/modules/plugin/base/src/nsPluginHostImpl.cpp
-@@ -4492,18 +4492,41 @@
+@@ -4219,18 +4219,51 @@
    nsPluginTag *plugins = nsnull;
    PRInt32     variants, cnt;
  
@@ -41,8 +41,18 @@ Index: mozilla/modules/plugin/base/src/nsPluginHostImpl.cpp
      plugins = mPlugins;
 +    if(preferredPluginPath) {
 +       while (nsnull != plugins) {
-+         if (0 == PL_strcasecmp(plugins->mFileName.get(), preferredPluginPath) || 
++         if (0 == PL_strcasecmp(plugins->mFileName.get(), preferredPluginPath) ||
 +             0 == PL_strcasecmp(plugins->mFullPath.get(), preferredPluginPath)) {
++           return plugins;
++         }
++         plugins = plugins->mNext;
++       }
++
++       // now lets search for substrings
++       plugins=mPlugins;
++       while (nsnull != plugins) {
++         if (nsnull != PL_strstr(plugins->mFileName.get(), preferredPluginPath) ||
++             nsnull != PL_strstr(plugins->mFullPath.get(), preferredPluginPath)) {
 +           return plugins;
 +         }
 +         plugins = plugins->mNext;
@@ -54,9 +64,9 @@ Index: mozilla/modules/plugin/base/src/nsPluginHostImpl.cpp
 +    plugins = mPlugins;
      while (nsnull != plugins) {
        variants = plugins->mVariants;
- 
        for (cnt = 0; cnt < variants; cnt++) {
          if ((!aCheckEnabled || plugins->IsEnabled()) &&
              plugins->mMimeTypeArray[cnt] &&
              (0 == PL_strcasecmp(plugins->mMimeTypeArray[cnt], aMimeType))) {
            return plugins;
+         }

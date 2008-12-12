@@ -17,12 +17,12 @@
  #ifdef XP_MACOSX
      else if (nsCRT::strcmp(prop, NS_MACOSX_USER_PLUGIN_DIR) == 0)
      {
-@@ -592,7 +600,7 @@
- 
-         *_retval = new nsAppDirectoryEnumerator(this, keys);
+@@ -595,7 +595,7 @@
+ #ifdef XP_UNIX
+         static const char* keys[] = { nsnull, NS_USER_PLUGINS_DIR, NS_APP_PLUGINS_DIR, NS_SYSTEM_PLUGINS_DIR, nsnull };
  #else
 -        static const char* keys[] = { nsnull, NS_USER_PLUGINS_DIR, NS_APP_PLUGINS_DIR, nsnull };
 +        static const char* keys[] = { nsnull, GENTOO_NSPLUGINS_DIR, GENTOO_NSBROWSER_PLUGINS_DIR, NS_USER_PLUGINS_DIR, NS_APP_PLUGINS_DIR, nsnull };
+ #endif
          if (!keys[0] && !(keys[0] = PR_GetEnv("MOZ_PLUGIN_PATH"))) {
              static const char nullstr = 0;
-             keys[0] = &nullstr;
