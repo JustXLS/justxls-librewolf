@@ -169,8 +169,8 @@ src_compile() {
 	mozconfig_annotate '' --disable-mailnews
 	mozconfig_annotate 'broken' --disable-mochitest
 	mozconfig_annotate 'broken' --disable-crashreporter
-#	mozconfig_annotate '' --enable-system-hunspell
-	#mozconfig_annotate '' --enable-system-sqlite
+	mozconfig_annotate '' --enable-system-hunspell
+	mozconfig_annotate '' --enable-system-sqlite
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate '' --with-system-nspr
@@ -214,13 +214,6 @@ src_compile() {
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
 	econf || die
 
-	# It would be great if we could pass these in via CPPFLAGS or CFLAGS prior
-	# to econf, but the quotes cause configure to fail.
-	sed -i -e \
-		's|-DARON_WAS_HERE|-DGENTOO_NSPLUGINS_DIR=\\\"/usr/'"$(get_libdir)"'/nsplugins\\\" -DGENTOO_NSBROWSER_PLUGINS_DIR=\\\"/usr/'"$(get_libdir)"'/nsbrowser/plugins\\\"|' \
-		"${S}"/config/autoconf.mk \
-		"${S}"/toolkit/content/buildconfig.html
-
 	# Should the build use multiprocessing? Not enabled by default, as it tends to break
 	[ "${WANT_MP}" = "true" ] && jobs=${MAKEOPTS} || jobs="-j1"
 	emake ${jobs} || die
@@ -263,15 +256,15 @@ src_install() {
 	if use iceweasel; then
 		newicon "${S}"/browser/base/branding/icon48.png iceweasel-icon.png
 		newmenu "${FILESDIR}"/icon/iceweasel.desktop \
-			mozilla-firefox-3.0.desktop
+			mozilla-firefox-3.1.desktop
 	elif ! use bindist; then
 		newicon "${S}"/other-licenses/branding/firefox/content/icon48.png firefox-icon.png
 		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5.desktop \
-			mozilla-firefox-3.0.desktop
+			mozilla-firefox-3.1.desktop
 	else
 		newicon "${S}"/browser/base/branding/icon48.png firefox-icon-unbranded.png
 		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5-unbranded.desktop \
-			mozilla-firefox-3.0.desktop
+			mozilla-firefox-3.1.desktop
 		sed -i -e "s/Bon Echo/Minefield/" "${D}"/usr/share/applications/mozilla-firefox-3.0.desktop
 	fi
 
@@ -279,8 +272,8 @@ src_install() {
 		# Create /usr/bin/firefox
 		cat <<EOF >"${D}"/usr/bin/firefox
 #!/bin/sh
-export LD_LIBRARY_PATH="/usr/$(get_libdir)/xulrunner-1.9"
-exec /usr/$(get_libdir)/mozilla-firefox/firefox "\$@"
+export LD_LIBRARY_PATH="${MOZILLA_FIVE_HOME}"
+exec "${MOZILLA_FIVE_HOME}"/firefox "\$@"
 EOF
 		fperms 0755 /usr/bin/firefox
 	else
@@ -292,6 +285,8 @@ EOF
 			>> "${D}"${MOZILLA_FIVE_HOME}/defaults/pref/vendor.js
 	fi
 
+	# Plugins dir
+	ln -s ${D}/usr/$(get_libdir)/nsbrowser/plugins ${D}/usr/$(get_libdir)/mozilla-firefox/plugins
 }
 
 pkg_postinst() {
@@ -300,6 +295,11 @@ pkg_postinst() {
 	ewarn "All the packages built against ${PN} won't compile,"
 	ewarn "if after installing firefox 3.0 you get some blockers,"
 	ewarn "please add 'xulrunner' to your USE-flags."
+
+	if use xulrunner; then
+		ln -s /usr/$(get_libdir)/xulrunner-1.9/defaults/autoconfig \
+			${MOZILLA_FIVE_HOME}/defaults/autoconfig
+	fi
 
 	# Update mimedb for the new .desktop file
 	fdo-mime_desktop_database_update
