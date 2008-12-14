@@ -17,9 +17,10 @@ SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/s
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE=""
+IUSE="python"
 
 RDEPEND="java? ( >=virtual/jre-1.4 )
+	python? ( >=dev-lang/python-2.3 )
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.2_rc1
 	>=dev-libs/nspr-4.7.3
@@ -85,6 +86,11 @@ src_compile() {
 
 	mozconfig_init
 	mozconfig_config
+
+        MEXTENSIONS="default"
+        if use python; then
+                MEXTENSIONS="${MEXTENSIONS},python/xpcom"
+        fi
 
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 	mozconfig_annotate '' --disable-mailnews
@@ -164,5 +170,19 @@ src_install() {
 	if use java ; then
 	    java-pkg_dojar "${D}"${MOZILLA_FIVE_HOME}/javaxpcom.jar
 	    rm -f "${D}"${MOZILLA_FIVE_HOME}/javaxpcom.jar
+	fi
+}
+
+pkg_postinst() {
+	if use python; then
+		python_version
+		python_mod_optimize ${ROOT}/usr/$(get_libdir)/${PN}-1.9/python/xpcom
+	fi
+}
+
+pkg_postrm() {
+	if use python; then
+		python_version
+		python_mod_cleanup ${ROOT}/usr/$(get_libdir)/${PN}-1.9/python/xpcom
 	fi
 }
