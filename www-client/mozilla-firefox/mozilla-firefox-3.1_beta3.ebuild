@@ -7,7 +7,7 @@ WANT_AUTOCONF="2.1"
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib fdo-mime autotools mozextension
 PATCH="${P}-patches-0.1"
 
-LANGS="af ar be bg bn-IN ca cs cy de el en-GB en-US eo es-AR es-ES et eu fi fr fy-NL ga-IE gu-IN he hi-IN hu id is it ja kn ko lt lv mr nb-NO nl nn-NO pa-IN pl pt-BR pt-PT ro ru si sk sl sq sv-SE te tr uk zh-CN zh-TW"
+LANGS="af ar be bg bn-IN ca cs da de el en-GB en-US eo es-AR es-ES et eu fa fi fr fy-NL ga-IE gl gu-IN he hi-IN hu id is it ja kn ko ku lt lv mk ml mn mr nb-NO nl nn-NO oc pa-IN pl pt-BR pt-PT ro ru si sk sl sq sr sv-SE te th tr uk vi zh-CN zh-TW"
 NOSHORTLANGS="en-GB es-AR pt-BR zh-CN"
 
 MY_PV="${PV/3/}"
@@ -48,9 +48,9 @@ done
 
 RDEPEND="java? ( virtual/jre )
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.2_rc1
+	>=dev-libs/nss-3.12.2
 	>=dev-libs/nspr-4.7.3
-	>=dev-db/sqlite-3.6.0
+	>=dev-db/sqlite-3.6.7
 	>=app-text/hunspell-1.2
 	xulrunner? ( >=net-libs/xulrunner-1.9${MY_PV} )"
 
@@ -60,7 +60,7 @@ DEPEND="${RDEPEND}
 
 PDEPEND="restrict-javascript? ( x11-plugins/noscript )"
 
-S="${WORKDIR}/mozilla-central"
+S="${WORKDIR}/mozilla-1.9.1"
 
 # Needed by src_compile() and src_install().
 # Would do in pkg_setup but that loses the export attribute, they
@@ -165,6 +165,9 @@ src_compile() {
 	mozconfig_init
 	mozconfig_config
 
+	# It doesn't compile on alpha without this LDFLAGS
+	use alpha && append-ldflags "-Wl,--no-relax"
+
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 	mozconfig_annotate '' --disable-mailnews
 	mozconfig_annotate 'broken' --disable-mochitest
@@ -178,16 +181,19 @@ src_compile() {
 #	mozconfig_annotate '' --enable-system-lcms
 	mozconfig_annotate '' --enable-oji --enable-mathml
 	mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks
+	mozconfig_annotate '' --disable-installer
 
 	# Other ff-specific settings
 	#mozconfig_use_enable mozdevelop jsd
 	#mozconfig_use_enable mozdevelop xpctools
 #	mozconfig_use_extension mozdevelop venkman
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
+
 	if use xulrunner; then
 		# Add xulrunner variable
-		mozconfig_annotate '' --with-libxul-sdk=/usr/lib/xulrunner-devel-1.9.1b3
-##=/usr/$(get_libdir)/xulrunner-1.9
+		mozconfig_annotate '' --with-system-libxul
+		mozconfig_annotate '' -with-libxul-sdk=/usr/$(get_libdir)/xulrunner-1.9
+
 	fi
 
 	if ! use bindist && ! use iceweasel; then
@@ -197,13 +203,9 @@ src_compile() {
 	# Finalize and report settings
 	mozconfig_final
 
-	# -fstack-protector breaks us
-	if gcc-version ge 4 1; then
-		gcc-specs-ssp && append-flags -fno-stack-protector
-	else
-		gcc-specs-ssp && append-flags -fno-stack-protector-all
+	if [[ $(gcc-major-version) -lt 4 ]]; then
+		append-cxxflags -fno-stack-protector
 	fi
-	filter-flags -fstack-protector -fstack-protector-all
 
 	####################################
 	#
@@ -266,7 +268,7 @@ src_install() {
 		newicon "${S}"/browser/base/branding/icon48.png firefox-icon-unbranded.png
 		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5-unbranded.desktop \
 			mozilla-firefox-3.1.desktop
-		sed -i -e "s/Bon Echo/Minefield/" "${D}"/usr/share/applications/mozilla-firefox-3.0.desktop
+		sed -i -e "s/Bon Echo/Minefield/" "${D}"/usr/share/applications/mozilla-firefox-3.1.desktop
 	fi
 
 	if use xulrunner; then
