@@ -1,0 +1,12 @@
+####################################################################
+# When you add an entry to this file, add your name, the date, and an
+# explanation of why something is getting masked
+#
+# NOTE: Please add your entry at the top!
+#
+
+# Nirbheek Chauhan <nirbheek@gentoo.org> (28 Mar 2009)
+# >=pango-1.23 breaks >=firefox-3.1, and possibly other apps
+# Gentoo bug 264048
+=x11-libs/pango-1.24*
+=dev-cpp/pangomm-2.24*
