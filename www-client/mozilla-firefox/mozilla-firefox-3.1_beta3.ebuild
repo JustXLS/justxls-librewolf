@@ -50,7 +50,7 @@ RDEPEND="java? ( virtual/jre )
 	>=app-text/hunspell-1.2
 	x11-libs/cairo[X]
 	x11-libs/pango[X]
-	xulrunner? ( >=net-libs/xulrunner-${XUL_PV} )"
+	xulrunner? ( =net-libs/xulrunner-${XUL_PV}* )"
 
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
@@ -189,9 +189,7 @@ src_configure() {
 	if use xulrunner; then
 		# Add xulrunner variable
 		mozconfig_annotate '' --with-system-libxul
-		mozconfig_annotate ''
-		-with-libxul-sdk=/usr/$(get_libdir)/xulrunner-devel-${XUL_PV}
-
+		mozconfig_annotate '' --with-libxul-sdk=/usr/$(get_libdir)/xulrunner-devel-${XUL_PV}
 	fi
 
 	if ! use bindist && ! use iceweasel; then
