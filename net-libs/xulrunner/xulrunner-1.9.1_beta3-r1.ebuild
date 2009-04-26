@@ -8,6 +8,7 @@ inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-p
 PATCH="${P}-patches-0.1"
 MY_PV="${PV/_beta/b}"
 MY_PV="${MY_PV/1.9/3}"
+MAJ_PV="${PV/_*/}"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
@@ -34,7 +35,7 @@ DEPEND="java? ( >=virtual/jdk-1.4 )
 	${RDEPEND}
 	dev-util/pkgconfig"
 
-S="${WORKDIR}/mozilla-1.9.1"
+S="${WORKDIR}/mozilla-${MAJ_PV}"
 
 # Needed by src_compile() and src_install().
 # Would do in pkg_setup but that loses the export attribute, they
@@ -50,7 +51,13 @@ src_prepare() {
 	# Apply our patches
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
-	epatch "${FILESDIR}"/1.9.1_beta3
+	epatch "${FILESDIR}/${PV}"
+
+	# Same as in config/autoconf.mk.in
+	INSTALLDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
+	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_PV}/sdk"
+	sed -e "s/@PV@/${MAJ_PV}/" -i "${S}/config/autoconf.mk.in" \
+		|| die "\${MAJ_PV} sed failed!"
 
 	eautoreconf
 
@@ -63,8 +70,6 @@ src_prepare() {
 }
 
 src_configure() {
-	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}-1.9"
-
 	####################################
 	#
 	# mozconfig, CFLAGS and CXXFLAGS setup
@@ -107,7 +112,7 @@ src_configure() {
 	# Other ff-specific settings
 	mozconfig_annotate '' --enable-jsd
 	mozconfig_annotate '' --enable-xpctools
-	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
+	mozconfig_annotate '' --with-default-mozilla-five-home="${INSTALLDIR}"
 
 	#disable java
 	if ! use java ; then
@@ -141,35 +146,33 @@ src_configure() {
 }
 
 src_install() {
-	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}-1.9"
-
 	emake DESTDIR="${D}" install || die "emake install failed"
 
 	rm "${D}"/usr/bin/xulrunner
 
 	dodir /usr/bin
-	dosym ${MOZILLA_FIVE_HOME}/xulrunner /usr/bin/xulrunner-1.9
+	dosym "${INSTALLDIR}/xulrunner" "${ROOT}/usr/bin/xulrunner-${MAJ_PV}"
 
 	# Add vendor
 	echo "pref(\"general.useragent.vendor\",\"Gentoo\");" \
-		>> "${D}"${MOZILLA_FIVE_HOME}/defaults/pref/vendor.js
+		>> "${D}/${INSTALLDIR}/defaults/pref/vendor.js"
 
 	if use java ; then
-		java-pkg_regjar "${D}"${MOZILLA_FIVE_HOME}/javaxpcom.jar
-		java-pkg_regjar "${D}"${MOZILLA_FIVE_HOME}/sdk/lib/MozillaGlue.jar
-		java-pkg_regjar "${D}"${MOZILLA_FIVE_HOME}/sdk/lib/MozillaInterfaces.jar
+		java-pkg_regjar "${D}/${INSTALLDIR}/javaxpcom.jar"
+		java-pkg_regjar "${D}/${SDKDIR}/lib/MozillaGlue.jar"
+		java-pkg_regjar "${D}/${SDKDIR}/lib/MozillaInterfaces.jar"
 	fi
 }
 
 pkg_postinst() {
 	if use python; then
 		python_need_rebuild
-		python_mod_optimize /usr/$(get_libdir)/${PN}-1.9/python/xpcom
+		python_mod_optimize "${INSTALLDIR}/python"
 	fi
 }
 
 pkg_postrm() {
 	if use python; then
-		python_mod_cleanup /usr/$(get_libdir)/${PN}-1.9/python/xpcom
+		python_mod_cleanup "${INSTALLDIR}/python"
 	fi
 }
