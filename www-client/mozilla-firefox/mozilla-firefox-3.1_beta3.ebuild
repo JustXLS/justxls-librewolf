@@ -10,7 +10,7 @@ PATCH="${P}-patches-0.1"
 LANGS="af ar be bg bn-IN ca cs da de el en-GB en-US eo es-AR es-ES et eu fa fi fr fy-NL ga-IE gl gu-IN he hi-IN hu id is it ja kn ko ku lt lv mk ml mn mr nb-NO nl nn-NO oc pa-IN pl pt-BR pt-PT ro ru si sk sl sq sr sv-SE te th tr uk vi zh-CN zh-TW"
 NOSHORTLANGS="en-GB es-AR pt-BR zh-CN"
 
-MY_PV="${PV/3/}"
+XUL_PV="1.9.1"
 MY_PV2="${PV/_beta/b}"
 MY_P="${P/_beta/b}"
 
@@ -50,7 +50,7 @@ RDEPEND="java? ( virtual/jre )
 	>=app-text/hunspell-1.2
 	x11-libs/cairo[X]
 	x11-libs/pango[X]
-	xulrunner? ( >=net-libs/xulrunner-1.9${MY_PV} )"
+	xulrunner? ( >=net-libs/xulrunner-${XUL_PV} )"
 
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
@@ -58,7 +58,7 @@ DEPEND="${RDEPEND}
 
 PDEPEND="restrict-javascript? ( x11-plugins/noscript )"
 
-S="${WORKDIR}/mozilla-1.9.1"
+S="${WORKDIR}/mozilla-${XUL_PV}"
 
 # Needed by src_compile() and src_install().
 # Would do in pkg_setup but that loses the export attribute, they
@@ -189,7 +189,8 @@ src_configure() {
 	if use xulrunner; then
 		# Add xulrunner variable
 		mozconfig_annotate '' --with-system-libxul
-		mozconfig_annotate '' -with-libxul-sdk=/usr/$(get_libdir)/xulrunner-1.9
+		mozconfig_annotate ''
+		-with-libxul-sdk=/usr/$(get_libdir)/xulrunner-devel-${XUL_PV}
 
 	fi
 
@@ -289,7 +290,7 @@ pkg_postinst() {
 	ewarn "please add 'xulrunner' to your USE-flags."
 
 	if use xulrunner; then
-		ln -s /usr/$(get_libdir)/xulrunner-1.9/defaults/autoconfig \
+		ln -s /usr/$(get_libdir)/xulrunner-${XUL_PV}/defaults/autoconfig \
 			${MOZILLA_FIVE_HOME}/defaults/autoconfig
 	fi
 
