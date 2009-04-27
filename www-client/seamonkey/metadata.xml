@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<herd>mozilla</herd>
+<use>
+	<flag name='moznocompose'>Disable building of mozilla's HTML editor
+		component</flag>
+	<flag name='moznoirc'>Disable building of mozilla's IRC client</flag>
+	<flag name='moznomail'>Disable building mozilla's mail client</flag>
+	<flag name='moznoroaming'>sroaming extension support</flag>
+</use>
+</pkgmetadata>
