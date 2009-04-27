@@ -163,6 +163,10 @@ src_configure() {
 	mozconfig_annotate '' --disable-installer
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 
+	mozconfig_use_enable ldap
+	mozconfig_use_enable ldap ldap-experimental
+
+
 	# Finalize and report settings
 	mozconfig_final
 

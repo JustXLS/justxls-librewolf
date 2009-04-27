@@ -1,0 +1,119 @@
+---
+ mozilla/Makefile.in                           |    1 +
+ mozilla/config/Makefile.in                    |    1 +
+ mozilla/embedding/base/standalone/Makefile.in |    1 +
+ mozilla/rdf/util/src/internal/Makefile.in     |    1 +
+ mozilla/xpcom/glue/standalone/Makefile.in     |    2 +-
+ 5 files changed, 5 insertions(+), 1 deletion(-)
+
+Index: mozilla/mozilla/Makefile.in
+===================================================================
+--- mozilla.orig/mozilla/Makefile.in
++++ mozilla/mozilla/Makefile.in
+@@ -108,16 +108,17 @@
+ tier_necko::
+ 	$(EXIT_ON_ERROR) \
+ 	$(foreach tier,$(TIERS),$(MAKE) tools_tier_$(tier); )
+ endif
+ 
+ distclean::
+ 	cat unallmakefiles | $(XARGS) rm -f
+ 	rm -f unallmakefiles $(DIST_GARBAGE)
++	rm -rf $(GARBAGE_DIRS)
+ 
+ ifeq ($(OS_ARCH),WINNT)
+ rebase:
+ ifdef MOZILLA_OFFICIAL
+ 	echo rebasing $(DIST)
+ 	/bin/find $(DIST) -name "*.dll" -a -not -name "msvc*" > rebase.lst
+ 	rebase -b 60000000 -R . -G rebase.lst
+ 	rm rebase.lst
+Index: mozilla/mozilla/config/Makefile.in
+===================================================================
+--- mozilla.orig/mozilla/config/Makefile.in
++++ mozilla/mozilla/config/Makefile.in
+@@ -151,16 +151,17 @@
+ FORCE:
+ 
+ ifdef MKDEPEND_DIR
+ clean clobber realclean clobber_all::
+ 	cd $(MKDEPEND_DIR); $(MAKE) $@
+ endif
+ 
+ PYUNITS := unit-Expression.py unit-Preprocessor.py
++GARBAGE += Expression.pyc
+ 
+ check:: check-preprocessor check-jar-mn
+ 
+ check-preprocessor::
+ 	@$(EXIT_ON_ERROR) \
+ 	for test in $(PYUNITS); do \
+ 	  $(PYTHON) $(srcdir)/tests/$$test ; \
+ 	done
+Index: mozilla/mozilla/embedding/base/standalone/Makefile.in
+===================================================================
+--- mozilla.orig/mozilla/embedding/base/standalone/Makefile.in
++++ mozilla/mozilla/embedding/base/standalone/Makefile.in
+@@ -56,16 +56,17 @@
+ 
+ SDK_LIBRARY     =                        \
+ 		$(LIB_PREFIX)embed_base_standalone.$(LIB_SUFFIX) \
+ 		$(NULL)
+ 
+ include $(srcdir)/../objs.mk
+ 
+ CPPSRCS += $(EMBED_CPPSRCS)
++GARBAGE += $(EMBED_CPPSRCS)
+ 
+ # we don't want the shared lib, but we want to force the creation of a
+ # static lib.
+ FORCE_STATIC_LIB = 1
+ 
+ include $(topsrcdir)/config/rules.mk
+ 
+ CXXFLAGS += $(MOZ_TOOLKIT_REGISTRY_CFLAGS)
+Index: mozilla/mozilla/rdf/util/src/internal/Makefile.in
+===================================================================
+--- mozilla.orig/mozilla/rdf/util/src/internal/Makefile.in
++++ mozilla/mozilla/rdf/util/src/internal/Makefile.in
+@@ -55,16 +55,17 @@
+ MOZILLA_INTERNAL_API = 1
+ 
+ REQUIRES	= xpcom \
+ 		  string \
+ 		  rdf \
+ 		  $(NULL)
+ 
+ CPPSRCS		= $(RDF_UTIL_SRC_LCPPSRCS)
++GARBAGE		+= $(RDF_UTIL_SRC_LCPPSRCS)
+ 
+ # we don't want the shared lib, but we want to force the creation of a static lib.
+ FORCE_STATIC_LIB = 1
+ 
+ include $(topsrcdir)/config/rules.mk
+ 
+ $(RDF_UTIL_SRC_LCPPSRCS): %: $(srcdir)/../%
+ 	$(INSTALL) $^ .
+Index: mozilla/mozilla/xpcom/glue/standalone/Makefile.in
+===================================================================
+--- mozilla.orig/mozilla/xpcom/glue/standalone/Makefile.in
++++ mozilla/mozilla/xpcom/glue/standalone/Makefile.in
+@@ -102,17 +102,17 @@
+ # Force use of PIC
+ FORCE_USE_PIC	= 1
+ 
+ # Pretend we're statically linking the CRT, even though we might not be: this
+ # avoids "msvcrp" and assembly dependencies from creeping into the directives
+ # for this library on Windows.
+ USE_STATIC_LIBS = 1
+ 
+-GARBAGE         += $(XPCOM_GLUE_SRC_LCSRCS) $(XPCOM_GLUE_SRC_LCPPSRCS) $(wildcard *.$(OBJ_SUFFIX))
++GARBAGE         += $(XPCOM_GLUE_SRC_LCSRCS) $(XPCOM_GLUE_SRC_LCPPSRCS) nsStringAPI.cpp $(wildcard *.$(OBJ_SUFFIX))
+ 
+ SRCS_IN_OBJDIR	= 1
+ 
+ include $(topsrcdir)/config/rules.mk
+ 
+ ifdef _MSC_VER
+ # Don't include directives about which CRT to use
+ OS_COMPILE_CXXFLAGS += -Zl
