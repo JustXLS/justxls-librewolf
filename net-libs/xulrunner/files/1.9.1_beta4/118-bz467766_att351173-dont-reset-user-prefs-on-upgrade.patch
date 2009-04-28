@@ -43,9 +43,9 @@ even though it might be temporarily equal to the default pref.
 
 Index: mozilla/modules/libpref/src/prefapi.cpp
 ===================================================================
---- mozilla.orig/modules/libpref/src/prefapi.cpp	2006-07-14 02:58:20.000000000 +0200
-+++ mozilla/modules/libpref/src/prefapi.cpp	2007-07-20 13:07:53.000000000 +0200
-@@ -319,23 +319,20 @@
+--- mozilla.orig/modules/libpref/src/prefapi.cpp
++++ mozilla/modules/libpref/src/prefapi.cpp
+@@ -324,23 +324,20 @@
      if (!pref)
          return PL_DHASH_NEXT;
  
@@ -68,11 +68,11 @@ Index: mozilla/modules/libpref/src/prefapi.cpp
          // do not save default prefs that haven't changed
          return PL_DHASH_NEXT;
  
- #if MOZ_PROFILESHARING
-   if ((argData->saveTypes == SAVE_SHARED &&
-       !gSharedPrefHandler->IsPrefShared(pref->key)) ||
-       (argData->saveTypes == SAVE_NONSHARED &&
-@@ -732,16 +729,27 @@
+     // strings are in quotes!
+     if (pref->flags & PREF_STRING) {
+         prefValue = '\"';
+         str_escape(sourcePref->stringVal, prefValue);
+@@ -742,16 +739,27 @@
             Otherwise, set the user value only if it has changed */
          if ( !pref_ValueChanged(pref->defaultPref, value, type) )
          {

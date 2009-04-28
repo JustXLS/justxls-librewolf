@@ -1,9 +1,13 @@
 ---
+---
+ browser/components/preferences/advanced.js |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
 Index: mozilla/browser/components/preferences/advanced.js
 ===================================================================
 --- mozilla.orig/browser/components/preferences/advanced.js
 +++ mozilla/browser/components/preferences/advanced.js
-@@ -384,50 +384,48 @@
+@@ -382,50 +382,48 @@
    {
      var aus = 
          Components.classes["@mozilla.org/updates/update-service;1"].
@@ -53,7 +57,7 @@ Index: mozilla/browser/components/preferences/advanced.js
    },
  
    /**
-    * The Extensions checkbox and button are disabled only if the enable Addon
-    * update preference is locked. 
-    */
-   updateAddonUpdateUI: function ()
+    * Stores the value of the app.update.mode preference, which is a tristate
+    * integer preference.  We store the value here so that we can properly
+    * restore the preference value if the UI reflecting the preference value
+    * is in a state which can represent either of two integer values (as

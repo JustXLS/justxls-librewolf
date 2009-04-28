@@ -1,30 +1,30 @@
 ---
  mail/installer/Makefile.in          |    6 
- mail/installer/unix/packages-static |  532 ++++++++++++++++++++++++++++++++++++
- 2 files changed, 535 insertions(+), 3 deletions(-)
+ mail/installer/removed-files.in     |  147 +++++++++
+ mail/installer/unix/packages-static |  557 ++++++++++++++++++++++++++++++++++++
+ 3 files changed, 709 insertions(+), 1 deletion(-)
 
 Index: mozilla/mail/installer/Makefile.in
 ===================================================================
 --- mozilla.orig/mail/installer/Makefile.in
 +++ mozilla/mail/installer/Makefile.in
-@@ -82,22 +82,22 @@
- 	components/libgkplugin.so \
- 	components/gkplugin.dll \
- 	$(NULL)
+@@ -58,19 +58,23 @@
  
  include $(topsrcdir)/config/rules.mk
  
  MOZ_PKG_REMOVALS = $(srcdir)/removed-files.in
  
--ifdef BUILD_STATIC_LIBS
+ ifdef BUILD_STATIC_LIBS
  ifeq (WINNT,$(OS_ARCH))
  MOZ_PKG_MANIFEST_P = $(srcdir)/windows/packages-static
--endif
- else
--$(error you need a "--enable-static --disable-shared" build to create an installer)
++else
 +ifneq (,$(filter-out OS2 Darwin,$(OS_ARCH)))
 +MOZ_PKG_MANIFEST_P = $(srcdir)/unix/packages-static
 +endif
+ endif
+ else
+-$(error you need a "--enable-static --disable-shared" build to create an installer)
++$(error you need a "--enable-static --disable-shared" build to package a build)
  endif
  
  MOZ_NONLOCALIZED_PKG_LIST = \
@@ -33,11 +33,179 @@ Index: mozilla/mail/installer/Makefile.in
  	newsblog \
  	offline \
  	$(NULL)
+Index: mozilla/mail/installer/removed-files.in
+===================================================================
+--- mozilla.orig/mail/installer/removed-files.in
++++ mozilla/mail/installer/removed-files.in
+@@ -163,16 +163,163 @@
+ components/xpinstall.xpt
+ components/xuldoc.xpt
+ components/xultmpl.xpt
+ components/downloadmanager.xpt
+ #ifndef MOZILLA_1_9_1_BRANCH
+ components/nsPostUpdateWin.js
+ #endif
+ #endif
++#ifndef XP_UNIX
++#ifndef XP_MACOSX
++bin/components/accessibility.xpt
++bin/components/addrbook.xpt
++bin/components/alerts.xpt
++bin/components/appshell.xpt
++bin/components/appstartup.xpt
++bin/components/autocomplete.xpt
++bin/components/autoconfig.xpt
++bin/components/caps.xpt
++bin/components/chardet.xpt
++bin/components/chrome.xpt
++bin/components/commandhandler.xpt
++bin/components/commandlines.xpt
++bin/components/composer.xpt
++bin/components/content_base.xpt
++bin/components/content_htmldoc.xpt
++bin/components/content_html.xpt
++bin/components/contentprefs.xpt
++bin/components/content_xmldoc.xpt
++bin/components/content_xslt.xpt
++bin/components/content_xtf.xpt
++bin/components/docshell.xpt
++bin/components/dom_base.xpt
++bin/components/dom_canvas.xpt
++bin/components/dom_core.xpt
++bin/components/dom_css.xpt
++bin/components/dom_events.xpt
++bin/components/dom_geolocation.xpt
++bin/components/dom_html.xpt
++bin/components/dom_json.xpt
++bin/components/dom_loadsave.xpt
++bin/components/dom_offline.xpt
++bin/components/dom_range.xpt
++bin/components/dom_sidebar.xpt
++bin/components/dom_storage.xpt
++bin/components/dom_stylesheets.xpt
++bin/components/dom_svg.xpt
++bin/components/dom_threads.xpt
++bin/components/dom_traversal.xpt
++bin/components/dom_views.xpt
++bin/components/dom_xbl.xpt
++bin/components/dom_xpath.xpt
++bin/components/dom.xpt
++bin/components/dom_xul.xpt
++bin/components/downloads.xpt
++bin/components/editor.xpt
++bin/components/embed_base.xpt
++bin/components/extensions.xpt
++bin/components/exthandler.xpt
++bin/components/exthelper.xpt
++bin/components/fastfind.xpt
++bin/components/feeds.xpt
++bin/components/filepicker.xpt
++bin/components/find.xpt
++bin/components/gfx.xpt
++bin/components/htmlparser.xpt
++bin/components/imgicon.xpt
++bin/components/imglib2.xpt
++bin/components/impComm4xMail.xpt
++bin/components/import.xpt
++bin/components/inspector.xpt
++bin/components/intl.xpt
++bin/components/jar.xpt
++bin/components/jsdservice.xpt
++bin/components/layout_base.xpt
++bin/components/layout_printing.xpt
++bin/components/layout_xul_tree.xpt
++bin/components/layout_xul.xpt
++bin/components/locale.xpt
++bin/components/lwbrk.xpt
++bin/components/mailprofilemigration.xpt
++bin/components/mailview.xpt
++bin/components/mimetype.xpt
++bin/components/mime.xpt
++bin/components/mozfind.xpt
++bin/components/mozldap.xpt
++bin/components/mozbrwsr.xpt
++bin/components/msgbase.xpt
++bin/components/msgcompose.xpt
++bin/components/msgdb.xpt
++bin/components/msgimap.xpt
++bin/components/msglocal.xpt
++bin/components/msgnews.xpt
++bin/components/msgsearch.xpt
++bin/components/msgsmime.xpt
++bin/components/necko_about.xpt
++bin/components/necko_cache.xpt
++bin/components/necko_cookie.xpt
++bin/components/necko_dns.xpt
++bin/components/necko_file.xpt
++bin/components/necko_ftp.xpt
++bin/components/necko_http.xpt
++bin/components/necko_res.xpt
++bin/components/necko_socket.xpt
++bin/components/necko_strconv.xpt
++bin/components/necko_viewsource.xpt
++bin/components/necko.xpt
++bin/components/parentalcontrols.xpt
++bin/components/pipboot.xpt
++bin/components/pipnss.xpt
++bin/components/pippki.xpt
++bin/components/plugin.xpt
++bin/components/pref.xpt
++bin/components/profile.xpt
++bin/components/proxyObjInst.xpt
++bin/components/rdf.xpt
++bin/components/saxparser.xpt
++bin/components/shellservice.xpt
++bin/components/shistory.xpt
++bin/components/signonviewer.xpt
++bin/components/spellchecker.xpt
++bin/components/storage.xpt
++bin/components/toolkitprofile.xpt
++bin/components/toolkitremote.xpt
++bin/components/txmgr.xpt
++bin/components/txtsvc.xpt
++bin/components/uconv.xpt
++bin/components/unicharutil.xpt
++bin/components/update.xpt
++bin/components/uriloader.xpt
++bin/components/url-classifier.xpt
++bin/components/urlformatter.xpt
++bin/components/wallet.xpt
++bin/components/webBrowser_core.xpt
++bin/components/webbrowserpersist.xpt
++bin/components/webshell_idls.xpt
++bin/components/websrvcs.xpt
++bin/components/widget.xpt
++bin/components/windowds.xpt
++bin/components/windowwatcher.xpt
++bin/components/xpautocomplete.xpt
++bin/components/xpcom_base.xpt
++bin/components/xpcom_components.xpt
++bin/components/xpcom_ds.xpt
++bin/components/xpcom_io.xpt
++bin/components/xpcom_system.xpt
++bin/components/xpcom_threads.xpt
++bin/components/xpcom_xpti.xpt
++bin/components/xpconnect.xpt
++bin/components/xpinstall.xpt
++bin/components/xulapp.xpt
++bin/components/xuldoc.xpt
++bin/components/xultmpl.xpt
++bin/components/zipwriter.xpt
++#endif
++#endif
+ components/nsUnsetDefaultMail.js
+ components/nsBackgroundUpdateService.js
+ components/nsCloseAllWindows.js
+ components/nsDownloadProgressListener.js
+ components/nsLDAPPrefsService.js
+ components/xptitemp.dat
+ component.reg
+ chrome/installed-chrome.txt
 Index: mozilla/mail/installer/unix/packages-static
 ===================================================================
 --- /dev/null
 +++ mozilla/mail/installer/unix/packages-static
-@@ -0,0 +1,532 @@
+@@ -0,0 +1,557 @@
 +#filter substitution
 +
 +;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -120,6 +288,12 @@ Index: mozilla/mail/installer/unix/packages-static
 +bin/defaults/profile/mimeTypes.rdf
 +bin/defaults/profile/US/localstore.rdf
 +bin/defaults/profile/US/mimeTypes.rdf
++
++bin/chrome/gloda.jar
++bin/chrome/gloda.manifest
++bin/modules/gloda/*
++
++bin/modules/activity/*
 +
 +bin/isp/*
 +
@@ -428,6 +602,25 @@ Index: mozilla/mail/installer/unix/packages-static
 +bin/components/libpermissions.so
 +bin/components/libxmlextras.so
 +bin/components/libremoteservice.so
++
++bin/components/glautocomp.js
++bin/components/jsmimeemitter.js
++bin/components/nsAbAutoCompleteMyDomain.js
++bin/components/nsAbAutoCompleteSearch.js
++bin/components/nsMsgTraitService.js
++bin/components/nsMsgTraitService.js
++bin/components/libtkautocomplete.so
++bin/components/aboutRights.js
++bin/components/nsActivity.js
++bin/components/nsActivityManager.js
++bin/components/nsActivityManagerUI.js
++bin/components/nsLDAPProtocolHandler.js
++bin/components/nsLoginInfo.js
++bin/components/nsLoginManager.js
++bin/components/nsLoginManagerPrompter.js
++bin/components/nsSMTPProtocolHandler.js
++bin/components/storage-Legacy.js
++bin/components/storage-mozStorage.js
 +
 +bin/dependentlibs.list
 +
