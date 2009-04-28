@@ -55,7 +55,7 @@ DEPEND="${RDEPEND}
 
 PDEPEND="restrict-javascript? ( x11-plugins/noscript )"
 
-S="${WORKDIR}/mozilla-1.9.1"
+S="${WORKDIR}"
 
 # Needed by src_compile() and src_install().
 # Would do in pkg_setup but that loses the export attribute, they
@@ -231,4 +231,3 @@ pkg_postinst() {
 	# Update mimedb for the new .desktop file
 	fdo-mime_desktop_database_update
 }
-
