@@ -65,6 +65,12 @@ S="${WORKDIR}/mozilla-${XUL_PV}"
 # become pure shell variables.
 export BUILD_OFFICIAL=1
 export MOZILLA_OFFICIAL=1
+	 
+fix_infinite_symlink_deref() { 
+	# tar -h dereferences symlinks 
+	# using on a self-symlink (bin/ -> .) => BOOM. 
+	sed -i -e 's:-cvhf:-cvf:' ./config/config.mk || die "sed failed" 
+}
 
 linguas() {
 	local LANG SLANG
