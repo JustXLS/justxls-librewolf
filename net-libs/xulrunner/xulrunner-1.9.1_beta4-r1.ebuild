@@ -28,6 +28,7 @@ RDEPEND="java? ( >=virtual/jre-1.4 )
 	media-libs/alsa-lib
 	>=dev-db/sqlite-3.6.7
 	>=app-text/hunspell-1.2
+	>=media-libs/lcms-1.17
 	x11-libs/cairo[X]
 	x11-libs/pango[X]"
 
@@ -56,6 +57,7 @@ src_prepare() {
 	# Same as in config/autoconf.mk.in
 	INSTALLDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
 	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_PV}/sdk"
+	# Gentoo install dirs
 	sed -e "s/@PV@/${MAJ_PV}/" -i "${S}/config/autoconf.mk.in" \
 		|| die "\${MAJ_PV} sed failed!"
 
@@ -100,7 +102,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-embedding-tests
 	mozconfig_annotate '' --with-system-nspr
 	mozconfig_annotate '' --with-system-nss
-#	mozconfig_annotate '' --enable-system-lcms
+	mozconfig_annotate '' --enable-system-lcms
 	mozconfig_annotate '' --with-system-bz2
 	# Bug 60668: Galeon doesn't build without oji enabled, so enable it
 	# regardless of java setting.

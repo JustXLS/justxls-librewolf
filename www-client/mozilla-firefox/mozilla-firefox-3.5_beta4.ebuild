@@ -50,7 +50,7 @@ RDEPEND="java? ( virtual/jre )
 	>=app-text/hunspell-1.2
 	x11-libs/cairo[X]
 	x11-libs/pango[X]
-	xulrunner? ( =net-libs/xulrunner-${XUL_PV}_beta4* )"
+	xulrunner? ( =net-libs/xulrunner-${XUL_PV}_${PV/*_/}* )"
 
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
@@ -104,7 +104,7 @@ src_unpack() {
 	if use iceweasel; then
 		unpack iceweasel-icons-3.0.tar.bz2
 
-		cp -r iceweaselicons/browser ${WORKDIR}
+		cp -r iceweaselicons/browser "${WORKDIR}"
 	fi
 
 	linguas
@@ -131,6 +131,9 @@ src_prepare() {
 			browser/branding/nightly/configure.sh
 	fi
 
+	# Temporary build fix with --as-needed, bug 267900
+	echo 'EXTRA_DSO_LDOPTS += -lplc4' >> "${S}"/browser/components/build/Makefile.in
+
 	eautoreconf
 
 	cd js/src
@@ -141,7 +144,7 @@ src_prepare() {
 }
 
 src_configure() {
-	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 	MEXTENSIONS="default"
 
 	####################################
@@ -167,7 +170,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate '' --with-system-nspr
 	mozconfig_annotate '' --with-system-nss
-#	mozconfig_annotate '' --enable-system-lcms
+	mozconfig_annotate '' --enable-system-lcms
 	mozconfig_annotate '' --enable-oji --enable-mathml
 	mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks
 	mozconfig_annotate '' --disable-installer
@@ -201,7 +204,6 @@ src_configure() {
 	#
 	####################################
 
-	CPPFLAGS="${CPPFLAGS} -DARON_WAS_HERE" \
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
 	econf || die
 }
@@ -213,8 +215,6 @@ src_compile() {
 }
 
 src_install() {
-	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
-
 	emake DESTDIR="${D}" install || die "emake install failed"
 	rm "${D}"/usr/bin/firefox
 
@@ -269,15 +269,14 @@ EOF
 	fi
 
 	# Plugins dir
-	ln -s ${D}/usr/$(get_libdir)/nsbrowser/plugins ${D}/usr/$(get_libdir)/mozilla-firefox/plugins
+	ln -s "${D}"/usr/$(get_libdir)/{nsbrowser,mozilla-firefox}/plugins
 }
 
 pkg_postinst() {
-	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
-
 	ewarn "All the packages built against ${PN} won't compile,"
 	ewarn "if after installing firefox 3.0 you get some blockers,"
 	ewarn "please add 'xulrunner' to your USE-flags."
+	elog
 
 	if use xulrunner; then
 		ln -s /usr/$(get_libdir)/xulrunner-${XUL_PV}/defaults/autoconfig \
