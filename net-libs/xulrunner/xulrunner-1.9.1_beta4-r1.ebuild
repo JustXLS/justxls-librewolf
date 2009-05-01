@@ -23,8 +23,8 @@ IUSE="python"
 RDEPEND="java? ( >=virtual/jre-1.4 )
 	python? ( >=dev-lang/python-2.3 )
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.2
-	>=dev-libs/nspr-4.7.3
+	>=dev-libs/nss-3.12.3
+	>=dev-libs/nspr-4.7.4
 	media-libs/alsa-lib
 	>=dev-db/sqlite-3.6.7
 	>=app-text/hunspell-1.2
