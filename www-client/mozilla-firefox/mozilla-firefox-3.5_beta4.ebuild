@@ -20,7 +20,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="java mozdevelop bindist restrict-javascript iceweasel +xulrunner"
+IUSE="java mozdevelop bindist restrict-javascript iceweasel"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 SRC_URI="${REL_URI}/${MY_PV2}/source/firefox-${MY_PV2}-source.tar.bz2
@@ -48,9 +48,11 @@ RDEPEND="java? ( virtual/jre )
 	>=dev-libs/nspr-4.7.3
 	>=dev-db/sqlite-3.6.7
 	>=app-text/hunspell-1.2
+
+	=net-libs/xulrunner-${XUL_PV}_${PV/*_/}*
+
 	x11-libs/cairo[X]
-	x11-libs/pango[X]
-	xulrunner? ( =net-libs/xulrunner-${XUL_PV}_${PV/*_/}* )"
+	x11-libs/pango[X]"
 
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
@@ -94,7 +96,6 @@ pkg_setup(){
 		elog "to any users on your network or the internet. Doing so puts yourself into"
 		elog "a legal problem with Mozilla Foundation"
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
-
 	fi
 }
 
@@ -115,9 +116,6 @@ src_unpack() {
 	if [[ ${linguas} != "" && ${linguas} != "en" ]]; then
 		einfo "Selected language packs (first will be default): ${linguas}"
 	fi
-
-	# Remove the patches we don't need
-#	use xulrunner && rm "${WORKDIR}"/patch/*noxul* || rm "${WORKDIR}"/patch/*xulonly*
 }
 
 src_prepare() {
@@ -181,11 +179,9 @@ src_configure() {
 #	mozconfig_use_extension mozdevelop venkman
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 
-	if use xulrunner; then
-		# Add xulrunner variable
-		mozconfig_annotate '' --with-system-libxul
-		mozconfig_annotate '' --with-libxul-sdk=/usr/$(get_libdir)/xulrunner-devel-${XUL_PV}
-	fi
+	# Add xulrunner variable
+	mozconfig_annotate '' --with-system-libxul
+	mozconfig_annotate '' --with-libxul-sdk=/usr/$(get_libdir)/xulrunner-devel-${XUL_PV}
 
 	if ! use bindist && ! use iceweasel; then
 		mozconfig_annotate '' --enable-official-branding
@@ -223,8 +219,8 @@ src_install() {
 		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${P}-${X}"
 	done
 
-	use xulrunner && prefs=preferences || prefs=pref
-	cp "${FILESDIR}"/gentoo-default-prefs.js "${D}"${MOZILLA_FIVE_HOME}/defaults/${prefs}/all-gentoo.js
+	cp "${FILESDIR}"/gentoo-default-prefs.js \
+		"${D}"${MOZILLA_FIVE_HOME}/defaults/preferences/all-gentoo.js
 
 	local LANG=${linguas%% *}
 	if [[ -n ${LANG} && ${LANG} != "en" ]]; then
@@ -239,34 +235,26 @@ src_install() {
 	if use iceweasel; then
 		newicon "${S}"/browser/base/branding/icon48.png iceweasel-icon.png
 		newmenu "${FILESDIR}"/icon/iceweasel.desktop \
-			mozilla-firefox-3.1.desktop
+			mozilla-firefox-3.5.desktop
 	elif ! use bindist; then
 		newicon "${S}"/other-licenses/branding/firefox/content/icon48.png firefox-icon.png
 		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5.desktop \
-			mozilla-firefox-3.1.desktop
+			mozilla-firefox-3.5.desktop
 	else
 		newicon "${S}"/browser/base/branding/icon48.png firefox-icon-unbranded.png
 		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5-unbranded.desktop \
-			mozilla-firefox-3.1.desktop
-		sed -i -e "s/Bon Echo/Minefield/" "${D}"/usr/share/applications/mozilla-firefox-3.1.desktop
+			mozilla-firefox-3.5.desktop
+		sed -e "s/Bon Echo/Minefield/" \
+			-i "${D}"/usr/share/applications/mozilla-firefox-3.5.desktop
 	fi
 
-	if use xulrunner; then
-		# Create /usr/bin/firefox
-		cat <<EOF >"${D}"/usr/bin/firefox
+	# Create /usr/bin/firefox
+	cat <<EOF >"${D}"/usr/bin/firefox
 #!/bin/sh
 export LD_LIBRARY_PATH="${MOZILLA_FIVE_HOME}"
 exec "${MOZILLA_FIVE_HOME}"/firefox "\$@"
 EOF
-		fperms 0755 /usr/bin/firefox
-	else
-		# Create /usr/bin/firefox
-		make_wrapper firefox "${MOZILLA_FIVE_HOME}/firefox"
-
-		# Add vendor
-		echo "pref(\"general.useragent.vendor\",\"Gentoo\");" \
-			>> "${D}"${MOZILLA_FIVE_HOME}/defaults/pref/vendor.js
-	fi
+	fperms 0755 /usr/bin/firefox
 
 	# Plugins dir
 	ln -s "${D}"/usr/$(get_libdir)/{nsbrowser,mozilla-firefox}/plugins
@@ -278,10 +266,8 @@ pkg_postinst() {
 	ewarn "please add 'xulrunner' to your USE-flags."
 	elog
 
-	if use xulrunner; then
-		ln -s /usr/$(get_libdir)/xulrunner-${XUL_PV}/defaults/autoconfig \
-			${MOZILLA_FIVE_HOME}/defaults/autoconfig
-	fi
+	ln -s /usr/$(get_libdir)/xulrunner-${XUL_PV}/defaults/autoconfig \
+		${MOZILLA_FIVE_HOME}/defaults/autoconfig
 
 	# Update mimedb for the new .desktop file
 	fdo-mime_desktop_database_update
