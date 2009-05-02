@@ -13,6 +13,7 @@ NOSHORTLANGS="en-GB es-AR pt-BR zh-CN"
 XUL_PV="1.9.1"
 MY_PV2="${PV/_beta/b}"
 MY_P="${P/_beta/b}"
+MAJ_PV="${PV/_*/}"
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
@@ -20,7 +21,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="java mozdevelop bindist restrict-javascript iceweasel"
+IUSE="bindist iceweasel java mozdevelop restrict-javascript"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 SRC_URI="${REL_URI}/${MY_PV2}/source/firefox-${MY_PV2}-source.tar.bz2
@@ -162,26 +163,28 @@ src_configure() {
 	mozconfig_annotate '' --disable-mailnews
 	mozconfig_annotate 'broken' --disable-mochitest
 	mozconfig_annotate 'broken' --disable-crashreporter
-	mozconfig_annotate '' --enable-system-hunspell
-	mozconfig_annotate '' --enable-system-sqlite
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
-	mozconfig_annotate '' --with-system-nspr
-	mozconfig_annotate '' --with-system-nss
-	mozconfig_annotate '' --enable-system-lcms
 	mozconfig_annotate '' --enable-oji --enable-mathml
 	mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks
 	mozconfig_annotate '' --disable-installer
+	mozconfig_annotate '' --disable-updater
 
-	# Other ff-specific settings
-	#mozconfig_use_enable mozdevelop jsd
-	#mozconfig_use_enable mozdevelop xpctools
-#	mozconfig_use_extension mozdevelop venkman
-	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
-
-	# Add xulrunner variable
+	# Use system libraries
+	mozconfig_annotate '' --enable-system-hunspell
+	mozconfig_annotate '' --enable-system-sqlite
+	mozconfig_annotate '' --with-system-nspr
+	mozconfig_annotate '' --with-system-nss
+	mozconfig_annotate '' --enable-system-lcms
 	mozconfig_annotate '' --with-system-libxul
 	mozconfig_annotate '' --with-libxul-sdk=/usr/$(get_libdir)/xulrunner-devel-${XUL_PV}
+
+
+	# Other ff-specific settings
+	mozconfig_use_enable mozdevelop jsd
+	mozconfig_use_enable mozdevelop xpctools
+	#mozconfig_use_extension mozdevelop venkman
+	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 
 	if ! use bindist && ! use iceweasel; then
 		mozconfig_annotate '' --enable-official-branding
@@ -235,17 +238,17 @@ src_install() {
 	if use iceweasel; then
 		newicon "${S}"/browser/base/branding/icon48.png iceweasel-icon.png
 		newmenu "${FILESDIR}"/icon/iceweasel.desktop \
-			mozilla-firefox-3.5.desktop
+			${PN}-${MAJ_PV}.desktop
 	elif ! use bindist; then
 		newicon "${S}"/other-licenses/branding/firefox/content/icon48.png firefox-icon.png
 		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5.desktop \
-			mozilla-firefox-3.5.desktop
+			${PN}-${MAJ_PV}.desktop
 	else
 		newicon "${S}"/browser/base/branding/icon48.png firefox-icon-unbranded.png
 		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5-unbranded.desktop \
-			mozilla-firefox-3.5.desktop
+			${PN}-${MAJ_PV}.desktop
 		sed -e "s/Bon Echo/Minefield/" \
-			-i "${D}"/usr/share/applications/mozilla-firefox-3.5.desktop
+			-i "${D}"/usr/share/applications/${PN}-${MAJ_PV}.desktop
 	fi
 
 	# Create /usr/bin/firefox
