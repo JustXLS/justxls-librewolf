@@ -187,7 +187,7 @@ src_install() {
 
 	linguas
 	for X in ${linguas}; do
-		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${MY_P}-${X}"
+		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${P}-${X}"
 	done
 
 	local LANG=${linguas%% *}
