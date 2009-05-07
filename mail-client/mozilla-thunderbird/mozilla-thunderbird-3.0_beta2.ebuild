@@ -194,8 +194,8 @@ src_install() {
 	if [[ -n ${LANG} && ${LANG} != "en" ]]; then
 		elog "Setting default locale to ${LANG}"
 		dosed -e "s:general.useragent.locale\", \"en-US\":general.useragent.locale\", \"${LANG}\":" \
-			${MOZILLA_FIVE_HOME}/defaults/${prefs}/all-thunderbird.js \
-			${MOZILLA_FIVE_HOME}/defaults/${prefs}/all-l10n.js || \
+			${MOZILLA_FIVE_HOME}/defaults/pref/all-thunderbird.js \
+			${MOZILLA_FIVE_HOME}/defaults/pref/all-l10n.js || \
 			die "sed failed to change locale"
 	fi
 
