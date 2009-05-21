@@ -18,10 +18,14 @@ SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/s
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="python"
+IUSE="debug qt python"
 
 RDEPEND="java? ( >=virtual/jre-1.4 )
 	python? ( >=dev-lang/python-2.3 )
+	qt? (
+		x11-libs/qt-gui
+		x11-libs/qt-core )
+
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.3
 	>=dev-libs/nspr-4.7.4
@@ -29,6 +33,7 @@ RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=dev-db/sqlite-3.6.7
 	>=app-text/hunspell-1.2
 	>=media-libs/lcms-1.17
+
 	x11-libs/cairo[X]
 	x11-libs/pango[X]"
 
@@ -92,24 +97,40 @@ src_configure() {
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 	mozconfig_annotate '' --enable-application=xulrunner
 	mozconfig_annotate '' --disable-mailnews
-	mozconfig_annotate 'broken' --disable-mochitest
 	mozconfig_annotate 'broken' --disable-crashreporter
-	mozconfig_annotate '' --enable-system-hunspell
-	mozconfig_annotate '' --enable-system-sqlite
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
-	#mozconfig_annotate '' --enable-js-binary
-	mozconfig_annotate '' --enable-embedding-tests
+	# Bug 60668: Galeon doesn't build without oji enabled, so enable it
+	# regardless of java setting.
+	mozconfig_annotate '' --enable-oji --enable-mathml
+	mozconfig_annotate 'places' --enable-storage --enable-places
+	mozconfig_annotate '' --enable-safe-browsing
+
+	# System-wide install specs
+	mozconfig_annotate '' --disable-installer
+	mozconfig_annotate '' --disable-updater
+	mozconfig_annotate '' --disable-strip
+	mozconfig_annotate '' --disable-install-strip
+
+	# Use system libraries
+	mozconfig_annotate '' --enable-system-cairo
+	mozconfig_annotate '' --enable-system-hunspell
+	mozconfig_annotate '' --enable-system-sqlite
 	mozconfig_annotate '' --with-system-nspr
 	mozconfig_annotate '' --with-system-nss
 	mozconfig_annotate '' --enable-system-lcms
 	mozconfig_annotate '' --with-system-bz2
-	# Bug 60668: Galeon doesn't build without oji enabled, so enable it
-	# regardless of java setting.
-	mozconfig_annotate '' --enable-oji --enable-mathml
-	mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks
-	mozconfig_annotate '' --enable-safe-browsing
-	mozconfig_annotate '' --disable-installer
+
+	# IUSE qt
+	if use qt; then
+		ewarn "You are enabling the EXPERIMENTAL qt toolkit"
+		ewarn "Usage is at your own risk"
+		ewarn "Known to be broken. DO NOT file bugs."
+		mozconfig_annotate '' --disable-system-cairo
+		mozconfig_annotate 'qt' --enable-default-toolkit=cairo-qt
+	else
+		mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
+	fi
 
 	# Other ff-specific settings
 	mozconfig_annotate '' --enable-jsd
@@ -119,6 +140,14 @@ src_configure() {
 	#disable java
 	if ! use java ; then
 		mozconfig_annotate '-java' --disable-javaxpcom
+	fi
+
+	# Debug
+	if use debug; then
+		mozconfig_annotate 'debug' --disable-optimize
+		mozconfig_annotate 'debug' --enable-debug=-ggdb
+		mozconfig_annotate 'debug' --enable-debug-modules=all
+		mozconfig_annotate 'debug' --enable-debugger-info-modules
 	fi
 
 	# Finalize and report settings

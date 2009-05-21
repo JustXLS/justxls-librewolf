@@ -21,7 +21,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="bindist iceweasel java mozdevelop restrict-javascript"
+IUSE="bindist debug iceweasel java mozdevelop qt restrict-javascript"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 SRC_URI="${REL_URI}/${MY_PV2}/source/firefox-${MY_PV2}-source.tar.bz2
@@ -43,21 +43,24 @@ for X in ${LANGS} ; do
 	fi
 done
 
-RDEPEND="java? ( virtual/jre )
+RDEPEND="
+	qt? (
+		x11-libs/qt-gui
+		x11-libs/qt-core )
+
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.2
 	>=dev-libs/nspr-4.7.3
 	>=dev-db/sqlite-3.6.7
 	>=app-text/hunspell-1.2
 
-	=net-libs/xulrunner-${XUL_PV}_${PV/*_/}*
+	=net-libs/xulrunner-${XUL_PV}_${PV/*_/}*[debug=,java=,qt=]
 
 	x11-libs/cairo[X]
 	x11-libs/pango[X]"
 
 DEPEND="${RDEPEND}
-	dev-util/pkgconfig
-	java? ( >=dev-java/java-config-0.2.0 )"
+	dev-util/pkgconfig"
 
 PDEPEND="restrict-javascript? ( x11-plugins/noscript )"
 
@@ -161,33 +164,61 @@ src_configure() {
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 	mozconfig_annotate '' --enable-application=browser
 	mozconfig_annotate '' --disable-mailnews
-	mozconfig_annotate 'broken' --disable-mochitest
 	mozconfig_annotate 'broken' --disable-crashreporter
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
+	# Bug 60668: Galeon doesn't build without oji enabled, so enable it
+	# regardless of java setting.
 	mozconfig_annotate '' --enable-oji --enable-mathml
-	mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks
+	mozconfig_annotate 'places' --enable-storage --enable-places
+	mozconfig_annotate '' --enable-safe-browsing
+
+	# System-wide install specs
 	mozconfig_annotate '' --disable-installer
 	mozconfig_annotate '' --disable-updater
+	mozconfig_annotate '' --disable-strip
+	mozconfig_annotate '' --disable-install-strip
 
 	# Use system libraries
+	mozconfig_annotate '' --enable-system-cairo
 	mozconfig_annotate '' --enable-system-hunspell
 	mozconfig_annotate '' --enable-system-sqlite
 	mozconfig_annotate '' --with-system-nspr
 	mozconfig_annotate '' --with-system-nss
 	mozconfig_annotate '' --enable-system-lcms
+	mozconfig_annotate '' --with-system-bz2
 	mozconfig_annotate '' --with-system-libxul
 	mozconfig_annotate '' --with-libxul-sdk=/usr/$(get_libdir)/xulrunner-devel-${XUL_PV}
 
-
-	# Other ff-specific settings
+	# IUSE mozdevelop
 	mozconfig_use_enable mozdevelop jsd
 	mozconfig_use_enable mozdevelop xpctools
 	#mozconfig_use_extension mozdevelop venkman
+
+	# IUSE qt
+	if use qt; then
+		ewarn "You are enabling the EXPERIMENTAL qt toolkit"
+		ewarn "Usage is at your own risk"
+		ewarn "Known to be broken. DO NOT file bugs."
+		mozconfig_annotate '' --disable-system-cairo
+		mozconfig_annotate 'qt' --enable-default-toolkit=cairo-qt
+	else
+		mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
+	fi
+
+	# Other ff-specific settings
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 
 	if ! use bindist && ! use iceweasel; then
 		mozconfig_annotate '' --enable-official-branding
+	fi
+
+	# Debug
+	if use debug; then
+		mozconfig_annotate 'debug' --disable-optimize
+		mozconfig_annotate 'debug' --enable-debug=-ggdb
+		mozconfig_annotate 'debug' --enable-debug-modules=all
+		mozconfig_annotate 'debug' --enable-debugger-info-modules
 	fi
 
 	# Finalize and report settings
