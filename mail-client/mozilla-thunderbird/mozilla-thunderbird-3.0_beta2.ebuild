@@ -15,7 +15,7 @@ MY_P="${P/_beta/b}"
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 
-KEYWORDS="alpha amd64 ia64 ppc ppc64 sparc x86 ~x86-fbsd"
+KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="ldap crypt bindist mozdom replytolist"
