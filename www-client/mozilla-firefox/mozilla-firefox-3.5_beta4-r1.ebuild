@@ -54,7 +54,7 @@ RDEPEND="
 	>=dev-db/sqlite-3.6.7
 	>=app-text/hunspell-1.2
 
-	=net-libs/xulrunner-${XUL_PV}_${PV/*_/}*[debug=,java=,qt=]
+	=net-libs/xulrunner-${XUL_PV}_${PV/*_/}*[debug=,java=,qt-experimental=]
 
 	x11-libs/cairo[X]
 	x11-libs/pango[X]"
