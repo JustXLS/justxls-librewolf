@@ -18,11 +18,11 @@ SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/s
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="debug qt python"
+IUSE="debug qt-experimental python"
 
 RDEPEND="java? ( >=virtual/jre-1.4 )
 	python? ( >=dev-lang/python-2.3 )
-	qt? (
+	qt-experimental? (
 		x11-libs/qt-gui
 		x11-libs/qt-core )
 
@@ -121,13 +121,13 @@ src_configure() {
 	mozconfig_annotate '' --enable-system-lcms
 	mozconfig_annotate '' --with-system-bz2
 
-	# IUSE qt
-	if use qt; then
+	# IUSE qt-experimental
+	if use qt-experimental; then
 		ewarn "You are enabling the EXPERIMENTAL qt toolkit"
 		ewarn "Usage is at your own risk"
 		ewarn "Known to be broken. DO NOT file bugs."
 		mozconfig_annotate '' --disable-system-cairo
-		mozconfig_annotate 'qt' --enable-default-toolkit=cairo-qt
+		mozconfig_annotate 'qt-experimental' --enable-default-toolkit=cairo-qt
 	else
 		mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
 	fi

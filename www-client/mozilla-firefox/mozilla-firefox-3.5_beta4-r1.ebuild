@@ -21,7 +21,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="bindist debug iceweasel java mozdevelop qt restrict-javascript"
+IUSE="bindist debug iceweasel java mozdevelop qt-experimental restrict-javascript"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 SRC_URI="${REL_URI}/${MY_PV2}/source/firefox-${MY_PV2}-source.tar.bz2
@@ -44,7 +44,7 @@ for X in ${LANGS} ; do
 done
 
 RDEPEND="
-	qt? (
+	qt-experimental? (
 		x11-libs/qt-gui
 		x11-libs/qt-core )
 
@@ -195,13 +195,13 @@ src_configure() {
 	mozconfig_use_enable mozdevelop xpctools
 	#mozconfig_use_extension mozdevelop venkman
 
-	# IUSE qt
-	if use qt; then
+	# IUSE qt-experimental
+	if use qt-experimental; then
 		ewarn "You are enabling the EXPERIMENTAL qt toolkit"
 		ewarn "Usage is at your own risk"
 		ewarn "Known to be broken. DO NOT file bugs."
 		mozconfig_annotate '' --disable-system-cairo
-		mozconfig_annotate 'qt' --enable-default-toolkit=cairo-qt
+		mozconfig_annotate 'qt-experimental' --enable-default-toolkit=cairo-qt
 	else
 		mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
 	fi
