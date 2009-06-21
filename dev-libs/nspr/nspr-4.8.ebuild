@@ -81,11 +81,10 @@ src_install () {
 	# Remove stupid files in /usr/bin
 	rm "${D}"/usr/bin/{prerr.properties,nspr.pc}
 }
-#
-#pkg_preinst() {
-#	preserve_old_lib /usr/$(get_libdir)/nspr/lib{nspr,plc,plds}4.so.7
-#}
-#
-#pkg_postinst() {
-#	preserve_old_lib_notify /usr/$(get_libdir)/nspr/lib{nspr,plc,plds}4.so.7
-#}
+
+pkg_postinst() {
+	elog
+	elog "Please make sure you run revdep-rebuild after upgrade, This is extremely important"
+	elog "to ensure your system nspr works proplery."
+	elog
+}
