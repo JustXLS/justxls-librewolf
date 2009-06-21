@@ -1,0 +1,10 @@
+--- mozilla/toolkit/xre/nsAppRunner.cpp-orig	2009-06-20 16:10:14.542832380 -0500
++++ mozilla/toolkit/xre/nsAppRunner.cpp	2009-06-20 16:11:15.060855636 -0500
+@@ -1484,7 +1484,7 @@
+   if (NS_FAILED(rv))
+     return rv;
+ 
+-#elif
++#else
+ #error Oops, you need platform-specific code here
+ #endif
