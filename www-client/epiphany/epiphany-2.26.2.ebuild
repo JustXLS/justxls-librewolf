@@ -30,7 +30,7 @@ RDEPEND=">=dev-libs/glib-2.18.0
 	>=app-text/iso-codes-0.35
 	avahi? ( >=net-dns/avahi-0.6.22 )
 	networkmanager? ( net-misc/networkmanager )
-	=net-libs/xulrunner-1.9.1
+	>=net-libs/xulrunner-1.9.1_rc1
 	python? (
 		>=dev-lang/python-2.3
 		>=dev-python/pygtk-2.7.1
