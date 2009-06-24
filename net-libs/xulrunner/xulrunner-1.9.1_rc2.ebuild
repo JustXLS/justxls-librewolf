@@ -36,7 +36,7 @@ RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=app-text/hunspell-1.2
 	>=media-libs/lcms-1.17
 
-	x11-libs/cairo[X]
+	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]"
 
 DEPEND="java? ( >=virtual/jdk-1.4 )

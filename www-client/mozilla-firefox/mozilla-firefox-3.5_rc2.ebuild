@@ -59,7 +59,7 @@ RDEPEND="
 
 	=net-libs/xulrunner-${XUL_PV}_${PV/*_/}*[debug=,java=,qt-experimental=]
 
-	x11-libs/cairo[X]
+	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]"
 
 DEPEND="${RDEPEND}
