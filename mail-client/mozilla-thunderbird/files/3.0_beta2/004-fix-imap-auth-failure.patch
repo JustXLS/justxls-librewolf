@@ -1,0 +1,24 @@
+https://bugzilla.mozilla.org/show_bug.cgi?id=485395
+----
+--- a/mailnews/base/util/nsMsgIncomingServer.cpp	Mon Apr 06 13:38:07 2009 -0700
++++ b/mailnews/base/util/nsMsgIncomingServer.cpp	Fri Apr 17 18:33:57 2009 +0100
+@@ -792,8 +792,13 @@ nsMsgIncomingServer::GetPasswordWithUI(c
+       rv = GetUsername(temp);
+       NS_ENSURE_SUCCESS(rv, rv);
+ 
+-      serverUri.Append(temp);
+-      serverUri.AppendLiteral("@");
++      if (!temp.IsEmpty())
++      {
++        nsCString escapedUsername;
++        MsgEscapeString(temp, nsINetUtil::ESCAPE_XALPHAS, escapedUsername);
++        serverUri.Append(escapedUsername);
++        serverUri.Append('@');
++      }
+ 
+       rv = GetHostName(temp);
+       NS_ENSURE_SUCCESS(rv, rv);
+
+
+
+
