@@ -1,15 +1,17 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.9.0.1.ebuild,v 1.4 2008/07/30 10:42:58 armin76 Exp $
+
 EAPI="2"
 WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-pkg-opt-2 python autotools
-PATCH="${P}-patches-0.1"
+
 MY_PV="${PV/_beta/b}" # Handle betas
 MY_PV="${PV/_/}" # Handle rc1, rc2 etc
 MY_PV="${MY_PV/1.9.1/3.5}"
 MAJ_PV="${PV/_*/}"
+PATCH="${PN}-${MAJ_PV}-patches-0.1"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
@@ -62,7 +64,7 @@ src_prepare() {
 	epatch "${FILESDIR}/${PV}"
 
 	# Same as in config/autoconf.mk.in
-	INSTALLDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
+	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
 	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_PV}/sdk"
 	# Gentoo install dirs
 	sed -e "s/@PV@/${MAJ_PV}/" -i "${S}/config/autoconf.mk.in" \
@@ -137,7 +139,7 @@ src_configure() {
 	# Other ff-specific settings
 	mozconfig_annotate '' --enable-jsd
 	mozconfig_annotate '' --enable-xpctools
-	mozconfig_annotate '' --with-default-mozilla-five-home="${INSTALLDIR}"
+	mozconfig_annotate '' --with-default-mozilla-five-home="${MOZLIBDIR}"
 
 	#disable java
 	if ! use java ; then
@@ -184,14 +186,21 @@ src_install() {
 	rm "${D}"/usr/bin/xulrunner
 
 	dodir /usr/bin
-	dosym "${INSTALLDIR}/xulrunner" "${ROOT}/usr/bin/xulrunner-${MAJ_PV}"
+	dosym "${MOZLIBDIR}/xulrunner" "${ROOT}/usr/bin/xulrunner-${MAJ_PV}"
+
+	# Install python modules
+	dosym "${MOZLIBDIR}/python/xpcom" "${ROOT}/$(python_get_sitedir)/xpcom"
+
+	# env.d file for ld search path
+	dodir /etc/env.d
+	echo "LDPATH=${MOZLIBDIR}" > "${D}"/etc/env.d/08xulrunner || die "env.d failed"
 
 	# Add vendor
 	echo "pref(\"general.useragent.vendor\",\"Gentoo\");" \
-		>> "${D}/${INSTALLDIR}/defaults/pref/vendor.js"
+		>> "${D}/${MOZLIBDIR}/defaults/pref/vendor.js"
 
 	if use java ; then
-		java-pkg_regjar "${D}/${INSTALLDIR}/javaxpcom.jar"
+		java-pkg_regjar "${D}/${MOZLIBDIR}/javaxpcom.jar"
 		java-pkg_regjar "${D}/${SDKDIR}/lib/MozillaGlue.jar"
 		java-pkg_regjar "${D}/${SDKDIR}/lib/MozillaInterfaces.jar"
 	fi
@@ -200,12 +209,12 @@ src_install() {
 pkg_postinst() {
 	if use python; then
 		python_need_rebuild
-		python_mod_optimize "${INSTALLDIR}/python"
+		python_mod_optimize "${MOZLIBDIR}/python"
 	fi
 }
 
 pkg_postrm() {
 	if use python; then
-		python_mod_cleanup "${INSTALLDIR}/python"
+		python_mod_cleanup "${MOZLIBDIR}/python"
 	fi
 }
