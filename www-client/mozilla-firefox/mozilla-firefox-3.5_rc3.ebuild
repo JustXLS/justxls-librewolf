@@ -104,6 +104,11 @@ pkg_setup(){
 		elog "a legal problem with Mozilla Foundation"
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
+
+	elog ""
+	elog "There is now support for libgnomebreakpad; if you do not have bug-buddy installed don't"
+	elog "worry about gtk-warning on startup. If you wish to be able to debug crashes in firefox, please"
+	elog "install bug-buddy. Thank you the mozilla herd."
 }
 
 src_unpack() {
@@ -286,8 +291,10 @@ src_install() {
 	cat <<EOF >"${D}"/usr/bin/firefox
 #!/bin/sh
 export LD_LIBRARY_PATH="${MOZILLA_FIVE_HOME}"
+export GNOME_DISABLE_CRASH_DIALOG="0"
 exec "${MOZILLA_FIVE_HOME}"/firefox "\$@"
 EOF
+
 	fperms 0755 /usr/bin/firefox
 
 	# Plugins dir
