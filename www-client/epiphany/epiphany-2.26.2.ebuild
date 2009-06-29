@@ -75,9 +75,5 @@ src_prepare() {
 }
 
 src_configure() {
-	addpredict /usr/$(get_libdir)/xulrunner-1.9.1/components/xpti.dat
-	addpredict /usr/$(get_libdir)/xulrunner-1.9.1/components/xpti.dat.tmp
-	addpredict /usr/$(get_libdir)/xulrunner-1.9.1/components/compreg.dat.tmp
-
 	gnome2_src_configure
 }

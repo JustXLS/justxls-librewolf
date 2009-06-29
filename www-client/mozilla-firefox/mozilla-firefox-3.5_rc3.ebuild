@@ -291,7 +291,6 @@ src_install() {
 	cat <<EOF >"${D}"/usr/bin/firefox
 #!/bin/sh
 export LD_LIBRARY_PATH="${MOZILLA_FIVE_HOME}"
-export GNOME_DISABLE_CRASH_DIALOG="0"
 exec "${MOZILLA_FIVE_HOME}"/firefox "\$@"
 EOF
 

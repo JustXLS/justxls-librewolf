@@ -14,7 +14,7 @@ SRC_URI="mirror://gentoo/${P}.tar.bz2
 	mirror://gentoo/${PATCH}.tar.bz2
 	http://dev.gentoo.org/~armin76/dist/${PATCH}.tar.bz2"
 
-KEYWORDS="alpha amd64 arm hppa ia64 ppc ppc64 sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE=""
@@ -54,6 +54,10 @@ src_prepare() {
 
 	# Fix mozilla-js.pc so it included proper js headers
 	epatch "${FILESDIR}"/1.9.1_rc3/066-fix-includedir-mozilla-js.patch
+
+	# enable gnomebreakpad by default
+	sed -i -e 's/GNOME_DISABLE_CRASH_DIALOG=1/GNOME_DISABLE_CRASH_DIALOG=0/g' \
+		"${S}/build/unix/run-mozilla.sh"
 
 	eautoreconf || die "failed  running eautoreconf"
 

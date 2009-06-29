@@ -70,6 +70,10 @@ src_prepare() {
 	sed -e "s/@PV@/${MAJ_PV}/" -i "${S}/config/autoconf.mk.in" \
 		|| die "\${MAJ_PV} sed failed!"
 
+	# enable gnomebreakpad by default
+	sed -i -e 's/GNOME_DISABLE_CRASH_DIALOG=1/GNOME_DISABLE_CRASH_DIALOG=0/g' \
+		"${S}/build/unix/run-mozilla.sh"
+
 	eautoreconf
 
 	cd js/src
