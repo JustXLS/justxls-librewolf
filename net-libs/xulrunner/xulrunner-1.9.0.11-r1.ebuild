@@ -57,7 +57,7 @@ src_prepare() {
 
 	# enable gnomebreakpad by default
 	sed -i -e 's/GNOME_DISABLE_CRASH_DIALOG=1/GNOME_DISABLE_CRASH_DIALOG=0/g' \
-		"${S}/build/unix/run-mozilla.sh"
+		"${S}/build/unix/run-mozilla.sh" || die "Failed to enabled gnomebreakpad"
 
 	eautoreconf || die "failed  running eautoreconf"
 
