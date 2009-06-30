@@ -25,7 +25,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="bindist debug iceweasel java mozdevelop qt-experimental restrict-javascript"
+IUSE="bindist iceweasel java mozdevelop qt-experimental restrict-javascript"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 SRC_URI="${REL_URI}/${MY_PV}/source/firefox-${MY_PV}-source.tar.bz2
@@ -58,7 +58,7 @@ RDEPEND="
 	>=dev-db/sqlite-3.6.7
 	>=app-text/hunspell-1.2
 
-	=net-libs/xulrunner-${XUL_PV}*[debug=,java=,qt-experimental=]
+	=net-libs/xulrunner-${XUL_PV}*[java=,qt-experimental=]
 
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]"
@@ -217,14 +217,6 @@ src_configure() {
 
 	if ! use bindist && ! use iceweasel; then
 		mozconfig_annotate '' --enable-official-branding
-	fi
-
-	# Debug
-	if use debug; then
-		mozconfig_annotate 'debug' --disable-optimize
-		mozconfig_annotate 'debug' --enable-debug=-ggdb
-		mozconfig_annotate 'debug' --enable-debug-modules=all
-		mozconfig_annotate 'debug' --enable-debugger-info-modules
 	fi
 
 	# Finalize and report settings
