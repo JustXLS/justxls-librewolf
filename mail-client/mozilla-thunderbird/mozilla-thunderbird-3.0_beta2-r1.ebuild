@@ -142,6 +142,7 @@ src_configure() {
 	mozconfig_annotate '' --with-user-appdir=.thunderbird
 	mozconfig_annotate '' --with-system-nspr
 	mozconfig_annotate '' --with-system-nss
+	mozconfig_annotate 'broken' --disable-crashreporter
 
 	# Bug #72667
 	if use mozdom; then

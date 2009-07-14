@@ -3,6 +3,11 @@
 # $Header: $
 
   14 Jul 2009; Jory A. Pratt <anarchy@gentoo.org>
+  -files/3.0_beta2/005-fix-includes-google-breakpad.patch,
+  mozilla-thunderbird-3.0_beta2-r1.ebuild:
+  remove include patch, disable crashreporter as it is broken
+
+  14 Jul 2009; Jory A. Pratt <anarchy@gentoo.org>
   +files/3.0_beta2/005-fix-includes-google-breakpad.patch,
   -mozilla-thunderbird-3.0_beta2.ebuild,
   mozilla-thunderbird-3.0_beta2-r1.ebuild:
