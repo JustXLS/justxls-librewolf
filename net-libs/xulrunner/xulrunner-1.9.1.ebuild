@@ -70,6 +70,9 @@ src_prepare() {
 	# bug 257803, fix broken mozilla-plugin.pc
 	epatch "${FILESDIR}/067-fix-includedir-mozilla-plugin.patch"
 
+	# bug 277752, security exploit in js
+	epatch "${FILESDIR}/200-js-security.patch"
+
 	# Same as in config/autoconf.mk.in
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
 	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_PV}/sdk"
@@ -78,8 +81,10 @@ src_prepare() {
 		|| die "\${MAJ_PV} sed failed!"
 
 	# enable gnomebreakpad by default
-	sed -i -e 's/GNOME_DISABLE_CRASH_DIALOG=1/GNOME_DISABLE_CRASH_DIALOG=0/g' \
-		"${S}/build/unix/run-mozilla.sh"
+	if use debug; then
+		sed -i -e 's/GNOME_DISABLE_CRASH_DIALOG=1/GNOME_DISABLE_CRASH_DIALOG=0/g' \
+			"${S}/build/unix/run-mozilla.sh"
+	fi
 
 	eautoreconf
 

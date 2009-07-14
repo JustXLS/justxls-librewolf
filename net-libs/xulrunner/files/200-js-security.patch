@@ -1,0 +1,86 @@
+# HG changeset patch
+# User Blake Kaplan <mrbkap@gmail.com>
+# Date 1247525073 25200
+# Node ID dc402f0a1122d741e4018d63b95f8c857f52909d
+# Parent c4b5d3e7a8fa4b9f0c645c7d1a6cdd605a8b6fcc
+Bug 503286 - Use the right sp for sp_adj to account for tree calls fiddling with state.sp after we've deep bailed. r=jorendorff
+
+diff --git a/js/src/jstracer.cpp b/js/src/jstracer.cpp
+--- a/js/src/jstracer.cpp
++++ b/js/src/jstracer.cpp
+@@ -4617,20 +4617,28 @@ LeaveTree(InterpState& state, VMSideExit
+                          js_ReconstructStackDepth(cx, cx->fp->script, cx->fp->regs->pc) ==
+                          cx->fp->regs->sp);
+ 
+             /*
+              * The return value was not available when we reconstructed the stack,
+              * but we have it now. Box it.
+              */
+             uint8* typeMap = getStackTypeMap(innermost);
++
++            /*
++             * If there's a tree call around the point that we deep exited at,
++             * then state.sp and state.rp were restored to their original
++             * values before the tree call and sp might be less than deepBailSp,
++             * which we sampled when we were told to deep bail.
++             */
++            JS_ASSERT(state.deepBailSp >= state.stackBase && state.sp <= state.deepBailSp);
+             NativeToValue(cx,
+                           cx->fp->regs->sp[-1],
+                           typeMap[innermost->numStackSlots - 1],
+-                          (jsdouble *) state.sp + innermost->sp_adj / sizeof(jsdouble) - 1);
++                          (jsdouble *) state.deepBailSp + innermost->sp_adj / sizeof(jsdouble) - 1);
+         }
+         JSTraceMonitor* tm = &JS_TRACE_MONITOR(cx);
+         if (tm->prohibitFlush && --tm->prohibitFlush == 0 && tm->needFlush)
+             FlushJITCache(cx);
+         return;
+     }
+ 
+     JS_ARENA_RELEASE(&cx->stackPool, state.stackMark);
+@@ -5471,17 +5479,20 @@ js_DeepBail(JSContext *cx)
+     /* It's a bug if a non-FAIL_STATUS builtin gets here. */
+     JS_ASSERT(tracecx->bailExit);
+ 
+     tm->tracecx = NULL;
+     tm->prohibitFlush++;
+     debug_only_v(printf("Deep bail.\n");)
+     LeaveTree(*tracecx->interpState, tracecx->bailExit);
+     tracecx->bailExit = NULL;
+-    tracecx->interpState->builtinStatus |= JSBUILTIN_BAILED;
++
++    InterpState* state = tracecx->interpState;
++    state->builtinStatus |= JSBUILTIN_BAILED;
++    state->deepBailSp = state->sp;
+ }
+ 
+ JS_REQUIRES_STACK jsval&
+ TraceRecorder::argval(unsigned n) const
+ {
+     JS_ASSERT(n < cx->fp->fun->nargs);
+     return cx->fp->argv[n];
+ }
+diff --git a/js/src/jstracer.h b/js/src/jstracer.h
+--- a/js/src/jstracer.h
++++ b/js/src/jstracer.h
+@@ -411,16 +411,19 @@ struct InterpState
+     InterpState*   prev;
+ 
+     /*
+      * Used by _FAIL builtins; see jsbuiltins.h. The builtin sets the
+      * JSBUILTIN_BAILED bit if it bails off trace and the JSBUILTIN_ERROR bit
+      * if an error or exception occurred.
+      */
+     uint32         builtinStatus;
++
++    // Used to communicate the location of the return value in case of a deep bail.
++    double*        deepBailSp;
+ };
+ 
+ static JS_INLINE void
+ js_SetBuiltinError(JSContext *cx)
+ {
+     cx->interpState->builtinStatus |= JSBUILTIN_ERROR;
+ }
+ 
+
