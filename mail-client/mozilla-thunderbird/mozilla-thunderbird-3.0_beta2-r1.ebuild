@@ -115,9 +115,6 @@ src_prepare() {
 	eautoreconf
 	cd js/src
 	eautoreconf
-
-	# We need to re-patch this because autoreconf overwrites it
-#	epatch "${WORKDIR}"/patch/000_flex-configure-LANG.patch
 }
 
 src_configure() {

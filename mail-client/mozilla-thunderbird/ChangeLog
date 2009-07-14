@@ -2,6 +2,12 @@
 # Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
 # $Header: $
 
+  14 Jul 2009; Jory A. Pratt <anarchy@gentoo.org>
+  +files/3.0_beta2/005-fix-includes-google-breakpad.patch,
+  -mozilla-thunderbird-3.0_beta2.ebuild,
+  mozilla-thunderbird-3.0_beta2-r1.ebuild:
+  fix includes in google-breakpad, bug #277360, thank Gef Lebster.
+
 *mozilla-thunderbird-3.0_beta2-r1 (21 Jun 2009)
 
   21 Jun 2009; Jory A. Pratt <anarchy@gentoo.org>

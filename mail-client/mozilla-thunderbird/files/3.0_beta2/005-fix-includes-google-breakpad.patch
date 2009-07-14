@@ -1,0 +1,64 @@
+Include stdio.h to prevent build failure.
+
+Gentoo Bug http://bugs.gentoo.org/show_bug.cgi?id=277360
+
+--- mozilla/toolkit/crashreporter/google-breakpad/src/common/linux/dump_symbols.cc~	2009-07-13 21:59:39.515136262 -0500
++++ mozilla/toolkit/crashreporter/google-breakpad/src/common/linux/dump_symbols.cc	2009-07-13 22:00:35.332156655 -0500
+@@ -23,16 +23,17 @@
+ // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ #include <a.out.h>
++#include <stdio.h>
+ #include <cstdarg>
+ #include <cstdlib>
+ #include <cxxabi.h>
+ #include <elf.h>
+ #include <errno.h>
+ #include <fcntl.h>
+ #include <link.h>
+ #include <sys/mman.h>
+--- mozilla/toolkit/crashreporter/google-breakpad/src/client/linux/handler/exception_handler.cc~	2009-07-13 22:03:38.725159449 -0500
++++ mozilla/toolkit/crashreporter/google-breakpad/src/client/linux/handler/exception_handler.cc	2009-07-13 22:04:39.023156935 -0500
+@@ -25,16 +25,17 @@
+ // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ #include <signal.h>
++#include <stdio.h">
+ #include <sys/stat.h>
+ #include <sys/types.h>
+ #include <unistd.h>
+ 
+ #include <cassert>
+ #include <cstdlib>
+ #include <ctime>
+ #include <linux/limits.h>
+--- mozilla/toolkit/crashreporter/google-breakpad/src/client/linux/handler/minidump_generator.cc~	2009-07-13 22:03:49.635136122 -0500
++++ mozilla/toolkit/crashreporter/google-breakpad/src/client/linux/handler/minidump_generator.cc	2009-07-13 22:05:01.595150160 -0500
+@@ -27,16 +27,17 @@
+ // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ #include <fcntl.h>
+ #include <pthread.h>
+ #include <signal.h>
++#include <stdio.h>
+ #include <sys/stat.h>
+ #include <sys/types.h>
+ #include <unistd.h>
+ #include <sys/utsname.h>
+ #include <sys/wait.h>
+ 
+ #include <cstdlib>
+ #include <ctime>
