@@ -9,7 +9,7 @@ inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-p
 
 MY_PV="${PV/_beta/b}" # Handle betas
 MY_PV="${PV/_/}" # Handle rc1, rc2 etc
-MY_PV="${MY_PV/1.9.1/3.5}"
+MY_PV="${MY_PV/1.9.1/3.5.1}"
 MAJ_PV="${PV/_*/}"
 PATCH="${PN}-${MAJ_PV}-patches-0.1"
 
@@ -69,9 +69,6 @@ src_prepare() {
 
 	# bug 257803, fix broken mozilla-plugin.pc
 	epatch "${FILESDIR}/067-fix-includedir-mozilla-plugin.patch"
-
-	# bug 277752, security exploit in js
-	epatch "${FILESDIR}/200-js-security.patch"
 
 	# Same as in config/autoconf.mk.in
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
