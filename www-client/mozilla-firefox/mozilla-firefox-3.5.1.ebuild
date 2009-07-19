@@ -14,6 +14,7 @@ NOSHORTLANGS="en-GB es-AR es-CL es-MX pt-BR zh-CN zh-TW"
 
 XUL_PV="1.9.1"
 MAJ_PV="${PV/_*/}" # Without the _rc and _beta stuff
+DESKTOP_PV="3.5"
 MY_PV="${PV/_beta/b}" # Handle betas for SRC_URI
 MY_PV="${PV/_/}" # Handle rcs for SRC_URI
 PATCH="${PN}-3.5-patches-0.1"
@@ -264,15 +265,15 @@ src_install() {
 	if use iceweasel; then
 		newicon "${S}"/browser/base/branding/icon48.png iceweasel-icon.png
 		newmenu "${FILESDIR}"/icon/iceweasel.desktop \
-			${PN}-${MAJ_PV}.desktop
+			${PN}-${DESKTOP_PV}.desktop
 	elif ! use bindist; then
 		newicon "${S}"/other-licenses/branding/firefox/content/icon48.png firefox-icon.png
 		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5.desktop \
-			${PN}-${MAJ_PV}.desktop
+			${PN}-${DESKTOP_PV}.desktop
 	else
 		newicon "${S}"/browser/base/branding/icon48.png firefox-icon-unbranded.png
 		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5-unbranded.desktop \
-			${PN}-${MAJ_PV}.desktop
+			${PN}-${DESKTOP_PV}.desktop
 		sed -e "s/Bon Echo/Minefield/" \
 			-i "${D}"/usr/share/applications/${PN}-${MAJ_PV}.desktop
 	fi
