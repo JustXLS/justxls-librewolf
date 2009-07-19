@@ -275,12 +275,12 @@ src_install() {
 		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5-unbranded.desktop \
 			${PN}-${DESKTOP_PV}.desktop
 		sed -e "s/Bon Echo/Minefield/" \
-			-i "${D}"/usr/share/applications/${PN}-${MAJ_PV}.desktop
+			-i "${D}"/usr/share/applications/${PN}-${DESKTOP_PV}.desktop
 	fi
 
 	# Add StartupNotify=true bug 237317
 	if use startup-notification; then
-		echo "StartupNotify=true" >> "${D}"/usr/share/applications/${PN}-${MAJ_PV}.desktop
+		echo "StartupNotify=true" >> "${D}"/usr/share/applications/${PN}-${DESKTOP_PV}.desktop
 	fi
 
 	# Create /usr/bin/firefox
