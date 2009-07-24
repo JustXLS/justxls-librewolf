@@ -6,7 +6,8 @@ WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 mozilla-launcher makeedit multilib mozextension autotools
 
-LANGS="af ar be bg ca cs de el en-US es-AR es-ES et eu fi fr fy-NL ga-IE gl he hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR pt-PT ro ru si sk sr sv-SE ta-LK uk vi zh-CN"
+LANGS="af ar be ca cs de el en-US es-AR es-ES et eu fi fr fy-NL ga-IE gl hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR ro ru si sk sv-SE ta-LK uk vi zh-CN"
+# Languages not rebuilt for beta3 "pt-PT he sr bg"
 NOSHORTLANGS="es-AR pt-BR"
 
 MY_PV2="${PV/_beta/b}"

@@ -2,6 +2,20 @@
 # Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
 # $Header: $
 
+*mozilla-thunderbird-3.0_beta3 (24 Jul 2009)
+
+  24 Jul 2009; Jory A. Pratt <anarchy@gentoo.org> -files/3.0_beta2,
+  +files/3.0_beta3/001-thunderbird_gentoo_install_dirs.patch,
+  +files/3.0_beta3/003--mozilla-jemalloc.patch,
+  +files/3.0_beta3/102-no_dynamic_nss_softokn.patch,
+  +files/3.0_beta3/104-fix_licence_file_preprocessor.patch,
+  +files/3.0_beta3/106-bz466250_att349521_fix_ftbfs_with_cairo_fb.patch,
+  +files/3.0_beta3/115-thunderbird-shared-error.patch,
+  -mozilla-thunderbird-3.0_beta2-r1.ebuild,
+  +mozilla-thunderbird-3.0_beta3.ebuild:
+  bump to beta3, language packs not ported droped from ebuild until they are
+  ready.
+
   14 Jul 2009; Jory A. Pratt <anarchy@gentoo.org>
   -files/3.0_beta2/005-fix-includes-google-breakpad.patch,
   mozilla-thunderbird-3.0_beta2-r1.ebuild:
