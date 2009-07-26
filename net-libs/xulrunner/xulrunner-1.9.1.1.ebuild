@@ -11,10 +11,12 @@ MY_PV="${PV/_beta/b}" # Handle betas
 MY_PV="${PV/_/}" # Handle rc1, rc2 etc
 MY_PV="${MY_PV/1.9.1.1/3.5.1}"
 MAJ_PV="${PV/_*/}"
+PATCH="${PN}-${MAJ_PV}-patches-0.1"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
-SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/source/firefox-${MY_PV}-source.tar.bz2"
+SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/source/firefox-${MY_PV}-source.tar.bz2
+	http://dev.gentooexperimental.org/~anarchy/dist/${PATCH}.tar.bz2"
 
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="1.9"
@@ -59,8 +61,8 @@ pkg_setup(){
 src_prepare() {
 	# Apply our patches
 	EPATCH_SUFFIX="patch" \
-	EPATCH_FORCE="yes" \
-	epatch "${FILESDIR}/${PV}"
+	EPATCH_FORCE="yes" \ 
+	epatch "${WORKDIR}"
 
 	# Same as in config/autoconf.mk.in
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
