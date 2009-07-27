@@ -2,6 +2,11 @@
 # Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
 # $Header: $
 
+  27 Jul 2009; Jory A. Pratt <anarchy@gentoo.org>
+  +files/2.0_beta1/118-bz467766_att351173-dont-reset-user-prefs-on-upgrade.p
+  atch:
+  added patch to prevent user settings from being overwritten.
+
 *seamonkey-2.0_beta1 (27 Jul 2009)
 
   27 Jul 2009; Jory A. Pratt <anarchy@gentoo.org>
