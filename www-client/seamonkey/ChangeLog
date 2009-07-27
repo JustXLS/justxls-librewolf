@@ -1,0 +1,13 @@
+# ChangeLog for www-client/seamonkey
+# Copyright 1999-2009 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+*seamonkey-2.0_beta1 (27 Jul 2009)
+
+  27 Jul 2009; Jory A. Pratt <anarchy@gentoo.org>
+  +files/2.0_beta1/001-seamonkey_gentoo_install_dirs.patch,
+  +seamonkey-2.0_beta1.ebuild,
+  +files/2.0_beta1/104-no_dynamic_nss_softokn.patch,
+  +files/2.0_beta1/108-fix_ftbfs_with_cairo_fb.patch, metadata.xml:
+  initial bump to seamonkey beta1
+
