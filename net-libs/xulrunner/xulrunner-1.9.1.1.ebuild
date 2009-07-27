@@ -61,7 +61,7 @@ pkg_setup(){
 src_prepare() {
 	# Apply our patches
 	EPATCH_SUFFIX="patch" \
-	EPATCH_FORCE="yes" \ 
+	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
 	# Same as in config/autoconf.mk.in
