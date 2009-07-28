@@ -98,6 +98,7 @@ src_configure() {
 		MEXTENSIONS="${MEXTENSIONS},python/xpcom"
 	fi
 
+	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
 	# It doesn't compile on alpha without this LDFLAGS
 	use alpha && append-ldflags "-Wl,--no-relax"
 
@@ -187,6 +188,9 @@ src_install() {
 
 	rm "${D}"/usr/bin/xulrunner
 
+	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
+	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_PV}/sdk"
+
 	dodir /usr/bin
 	dosym "${MOZLIBDIR}/xulrunner" "${ROOT}/usr/bin/xulrunner-${MAJ_PV}"
 
@@ -208,6 +212,9 @@ src_install() {
 }
 
 pkg_postinst() {
+
+	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
+
 	if use python; then
 		python_need_rebuild
 		python_mod_optimize "${MOZLIBDIR}/python"
@@ -224,6 +231,9 @@ pkg_postinst() {
 }
 
 pkg_postrm() {
+
+	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
+
 	if use python; then
 		python_mod_cleanup "${MOZLIBDIR}/python"
 	fi
