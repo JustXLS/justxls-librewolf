@@ -11,7 +11,7 @@ MY_PV="${PV/_beta/b}" # Handle betas
 MY_PV="${PV/_/}" # Handle rc1, rc2 etc
 MY_PV="${MY_PV/1.9.1.1/3.5.1}"
 MAJ_PV="${PV/_*/}"
-PATCH="${PN}-${MAJ_PV}-patches-0.1"
+PATCH="${PN}-${MAJ_PV}-patches-0.2"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
