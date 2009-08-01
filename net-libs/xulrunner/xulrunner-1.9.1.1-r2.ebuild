@@ -81,6 +81,10 @@ src_prepare() {
 
 	cd js/src
 	eautoreconf
+
+	# Patch in support to reset all LANG variables to C
+	# Do NOT add to patchset as it must be applied after eautoreconf
+	epatch "${FILESDIR}/000_flex-configure-LANG.patch"
 }
 
 src_configure() {
@@ -202,7 +206,8 @@ src_install() {
 	echo "LDPATH=${MOZLIBDIR}" > "${D}"/etc/env.d/08xulrunner || die "env.d failed"
 
 	# Add our defaults to xulrunner and out of firefox
-	cp "${FILESDIR}"/xulrunner-default-prefs.js "${D}/${MOZLIBDIR}/defaults/pref/all-gentoo.js"
+	cp "${FILESDIR}"/xulrunner-default-prefs.js \
+		"${D}/${MOZLIBDIR}/defaults/pref/all-gentoo.js" || die "failed to cp xulrunner-default-prefs.js"
 
 	if use java ; then
 		java-pkg_regjar "${D}/${MOZLIBDIR}/javaxpcom.jar"
