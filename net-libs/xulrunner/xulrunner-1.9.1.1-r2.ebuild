@@ -196,10 +196,10 @@ src_install() {
 	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_PV}/sdk"
 
 	dodir /usr/bin
-	dosym "${MOZLIBDIR}/xulrunner" "${ROOT}/usr/bin/xulrunner-${MAJ_PV}"
+	dosym "${MOZLIBDIR}/xulrunner" "/usr/bin/xulrunner-${MAJ_PV}"
 
 	# Install python modules
-	dosym "${MOZLIBDIR}/python/xpcom" "${ROOT}/$(python_get_sitedir)/xpcom"
+	dosym "${MOZLIBDIR}/python/xpcom" "/$(python_get_sitedir)/xpcom"
 
 	# env.d file for ld search path
 	dodir /etc/env.d

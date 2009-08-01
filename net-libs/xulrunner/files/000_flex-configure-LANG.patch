@@ -3,9 +3,9 @@ option parsing, it may break.
 
 http://bugs.gentoo.org/103483
 
---- configure
-+++ configure
-@@ -54,6 +54,16 @@
+--- configure~	2009-07-31 20:07:25.087663220 -0500
++++ configure	2009-07-31 20:07:37.987684452 -0500
+@@ -468,6 +468,16 @@
  infodir='${prefix}/info'
  mandir='${prefix}/man'
  
@@ -22,7 +22,7 @@ http://bugs.gentoo.org/103483
  # Initialize some other variables.
  subdirs=
  MFLAGS= MAKEFLAGS=
-@@ -452,16 +463,6 @@
+@@ -856,16 +866,6 @@
    esac
  done
  
@@ -39,4 +39,3 @@ http://bugs.gentoo.org/103483
  # confdefs.h avoids OS command line length limits that DEFS can exceed.
  rm -rf conftest* confdefs.h
  # AIX cpp loses on an empty file, so make sure it contains at least a newline.
-
