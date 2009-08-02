@@ -52,16 +52,16 @@ export BUILD_OFFICIAL=1
 export MOZILLA_OFFICIAL=1
 
 pkg_setup(){
-	java-pkg-opt-2_pkg_setup
-}
-
-src_prepare() {
 	if use qt-experimental; then
 		ewarn "You are enabling the EXPERIMENTAL qt toolkit"
 		ewarn "Usage is at your own risk, many know issues. If you find"
 		ewarn "a bug in the build please report it, with all avaliable detail."
 	fi
 
+	java-pkg-opt-2_pkg_setup
+}
+
+src_prepare() {
 	# Apply our patches
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
