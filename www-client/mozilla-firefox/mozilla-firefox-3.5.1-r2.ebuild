@@ -241,6 +241,8 @@ src_compile() {
 }
 
 src_install() {
+	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+
 	emake DESTDIR="${D}" install || die "emake install failed"
 	rm "${D}"/usr/bin/firefox
 
@@ -279,6 +281,11 @@ exec "${MOZILLA_FIVE_HOME}"/firefox "\$@"
 EOF
 
 	fperms 0755 /usr/bin/firefox
+
+	#Enable very specific settings not inherited from xulrunner
+	dodir 
+	cp "${FILESDIR}"/firefox-default-prefs.js \
+		"${D}/${MOZILLA_FIVE_HOME}/defaults/preferences/all-gentoo.js" || die "failed to cp xulrunner-default-prefs.js"
 
 	# Plugins dir
 	ln -s "${D}"/usr/$(get_libdir)/{nsbrowser,mozilla-firefox}/plugins
