@@ -21,7 +21,7 @@ SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/s
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="debug python +sound" # qt-experimental
+IUSE="debug python +alsa" # qt-experimental
 
 #	qt-experimental? (
 #		x11-libs/qt-gui
@@ -33,7 +33,7 @@ RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.3
 	>=dev-libs/nspr-4.8
-	sound? ( media-libs/alsa-lib )
+	alsa? ( media-libs/alsa-lib )
 	>=dev-db/sqlite-3.6.7
 	>=app-text/hunspell-1.2
 	>=media-libs/lcms-1.17
@@ -147,9 +147,9 @@ src_configure() {
 	mozconfig_annotate '' --enable-xpctools
 	mozconfig_annotate '' --with-default-mozilla-five-home="${MOZLIBDIR}"
 
-	# All sound support requires alsa
-	mozconfig_use_enable sound ogg
-	mozconfig_use_enable sound wave
+	# Disable/Enable audio support based on USE
+	mozconfig_use_enable alsa ogg
+	mozconfig_use_enable alsa wave
 
 	#disable java
 	if ! use java ; then
