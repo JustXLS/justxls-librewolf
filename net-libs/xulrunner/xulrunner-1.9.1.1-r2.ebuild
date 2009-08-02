@@ -65,6 +65,7 @@ src_prepare() {
 	# Same as in config/autoconf.mk.in
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
 	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_PV}/sdk"
+
 	# Gentoo install dirs
 	sed -e "s/@PV@/${MAJ_PV}/" -i "${S}/config/autoconf.mk.in" \
 		|| die "\${MAJ_PV} sed failed!"
@@ -176,6 +177,9 @@ src_configure() {
 	#  Configure and build
 	#
 	####################################
+
+	# Disable no-print-directory
+	MAKEOPTS=${MAKEOPTS/--no-print-directory/}
 
 	CPPFLAGS="${CPPFLAGS} -DARON_WAS_HERE" \
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
