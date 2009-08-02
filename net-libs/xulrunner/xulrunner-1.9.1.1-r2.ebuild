@@ -21,11 +21,7 @@ SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/s
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="debug python +alsa" # qt-experimental
-
-#	qt-experimental? (
-#		x11-libs/qt-gui
-#		x11-libs/qt-core )
+IUSE="debug python +alsa qt-experimental"
 
 # nspr-4.8 due to BMO #499144
 RDEPEND="java? ( >=virtual/jre-1.4 )
@@ -38,7 +34,10 @@ RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=app-text/hunspell-1.2
 	>=media-libs/lcms-1.17
 	>=x11-libs/cairo-1.8.8[X]
-	x11-libs/pango[X]"
+	x11-libs/pango[X]
+	qt-experimental? (
+		x11-libs/qt-gui
+		x11-libs/qt-core )"
 
 DEPEND="java? ( >=virtual/jdk-1.4 )
 	${RDEPEND}
@@ -57,6 +56,12 @@ pkg_setup(){
 }
 
 src_prepare() {
+	if use qt-experimental; then
+		ewarn "You are enabling the EXPERIMENTAL qt toolkit"
+		ewarn "Usage is at your own risk, many know issues. If you find"
+		ewarn "a bug in the build please report it, with all avaliable detail."
+	fi
+
 	# Apply our patches
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
@@ -133,15 +138,12 @@ src_configure() {
 	mozconfig_annotate '' --with-system-bz2
 
 	# IUSE qt-experimental
-#	if use qt-experimental; then
-#		ewarn "You are enabling the EXPERIMENTAL qt toolkit"
-#		ewarn "Usage is at your own risk"
-#		ewarn "Known to be broken. DO NOT file bugs."
-#		mozconfig_annotate '' --disable-system-cairo
-#		mozconfig_annotate 'qt-experimental' --enable-default-toolkit=cairo-qt
-#	else
+	if use qt-experimental; then
+		mozconfig_annotate '' --disable-system-cairo
+		mozconfig_annotate 'qt-experimental' --enable-default-toolkit=cairo-qt
+	else
 		mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
-#	fi
+	fi
 
 	# Other ff-specific settings
 	mozconfig_annotate '' --enable-jsd
