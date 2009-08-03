@@ -25,7 +25,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="bindist iceweasel java mozdevelop restrict-javascript qt-experimental"
+IUSE="bindist iceweasel java mozdevelop restrict-javascript +alsa qt-experimental"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 SRC_URI="${REL_URI}/${MY_PV}/source/firefox-${MY_PV}-source.tar.bz2
@@ -60,6 +60,7 @@ RDEPEND="
 	>=dev-libs/nspr-4.7.3
 	>=dev-db/sqlite-3.6.7
 	>=app-text/hunspell-1.2
+	alsa? ( media-libs/alsa-lib )
 	qt-experimental? (
 		x11-libs/qt-gui
 		x11-libs/qt-core )
@@ -216,6 +217,10 @@ src_configure() {
 
 	# Other ff-specific settings
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
+
+	# Disable/Enable audio support based on USE
+	mozconfig_use_enable alsa ogg
+	mozconfig_use_enable alsa wave
 
 	if ! use bindist && ! use iceweasel; then
 		mozconfig_annotate '' --enable-official-branding
