@@ -1,6 +1,6 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.9.1-r1.ebuild,v 1.1 2009/07/21 14:01:40 nirbheek Exp $
+# $Header: $
 
 EAPI="2"
 WANT_AUTOCONF="2.1"
@@ -9,9 +9,9 @@ inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-p
 
 MY_PV="${PV/_beta/b}" # Handle betas
 MY_PV="${PV/_/}" # Handle rc1, rc2 etc
-MY_PV="${MY_PV/1.9.1.1/3.5.1}"
+MY_PV="${MY_PV/1.9.1.2/3.5.2}"
 MAJ_PV="${PV/_*/}"
-PATCH="${PN}-${MAJ_PV}-patches-0.2"
+PATCH="${PN}-${MAJ_PV}-patches-0.1"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
@@ -21,11 +21,15 @@ SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/s
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="debug python +alsa qt-experimental"
+IUSE="debug python +alsa" # qt-experimental
+
+#	qt-experimental? (
+#		x11-libs/qt-gui
+#		x11-libs/qt-core )
 
 # nspr-4.8 due to BMO #499144
 RDEPEND="java? ( >=virtual/jre-1.4 )
-	python? ( >=dev-lang/python-2.3[threads] )
+	>=dev-lang/python-2.3[threads]
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.3
 	>=dev-libs/nspr-4.8
@@ -34,10 +38,7 @@ RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=app-text/hunspell-1.2
 	>=media-libs/lcms-1.17
 	>=x11-libs/cairo-1.8.8[X]
-	x11-libs/pango[X]
-	qt-experimental? (
-		x11-libs/qt-gui
-		x11-libs/qt-core )"
+	x11-libs/pango[X]"
 
 DEPEND="java? ( >=virtual/jdk-1.4 )
 	${RDEPEND}
@@ -52,12 +53,6 @@ export BUILD_OFFICIAL=1
 export MOZILLA_OFFICIAL=1
 
 pkg_setup(){
-	if use qt-experimental; then
-		ewarn "You are enabling the EXPERIMENTAL qt toolkit"
-		ewarn "Usage is at your own risk, many know issues. If you find"
-		ewarn "a bug in the build please report it, with all avaliable detail."
-	fi
-
 	java-pkg-opt-2_pkg_setup
 }
 
@@ -138,12 +133,15 @@ src_configure() {
 	mozconfig_annotate '' --with-system-bz2
 
 	# IUSE qt-experimental
-	if use qt-experimental; then
-		mozconfig_annotate '' --disable-system-cairo
-		mozconfig_annotate 'qt-experimental' --enable-default-toolkit=cairo-qt
-	else
+#	if use qt-experimental; then
+#		ewarn "You are enabling the EXPERIMENTAL qt toolkit"
+#		ewarn "Usage is at your own risk"
+#		ewarn "Known to be broken. DO NOT file bugs."
+#		mozconfig_annotate '' --disable-system-cairo
+#		mozconfig_annotate 'qt-experimental' --enable-default-toolkit=cairo-qt
+#	else
 		mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
-	fi
+#	fi
 
 	# Other ff-specific settings
 	mozconfig_annotate '' --enable-jsd
