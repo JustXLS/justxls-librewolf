@@ -11,7 +11,7 @@ MY_PV="${PV/_beta/b}" # Handle betas
 MY_PV="${PV/_/}" # Handle rc1, rc2 etc
 MY_PV="${MY_PV/1.9.1.2/3.5.2}"
 MAJ_PV="${PV/_*/}"
-PATCH="${PN}-${MAJ_PV}-patches-0.1"
+PATCH="${PN}-${MAJ_PV}-patches-0.2"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
@@ -181,16 +181,14 @@ src_configure() {
 	# Disable no-print-directory
 	MAKEOPTS=${MAKEOPTS/--no-print-directory/}
 
-	CPPFLAGS="${CPPFLAGS} -DARON_WAS_HERE" \
+	#Ensure that are plugins dir is enabled as default
+	sed -i -e \
+		"s:/usr/lib/mozilla/plugins:/usr/$(get_libdir)/nsbrowser/plugins:" \
+		${S}/xpcom/io/nsAppFileLocationProvider.cpp || die "failed to replace plugin path"
+
+	CPPFLAGS="${CPPFLAGS}" \
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
 	econf || die
-
-	# It would be great if we could pass these in via CPPFLAGS or CFLAGS prior
-	# to econf, but the quotes cause configure to fail.
-	sed -i -e \
-		's|-DARON_WAS_HERE|-DGENTOO_NSPLUGINS_DIR=\\\"/usr/'"$(get_libdir)"'/nsplugins\\\" -DGENTOO_NSBROWSER_PLUGINS_DIR=\\\"/usr/'"$(get_libdir)"'/nsbrowser/plugins\\\"|' \
-		"${S}"/config/autoconf.mk \
-		"${S}"/toolkit/content/buildconfig.html
 }
 
 src_install() {
