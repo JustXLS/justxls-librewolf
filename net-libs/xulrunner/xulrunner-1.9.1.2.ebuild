@@ -236,7 +236,7 @@ pkg_postinst() {
 	einfo
 	einfo "All prefs can be overridden by the user. The preferences are to make"
 	einfo "use of xulrunner out of the box on an average system without the user"
-	einfo "having to go threw and enable the basics."
+	einfo "having to go through and enable the basics."
 }
 
 pkg_postrm() {

@@ -294,10 +294,17 @@ EOF
 }
 
 pkg_postinst() {
+	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+
 	ewarn "All the packages built against ${PN} won't compile,"
 	ewarn "any package that fails to build warrants a bug report."
 	elog
 
 	# Update mimedb for the new .desktop file
 	fdo-mime_desktop_database_update
+
+	# Temporary disable randmap support on hardened
+	if use hardened; then
+		pax -r "${MOZILLA_FIVE_HOME}"/firefox
+	fi
 }
