@@ -22,7 +22,7 @@ LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="java ldap mozdevelop moznocompose moznoirc moznomail moznoroaming"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases"
-SRC_URI="${REL_URI}/${MY_PV}/source/${MY_P}-source.tar.bz2"
+SRC_URI="${REL_URI}/${MY_PV}/source/${MY_P}.source.tar.bz2"
 
 for X in ${LANGS} ; do
 	if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
@@ -159,6 +159,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-oji --enable-mathml
 	mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks
 	mozconfig_annotate '' --disable-installer
+	mozconfig_annotate '' --enable-jemalloc
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 
 	mozconfig_use_enable ldap
@@ -176,6 +177,9 @@ src_configure() {
 	#  Configure and build
 	#
 	####################################
+
+	# Work around breakage in makeopts with --no-print-directory
+	MAKEOPTS=${MAKEOPTS/--no-print-directory/}
 
 	CPPFLAGS="${CPPFLAGS}" \
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
