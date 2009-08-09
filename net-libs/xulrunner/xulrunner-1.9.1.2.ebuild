@@ -21,7 +21,7 @@ SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/s
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="debug python +alsa hardened" # qt-experimental
+IUSE="+alsa debug hardened python" # qt-experimental
 
 #	qt-experimental? (
 #		x11-libs/qt-gui
@@ -52,7 +52,7 @@ S="${WORKDIR}/mozilla-1.9.1"
 export BUILD_OFFICIAL=1
 export MOZILLA_OFFICIAL=1
 
-pkg_setup(){
+pkg_setup() {
 	java-pkg-opt-2_pkg_setup
 }
 
@@ -67,13 +67,13 @@ src_prepare() {
 	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_PV}/sdk"
 
 	# Gentoo install dirs
-	sed -e "s/@PV@/${MAJ_PV}/" -i "${S}/config/autoconf.mk.in" \
-		|| die "\${MAJ_PV} sed failed!"
+	sed -i -e "s:@PV@:${MAJ_PV}:" "${S}"/config/autoconf.mk.in \
+		|| die "${MAJ_PV} sed failed!"
 
 	# Enable gnomebreakpad
-	if use debug; then
-		sed -i -e 's/GNOME_DISABLE_CRASH_DIALOG=1/GNOME_DISABLE_CRASH_DIALOG=0/g' \
-			"${S}/build/unix/run-mozilla.sh"
+	if use debug ; then
+		sed -i -e "s:GNOME_DISABLE_CRASH_DIALOG=1:GNOME_DISABLE_CRASH_DIALOG=0:g" \
+			"${S}"/build/unix/run-mozilla.sh || die "sed failed!"
 	fi
 
 	eautoreconf
@@ -97,11 +97,12 @@ src_configure() {
 	mozconfig_config
 
 	MEXTENSIONS="default"
-	if use python; then
+	if use python ; then
 		MEXTENSIONS="${MEXTENSIONS},python/xpcom"
 	fi
 
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
+
 	# It doesn't compile on alpha without this LDFLAGS
 	use alpha && append-ldflags "-Wl,--no-relax"
 
@@ -133,7 +134,7 @@ src_configure() {
 	mozconfig_annotate '' --with-system-bz2
 
 	# IUSE qt-experimental
-#	if use qt-experimental; then
+#	if use qt-experimental ; then
 #		ewarn "You are enabling the EXPERIMENTAL qt toolkit"
 #		ewarn "Usage is at your own risk"
 #		ewarn "Known to be broken. DO NOT file bugs."
@@ -152,30 +153,29 @@ src_configure() {
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
 
-	#disable java
+	# Disable java
 	if ! use java ; then
 		mozconfig_annotate '-java' --disable-javaxpcom
 	fi
 
 	# Debug
-	if use debug; then
+	if use debug ; then
 		mozconfig_annotate 'debug' --disable-optimize
 		mozconfig_annotate 'debug' --enable-debug=-ggdb
 		mozconfig_annotate 'debug' --enable-debug-modules=all
 		mozconfig_annotate 'debug' --enable-debugger-info-modules
 	fi
 
-	if use hardened; then
+	# Bug #278698
+	if use hardened ; then
 		mozconfig_annotate 'hardened' --disable-jemalloc
-	else
-		mozconfig_annotate 'mozilla' --enable-jemalloc
 	fi
 
 	# Finalize and report settings
 	mozconfig_final
 
 	if [[ $(gcc-major-version) -lt 4 ]]; then
-		append-cxxflags -fno-stack-protector
+		append-flags -fno-stack-protector
 	fi
 
 	####################################
@@ -187,14 +187,11 @@ src_configure() {
 	# Disable no-print-directory
 	MAKEOPTS=${MAKEOPTS/--no-print-directory/}
 
-	#Ensure that are plugins dir is enabled as default
-	sed -i -e \
-		"s:/usr/lib/mozilla/plugins:/usr/$(get_libdir)/nsbrowser/plugins:" \
-		${S}/xpcom/io/nsAppFileLocationProvider.cpp || die "failed to replace plugin path"
+	# Ensure that are plugins dir is enabled as default
+	sed -i -e "s:/usr/lib/mozilla/plugins:/usr/$(get_libdir)/nsbrowser/plugins:" \
+		"${S}"/xpcom/io/nsAppFileLocationProvider.cpp || die "sed failed to replace plugin path!"
 
-	CPPFLAGS="${CPPFLAGS}" \
-	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
-	econf || die
+	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" econf
 }
 
 src_install() {
@@ -230,7 +227,7 @@ pkg_postinst() {
 
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
 
-	if use python; then
+	if use python ; then
 		python_need_rebuild
 		python_mod_optimize "${MOZLIBDIR}/python"
 	fi
@@ -249,7 +246,8 @@ pkg_postrm() {
 
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
 
-	if use python; then
+	if use python ; then
 		python_mod_cleanup "${MOZLIBDIR}/python"
 	fi
 }
+
