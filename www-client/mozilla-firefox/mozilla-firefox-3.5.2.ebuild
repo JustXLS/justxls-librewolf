@@ -25,7 +25,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa bindist iceweasel java mozdevelop restrict-javascript" # qt-experimental
+IUSE="+alsa bindist iceweasel java mozdevelop restrict-javascript hardened" # qt-experimental
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 SRC_URI="${REL_URI}/${MY_PV}/source/firefox-${MY_PV}-source.tar.bz2
@@ -61,7 +61,7 @@ RDEPEND="
 	>=dev-db/sqlite-3.6.7
 	>=app-text/hunspell-1.2
 	alsa? ( media-libs/alsa-lib )
-	>=net-libs/xulrunner-${XUL_PV}[java=]
+	>=net-libs/xulrunner-${XUL_PV}[java=,hardened=]
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]"
 
@@ -218,6 +218,12 @@ src_configure() {
 
 	if ! use bindist && ! use iceweasel; then
 		mozconfig_annotate '' --enable-official-branding
+	fi
+
+	if use hardened; then
+		mozconfig_annotate 'hardened' --disable-jemalloc
+	else
+		mozconfig_annotate 'mozilla' --enable-jemalloc
 	fi
 
 	# Finalize and report settings

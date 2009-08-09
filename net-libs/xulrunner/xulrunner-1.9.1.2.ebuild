@@ -21,7 +21,7 @@ SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/s
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="debug python +alsa" # qt-experimental
+IUSE="debug python +alsa hardened" # qt-experimental
 
 #	qt-experimental? (
 #		x11-libs/qt-gui
@@ -163,6 +163,12 @@ src_configure() {
 		mozconfig_annotate 'debug' --enable-debug=-ggdb
 		mozconfig_annotate 'debug' --enable-debug-modules=all
 		mozconfig_annotate 'debug' --enable-debugger-info-modules
+	fi
+
+	if use hardened; then
+		mozconfig_annotate 'hardened' --disable-jemalloc
+	else
+		mozconfig_annotate 'mozilla' --enable-jemalloc
 	fi
 
 	# Finalize and report settings
