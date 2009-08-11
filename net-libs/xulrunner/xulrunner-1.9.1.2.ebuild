@@ -11,17 +11,17 @@ MY_PV="${PV/_beta/b}" # Handle betas
 MY_PV="${PV/_/}" # Handle rc1, rc2 etc
 MY_PV="${MY_PV/1.9.1.2/3.5.2}"
 MAJ_PV="${PV/_*/}"
-PATCH="${PN}-${MAJ_PV}-patches-0.2"
+PATCH="${PN}-${MAJ_PV}-patches-0.3"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
 SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/source/firefox-${MY_PV}-source.tar.bz2
-	http://dev.gentooexperimental.org/~anarchy/dist/${PATCH}.tar.bz2"
+	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
 
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa debug hardened python" # qt-experimental
+IUSE="+alsa debug python" # qt-experimental
 
 #	qt-experimental? (
 #		x11-libs/qt-gui
@@ -164,11 +164,6 @@ src_configure() {
 		mozconfig_annotate 'debug' --enable-debug=-ggdb
 		mozconfig_annotate 'debug' --enable-debug-modules=all
 		mozconfig_annotate 'debug' --enable-debugger-info-modules
-	fi
-
-	# Bug #278698
-	if use hardened ; then
-		mozconfig_annotate 'hardened' --disable-jemalloc
 	fi
 
 	# Finalize and report settings
