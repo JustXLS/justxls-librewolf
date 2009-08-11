@@ -99,9 +99,6 @@ src_unpack() {
 	if [[ ${linguas} != "" && ${linguas} != "en" ]]; then
 		einfo "Selected language packs (first will be default): ${linguas}"
 	fi
-
-	# Remove the patches we don't need
-#	use xulrunner && rm "${WORKDIR}"/patch/*noxul* || rm "${WORKDIR}"/patch/*xulonly*
 }
 
 src_prepare() {
@@ -162,6 +159,9 @@ src_configure() {
 	#  Configure and build
 	#
 	####################################
+
+	# Disable no-print-directory
+	MAKEOPTS=${MAKEOPTS/--no-print-directory/}
 
 	if [[ $(gcc-major-version) -lt 4 ]]; then
 		append-cxxflags -fno-stack-protector

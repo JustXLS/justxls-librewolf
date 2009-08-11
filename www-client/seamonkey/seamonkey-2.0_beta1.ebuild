@@ -1,6 +1,6 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/mozilla-firefox/mozilla-firefox-3.0.1.ebuild,v 1.7 2008/09/03 08:47:51 armin76 Exp $
+# $Header: $
 EAPI="2"
 WANT_AUTOCONF="2.1"
 
@@ -19,7 +19,7 @@ HOMEPAGE="http://www.seamonkey-project.org"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="java ldap mozdevelop moznocompose moznoirc moznomail moznoroaming"
+IUSE="hardened java ldap mozdevelop moznocompose moznoirc moznomail moznoroaming"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases"
 SRC_URI="${REL_URI}/${MY_PV}/source/${MY_P}.source.tar.bz2"
@@ -59,8 +59,8 @@ PDEPEND="restrict-javascript? ( www-plugins/noscript )"
 S="${WORKDIR}/comm-central"
 
 # Needed by src_compile() and src_install().
-# Would do in pkg_setup but that loses the export attribute, they
-# become pure shell variables.
+# Would do in pkg_setup but that loses the export attribute,
+# they become pure shell variables.
 export BUILD_OFFICIAL=1
 export MOZILLA_OFFICIAL=1
 
@@ -124,24 +124,24 @@ src_configure() {
 	# It doesn't compile on alpha without this LDFLAGS
 	use alpha && append-ldflags "-Wl,--no-relax"
 
-	if use moznoirc; then
+	if use moznoirc ; then
 		MEXTENSIONS="${MEXTENSIONS},-irc"
 	fi
-	if use moznoroaming; then
+	if use moznoroaming ; then
 		MEXTENSIONS="${MEXTENSIONS},-sroaming"
 	fi
 
-	if ! use gnome; then
+	if ! use gnome ; then
 		MEXTENSIONS="${MEXTENSIONS},-gnomevfs"
 	fi
 
-	if use moznomail; then
-		mozconfig_annotate "+moznomail" --disable-mailnews
+	if use moznomail ; then
+		mozconfig_annotate '+moznomail' --disable-mailnews
 	fi
 
-	if use moznocompose; then
-		if use moznoirc && use moznomail; then
-			mozconfig_annotate "+moznocompose" --disable-composer
+	if use moznocompose ; then
+		if use moznoirc && use moznomail ; then
+			mozconfig_annotate '+moznocompose' --disable-composer
 		fi
 	fi
 
@@ -159,11 +159,15 @@ src_configure() {
 	mozconfig_annotate '' --enable-oji --enable-mathml
 	mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks
 	mozconfig_annotate '' --disable-installer
-	mozconfig_annotate '' --enable-jemalloc
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 
 	mozconfig_use_enable ldap
 	mozconfig_use_enable ldap ldap-experimental
+
+	# Bug #278698
+	if use hardened ; then
+		mozconfig_annotate 'hardened' --disable-jemalloc
+	fi
 
 	# Finalize and report settings
 	mozconfig_final
@@ -179,15 +183,13 @@ src_configure() {
 	####################################
 
 	# Work around breakage in makeopts with --no-print-directory
-	MAKEOPTS=${MAKEOPTS/--no-print-directory/}
+	MAKEOPTS="${MAKEOPTS/--no-print-directory/}"
 
-	CPPFLAGS="${CPPFLAGS}" \
-	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
-	econf || die
+	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" econf
 }
 
 src_compile() {
-	# Should the build use multiprocessing? Not enabled by default, as it tends to break
+	# Should the build use multiprocessing? Not enabled by default, as it tends to break.
 	[ "${WANT_MP}" = "true" ] && jobs=${MAKEOPTS} || jobs="-j1"
 	emake ${jobs} || die
 }
@@ -223,8 +225,8 @@ src_install() {
 		>> "${D}"${MOZILLA_FIVE_HOME}/defaults/pref/vendor.js
 
 	# Plugins dir
--	ln -s "${D}"/usr/$(get_libdir)/nsbrowser/plugins 
-		"${D}"/usr/$(get_libdir)/"${PN}"/plugins || die " ln plugins failed"
+	rm -rf "${D}"${MOZILLA_FIVE_HOME}/plugins || die "failed to remove existing plugins dir"
+	dosym ../nsbrowser/plugins "${MOZILLA_FIVE_HOME}"/plugins
 }
 
 pkg_postinst() {
