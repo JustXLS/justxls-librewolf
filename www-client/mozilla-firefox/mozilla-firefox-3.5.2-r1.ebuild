@@ -4,7 +4,7 @@
 EAPI="2"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib fdo-mime autotools mozextension
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools mozextension
 
 LANGS="af ar as be bg bn-BD bn-IN ca cs cy da de el en en-GB en-US eo es-AR
 es-CL es-ES es-MX et eu fa fi fr fy-NL ga-IE gl gu-IN he hi-IN hr hu id is it ja
@@ -283,6 +283,7 @@ exec "${MOZILLA_FIVE_HOME}"/firefox "\$@"
 EOF
 
 	fperms 0755 /usr/bin/firefox
+	pax-mark m "${D}"/${MOZILLA_FIVE_HOME}/firefox
 
 	# Enable very specific settings not inherited from xulrunner
 	cp "${FILESDIR}"/firefox-default-prefs.js \
@@ -290,7 +291,8 @@ EOF
 		die "failed to cp xulrunner-default-prefs.js"
 
 	# Plugins dir
-	ln -s "${D}"/usr/$(get_libdir)/{nsbrowser,mozilla-firefox}/plugins
+	dosym ../nsbrowser/plugins "${MOZILLA_FIVE_HOME}"/plugins \
+		|| die "failed to create symlink"
 }
 
 pkg_postinst() {
@@ -301,4 +303,3 @@ pkg_postinst() {
 	# Update mimedb for the new .desktop file
 	fdo-mime_desktop_database_update
 }
-

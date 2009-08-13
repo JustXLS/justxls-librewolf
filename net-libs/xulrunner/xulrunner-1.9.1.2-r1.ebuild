@@ -198,10 +198,12 @@ src_install() {
 	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_PV}/sdk"
 
 	dodir /usr/bin
-	dosym "${MOZLIBDIR}/xulrunner" "/usr/bin/xulrunner-${MAJ_PV}"
+	dosym "${MOZLIBDIR}/xulrunner" "/usr/bin/xulrunner-${MAJ_PV}" \
+		|| die "failed to create symlink"
 
 	# Install python modules
-	dosym "${MOZLIBDIR}/python/xpcom" "/$(python_get_sitedir)/xpcom"
+	dosym "${MOZLIBDIR}/python/xpcom" "/$(python_get_sitedir)/xpcom" \
+		|| die "failed to create symlink"
 
 	# env.d file for ld search path
 	dodir /etc/env.d
@@ -245,4 +247,3 @@ pkg_postrm() {
 		python_mod_cleanup "${MOZLIBDIR}/python"
 	fi
 }
-
