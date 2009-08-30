@@ -49,6 +49,8 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	x11-libs/cairo[X]
 	x11-libs/pango[X]"
 
+PDEPEND="crypt? ( >=x11-plugins/enigmail-0.97_alpha0 )"
+
 S="${WORKDIR}"
 
 # Needed by src_compile() and src_install().
@@ -211,7 +213,7 @@ src_install() {
 	make_wrapper thunderbird "${MOZILLA_FIVE_HOME}/thunderbird"
 
 	# Warn user that remerging enigmail is neccessary on USE=crypt
-#	use crypt && ewarn "Please remerge x11-plugins/enigmail after updating ${PN}."
+	use crypt && ewarn "Please remerge x11-plugins/enigmail after updating ${PN}."
 }
 
 pkg_postinst() {
