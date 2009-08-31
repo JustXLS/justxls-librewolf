@@ -1,6 +1,6 @@
 diff -urpx 'cscope*' -x '.*.swp' mozilla-1.9.1-orig/memory/jemalloc/jemalloc.c mozilla-1.9.1/memory/jemalloc/jemalloc.c
---- mozilla-1.9.1-orig/memory/jemalloc/jemalloc.c	2009-07-30 17:30:25.000000000 +0200
-+++ mozilla-1.9.1/memory/jemalloc/jemalloc.c	2009-08-10 14:28:59.000000000 +0200
+--- mozilla-orig/memory/jemalloc/jemalloc.c	2009-07-30 17:30:25.000000000 +0200
++++ mozilla/memory/jemalloc/jemalloc.c	2009-08-10 14:28:59.000000000 +0200
 @@ -392,7 +392,7 @@ __FBSDID("$FreeBSD: head/lib/libc/stdlib
  static const bool __isthreaded = true;
  #endif
