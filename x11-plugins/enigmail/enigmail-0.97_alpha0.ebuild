@@ -3,6 +3,7 @@
 # $Header: $
 
 WANT_AUTOCONF="2.1"
+EAPI="2"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozextension autotools
 MY_P="${P/_beta/b}"
@@ -21,7 +22,12 @@ IUSE=""
 
 DEPEND=">=mail-client/mozilla-thunderbird-3.0_beta3"
 RDEPEND="${DEPEND}
-	>=app-crypt/gnupg-1.4"
+	|| ( 
+    	>=app-crypt/gnupg-1.4
+    	( >=app-crypt/gnupg-2.0.1-r2
+    	   || ( app-crypt/pinentry[gtk]
+    	         app-crypt/pinentry[qt4]
+    	         app-crypt/pinentry[qt3] ) ) )"
 
 S="${WORKDIR}"
 
@@ -33,15 +39,17 @@ export MOZILLA_OFFICIAL=1
 export MOZ_CO_PROJECT=mail
 
 pkg_setup() {
-	if has_version '>=app-crypt/gnupg-2.0.1-r2'; then
-		if ! built_with_use -o app-crypt/pinentry gtk qt3 qt4 ; then
-			die "You must build app-crypt/pinentry with GTK, QT4, or QT3 support"
-		fi
-	fi
+	echo "This is alphaware, do not expect themes to work properly with this release."
+	echo "If you need a working theme please visit the addons page and install one,"
+	echo "one known theme includes the iLeopard Mail theme."
 }
+
 
 src_unpack() {
 	unpack thunderbird-${TBVER}-source.tar.bz2 || die "unpack failed"
+}
+
+src_prepare(){
 
 	# Apply our patches
 	EPATCH_SUFFIX="patch" \
