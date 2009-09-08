@@ -22,12 +22,17 @@ IUSE=""
 
 DEPEND=">=mail-client/mozilla-thunderbird-3.0_beta3"
 RDEPEND="${DEPEND}
-	|| ( 
-    	>=app-crypt/gnupg-1.4
-    	( >=app-crypt/gnupg-2.0.1-r2
-    	   || ( app-crypt/pinentry[gtk]
-    	         app-crypt/pinentry[qt4]
-    	         app-crypt/pinentry[qt3] ) ) )"
+	|| (
+		(
+			>=app-crypt/gnupg-2.0
+			|| (
+				app-crypt/pinentry[gtk]
+				app-crypt/pinentry[qt3]
+				app-crypt/pinentry[qt4]
+			)
+		)
+		=app-crypt/gnupg-1.4*
+	)"
 
 S="${WORKDIR}"
 
@@ -50,7 +55,6 @@ src_unpack() {
 }
 
 src_prepare(){
-
 	# Apply our patches
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
@@ -80,7 +84,7 @@ src_prepare(){
 	eautoreconf
 }
 
-src_compile() {
+src_configure() {
 	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/mozilla-thunderbird"
 
 	####################################
@@ -122,7 +126,9 @@ src_compile() {
 	# This removes extraneous CFLAGS from the Makefiles to reduce RAM
 	# requirements while compiling
 	edit_makefiles
+}
 
+src_compile() {
 	# Only build the parts necessary to support building enigmail
 	emake -j1 export || die "make export failed"
 	emake -C mozilla/modules/libreg || die "make modules/libreg failed"
