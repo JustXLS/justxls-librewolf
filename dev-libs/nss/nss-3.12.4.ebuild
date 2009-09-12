@@ -36,6 +36,9 @@ src_unpack() {
 
 	cd ${S}
 	epatch ${FILESDIR}/${P}-gentoo-fixups.diff
+
+	# Ensure we stay multilib aware
+	sed -i -e "s:gentoo:$(get_libdir):" ${S}/mozilla/security/nss/config/Makefile
 }
 
 src_compile() {

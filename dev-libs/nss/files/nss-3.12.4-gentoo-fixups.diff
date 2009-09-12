@@ -19,7 +19,7 @@ diff -urN nss-3.12.4-orig/mozilla/security/nss/config/Makefile nss-3.12.4/mozill
 +	mkdir -p $(DIST)/lib/pkgconfig
 +	sed -e "s,@prefix@,$(PREFIX)," \
 +	    -e "s,@exec_prefix@,\$${prefix}," \
-+	    -e "s,@libdir@,\$${prefix}/lib," \
++	    -e "s,@libdir@,\$${prefix}/gentoo/nss," \
 +	    -e "s,@includedir@,\$${prefix}/include/nss," \
 +	    -e "s,@NSS_MAJOR_VERSION@,$(NSS_MAJOR_VERSION),g" \
 +	    -e "s,@NSS_MINOR_VERSION@,$(NSS_MINOR_VERSION)," \
