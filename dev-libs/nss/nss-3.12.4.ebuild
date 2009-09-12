@@ -14,7 +14,7 @@ SRC_URI="ftp://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/${RTM_NAME}
 
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 sparc x86 ~x86-fbsd"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
 IUSE="utils"
 
 DEPEND=">=dev-libs/nspr-${NSPR_VER}
@@ -54,8 +54,6 @@ src_compile() {
 
 	export BUILD_OPT=1
 	export NSS_USE_SYSTEM_SQLITE=1
-	export USE_SYSTEM_ZLIB=1
-	export ZLIB_LIBS=-lz 
 	export NSPR_INCLUDE_DIR=`pkg-config --cflags-only-I nspr | sed 's/-I//'`
 	export NSPR_LIB_DIR=`/usr/bin/pkg-config --libs-only-L nspr | sed 's/-L//'`
 	export NSDISTMODE=copy
