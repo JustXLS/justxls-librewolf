@@ -25,6 +25,7 @@ RDEPEND="${DEPEND}
 	|| (
 		(
 			>=app-crypt/gnupg-2.0
+			<app-crypt/gnupg-2.0.12
 			|| (
 				app-crypt/pinentry[gtk]
 				app-crypt/pinentry[qt3]
