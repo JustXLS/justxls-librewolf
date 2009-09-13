@@ -25,6 +25,9 @@ RDEPEND="${DEPEND}"
 src_unpack() {
 	unpack ${A}
 
+	# Custom changes for gentoo
+	epatch ${FILESDIR}/${P}-gentoo-fixups.diff
+
 	cd "${S}"/mozilla/security/coreconf
 
 	# modify install path
@@ -33,9 +36,6 @@ src_unpack() {
 
 	# Respect LDFLAGS
 	sed -i -e 's/\$(MKSHLIB) -o/\$(MKSHLIB) \$(LDFLAGS) -o/g' rules.mk
-
-	cd ${S}
-	epatch ${FILESDIR}/${P}-gentoo-fixups.diff
 
 	# Ensure we stay multilib aware
 	sed -i -e "s:gentoo:$(get_libdir):" ${S}/mozilla/security/nss/config/Makefile
@@ -56,15 +56,19 @@ src_compile() {
 	export NSS_USE_SYSTEM_SQLITE=1
 	export NSPR_INCLUDE_DIR=`pkg-config --cflags-only-I nspr | sed 's/-I//'`
 	export NSPR_LIB_DIR=`/usr/bin/pkg-config --libs-only-L nspr | sed 's/-L//'`
+	export USE_SYSTEM_ZLIB=1
+	export ZLIB_LIBS=-lz
 	export NSDISTMODE=copy
 	export NSS_ENABLE_ECC=1
+	export XCFLAGS="${CFLAGS}"
+	export FREEBL_NO_DEPEND=1
 
 	cd "${S}"/mozilla/security/coreconf
-	emake -j1 BUILD_OPT=1 XCFLAGS="${CFLAGS}" CC="$(tc-getCC)" || die "coreconf make failed"
+	emake -j1 CC="$(tc-getCC)" || die "coreconf make failed"
 	cd "${S}"/mozilla/security/dbm
-	emake -j1 BUILD_OPT=1 XCFLAGS="${CFLAGS}" CC="$(tc-getCC)" || die "dbm make failed"
+	emake -j1 CC="$(tc-getCC)" || die "dbm make failed"
 	cd "${S}"/mozilla/security/nss
-	emake -j1 BUILD_OPT=1 XCFLAGS="${CFLAGS}" CC="$(tc-getCC)" || die "nss make failed"
+	emake -j1 CC="$(tc-getCC)" || die "nss make failed"
 }
 
 src_install () {
