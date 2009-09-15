@@ -5,7 +5,3 @@
 # NOTE: Please add your entry at the top!
 #
 
-# Mask nss-3.12.4 until we fix issues with unresolved
-# symbols
-
-=dev-libs/nss-3.12.4
