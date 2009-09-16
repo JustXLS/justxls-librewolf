@@ -26,7 +26,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 -sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa bindist java mozdevelop restrict-javascript" # qt-experimental
+IUSE="+alsa bindist java mozdevelop restrict-javascript sqlite" # qt-experimental
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 SRC_URI="${REL_URI}/${MY_PV}/source/firefox-${MY_PV}.source.tar.bz2
@@ -59,8 +59,9 @@ RDEPEND="
 	>=dev-libs/nss-3.12.2
 	>=dev-libs/nspr-4.7.3
 	>=app-text/hunspell-1.2
+	sqlite? ( >=dev-db/sqlite-3.6.10 )
 	alsa? ( media-libs/alsa-lib )
-	>=net-libs/xulrunner-${XUL_PV}[java=]
+	>=net-libs/xulrunner-${XUL_PV}[java=,sqlite=]
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]"
 
@@ -173,13 +174,18 @@ src_configure() {
 	# Use system libraries
 	mozconfig_annotate '' --enable-system-cairo
 	mozconfig_annotate '' --enable-system-hunspell
-	# mozconfig_annotate '' --enable-system-sqlite
 	mozconfig_annotate '' --with-system-nspr
 	mozconfig_annotate '' --with-system-nss
 	mozconfig_annotate '' --enable-system-lcms
 	mozconfig_annotate '' --with-system-bz2
 	mozconfig_annotate '' --with-system-libxul
 	mozconfig_annotate '' --with-libxul-sdk=/usr/$(get_libdir)/xulrunner-devel-${MAJ_XUL_PV}
+
+	if use sqlite ; then
+		mozconfig_annotate 'sqlite' --enable-system-sqlite
+	else
+		mozconfig_annotate '-sqlite' --enable-system-sqlite
+	fi
 
 	# IUSE mozdevelop
 	mozconfig_use_enable mozdevelop jsd
@@ -275,7 +281,8 @@ EOF
 		die "failed to cp xulrunner-default-prefs.js"
 
 	# Plugins dir
-	dosym ../nsbrowser/plugins "${MOZILLA_FIVE_HOME}"/plugins || die
+	dosym ../nsbrowser/plugins "${MOZILLA_FIVE_HOME}"/plugins \
+		|| die "failed to symlink"
 }
 
 pkg_postinst() {
