@@ -21,7 +21,7 @@ SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/s
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 -sparc ~x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa debug python sqlite" # qt-experimental
+IUSE="+alsa debug python -sqlite" # qt-experimental
 
 #	qt-experimental? (
 #		x11-libs/qt-gui
