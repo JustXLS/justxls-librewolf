@@ -5,3 +5,8 @@
 # NOTE: Please add your entry at the top!
 #
 
+# Jory A. Pratt <anarchy@gentoo.org> (20 Sep 2009)
+# These are alpha and are to be left p.masked, I will remove the mask,
+# when we get to beta builds.
+>=net-libs/xulrunner-1.9.2_alpha2
+>=www-client/mozilla-firefox-3.6_alpha2
