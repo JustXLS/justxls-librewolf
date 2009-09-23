@@ -8,12 +8,14 @@ EAPI="2"
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozextension autotools
 MY_P="${P/_beta/b}"
 EMVER="${PV/_alpha/a}"
-TBVER="3.0b3"
+TBVER="3.0b4"
+PATCH="mozilla-thunderbird-3.0-patches-0.1"
 
 DESCRIPTION="GnuPG encryption plugin for thunderbird."
 HOMEPAGE="http://enigmail.mozdev.org"
-SRC_URI="http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases/${TBVER}/source/thunderbird-${TBVER}-source.tar.bz2
-	http://dev.gentoo.org/~anarchy/dist/enigmail-${EMVER}.tar.gz"
+SRC_URI="http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases/${TBVER}/source/thunderbird-${TBVER}.source.tar.bz2
+	http://dev.gentoo.org/~anarchy/dist/enigmail-${EMVER}.tar.gz
+	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
 
 KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
 SLOT="0"
@@ -35,7 +37,7 @@ RDEPEND="${DEPEND}
 		=app-crypt/gnupg-1.4*
 	)"
 
-S="${WORKDIR}"
+S="${WORKDIR}"/comm-central
 
 # Needed by src_compile() and src_install().
 # Would do in pkg_setup but that loses the export attribute, they
@@ -45,21 +47,22 @@ export MOZILLA_OFFICIAL=1
 export MOZ_CO_PROJECT=mail
 
 pkg_setup() {
-	echo "This is alphaware, do not expect themes to work properly with this release."
-	echo "If you need a working theme please visit the addons page and install one,"
-	echo "one known theme includes the iLeopard Mail theme."
+	elog "This is alphaware, do not expect themes to work properly with this release."
+	elog "If you need a working theme please visit the addons page and install one,"
+	elog "one known theme includes the iLeopard Mail theme."
+	elog "https://addons.mozilla.org/en-US/thunderbird/addon/9552"
 }
 
 
 src_unpack() {
-	unpack thunderbird-${TBVER}-source.tar.bz2 || die "unpack failed"
+	unpack thunderbird-${TBVER}.source.tar.bz2 ${PATCH}.tar.bz2 || die "unpack failed"
 }
 
 src_prepare(){
 	# Apply our patches
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
-	epatch "${FILESDIR}"/${PV}
+	epatch "${WORKDIR}"
 
 	cd mozilla
 	eautoreconf

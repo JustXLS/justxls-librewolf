@@ -1,13 +1,13 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/mail-client/mozilla-thunderbird/mozilla-thunderbird-2.0.0.16.ebuild,v 1.6 2008/08/04 15:00:53 keytoaster Exp $
+# $Header: $
 EAPI="2"
 WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 mozilla-launcher makeedit multilib mozextension autotools
 
-LANGS="af ar be ca cs de el en-US es-AR es-ES et eu fi fr fy-NL ga-IE gl hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR ro ru si sk sv-SE ta-LK uk vi zh-CN"
-# Languages not rebuilt for beta3 "pt-PT he sr bg"
+LANGS="af ar be ca cs de el en-US es-AR es-ES et eu fi fr fy-NL ga-IE hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR ro ru si sk sv-SE ta-LK uk"
+# Languages not rebuilt for beta3 "pt-PT he sr bg gl zn-CN vi"
 NOSHORTLANGS="es-AR pt-BR"
 
 MY_PV2="${PV/_beta/b}"
@@ -20,9 +20,11 @@ KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="ldap crypt bindist mozdom replytolist"
+PATCH="${PN}-3.0-patches-0.1"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases"
-SRC_URI="${REL_URI}/${MY_PV2}/source/thunderbird-${MY_PV2}-source.tar.bz2"
+SRC_URI="${REL_URI}/${MY_PV2}/source/thunderbird-${MY_PV2}.source.tar.bz2
+	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
 
 for X in ${LANGS} ; do
 	if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
@@ -51,7 +53,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 
 PDEPEND="crypt? ( >=x11-plugins/enigmail-0.97_alpha0 )"
 
-S="${WORKDIR}"
+S="${WORKDIR}"/comm-central
 
 # Needed by src_compile() and src_install().
 # Would do in pkg_setup but that loses the export attribute, they
@@ -107,7 +109,7 @@ src_prepare() {
 	# Apply our patches
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
-	epatch "${FILESDIR}"/${PV}
+	epatch "${WORKDIR}"
 
 	eautoreconf
 
@@ -184,7 +186,6 @@ src_install() {
 	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 
 	emake DESTDIR="${D}" install || die "emake install failed"
-	rm "${D}"/usr/bin/thunderbird
 
 	linguas
 	for X in ${linguas}; do
@@ -208,9 +209,6 @@ src_install() {
 		newmenu "${FILESDIR}"/icon/${PN}-unbranded.desktop \
 			${PN}.desktop
 	fi
-
-	# Create /usr/bin/thunderbird
-	make_wrapper thunderbird "${MOZILLA_FIVE_HOME}/thunderbird"
 
 	# Warn user that remerging enigmail is neccessary on USE=crypt
 	use crypt && ewarn "Please remerge x11-plugins/enigmail after updating ${PN}."
