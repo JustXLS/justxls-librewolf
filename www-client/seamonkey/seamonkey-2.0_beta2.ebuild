@@ -1,13 +1,15 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
+
 EAPI="2"
 WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib fdo-mime autotools mozextension
-#PATCH="${P}-patches-0.1"
 
-LANGS="be ca cs de en-US es-AR es-ES fr gl hu lt nb-NO pl pt-PT ru sk tr"
+PATCH="${PN}-2.0-patches-0.1"
+
+LANGS="be ca de en-US es-AR es-ES fr gl hu lt nb-NO pl pt-PT ru sk tr"
 NOSHORTLANGS="es-AR"
 
 MY_PV="${PV/_beta/b}"
@@ -19,10 +21,11 @@ HOMEPAGE="http://www.seamonkey-project.org"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="hardened java ldap mozdevelop moznocompose moznoirc moznomail moznoroaming"
+IUSE="hardened java ldap mozdevelop moznocompose moznoirc moznomail moznoroaming sqlite"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases"
-SRC_URI="${REL_URI}/${MY_PV}/source/${MY_P}.source.tar.bz2"
+SRC_URI="${REL_URI}/${MY_PV}/source/${MY_P}.source.tar.bz2
+	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
 
 for X in ${LANGS} ; do
 	if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
@@ -45,7 +48,7 @@ RDEPEND="java? ( virtual/jre )
 	>=dev-libs/nss-3.12.2
 	>=dev-libs/nspr-4.8
 	media-libs/alsa-lib
-	>=dev-db/sqlite-3.6.7
+	sqlite? ( >=dev-db/sqlite-3.6.7 )
 	>=app-text/hunspell-1.2
 	x11-libs/cairo[X]
 	x11-libs/pango[X]"
@@ -99,11 +102,23 @@ src_unpack() {
 	fi
 }
 
+pkg_setup() {
+	if use sqlite ; then
+		einfo
+		elog "You are enabling system sqlite. Do not file a bug with gentoo if you have"
+		elog "issues that arise from enabling system sqlite. All bugs will be concidered"
+		elog  "invalid. All patches are welcomed to fix any issues that might be found with"
+		elog "system sqlite. If you are starting with a fresh profile you can enable sqlite"
+		elog  "without any major issues."
+		epause 10
+	fi
+}
+
 src_prepare() {
 	# Apply our patches
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
-	epatch "${FILESDIR}/${PV}"
+	epatch "${WORKDIR}"
 
 	eautoreconf
 }
@@ -145,6 +160,12 @@ src_configure() {
 		fi
 	fi
 
+	if use sqlite ; then
+		mozconfig_annotate 'sqlite' --enable-system-sqlite
+	else
+		mozconfig_annotate '-sqlite' --enable-system-sqlite
+	fi
+
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 	mozconfig_annotate '' --enable-application=suite
 	mozconfig_annotate 'broken' --disable-mochitest
@@ -163,11 +184,6 @@ src_configure() {
 
 	mozconfig_use_enable ldap
 	mozconfig_use_enable ldap ldap-experimental
-
-	# Bug #278698
-	if use hardened ; then
-		mozconfig_annotate 'hardened' --disable-jemalloc
-	fi
 
 	# Finalize and report settings
 	mozconfig_final
@@ -198,7 +214,6 @@ src_install() {
 	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 
 	emake DESTDIR="${D}" install || die "emake install failed"
-	rm "${D}"/usr/bin/seamonkey
 
 	linguas
 	for X in ${linguas}; do
@@ -216,9 +231,6 @@ src_install() {
 	# Install icon and .desktop for menu entry
 	newicon "${S}"/suite/branding/content/icon64.png seamonkey.png
 	domenu "${FILESDIR}"/icon/seamonkey.desktop
-
-	# Create /usr/bin/seamonkey
-	make_wrapper seamonkey "${MOZILLA_FIVE_HOME}/seamonkey"
 
 	# Add vendor
 	echo "pref(\"general.useragent.vendor\",\"Gentoo\");" \
