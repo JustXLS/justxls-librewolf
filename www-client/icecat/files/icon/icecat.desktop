@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=GNU IceCat
+Name=IceCat
 Comment=Web Browser
 Exec=/usr/bin/icecat %U
 Icon=icecat-icon
