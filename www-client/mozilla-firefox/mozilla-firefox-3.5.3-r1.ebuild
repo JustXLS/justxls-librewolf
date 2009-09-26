@@ -184,7 +184,7 @@ src_configure() {
 	if use sqlite ; then
 		mozconfig_annotate 'sqlite' --enable-system-sqlite
 	else
-		mozconfig_annotate '-sqlite' --enable-system-sqlite
+		mozconfig_annotate '-sqlite' --disable-system-sqlite
 	fi
 
 	# IUSE mozdevelop
