@@ -19,7 +19,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 -sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa bindist java mozdevelop sqlite qt-experimental"
+IUSE="+alsa bindist java mozdevelop sqlite qt-experimental +networkmanager"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 SRC_URI="http://dev.gentoo.org/~anarchy/dist/firefox-${MY_PV}.source.tar.bz2
@@ -35,10 +35,11 @@ RDEPEND="
 	>=net-libs/xulrunner-${XUL_PV}[java=,sqlite=]
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
+	networkmanager? ( net-wireless/wireless-tools )
 	qt-experimental? (
 		x11-libs/qt-gui
 		x11-libs/qt-core )
-	=net-libs/xulrunner-${XUL_PV}*[java=,qt-experimental=]"
+	=net-libs/xulrunner-${XUL_PV}*[java=,qt-experimental=,networkmanager=]"
 
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig"
@@ -130,10 +131,12 @@ src_configure() {
 	mozconfig_annotate '' --with-system-libxul
 	mozconfig_annotate '' --with-libxul-sdk=/usr/$(get_libdir)/xulrunner-devel-${MAJ_XUL_PV}
 
-	if use sqlite ; then
-		mozconfig_annotate 'sqlite' --enable-system-sqlite
-	else
+	if ! use sqlite ; then
 		mozconfig_annotate '-sqlite' --disable-system-sqlite
+	fi
+
+	if ! use networkmanager; then
+		mozconfig_annotate "networkmanager" --disable-necko-wifi
 	fi
 
 	# IUSE mozdevelop

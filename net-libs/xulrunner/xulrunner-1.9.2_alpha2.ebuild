@@ -20,7 +20,7 @@ SRC_URI="http://dev.gentoo.org/~anarchy/dist/firefox-${MY_PV}.source.tar.bz2
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 -sparc ~x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa debug sqlite qt-experimental"
+IUSE="+alsa debug sqlite qt-experimental +networkmanager"
 
 RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=dev-lang/python-2.3[threads]
@@ -34,6 +34,7 @@ RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
 	x11-libs/libXt
+	networkmanager? ( net-wireless/wireless-tools )
 	qt-experimental? (
 		x11-libs/qt-gui
 		x11-libs/qt-core )"
@@ -147,9 +148,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-system-lcms
 	mozconfig_annotate '' --with-system-bz2
 
-	if use sqlite ; then
-		mozconfig_annotate 'sqlite' --enable-system-sqlite
-	else
+	if ! use sqlite ; then
 		mozconfig_annotate '-sqlite' --disable-system-sqlite
 	fi
 
@@ -184,6 +183,10 @@ src_configure() {
 		mozconfig_annotate 'debug' --enable-debug=-ggdb
 		mozconfig_annotate 'debug' --enable-debug-modules=all
 		mozconfig_annotate 'debug' --enable-debugger-info-modules
+	fi
+
+	if ! use networkmanager; then
+		mozconfig_annotate "networkmanager" --disable-necko-wifi
 	fi
 
 	# Finalize and report settings
