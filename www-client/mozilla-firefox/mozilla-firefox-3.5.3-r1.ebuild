@@ -240,7 +240,6 @@ src_install() {
 	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 
 	emake DESTDIR="${D}" install || die "emake install failed"
-	rm "${D}"/usr/bin/firefox
 
 	linguas
 	for X in ${linguas}; do
@@ -265,14 +264,6 @@ src_install() {
 		echo "StartupNotify=true" >> "${D}"/usr/share/applications/${PN}-${DESKTOP_PV}.desktop
 	fi
 
-	# Create /usr/bin/firefox
-	cat <<EOF >"${D}"/usr/bin/firefox
-#!/bin/sh
-export LD_LIBRARY_PATH="${MOZILLA_FIVE_HOME}\${LD_LIBRARY_PATH+":\${LD_LIBRARY_PATH}"}"
-exec "${MOZILLA_FIVE_HOME}"/firefox "\$@"
-EOF
-
-	fperms 0755 /usr/bin/firefox
 	pax-mark m "${D}"/${MOZILLA_FIVE_HOME}/firefox
 
 	# Enable very specific settings not inherited from xulrunner
