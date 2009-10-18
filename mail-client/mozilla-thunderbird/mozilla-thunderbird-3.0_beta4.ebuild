@@ -212,6 +212,11 @@ src_install() {
 
 	# Warn user that remerging enigmail is neccessary on USE=crypt
 	use crypt && ewarn "Please remerge x11-plugins/enigmail after updating ${PN}."
+
+	# Enable very specific settings not inherited from xulrunner
+	cp "${FILESDIR}"/thunderbird-gentoo-default-prefs.js \
+		"${D}/${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js" || \
+		die "failed to cp thunderbird-gentoo-default-prefs.js"
 }
 
 pkg_postinst() {

@@ -6,11 +6,11 @@ WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools
 
-XUL_PV="1.9.2_alpha2"
+XUL_PV="1.9.2_beta1"
 MAJ_XUL_PV="1.9.2"
 MAJ_PV="${PV/_*/}" # Without the _rc and _beta stuff
 DESKTOP_PV="3.6"
-MY_PV="${PV/_alpha/a}" # Handle alphas for SRC_URI
+MY_PV="${PV/_beta/b}" # Handle beta for SRC_URI
 PATCH="${PN}-3.6-patches-0.1"
 
 DESCRIPTION="Firefox Web Browser"
@@ -19,7 +19,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 -sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa bindist java mozdevelop sqlite qt-experimental +networkmanager"
+IUSE="+alsa bindist java mozdevelop sqlite +networkmanager"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 SRC_URI="http://dev.gentoo.org/~anarchy/dist/firefox-${MY_PV}.source.tar.bz2
@@ -36,10 +36,7 @@ RDEPEND="
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
 	networkmanager? ( net-wireless/wireless-tools )
-	qt-experimental? (
-		x11-libs/qt-gui
-		x11-libs/qt-core )
-	=net-libs/xulrunner-${XUL_PV}*[java=,qt-experimental=,networkmanager=]"
+	=net-libs/xulrunner-${XUL_PV}*[java=,networkmanager=]"
 
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig"
@@ -109,6 +106,7 @@ src_configure() {
 	mozconfig_annotate 'broken' --disable-crashreporter
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
+	mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
 	# Bug 60668: Galeon doesn't build without oji enabled, so enable it
 	# regardless of java setting.
 	mozconfig_annotate '' --enable-oji --enable-mathml
@@ -143,17 +141,6 @@ src_configure() {
 	mozconfig_use_enable mozdevelop jsd
 	mozconfig_use_enable mozdevelop xpctools
 	#mozconfig_use_extension mozdevelop venkman
-
-	# IUSE qt-experimental
-	if use qt-experimental ; then
-		ewarn "You are enabling the EXPERIMENTAL qt toolkit"
-		ewarn "Usage is at your own risk"
-		ewarn "Known to be broken. DO NOT file bugs."
-		mozconfig_annotate '' --disable-system-cairo
-		mozconfig_annotate 'qt-experimental' --enable-default-toolkit=cairo-qt
-	else
-		mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
-	fi
 
 	# Other ff-specific settings
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
@@ -216,7 +203,7 @@ src_install() {
 	# Enable very specific settings not inherited from xulrunner
 	cp "${FILESDIR}"/firefox-default-prefs.js \
 		"${D}/${MOZILLA_FIVE_HOME}/defaults/preferences/all-gentoo.js" || \
-		die "failed to cp xulrunner-default-prefs.js"
+		die "failed to cp firefox-default-prefs.js"
 
 	# Plugins dir
 	dosym ../nsbrowser/plugins "${MOZILLA_FIVE_HOME}"/plugins \

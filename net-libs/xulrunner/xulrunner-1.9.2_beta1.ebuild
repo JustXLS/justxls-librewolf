@@ -7,7 +7,7 @@ WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-pkg-opt-2 autotools
 
-MY_PV="${PV/_alpha/a}" # Handle alphas
+MY_PV="${PV/_beta/b}" # Handle beta
 MY_PV="${MY_PV/1.9.2/3.6}"
 MAJ_PV="1.9.2" # from mozilla-* branch name
 PATCH="${PN}-1.9.2-patches-0.1"
@@ -20,7 +20,7 @@ SRC_URI="http://dev.gentoo.org/~anarchy/dist/firefox-${MY_PV}.source.tar.bz2
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 -sparc ~x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa debug sqlite qt-experimental +networkmanager"
+IUSE="+alsa debug sqlite +networkmanager"
 
 RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=dev-lang/python-2.3[threads]
@@ -34,10 +34,7 @@ RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
 	x11-libs/libXt
-	networkmanager? ( net-wireless/wireless-tools )
-	qt-experimental? (
-		x11-libs/qt-gui
-		x11-libs/qt-core )"
+	networkmanager? ( net-wireless/wireless-tools )"
 
 DEPEND="java? ( >=virtual/jdk-1.4 )
 	${RDEPEND}
@@ -61,14 +58,7 @@ pkg_setup() {
 		elog  "invalid. All patches are welcomed to fix any issues that might be found with"
 		elog "system sqlite. If you are starting with a fresh profile you can enable sqlite"
 		elog  "without any major issues."
-		epause 10
-	fi
-
-	if use qt-experimental ; then
-		einfo
-		elog "You have enabled qt-experimental, there is no support avaliable for any brekage."
-		elog "If you can submit a patch for your problem I will be more then happy to review and"
-		elog	"and take it upstream to have it included in offial release."
+		epause 5
 	fi
 }
 
@@ -128,6 +118,7 @@ src_configure() {
 	mozconfig_annotate 'broken' --disable-crashreporter
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
+	mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
 	# Bug 60668: Galeon doesn't build without oji enabled, so enable it
 	# regardless of java setting.
 	mozconfig_annotate '' --enable-oji --enable-mathml
@@ -150,17 +141,6 @@ src_configure() {
 
 	if ! use sqlite ; then
 		mozconfig_annotate '-sqlite' --disable-system-sqlite
-	fi
-
-	# IUSE qt-experimental
-	if use qt-experimental ; then
-		ewarn "You are enabling the EXPERIMENTAL qt toolkit"
-		ewarn "Usage is at your own risk"
-		ewarn "Known to be broken. DO NOT file bugs."
-		mozconfig_annotate '' --disable-system-cairo
-		mozconfig_annotate 'qt-experimental' --enable-default-toolkit=cairo-qt
-	else
-		mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
 	fi
 
 	# Other ff-specific settings
@@ -229,7 +209,8 @@ src_install() {
 
 	# Add our defaults to xulrunner and out of firefox
 	cp "${FILESDIR}"/xulrunner-default-prefs.js \
-		"${D}/${MOZLIBDIR}/defaults/pref/all-gentoo.js" || die "failed to cp xulrunner-default-prefs.js"
+		"${D}/${MOZLIBDIR}/defaults/pref/all-gentoo.js" || \
+			die "failed to cp xulrunner-default-prefs.js"
 
 	if use java ; then
 		java-pkg_regjar "${D}/${MOZLIBDIR}/javaxpcom.jar"
@@ -247,4 +228,9 @@ pkg_postinst() {
 	einfo "All prefs can be overridden by the user. The preferences are to make"
 	einfo "use of xulrunner out of the box on an average system without the user"
 	einfo "having to go through and enable the basics."
+
+	einfo
+	ewarn "Any package that requires xulrunner:1.9 slot could and most likely will"
+	ewarn "have issues. These issues should be reported to maintainer, and mozilla herd"
+	ewarn "should be cc'd on the bug report. Thank you anarchy@gentoo.org ."
 }
