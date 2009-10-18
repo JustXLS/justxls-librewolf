@@ -20,7 +20,7 @@ SRC_URI="http://dev.gentoo.org/~anarchy/dist/firefox-${MY_PV}.source.tar.bz2
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 -sparc ~x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa debug sqlite +networkmanager"
+IUSE="+alsa debug libnotify sqlite +networkmanager"
 
 RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=dev-lang/python-2.3[threads]
@@ -34,7 +34,8 @@ RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
 	x11-libs/libXt
-	networkmanager? ( net-wireless/wireless-tools )"
+	networkmanager? ( net-wireless/wireless-tools )
+	libnotify? ( >=x11-libs/libnotify-0.4 )"
 
 DEPEND="java? ( >=virtual/jdk-1.4 )
 	${RDEPEND}
@@ -139,9 +140,10 @@ src_configure() {
 	mozconfig_annotate '' --enable-system-lcms
 	mozconfig_annotate '' --with-system-bz2
 
-	if ! use sqlite ; then
-		mozconfig_annotate '-sqlite' --disable-system-sqlite
-	fi
+	mozconfig_use_enable sqlite system-sqlite
+	mozconfig_use_enable libnotify
+	mozconfig_use_enable java javaxpcom
+	mozconfig_use_enable networkmanager necko-wifi
 
 	# Other ff-specific settings
 	mozconfig_annotate '' --enable-jsd
@@ -152,21 +154,12 @@ src_configure() {
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
 
-	# Disable java
-	if ! use java ; then
-		mozconfig_annotate '-java' --disable-javaxpcom
-	fi
-
 	# Debug
 	if use debug ; then
 		mozconfig_annotate 'debug' --disable-optimize
 		mozconfig_annotate 'debug' --enable-debug=-ggdb
 		mozconfig_annotate 'debug' --enable-debug-modules=all
 		mozconfig_annotate 'debug' --enable-debugger-info-modules
-	fi
-
-	if ! use networkmanager; then
-		mozconfig_annotate "networkmanager" --disable-necko-wifi
 	fi
 
 	# Finalize and report settings

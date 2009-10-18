@@ -19,7 +19,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 -sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa bindist java mozdevelop sqlite +networkmanager"
+IUSE="+alsa bindist java libnotify mozdevelop sqlite +networkmanager"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 SRC_URI="http://dev.gentoo.org/~anarchy/dist/firefox-${MY_PV}.source.tar.bz2
@@ -36,7 +36,8 @@ RDEPEND="
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
 	networkmanager? ( net-wireless/wireless-tools )
-	=net-libs/xulrunner-${XUL_PV}*[java=,networkmanager=]"
+	libnotify? ( >=x11-libs/libnotify-0.4 )
+	=net-libs/xulrunner-${XUL_PV}*[java=,networkmanager=,libnotify=]"
 
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig"
@@ -56,13 +57,6 @@ pkg_setup() {
 		elog "to any users on your network or the internet. Doing so puts yourself into"
 		elog "a legal problem with Mozilla Foundation"
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
-	fi
-
-	if use qt-experimental ; then
-		einfo
-		elog "You have enabled qt-experimental, there is no support avaliable for any brekage."
-		elog "If you can submit a patch for your problem I will be more then happy to review and"
-		elog	"and take it upstream to have it included in offial release."
 	fi
 }
 
@@ -129,13 +123,9 @@ src_configure() {
 	mozconfig_annotate '' --with-system-libxul
 	mozconfig_annotate '' --with-libxul-sdk=/usr/$(get_libdir)/xulrunner-devel-${MAJ_XUL_PV}
 
-	if ! use sqlite ; then
-		mozconfig_annotate '-sqlite' --disable-system-sqlite
-	fi
-
-	if ! use networkmanager; then
-		mozconfig_annotate "networkmanager" --disable-necko-wifi
-	fi
+	mozconfig_use_enable sqlite system-sqlite
+	mozconfig_use_enable libnotify
+	mozconfig_use_enable networkmanager necko-wifi
 
 	# IUSE mozdevelop
 	mozconfig_use_enable mozdevelop jsd
