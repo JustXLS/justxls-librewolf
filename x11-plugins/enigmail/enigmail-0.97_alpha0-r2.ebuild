@@ -14,7 +14,7 @@ PATCH="mozilla-thunderbird-3.0-patches-0.1"
 DESCRIPTION="GnuPG encryption plugin for thunderbird."
 HOMEPAGE="http://enigmail.mozdev.org"
 SRC_URI="http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases/${TBVER}/source/thunderbird-${TBVER}.source.tar.bz2
-	http://dev.gentoo.org/~anarchy/dist/enigmail-${EMVER}.tar.gz
+	http://dev.gentoo.org/~anarchy/dist/enigmail-${EMVER}-20091011.tar.gz
 	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
 
 KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
@@ -70,7 +70,7 @@ src_prepare(){
 
 	# Unpack the enigmail plugin
 	cd "${S}"/mailnews/extensions || die
-	unpack enigmail-${EMVER}.tar.gz
+	unpack enigmail-${EMVER}-20091011.tar.gz
 	cd "${S}"/mailnews/extensions/enigmail || die "cd failed"
 	makemake2
 
