@@ -57,7 +57,7 @@ RDEPEND="
 	sqlite? ( >=dev-db/sqlite-3.6.10 )
 	>=app-text/hunspell-1.2
 	alsa? ( media-libs/alsa-lib )
-	>=net-libs/xulrunner-${XUL_PV}[java=,sqlite=]
+	=net-libs/xulrunner-${XUL_PV}[java=,sqlite=]
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]"
 
