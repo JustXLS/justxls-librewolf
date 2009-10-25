@@ -264,6 +264,11 @@ src_install() {
 	newicon "${S}"/suite/branding/content/icon64.png seamonkey.png
 	domenu "${FILESDIR}"/icon/seamonkey.desktop
 
+	# Add StartupNotify=true bug 290401
+	if use startup-notification ; then
+		echo "StartupNotify=true" >> "${D}"/usr/share/applications/seamonkey.desktop
+	fi
+
 	# Add vendor
 	echo "pref(\"general.useragent.vendor\",\"Gentoo\");" \
 		>> "${D}"${MOZILLA_FIVE_HOME}/defaults/pref/vendor.js
