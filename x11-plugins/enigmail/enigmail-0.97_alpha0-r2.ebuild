@@ -38,14 +38,12 @@ RDEPEND="${DEPEND}
 
 S="${WORKDIR}"/comm-central
 
-# Needed by src_compile() and src_install().
-# Would do in pkg_setup but that loses the export attribute, they
-# become pure shell variables.
-export BUILD_OFFICIAL=1
-export MOZILLA_OFFICIAL=1
-export MOZ_CO_PROJECT=mail
-
 pkg_setup() {
+	# EAPI=2 ensures they are set properly.
+	export BUILD_OFFICIAL=1
+	export MOZILLA_OFFICIAL=1
+	export MOZ_CO_PROJECT=mail
+
 	elog "This is alphaware, do not expect themes to work properly with this release."
 	elog "If you need a working theme please visit the addons page and install one,"
 	elog "one known theme includes the iLeopard Mail theme."
