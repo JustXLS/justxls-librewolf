@@ -62,7 +62,7 @@ DEPEND="${RDEPEND}
 
 PDEPEND="restrict-javascript? ( www-plugins/noscript )"
 
-S="${WORKDIR}/comm-central"
+S="${WORKDIR}/comm-1.9.1"
 
 # Needed by src_compile() and src_install().
 # Would do in pkg_setup but that loses the export attribute,
