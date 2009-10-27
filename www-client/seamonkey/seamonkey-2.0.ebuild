@@ -141,7 +141,7 @@ src_prepare() {
 
 src_configure() {
 	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
-	MEXTENSIONS="default"
+	MEXTENSIONS=""
 
 	####################################
 	#
@@ -294,4 +294,9 @@ pkg_postinst() {
 
 	# Update mimedb for the new .desktop file
 	fdo-mime_desktop_database_update
+
+	if ! use moznoirc ; then
+		elog "chatzilla is now an extension which can be en-/disabled and configured via"
+		elog "the Add-on manager."
+	fi
 }
