@@ -14,7 +14,7 @@ PATCH="${PN}-1.9.2-patches-0.1"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
-SRC_URI="http://dev.gentoo.org/~anarchy/dist/firefox-${MY_PV}-1.source.tar.bz2
+SRC_URI="http://dev.gentoo.org/~anarchy/dist/firefox-${MY_PV}.source.tar.bz2
 	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
 
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 -sparc ~x86"
@@ -42,12 +42,6 @@ DEPEND="java? ( >=virtual/jdk-1.4 )
 	dev-util/pkgconfig"
 
 S="${WORKDIR}/mozilla-${MAJ_PV}"
-
-# Needed by src_compile() and src_install().
-# Would do in pkg_setup but that loses the export attribute, they
-# become pure shell variables.
-export BUILD_OFFICIAL=1
-export MOZILLA_OFFICIAL=1
 
 pkg_setup() {
 	java-pkg-opt-2_pkg_setup
@@ -113,6 +107,7 @@ src_configure() {
 	# It doesn't compile on alpha without this LDFLAGS
 	use alpha && append-ldflags "-Wl,--no-relax"
 
+	mozconfig_annotate '' --with-default-mozilla-five-home="${MOZLIBDIR}"
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 	mozconfig_annotate '' --enable-application=xulrunner
 	mozconfig_annotate '' --disable-mailnews
@@ -144,13 +139,9 @@ src_configure() {
 	mozconfig_use_enable libnotify
 	mozconfig_use_enable java javaxpcom
 	mozconfig_use_enable networkmanager necko-wifi
-
-	# Other ff-specific settings
-	mozconfig_annotate '' --enable-jsd
-	mozconfig_annotate '' --enable-xpctools
-	mozconfig_annotate '' --with-default-mozilla-five-home="${MOZLIBDIR}"
-
-	# Disable/Enable audio support based on USE
+	# Enable/Disable based on useflag
+	mozconfig_use_enable mozdevelop jsd
+	mozconfig_use_enable mozdevelop xpctools
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
 

@@ -6,7 +6,7 @@ WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools
 
-XUL_PV="1.9.2_beta1"
+XUL_PV="1.9.2_beta2"
 MAJ_XUL_PV="1.9.2"
 MAJ_PV="${PV/_*/}" # Without the _rc and _beta stuff
 DESKTOP_PV="3.6"
@@ -22,7 +22,7 @@ LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="+alsa bindist java libnotify mozdevelop sqlite +networkmanager"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
-SRC_URI="http://dev.gentoo.org/~anarchy/dist/firefox-${MY_PV}-1.source.tar.bz2
+SRC_URI="http://dev.gentoo.org/~anarchy/dist/firefox-${MY_PV}.source.tar.bz2
 	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
 
 RDEPEND="
@@ -37,18 +37,12 @@ RDEPEND="
 	x11-libs/pango[X]
 	networkmanager? ( net-wireless/wireless-tools )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
-	=net-libs/xulrunner-${XUL_PV}*[java=,networkmanager=,libnotify=]"
+	~net-libs/xulrunner-${XUL_PV}[java=,networkmanager=,libnotify=]"
 
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig"
 
 S="${WORKDIR}/mozilla-1.9.2"
-
-# Needed by src_compile() and src_install().
-# Would do in pkg_setup but that loses the export attribute, they
-# become pure shell variables.
-export BUILD_OFFICIAL=1
-export MOZILLA_OFFICIAL=1
 
 pkg_setup() {
 	if ! use bindist ; then
@@ -125,12 +119,12 @@ src_configure() {
 
 	mozconfig_use_enable sqlite system-sqlite
 	mozconfig_use_enable libnotify
+	mozconfig_use_enable java javaxpcom
 	mozconfig_use_enable networkmanager necko-wifi
-
-	# IUSE mozdevelop
 	mozconfig_use_enable mozdevelop jsd
 	mozconfig_use_enable mozdevelop xpctools
-	#mozconfig_use_extension mozdevelop venkman
+	mozconfig_use_enable alsa ogg
+	mozconfig_use_enable alsa wave
 
 	# Other ff-specific settings
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
