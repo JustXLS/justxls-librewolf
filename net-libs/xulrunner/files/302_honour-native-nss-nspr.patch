@@ -23,7 +23,7 @@ Add proper support for xulrunner-1.9.2 system nss/nspr
  FULL_NSPR_LIBS=$(subst $(prefix),\$${sdkdir},$(shell $(DEPTH)/nsprpub/config/nspr-config --libs))
  NSPR_VERSION=$(shell $(DEPTH)/nsprpub/config/nspr-config --version)
  endif
-+npkg_config_files += mozilla-nspr.pc
++pkg_config_files += mozilla-nspr.pc
  
  $(warning FULL_NSPR_CFLAGS=$(FULL_NSPR_CFLAGS))
  
