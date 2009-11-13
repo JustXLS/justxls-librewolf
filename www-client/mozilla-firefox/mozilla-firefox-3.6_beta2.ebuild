@@ -63,6 +63,9 @@ src_prepare() {
 	#Fix buildtime errors with xpctools
 	epatch ${FILESDIR}/301-xulrunner-xpctools.diff
 
+	# Must ensure javaxpcom can be built
+	epatch ${FILESDIR}/302_fix-java-xpcom.patch
+
 	eautoreconf
 
 	cd js/src
