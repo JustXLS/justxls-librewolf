@@ -7,14 +7,14 @@ EAPI="2"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozextension autotools
 MY_P="${P/_beta/b}"
-EMVER="${PV/_alpha/a}"
-TBVER="3.0b4"
+EMVER="${PV}"
+TBVER="3.0rc1"
 PATCH="mozilla-thunderbird-3.0-patches-0.1"
 
 DESCRIPTION="GnuPG encryption plugin for thunderbird."
 HOMEPAGE="http://enigmail.mozdev.org"
 SRC_URI="http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases/${TBVER}/source/thunderbird-${TBVER}.source.tar.bz2
-	http://dev.gentoo.org/~anarchy/dist/enigmail-${EMVER}-20091011.tar.gz
+	http://dev.gentoo.org/~anarchy/dist/enigmail-${EMVER}.tar.gz
 	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
 
 KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
@@ -36,7 +36,7 @@ RDEPEND="${DEPEND}
 		=app-crypt/gnupg-1.4*
 	)"
 
-S="${WORKDIR}"/comm-central
+S="${WORKDIR}"/comm-1.9.1
 
 pkg_setup() {
 	# EAPI=2 ensures they are set properly.
@@ -57,6 +57,7 @@ src_unpack() {
 
 src_prepare(){
 	# Apply our patches
+	EPATCH_EXCLUDE="104-fix_licence_file_preprocessor.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
@@ -68,7 +69,7 @@ src_prepare(){
 
 	# Unpack the enigmail plugin
 	cd "${S}"/mailnews/extensions || die
-	unpack enigmail-${EMVER}-20091011.tar.gz
+	unpack enigmail-${EMVER}.tar.gz
 	cd "${S}"/mailnews/extensions/enigmail || die "cd failed"
 	makemake2
 
@@ -79,8 +80,6 @@ src_prepare(){
 
 	# Fix installation of enigmail.js
 	epatch "${FILESDIR}"/70_enigmail-fix.patch
-	# Make replytolist work with >0.95.0
-	epatch "${FILESDIR}"/0.95.0-replytolist.patch
 
 	eautoreconf
 }

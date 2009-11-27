@@ -10,8 +10,8 @@ LANGS="af ar be ca cs de el en-US es-AR es-ES et eu fi fr fy-NL ga-IE hu id is i
 # Languages not rebuilt for beta3 "pt-PT he sr bg gl zn-CN vi"
 NOSHORTLANGS="es-AR pt-BR"
 
-MY_PV2="${PV/_beta/b}"
-MY_P="${P/_beta/b}"
+MY_PV2="${PV/_rc/rc}"
+MY_P="${P/_rc/rc}"
 
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
@@ -53,7 +53,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 
 PDEPEND="crypt? ( >=x11-plugins/enigmail-0.97_alpha0 )"
 
-S="${WORKDIR}"/comm-central
+S="${WORKDIR}"/comm-1.9.1
 
 # Needed by src_compile() and src_install().
 # Would do in pkg_setup but that loses the export attribute, they
@@ -107,6 +107,7 @@ src_unpack() {
 
 src_prepare() {
 	# Apply our patches
+	EPATCH_EXCLUDE="104-fix_licence_file_preprocessor.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
