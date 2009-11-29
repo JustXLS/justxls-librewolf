@@ -4,7 +4,7 @@
 EAPI="2"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 mozilla-launcher makeedit multilib mozextension autotools
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozextension autotools
 
 LANGS="af ar be ca cs de el en-US es-AR es-ES et eu fi fr fy-NL ga-IE hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR ro ru si sk sv-SE ta-LK uk"
 # Languages not rebuilt for beta3 "pt-PT he sr bg gl zn-CN vi"
@@ -217,30 +217,8 @@ src_install() {
 	# Warn user that remerging enigmail is neccessary on USE=crypt
 	use crypt && ewarn "Please remerge x11-plugins/enigmail after updating ${PN}."
 
-	# Enable very specific settings not inherited from xulrunner
+	# Enable very specific settings for thunderbird-3
 	cp "${FILESDIR}"/thunderbird-gentoo-default-prefs.js \
 		"${D}/${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js" || \
 		die "failed to cp thunderbird-gentoo-default-prefs.js"
-}
-
-pkg_postinst() {
-	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
-
-	# Update mimedb for the new .desktop file
-	fdo-mime_desktop_database_update
-}
-
-pkg_postinst() {
-	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
-
-	# This should be called in the postinst and postrm of all the
-	# mozilla, mozilla-bin, firefox, firefox-bin, thunderbird and
-	# thunderbird-bin ebuilds.
-	update_mozilla_launcher_symlinks
-}
-
-pkg_postrm() {
-	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
-
-	update_mozilla_launcher_symlinks
 }
