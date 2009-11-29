@@ -65,8 +65,6 @@ src_prepare() {
 
 	# Fix build error for xpctools
 	epatch ${FILESDIR}/301-xulrunner-xpctools.diff
-	# Fix nss/nspr system support
-	epatch ${FILESDIR}/303_honour-native-nspr.patch
 
 	# Same as in config/autoconf.mk.in
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"

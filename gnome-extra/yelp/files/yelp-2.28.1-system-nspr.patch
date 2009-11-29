@@ -1,0 +1,11 @@
+diff -urN yelp-2.28.1-old/configure.in yelp-2.28.1/configure.in
+--- yelp-2.28.1-old/configure.in	2009-11-28 22:44:33.479940984 -0600
++++ yelp-2.28.1/configure.in	2009-11-28 22:44:55.195913955 -0600
+@@ -78,6 +78,7 @@
+ 	libstartup-notification-1.0 >= 0.8
+ 	dbus-glib-1
+ 	rarian >= 0.7.0
++	nspr >= 4.7.4
+ ])
+ AC_SUBST([YELP_CFLAGS])
+ AC_SUBST([YELP_LIBS])
