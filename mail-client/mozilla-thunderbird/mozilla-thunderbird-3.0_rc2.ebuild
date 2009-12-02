@@ -50,8 +50,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
         >=app-text/hunspell-1.2
 	x11-libs/cairo[X]
 	x11-libs/pango[X]
-	!<mail-client/mozilla-thunderbird-3
-	lightning? ( !x11-plugins/lightning )"
+	!x11-plugins/lightning"
 
 PDEPEND="crypt? ( >=x11-plugins/enigmail-1.0 )"
 
