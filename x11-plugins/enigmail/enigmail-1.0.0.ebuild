@@ -8,13 +8,13 @@ EAPI="2"
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozextension autotools
 MY_P="${P/_beta/b}"
 EMVER="${PV}"
-TBVER="3.0rc1"
+TBVER="3.0rc2"
 PATCH="mozilla-thunderbird-3.0-patches-0.1"
 
 DESCRIPTION="GnuPG encryption plugin for thunderbird."
 HOMEPAGE="http://enigmail.mozdev.org"
 SRC_URI="http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases/${TBVER}/source/thunderbird-${TBVER}.source.tar.bz2
-	http://dev.gentoo.org/~anarchy/dist/enigmail-${EMVER}.tar.gz
+	http://www.mozilla-enigmail.org/download/source/${PN}-${EMVER}.tar.gz
 	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
 
 KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
@@ -43,11 +43,6 @@ pkg_setup() {
 	export BUILD_OFFICIAL=1
 	export MOZILLA_OFFICIAL=1
 	export MOZ_CO_PROJECT=mail
-
-	elog "This is alphaware, do not expect themes to work properly with this release."
-	elog "If you need a working theme please visit the addons page and install one,"
-	elog "one known theme includes the iLeopard Mail theme."
-	elog "https://addons.mozilla.org/en-US/thunderbird/addon/9552"
 }
 
 
@@ -74,9 +69,6 @@ src_prepare(){
 	makemake2
 
 	cd "${S}"
-
-	# Use the right theme for thunderbird #45609
-	sed -i -ne '/^enigmail-skin.jar:$/ { :x; n; /^\t/bx; }; p' mailnews/extensions/enigmail/ui/jar.mn
 
 	# Fix installation of enigmail.js
 	epatch "${FILESDIR}"/70_enigmail-fix.patch
