@@ -1,6 +1,6 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Header: /var/cvsroot/gentoo-x86/mail-client/mozilla-thunderbird/mozilla-thunderbird-3.0.ebuild,v 1.1 2009/12/08 21:39:29 anarchy Exp $
 EAPI="2"
 WANT_AUTOCONF="2.1"
 
@@ -43,11 +43,11 @@ for X in ${LANGS} ; do
 done
 
 RDEPEND=">=sys-devel/binutils-2.16.1
-        >=dev-libs/nss-3.12.3
-        >=dev-libs/nspr-4.8
+	>=dev-libs/nss-3.12.3
+	>=dev-libs/nspr-4.8
 	>=dev-db/sqlite-3.6.10
-        >=media-libs/lcms-1.17
-        >=app-text/hunspell-1.2
+	>=media-libs/lcms-1.17
+	>=app-text/hunspell-1.2
 	x11-libs/cairo[X]
 	x11-libs/pango[X]
 	!x11-plugins/lightning"
@@ -112,6 +112,9 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
+
+	# Fix menus
+	epatch "${FILESDIR}/1000_fix-menus-gentoo.patch"
 
 	eautoreconf
 
@@ -191,6 +194,18 @@ src_install() {
 	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 
 	emake DESTDIR="${D}" install || die "emake install failed"
+
+	if use lightning ; then
+		declare emid
+
+		cd "${T}"
+		unzip "${S}"/mozilla/dist/xpi-stage/gdata-provider.xpi install.rdf
+		emid=$(sed -n '/<em:id>/!d; s/.*\({.*}\).*/\1/; p; q' install.rdf)
+
+		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid}
+		cd "${D}"${MOZILLA_FIVE_HOME}/extensions/${emid}
+		unzip "${S}"/mozilla/dist/xpi-stage/gdata-provider.xpi
+	fi
 
 	linguas
 	for X in ${linguas}; do
