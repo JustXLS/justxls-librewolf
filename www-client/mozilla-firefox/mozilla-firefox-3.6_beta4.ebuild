@@ -16,7 +16,7 @@ PATCH="${PN}-3.6-patches-0.3"
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
 
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 -sparc ~x86"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="+alsa bindist java libnotify mozdevelop sqlite +networkmanager"
@@ -30,7 +30,7 @@ RDEPEND="
 	>=dev-libs/nss-3.12.4
 	>=dev-libs/nspr-4.8
 	>=app-text/hunspell-1.2
-	sqlite? ( >=dev-db/sqlite-3.6.10 )
+	sqlite? ( >=dev-db/sqlite-3.6.20-r1[fts3] )
 	alsa? ( media-libs/alsa-lib )
 	>=net-libs/xulrunner-${XUL_PV}[java=,sqlite=]
 	>=x11-libs/cairo-1.8.8[X]
@@ -189,6 +189,11 @@ src_install() {
 	# Plugins dir
 	dosym ../nsbrowser/plugins "${MOZILLA_FIVE_HOME}"/plugins \
 		|| die "failed to symlink"
+
+	# very ugly hack to make firefox not sigbus on sparc
+	use sparc && sed -e 's/Firefox/FirefoxGentoo/g' \
+					 -i "${D}/${MOZILLA_FIVE_HOME}/application.ini" || \
+					 die "sparc sed failed"
 }
 
 pkg_postinst() {
