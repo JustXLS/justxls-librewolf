@@ -191,9 +191,9 @@ src_install() {
 		|| die "failed to symlink"
 
 	# very ugly hack to make firefox not sigbus on sparc
-	use sparc && sed -e 's/Firefox/FirefoxGentoo/g' \
+	use sparc && { sed -e 's/Firefox/FirefoxGentoo/g' \
 					 -i "${D}/${MOZILLA_FIVE_HOME}/application.ini" || \
-					 die "sparc sed failed"
+					 die "sparc sed failed"; }
 }
 
 pkg_postinst() {
