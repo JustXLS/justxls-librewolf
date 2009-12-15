@@ -1,6 +1,6 @@
-diff -urN nss-3.12.4-orig/mozilla/security/nss/config/Makefile nss-3.12.4/mozilla/security/nss/config/Makefile
---- nss-3.12.4-orig/mozilla/security/nss/config/Makefile	1969-12-31 18:00:00.000000000 -0600
-+++ nss-3.12.4/mozilla/security/nss/config/Makefile	2009-09-14 21:45:45.619639265 -0500
+diff -urN nss-3.12.5-orig/mozilla/security/nss/config/Makefile nss-3.12.5/mozilla/security/nss/config/Makefile
+--- nss-3.12.5-orig/mozilla/security/nss/config/Makefile	1969-12-31 18:00:00.000000000 -0600
++++ nss-3.12.5/mozilla/security/nss/config/Makefile	2009-09-14 21:45:45.619639265 -0500
 @@ -0,0 +1,40 @@
 +CORE_DEPTH = ../..
 +DEPTH      = ../..
@@ -42,9 +42,9 @@ diff -urN nss-3.12.4-orig/mozilla/security/nss/config/Makefile nss-3.12.4/mozill
 +
 +dummy: all export libs
 +
-diff -urN nss-3.12.4-orig/mozilla/security/nss/config/nss-config.in nss-3.12.4/mozilla/security/nss/config/nss-config.in
---- nss-3.12.4-orig/mozilla/security/nss/config/nss-config.in	1969-12-31 18:00:00.000000000 -0600
-+++ nss-3.12.4/mozilla/security/nss/config/nss-config.in	2009-09-14 21:47:45.190638078 -0500
+diff -urN nss-3.12.5-orig/mozilla/security/nss/config/nss-config.in nss-3.12.5/mozilla/security/nss/config/nss-config.in
+--- nss-3.12.5-orig/mozilla/security/nss/config/nss-config.in	1969-12-31 18:00:00.000000000 -0600
++++ nss-3.12.5/mozilla/security/nss/config/nss-config.in	2009-09-14 21:47:45.190638078 -0500
 @@ -0,0 +1,145 @@
 +#!/bin/sh
 +
@@ -191,9 +191,9 @@ diff -urN nss-3.12.4-orig/mozilla/security/nss/config/nss-config.in nss-3.12.4/m
 +      echo $libdirs
 +fi      
 +
-diff -urN nss-3.12.4-orig/mozilla/security/nss/config/nss.pc.in nss-3.12.4/mozilla/security/nss/config/nss.pc.in
---- nss-3.12.4-orig/mozilla/security/nss/config/nss.pc.in	1969-12-31 18:00:00.000000000 -0600
-+++ nss-3.12.4/mozilla/security/nss/config/nss.pc.in	2009-09-14 21:45:45.653637310 -0500
+diff -urN nss-3.12.5-orig/mozilla/security/nss/config/nss.pc.in nss-3.12.5/mozilla/security/nss/config/nss.pc.in
+--- nss-3.12.5-orig/mozilla/security/nss/config/nss.pc.in	1969-12-31 18:00:00.000000000 -0600
++++ nss-3.12.5/mozilla/security/nss/config/nss.pc.in	2009-09-14 21:45:45.653637310 -0500
 @@ -0,0 +1,12 @@
 +prefix=@prefix@
 +exec_prefix=@exec_prefix@
@@ -207,9 +207,9 @@ diff -urN nss-3.12.4-orig/mozilla/security/nss/config/nss.pc.in nss-3.12.4/mozil
 +Libs: -L${libdir} -lssl3 -lsmime3 -lnssutil3 -lnss3 -Wl,-R${libdir}
 +Cflags: -I${includedir}
 +
-diff -urN nss-3.12.4-orig/mozilla/security/nss/Makefile nss-3.12.4/mozilla/security/nss/Makefile
---- nss-3.12.4-orig/mozilla/security/nss/Makefile	2008-12-02 17:24:39.000000000 -0600
-+++ nss-3.12.4/mozilla/security/nss/Makefile	2009-09-14 21:45:45.678657145 -0500
+diff -urN nss-3.12.5-orig/mozilla/security/nss/Makefile nss-3.12.5/mozilla/security/nss/Makefile
+--- nss-3.12.5-orig/mozilla/security/nss/Makefile	2008-12-02 17:24:39.000000000 -0600
++++ nss-3.12.5/mozilla/security/nss/Makefile	2009-09-14 21:45:45.678657145 -0500
 @@ -78,7 +78,7 @@
  # (7) Execute "local" rules. (OPTIONAL).                              #
  #######################################################################
@@ -232,9 +232,9 @@ diff -urN nss-3.12.4-orig/mozilla/security/nss/Makefile nss-3.12.4/mozilla/secur
  build_dbm:
  ifndef NSS_DISABLE_DBM
  	cd $(CORE_DEPTH)/dbm ; $(MAKE) export libs
-diff -urN nss-3.12.4-orig/mozilla/security/nss/manifest.mn nss-3.12.4/mozilla/security/nss/manifest.mn
---- nss-3.12.4-orig/mozilla/security/nss/manifest.mn	2008-04-04 15:36:59.000000000 -0500
-+++ nss-3.12.4/mozilla/security/nss/manifest.mn	2009-09-14 21:45:45.703656167 -0500
+diff -urN nss-3.12.5-orig/mozilla/security/nss/manifest.mn nss-3.12.5/mozilla/security/nss/manifest.mn
+--- nss-3.12.5-orig/mozilla/security/nss/manifest.mn	2008-04-04 15:36:59.000000000 -0500
++++ nss-3.12.5/mozilla/security/nss/manifest.mn	2009-09-14 21:45:45.703656167 -0500
 @@ -42,6 +42,6 @@
  
  RELEASE = nss

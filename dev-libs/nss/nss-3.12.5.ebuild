@@ -21,13 +21,11 @@ DEPEND="dev-util/pkgconfig"
 RDEPEND=">=dev-libs/nspr-${NSPR_VER}
 	>=dev-db/sqlite-3.5"
 
-S="${WORKDIR}"
-
 src_unpack() {
 	unpack ${A}
 
 	# Custom changes for gentoo
-	epatch "${FILESDIR}"/"${PN}"-3.12.4-gentoo-fixups-1.diff
+	epatch "${FILESDIR}"/"${PN}"-3.12.5-gentoo-fixups.diff
 
 	cd "${S}"/mozilla/security/coreconf
 
