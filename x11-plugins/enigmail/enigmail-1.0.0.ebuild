@@ -9,7 +9,7 @@ inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozext
 MY_P="${P/_beta/b}"
 EMVER="${PV}"
 TBVER="3.0"
-PATCH="mozilla-thunderbird-3.0-patches-0.1"
+PATCH="mozilla-thunderbird-3.0-patches-0.3"
 
 DESCRIPTION="GnuPG encryption plugin for thunderbird."
 HOMEPAGE="http://enigmail.mozdev.org"
