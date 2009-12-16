@@ -6,12 +6,12 @@ WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools
 
-XUL_PV="1.9.2_beta4"
+XUL_PV="1.9.2_beta5"
 MAJ_XUL_PV="1.9.2"
 MAJ_PV="${PV/_*/}" # Without the _rc and _beta stuff
 DESKTOP_PV="3.6"
 MY_PV="${PV/_beta/b}" # Handle beta for SRC_URI
-PATCH="${PN}-3.6-patches-0.3"
+PATCH="${PN}-3.6-patches-0.4"
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
@@ -56,6 +56,7 @@ pkg_setup() {
 
 src_prepare() {
 	# Apply our patches
+	EPATCH_EXCLUDE="303-fix-restroe-session.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
