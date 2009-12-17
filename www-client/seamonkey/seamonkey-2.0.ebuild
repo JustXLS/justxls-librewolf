@@ -50,7 +50,7 @@ RDEPEND="java? ( virtual/jre )
 	>=dev-libs/nss-3.12.2
 	>=dev-libs/nspr-4.8
 	alsa? ( media-libs/alsa-lib )
-	sqlite? ( >=dev-db/sqlite-3.6.10 )
+	sqlite? ( >=dev-db/sqlite-3.6.20-r1[fts3] )
 	>=app-text/hunspell-1.2
 	x11-libs/cairo[X]
 	x11-libs/pango[X]
