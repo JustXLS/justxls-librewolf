@@ -8,7 +8,7 @@ WANT_AUTOCONF="2.1"
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib fdo-mime autotools mozextension java-pkg-opt-2
 
 PATCH="${PN}-2.0-patches-0.1"
-EMVER="0.97a0"
+EMVER="1.0.0"
 
 LANGS="be ca cs de en-US es-AR es-ES fr gl hu it ka lt nb-NO nl pl pt-PT ru sk sv-SE tr"
 NOSHORTLANGS="es-AR es-ES nb-NO pt-PT sv-SE"
@@ -27,7 +27,7 @@ IUSE="+alsa +crypt java ldap mozdevelop moznocompose moznoirc moznomail moznoroa
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases"
 SRC_URI="${REL_URI}/${MY_PV}/source/${MY_P}.source.tar.bz2
 	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2
-	crypt? ( !moznomail? ( http://dev.gentoo.org/~anarchy/dist/enigmail-${EMVER}-20091011.tar.gz ) )"
+	crypt? ( !moznomail? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz ) )"
 
 for X in ${LANGS} ; do
 	if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
@@ -132,7 +132,6 @@ src_prepare() {
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
 		cd "${S}"/mailnews/extensions/enigmail || die
 		epatch "${FILESDIR}"/enigmail/70_enigmail-fix.patch
-		epatch "${FILESDIR}"/enigmail/0.95.0-replytolist.patch
 		makemake2
 		cd "${S}"
 	fi
