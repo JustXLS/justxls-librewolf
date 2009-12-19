@@ -187,6 +187,7 @@ src_configure() {
 	mozconfig_annotate '' --with-system-nspr
 	mozconfig_annotate '' --with-system-nss
 	mozconfig_annotate '' --enable-system-lcms
+	mozconfig_annotate '' --with-system-bz2
 	mozconfig_annotate '' --enable-oji --enable-mathml
 	mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks
 	mozconfig_annotate '' --disable-installer
@@ -259,6 +260,9 @@ src_install() {
 			${MOZILLA_FIVE_HOME}/defaults/pref/suite-l10n.js || \
 			die "sed failed to change locale"
 	fi
+	echo 'pref("intl.locale.matchOS", true);' >> \
+		${D}/usr/$(get_libdir)/${PN}/defaults/pref/browser-prefs.js \
+			|| die "setting usage of default OS locale"
 
 	# Install icon and .desktop for menu entry
 	newicon "${S}"/suite/branding/content/icon64.png seamonkey.png
