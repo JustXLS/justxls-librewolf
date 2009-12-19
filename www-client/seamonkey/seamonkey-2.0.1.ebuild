@@ -22,7 +22,7 @@ HOMEPAGE="http://www.seamonkey-project.org"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa +crypt java ldap mozdevelop moznocompose moznoirc moznomail moznoroaming sqlite restrict-javascript"
+IUSE="+alsa +crypt java ldap mozdevelop moznocompose moznoirc moznomail moznoroaming sqlite"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases"
 SRC_URI="${REL_URI}/${MY_PV}/source/${MY_P}.source.tar.bz2
@@ -59,8 +59,6 @@ RDEPEND="java? ( virtual/jre )
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
 	java? ( >=virtual/jdk-1.4 )"
-
-PDEPEND="restrict-javascript? ( www-plugins/noscript )"
 
 S="${WORKDIR}/comm-1.9.1"
 
