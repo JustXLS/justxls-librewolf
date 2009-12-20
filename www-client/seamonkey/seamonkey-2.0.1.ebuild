@@ -252,7 +252,7 @@ src_install() {
 	done
 
 	echo 'pref("intl.locale.matchOS", true);' >> \
-		${D}/usr/$(get_libdir)/${PN}/defaults/pref/browser-prefs.js \
+		"${D}/usr/$(get_libdir)/${PN}/defaults/pref/browser-prefs.js" \
 			|| die "setting usage of default OS locale"
 
 	# Install icon and .desktop for menu entry
