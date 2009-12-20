@@ -251,13 +251,6 @@ src_install() {
 		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${MY_P}-${X}"
 	done
 
-	local LANG=${linguas%% *}
-	if [[ -n ${LANG} && ${LANG} != "en" ]]; then
-		elog "Setting default locale to ${LANG}"
-		dosed -e "s:general.useragent.locale\", \"en-US\":general.useragent.locale\", \"${LANG}\":" \
-			${MOZILLA_FIVE_HOME}/defaults/pref/suite-l10n.js || \
-			die "sed failed to change locale"
-	fi
 	echo 'pref("intl.locale.matchOS", true);' >> \
 		${D}/usr/$(get_libdir)/${PN}/defaults/pref/browser-prefs.js \
 			|| die "setting usage of default OS locale"
