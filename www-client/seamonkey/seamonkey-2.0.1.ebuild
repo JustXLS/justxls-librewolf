@@ -251,10 +251,6 @@ src_install() {
 		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${MY_P}-${X}"
 	done
 
-	echo 'pref("intl.locale.matchOS", true);' >> \
-		"${D}${MOZILLA_FIVE_HOME}/defaults/pref/browser-prefs.js" \
-			|| die "setting usage of default OS locale"
-
 	# Install icon and .desktop for menu entry
 	newicon "${S}"/suite/branding/content/icon64.png seamonkey.png
 	domenu "${FILESDIR}"/icon/seamonkey.desktop
@@ -264,9 +260,9 @@ src_install() {
 		echo "StartupNotify=true" >> "${D}"/usr/share/applications/seamonkey.desktop
 	fi
 
-	# Add vendor
-	echo "pref(\"general.useragent.vendor\",\"Gentoo\");" \
-		>> "${D}"${MOZILLA_FIVE_HOME}/defaults/pref/vendor.js
+	# Add our default prefs
+	sed "s|SEAMONKEY_PVR|${PVR}|" "${FILESDIR}"/all-gentoo.js \
+		> "${D}"${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js
 
 	# Plugins dir
 	rm -rf "${D}"${MOZILLA_FIVE_HOME}/plugins || die "failed to remove existing plugins dir"
