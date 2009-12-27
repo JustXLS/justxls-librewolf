@@ -44,6 +44,8 @@ DEPEND="${RDEPEND}
 
 S="${WORKDIR}/mozilla-1.9.2"
 
+QA_PRESTRIPPED="usr/lib64/mozilla-firefox/firefox"
+
 pkg_setup() {
 	if ! use bindist ; then
 		einfo
