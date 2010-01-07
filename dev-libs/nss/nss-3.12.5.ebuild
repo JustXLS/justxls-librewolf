@@ -27,9 +27,6 @@ src_unpack() {
 	# Custom changes for gentoo
 	epatch "${FILESDIR}"/"${PN}"-3.12.5-gentoo-fixups.diff
 
-	# Fix up for *bsd/irix
-	epatch "${FILESDIR}"/"${PN}"-3.12.4-freebel.patch
-
 	cd "${S}"/mozilla/security/coreconf
 
 	# modify install path
