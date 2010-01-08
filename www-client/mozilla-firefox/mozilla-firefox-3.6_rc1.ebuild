@@ -4,13 +4,19 @@
 EAPI="2"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools mozextension
 
-XUL_PV="1.9.2_beta5"
+LANGS="af ar as be bg bn-BD bn-IN ca cs cy da de el en en-GB en-US eo es-AR
+es-CL es-ES es-MX et eu fa fi fr fy-NL ga-IE gl gu-IN he hi-IN hr hu id is it ja
+ka kk kn ko ku lt lv mk ml mr nb-NO nl nn-NO oc or pa-IN pl pt-BR pt-PT rm ro
+ru si sk sl sq sr sv-SE ta-LK ta te th tr uk vi zh-CN zh-TW"
+NOSHORTLANGS="en-GB es-AR es-CL es-MX pt-BR zh-CN zh-TW"
+
+XUL_PV="1.9.2_rc1"
 MAJ_XUL_PV="1.9.2"
 MAJ_PV="${PV/_*/}" # Without the _rc and _beta stuff
 DESKTOP_PV="3.6"
-MY_PV="${PV/_beta/b}" # Handle beta for SRC_URI
+MY_PV="${PV/_rc/rc}" # Handle beta for SRC_URI
 PATCH="${PN}-3.6-patches-0.4"
 
 DESCRIPTION="Firefox Web Browser"
@@ -22,8 +28,24 @@ LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="+alsa bindist java libnotify mozdevelop sqlite +networkmanager"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
-SRC_URI="http://dev.gentoo.org/~anarchy/dist/firefox-${MY_PV}.source.tar.bz2
+SRC_URI="${REL_URI}/${MY_PV}/source/firefox-${MY_PV}.source.tar.bz2
 	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
+
+for X in ${LANGS} ; do
+	if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
+		SRC_URI="${SRC_URI}
+			linguas_${X/-/_}? ( ${REL_URI}/${MY_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+	fi
+	IUSE="${IUSE} linguas_${X/-/_}"
+	# english is handled internally
+	if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
+		if [ "${X}" != "en-US" ]; then
+			SRC_URI="${SRC_URI}
+				linguas_${X%%-*}? ( ${REL_URI}/${PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+		fi
+		IUSE="${IUSE} linguas_${X%%-*}"
+	fi
+done
 
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
@@ -46,6 +68,28 @@ S="${WORKDIR}/mozilla-1.9.2"
 
 QA_PRESTRIPPED="usr/$(get_libdir)/${PN}/firefox"
 
+linguas() {
+	local LANG SLANG
+	for LANG in ${LINGUAS}; do
+		if has ${LANG} en en_US; then
+			has en ${linguas} || linguas="${linguas:+"${linguas} "}en"
+			continue
+		elif has ${LANG} ${LANGS//-/_}; then
+			has ${LANG//_/-} ${linguas} || linguas="${linguas:+"${linguas} "}${LANG//_/-}"
+			continue
+		elif [[ " ${LANGS} " == *" ${LANG}-"* ]]; then
+			for X in ${LANGS}; do
+				if [[ "${X}" == "${LANG}-"* ]] && \
+					[[ " ${NOSHORTLANGS} " != *" ${X} "* ]]; then
+					has ${X} ${linguas} || linguas="${linguas:+"${linguas} "}${X}"
+					continue 2
+				fi
+			done
+		fi
+		ewarn "Sorry, but ${PN} does not support the ${LANG} LINGUA"
+	done
+}
+
 pkg_setup() {
 	if ! use bindist ; then
 		einfo
@@ -54,6 +98,16 @@ pkg_setup() {
 		elog "a legal problem with Mozilla Foundation"
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
+}
+
+src_unpack() {
+	unpack ${A}
+
+	linguas
+	for X in ${linguas}; do
+		# FIXME: Add support for unpacking xpis to portage
+		[[ ${X} != "en" ]] && xpi_unpack "${P}-${X}.xpi"
+	done
 }
 
 src_prepare() {
@@ -163,6 +217,11 @@ src_install() {
 	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 
 	emake DESTDIR="${D}" install || die "emake install failed"
+
+	linguas
+	for X in ${linguas}; do
+		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${P}-${X}"
+	done
 
 	# Install icon and .desktop for menu entry
 	if ! use bindist ; then

@@ -7,7 +7,7 @@ WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-pkg-opt-2 autotools
 
-MY_PV="${PV/_beta/b}" # Handle beta
+MY_PV="${PV/_rc/rc}" # Handle beta
 MY_PV="${MY_PV/1.9.2/3.6}"
 MAJ_PV="1.9.2" # from mozilla-* branch name
 PATCH="${PN}-1.9.2-patches-0.1"
@@ -45,16 +45,6 @@ S="${WORKDIR}/mozilla-${MAJ_PV}"
 
 pkg_setup() {
 	java-pkg-opt-2_pkg_setup
-
-	if use sqlite ; then
-		einfo
-		elog "You are enabling system sqlite. Do not file a bug with gentoo if you have"
-		elog "issues that arise from enabling system sqlite. All bugs will be concidered"
-		elog  "invalid. All patches are welcomed to fix any issues that might be found with"
-		elog "system sqlite. If you are starting with a fresh profile you can enable sqlite"
-		elog  "without any major issues."
-		epause 5
-	fi
 }
 
 src_prepare() {
