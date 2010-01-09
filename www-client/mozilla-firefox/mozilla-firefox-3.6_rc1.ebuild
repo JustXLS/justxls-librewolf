@@ -4,7 +4,7 @@
 EAPI="2"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools mozextension
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools mozextension java-pkg-opt-2
 
 LANGS="af ar as be bg bn-BD bn-IN ca cs cy da de el en en-GB en-US eo es-AR
 es-CL es-ES es-MX et eu fa fi fr fy-NL ga-IE gl gu-IN he hi-IN hr hu id is it ja
@@ -62,7 +62,10 @@ RDEPEND="
 	~net-libs/xulrunner-${XUL_PV}[java=,networkmanager=,libnotify=,mozdevelop=]"
 
 DEPEND="${RDEPEND}
+	java? ( >=virtual/jdk-1.4 )
 	dev-util/pkgconfig"
+
+RDEPEND="${RDEPEND} java? ( >=virtual/jre-1.4 )"
 
 S="${WORKDIR}/mozilla-1.9.2"
 
@@ -98,6 +101,8 @@ pkg_setup() {
 		elog "a legal problem with Mozilla Foundation"
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
+
+	java-pkg-opt-2_pkg_setup
 }
 
 src_unpack() {
