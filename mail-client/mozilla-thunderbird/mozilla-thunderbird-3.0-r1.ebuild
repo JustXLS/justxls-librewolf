@@ -113,7 +113,7 @@ src_prepare() {
 	epatch "${WORKDIR}"
 
 	# Fix menus
-	epatch "${FILESDIR}/1000_fix-menus-gentoo.patch"
+	# epatch "${FILESDIR}/1000_fix-menus-gentoo.patch"
 
 	eautoreconf
 
