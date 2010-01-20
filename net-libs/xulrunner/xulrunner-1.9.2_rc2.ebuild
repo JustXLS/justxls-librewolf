@@ -20,7 +20,7 @@ SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/s
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa debug libnotify mozdevelop sqlite +networkmanager"
+IUSE="+alsa debug libnotify +sqlite +networkmanager"
 
 RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=dev-lang/python-2.3[threads]
@@ -114,6 +114,9 @@ src_configure() {
 	mozconfig_annotate 'places' --enable-storage --enable-places
 	mozconfig_annotate '' --enable-safe-browsing
 
+	# Build mozdevelop permately
+	mozconfig_annotate ''  --enable-jsd --enable-xpctools
+
 	# System-wide install specs
 	mozconfig_annotate '' --disable-installer
 	mozconfig_annotate '' --disable-updater
@@ -132,9 +135,6 @@ src_configure() {
 	mozconfig_use_enable libnotify
 	mozconfig_use_enable java javaxpcom
 	mozconfig_use_enable networkmanager necko-wifi
-	# Enable/Disable based on useflag
-	mozconfig_use_enable mozdevelop jsd
-	mozconfig_use_enable mozdevelop xpctools
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
 

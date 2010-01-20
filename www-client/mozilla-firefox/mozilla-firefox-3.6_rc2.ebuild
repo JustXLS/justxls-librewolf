@@ -25,7 +25,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa bindist java libnotify mozdevelop sqlite +networkmanager"
+IUSE="+alsa bindist java libnotify +sqlite +networkmanager"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 SRC_URI="${REL_URI}/${MY_PV}/source/firefox-${MY_PV}.source.tar.bz2
@@ -59,7 +59,7 @@ RDEPEND="
 	x11-libs/pango[X]
 	networkmanager? ( net-wireless/wireless-tools )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
-	~net-libs/xulrunner-${XUL_PV}[java=,networkmanager=,libnotify=,mozdevelop=]"
+	~net-libs/xulrunner-${XUL_PV}[java=,networkmanager=,libnotify=]"
 
 DEPEND="${RDEPEND}
 	java? ( >=virtual/jdk-1.4 )
@@ -159,6 +159,9 @@ src_configure() {
 	mozconfig_annotate 'places' --enable-storage --enable-places
 	mozconfig_annotate '' --enable-safe-browsing
 
+	# Build mozdevelop permately
+	mozconfig_annotate ''  --enable-jsd --enable-xpctools
+
 	# System-wide install specs
 	mozconfig_annotate '' --disable-installer
 	mozconfig_annotate '' --disable-updater
@@ -179,8 +182,6 @@ src_configure() {
 	mozconfig_use_enable libnotify
 	mozconfig_use_enable java javaxpcom
 	mozconfig_use_enable networkmanager necko-wifi
-	mozconfig_use_enable mozdevelop jsd
-	mozconfig_use_enable mozdevelop xpctools
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
 
