@@ -1,6 +1,6 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.0_rc2-r1.ebuild,v 1.1 2009/10/26 00:35:30 anarchy Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.0.2.ebuild,v 1.1 2010/01/15 01:18:57 anarchy Exp $
 
 EAPI="2"
 WANT_AUTOCONF="2.1"
@@ -22,7 +22,7 @@ HOMEPAGE="http://www.seamonkey-project.org"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa +crypt java ldap mozdevelop moznocompose moznoirc moznomail moznoroaming sqlite"
+IUSE="+alsa +crypt java ldap moznocompose moznoirc moznomail moznoroaming"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases"
 SRC_URI="${REL_URI}/${MY_PV}/source/${MY_P}.source.tar.bz2
@@ -50,7 +50,7 @@ RDEPEND="java? ( virtual/jre )
 	>=dev-libs/nss-3.12.2
 	>=dev-libs/nspr-4.8
 	alsa? ( media-libs/alsa-lib )
-	sqlite? ( >=dev-db/sqlite-3.6.20-r1[fts3] )
+	>=dev-db/sqlite-3.6.20-r1[fts3]
 	>=app-text/hunspell-1.2
 	x11-libs/cairo[X]
 	x11-libs/pango[X]
@@ -105,16 +105,6 @@ src_unpack() {
 
 pkg_setup() {
 	java-pkg-opt-2_pkg_setup
-
-	if use sqlite ; then
-		einfo
-		elog "You are enabling system sqlite. Do not file a bug with gentoo if you have"
-		elog "issues that arise from enabling system sqlite. All bugs will be concidered"
-		elog  "invalid. All patches are welcomed to fix any issues that might be found with"
-		elog "system sqlite. If you are starting with a fresh profile you can enable sqlite"
-		elog  "without any major issues."
-		epause 10
-	fi
 }
 
 src_prepare() {
@@ -180,6 +170,7 @@ src_configure() {
 	mozconfig_annotate 'broken' --disable-crashreporter
 	mozconfig_annotate '' --enable-system-hunspell
 	mozconfig_annotate '' --enable-system-sqlite
+	mozconfig_annotate '' --enable-jsd
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate '' --with-system-nspr
@@ -196,7 +187,6 @@ src_configure() {
 	mozconfig_use_enable alsa wave
 	mozconfig_use_enable ldap
 	mozconfig_use_enable ldap ldap-experimental
-	mozconfig_use_enable sqlite system-sqlite
 	mozconfig_use_enable java javaxpcom
 
 	# Finalize and report settings
