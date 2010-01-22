@@ -1,4 +1,4 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.0.2.ebuild,v 1.1 2010/01/15 01:18:57 anarchy Exp $
 
