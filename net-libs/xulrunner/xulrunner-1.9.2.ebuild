@@ -20,7 +20,7 @@ SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/s
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa debug libnotify +sqlite +networkmanager"
+IUSE="+alsa debug libnotify +networkmanager"
 
 RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=dev-lang/python-2.3[threads]
@@ -131,7 +131,6 @@ src_configure() {
 	mozconfig_annotate '' --enable-system-lcms
 	mozconfig_annotate '' --with-system-bz2
 
-	mozconfig_use_enable sqlite system-sqlite
 	mozconfig_use_enable libnotify
 	mozconfig_use_enable java javaxpcom
 	mozconfig_use_enable networkmanager necko-wifi

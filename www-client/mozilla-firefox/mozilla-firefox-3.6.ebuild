@@ -12,7 +12,7 @@ ka kk kn ko ku lt lv mk ml mr nb-NO nl nn-NO oc or pa-IN pl pt-BR pt-PT rm ro
 ru si sk sl sq sr sv-SE ta-LK ta te th tr uk vi zh-CN zh-TW"
 NOSHORTLANGS="en-GB es-AR es-CL es-MX pt-BR zh-CN zh-TW"
 
-XUL_PV="1.9.2_rc2"
+XUL_PV="1.9.2"
 MAJ_XUL_PV="1.9.2"
 MAJ_PV="${PV/_*/}" # Without the _rc and _beta stuff
 DESKTOP_PV="3.6"
@@ -25,7 +25,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa bindist java libnotify +sqlite +networkmanager"
+IUSE="+alsa bindist java libnotify +networkmanager"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 SRC_URI="${REL_URI}/${MY_PV}/source/firefox-${MY_PV}.source.tar.bz2
@@ -54,7 +54,6 @@ RDEPEND="
 	>=app-text/hunspell-1.2
 	sqlite? ( >=dev-db/sqlite-3.6.20-r1[fts3] )
 	alsa? ( media-libs/alsa-lib )
-	>=net-libs/xulrunner-${XUL_PV}[java=,sqlite=]
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
 	networkmanager? ( net-wireless/wireless-tools )
@@ -178,7 +177,6 @@ src_configure() {
 	mozconfig_annotate '' --with-system-libxul
 	mozconfig_annotate '' --with-libxul-sdk=/usr/$(get_libdir)/xulrunner-devel-${MAJ_XUL_PV}
 
-	mozconfig_use_enable sqlite system-sqlite
 	mozconfig_use_enable libnotify
 	mozconfig_use_enable java javaxpcom
 	mozconfig_use_enable networkmanager necko-wifi
