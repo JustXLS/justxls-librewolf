@@ -20,7 +20,7 @@ SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/s
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa debug libnotify +networkmanager"
+IUSE="+alsa debug libnotify +wifi"
 
 RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=dev-lang/python-2.3[threads]
@@ -34,7 +34,7 @@ RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
 	x11-libs/libXt
-	networkmanager? ( net-wireless/wireless-tools )
+	wifi? ( net-wireless/wireless-tools )
 	libnotify? ( >=x11-libs/libnotify-0.4 )"
 
 DEPEND="java? ( >=virtual/jdk-1.4 )
@@ -133,7 +133,7 @@ src_configure() {
 
 	mozconfig_use_enable libnotify
 	mozconfig_use_enable java javaxpcom
-	mozconfig_use_enable networkmanager necko-wifi
+	mozconfig_use_enable wifi necko-wifi
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
 
