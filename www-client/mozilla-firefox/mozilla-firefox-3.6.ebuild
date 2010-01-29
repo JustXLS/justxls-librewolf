@@ -120,6 +120,9 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
+	# Fix media build failure
+	epatch "${FILESDIR}/xulrunner-1.9.2-noalsa-fixup.patch"
+
 	eautoreconf
 
 	cd js/src
