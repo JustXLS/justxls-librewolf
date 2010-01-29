@@ -59,6 +59,9 @@ src_prepare() {
 	# Fix broken mozilla-plugin.pc
 	epatch "${FILESDIR}/${PN}-1.9.2-fix-pkgconfig-file.patch"
 
+	# Fix broken media support
+	epatch "${FILESDIR}/${PN}-1.9.2-noalsa-fixup.patch"
+
 	# Same as in config/autoconf.mk.in
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
 	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_PV}/sdk"
