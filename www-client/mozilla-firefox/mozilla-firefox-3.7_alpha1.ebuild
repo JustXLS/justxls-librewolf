@@ -50,6 +50,12 @@ S="${WORKDIR}/mozilla-1.9.3"
 QA_PRESTRIPPED="usr/$(get_libdir)/${PN}/firefox"
 
 pkg_setup() {
+	# Ensure we always build with C locale.
+	export LANG="C"
+	export LC_ALL="C"
+	export LC_MESSAGES="C"
+	export LC_CTYPE="C"
+
 	if ! use bindist ; then
 		einfo
 		elog "You are enabling official branding. You may not redistribute this build"

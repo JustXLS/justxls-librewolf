@@ -93,6 +93,12 @@ linguas() {
 }
 
 pkg_setup() {
+	# Ensure we always build with C locale.
+	export LANG="C"
+	export LC_ALL="C"
+	export LC_MESSAGES="C"
+	export LC_CTYPE="C"
+
 	if ! use bindist ; then
 		einfo
 		elog "You are enabling official branding. You may not redistribute this build"
@@ -127,9 +133,6 @@ src_prepare() {
 
 	cd js/src
 	eautoreconf
-
-	# We need to re-patch this because autoreconf overwrites it
-	epatch "${FILESDIR}/000_flex-configure-LANG.patch"
 }
 
 src_configure() {

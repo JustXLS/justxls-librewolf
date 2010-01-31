@@ -44,6 +44,12 @@ DEPEND="java? ( >=virtual/jdk-1.4 )
 S="${WORKDIR}/mozilla-${MAJ_PV}"
 
 pkg_setup() {
+	# Ensure we always build with C locale.
+	export LANG="C"
+	export LC_ALL="C"
+	export LC_MESSAGES="C"
+	export LC_CTYPE="C"
+
 	java-pkg-opt-2_pkg_setup
 }
 
@@ -80,10 +86,6 @@ src_prepare() {
 
 	cd js/src
 	eautoreconf
-
-	# Patch in support to reset all LANG variables to C
-	# Do NOT add to patchset as it must be applied after eautoreconf
-	epatch "${FILESDIR}/000_flex-configure-LANG.patch"
 }
 
 src_configure() {

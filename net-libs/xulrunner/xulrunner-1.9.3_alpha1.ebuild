@@ -44,6 +44,12 @@ DEPEND="java? ( >=virtual/jdk-1.4 )
 S="${WORKDIR}/mozilla-${MAJ_PV}"
 
 pkg_setup() {
+	# Ensure we always build with C locale.
+	export LANG="C"
+	export LC_ALL="C"
+	export LC_MESSAGES="C"
+	export LC_CTYPE="C"
+
 	java-pkg-opt-2_pkg_setup
 }
 
