@@ -149,6 +149,7 @@ src_configure() {
 	mozconfig_annotate '' --with-user-appdir=.thunderbird
 	mozconfig_annotate '' --with-system-nspr
 	mozconfig_annotate '' --with-system-nss
+	mozconfig_annotate '' --with-system-sqlite
 	mozconfig_annotate 'broken' --disable-crashreporter
 
 	# Use enable features
