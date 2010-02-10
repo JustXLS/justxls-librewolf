@@ -1,0 +1,57 @@
+From: Ehsan Akhgari <ehsan@mozilla.com>
+
+Fix the sizeof checks in the configure script
+
+
+diff --git a/configure.in b/configure.in
+--- a/configure.in
++++ b/configure.in
+@@ -6267,18 +6267,19 @@ else
+             int main(int argc, char **argv){
+               sqlite3 *db;
+               sqlite3_uint64 r;
+               char *zFilename;
+               FILE *in;
+               int i;
+               int rc;
+               char *zBuf;
+-
+-              zBuf = malloc(1024*3*sizeof(char));
++              const int bufSize = 1024*3;
++
++              zBuf = malloc(bufSize*sizeof(char));
+               assert( zBuf );
+               rc = sqlite3_open(":memory:", &db);
+               assert( rc==SQLITE_OK );
+               sqlite3_close(db);
+               sqlite3_randomness(sizeof(r), &r);
+               zFilename = sqlite3_mprintf("test_db_%llu.sqlite", r);
+               rc = sqlite3_open(zFilename, &db);
+               assert( rc==SQLITE_OK );
+@@ -6289,22 +6290,22 @@ else
+                 "COMMIT;"
+                 "DELETE FROM t1;",
+                 0, 0, 0
+               );
+               assert( rc==SQLITE_OK );
+               sqlite3_close(db);
+               in = fopen(zFilename, "r");
+               assert( in!=0 );
+-              rc = fread(zBuf, 1, sizeof(zBuf), in);
+-              assert( rc==sizeof(zBuf) );
++              rc = fread(zBuf, 1, bufSize, in);
++              assert( rc==bufSize );
+               fclose(in);
+               unlink(zFilename);
+               free( zBuf );
+-              for(i=0; i<sizeof(zBuf)-11; i++){
++              for(i=0; i<bufSize-11; i++){
+                 if( *(zBuf+i)=='h' && memcmp(zBuf+i, "hijklmnopq", 10)==0 ){
+                   return 1;
+                 }
+               }
+               return 0;
+             }],
+             ac_cv_sqlite_secure_delete=yes,
+             ac_cv_sqlite_secure_delete=no,
+

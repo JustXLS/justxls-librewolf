@@ -27,7 +27,7 @@ RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.4
 	>=dev-libs/nspr-4.8
-	>=dev-db/sqlite-3.6.20-r1[fts3]
+	>=dev-db/sqlite-3.6.20-r1[fts3,secure-delete]
 	alsa? ( media-libs/alsa-lib )
 	>=app-text/hunspell-1.2
 	>=media-libs/lcms-1.17
@@ -58,6 +58,9 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
+
+	# Fix broken sqlite-secure-delete check
+	epatch "${FILESDIR}/1500-fix-broken-sqlite.patch"
 
 	# Same as in config/autoconf.mk.in
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
@@ -109,6 +112,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-oji --enable-mathml
 	mozconfig_annotate 'places' --enable-storage --enable-places
 	mozconfig_annotate '' --enable-safe-browsing
+	mozconfig_annotate 'sqlite' --enable-system-sqlite
 
 	# Build mozdevelop permately
 	mozconfig_annotate ''  --enable-jsd --enable-xpctools
