@@ -242,7 +242,7 @@ src_install() {
 		newicon "${S}"/browser/base/branding/icon48.png firefox-icon-unbranded.png
 		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5-unbranded.desktop \
 			${PN}-${DESKTOP_PV}.desktop
-		sed -i -e "s:Bon Echo:Shiretoko:" \
+		sed -i -e "s:Bon Echo:Namoroka:" \
 			"${D}"/usr/share/applications/${PN}-${DESKTOP_PV}.desktop || die "sed failed!"
 	fi
 
