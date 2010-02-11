@@ -1,6 +1,6 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/nss/nss-3.12.4-r2.ebuild,v 1.2 2009/11/06 13:29:36 anarchy Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/nss/nss-3.12.5-r1.ebuild,v 1.1 2010/02/11 03:29:22 anarchy Exp $
 
 inherit eutils flag-o-matic multilib toolchain-funcs
 
@@ -37,7 +37,7 @@ src_unpack() {
 	sed -i -e 's/\$(MKSHLIB) -o/\$(MKSHLIB) \$(LDFLAGS) -o/g' rules.mk
 
 	# Ensure we stay multilib aware
-	sed -i -e "s:gentoo:$(get_libdir):" "${S}"/mozilla/security/nss/config/Makefile || die "Failed to fix for multilib"
+	sed -i -e "s:gentoo\/nss:$(get_libdir):" "${S}"/mozilla/security/nss/config/Makefile || die "Failed to fix for multilib"
 }
 
 src_compile() {
@@ -54,9 +54,6 @@ src_compile() {
 	export BUILD_OPT=1
 	export NSS_USE_SYSTEM_SQLITE=1
 	export NSPR_INCLUDE_DIR=`pkg-config --cflags-only-I nspr | sed 's/-I//'`
-	export NSPR_LIB_DIR=`pkg-config --libs-only-L nspr | sed 's/-L//'`
-	export USE_SYSTEM_ZLIB=1
-	export ZLIB_LIBS=-lz
 	export NSDISTMODE=copy
 	export NSS_ENABLE_ECC=1
 	export XCFLAGS="${CFLAGS}"
@@ -76,12 +73,10 @@ src_install () {
 	MINOR_VERSION=12
 	cd "${S}"/mozilla/security/dist
 
-	# put all *.a files in /usr/lib/nss (because some have conflicting names
-	# with existing libraries)
 	dodir /usr/$(get_libdir)/nss
-	cp -L */lib/*.so "${D}"/usr/$(get_libdir)/nss || die "copying shared libs failed"
-	cp -L */lib/*.chk "${D}"/usr/$(get_libdir)/nss || die "copying chk files failed"
-	cp -L */lib/*.a "${D}"/usr/$(get_libdir)/nss || die "copying libs failed"
+	cp -L */lib/*.so "${D}"/usr/$(get_libdir) || die "copying shared libs failed"
+	cp -L */lib/*.chk "${D}"/usr/$(get_libdir) || die "copying chk files failed"
+	cp -L */lib/libcrmf.a "${D}"/usr/$(get_libdir) || die "copying libs failed"
 
 	# Install nspr-config and pkgconfig file
 	dodir /usr/bin
@@ -91,23 +86,20 @@ src_install () {
 
 	# all the include files
 	insinto /usr/include/nss
-	doins private/nss/*.h
 	doins public/nss/*.h
-	cd "${D}"/usr/$(get_libdir)/nss
+	cd "${D}"/usr/$(get_libdir)
 	for file in *.so; do
 		mv ${file} ${file}.${MINOR_VERSION}
 		ln -s ${file}.${MINOR_VERSION} ${file}
 	done
 
-	# coping with nss being in a different path. We move up priority to
-	# ensure that nss/nspr are used specifically before searching elsewhere.
-	dodir /etc/env.d
-	echo "LDPATH=/usr/$(get_libdir)/nss" > "${D}"/etc/env.d/08nss
-
 	if use utils; then
+		local nssutil
+		nssutils="certutil crlutil cmsutil modutil pk12util signtool signver ssltrap addbuiltin"
+
 		cd "${S}"/mozilla/security/dist/*/bin/
-		for f in *; do
-			newbin ${f} nss${f}
+		for f in $nssutils; do
+			newbin ${f}
 		done
 	fi
 }

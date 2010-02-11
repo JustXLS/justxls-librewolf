@@ -1,6 +1,6 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/nspr/nspr-4.8.ebuild,v 1.5 2009/08/19 22:22:04 volkmar Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/nspr/nspr-4.8.3-r2.ebuild,v 1.1 2010/02/11 03:30:01 anarchy Exp $
 
 inherit eutils multilib toolchain-funcs versionator
 
@@ -13,11 +13,7 @@ SRC_URI="ftp://ftp.mozilla.org/pub/mozilla.org/nspr/releases/v${PV}/src/${P}.tar
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
-IUSE="ipv6 debug"
-
-DEPEND=">=dev-db/sqlite-3.5
-	dev-util/pkgconfig"
-RDEPEND="${DEPEND}"
+IUSE="debug"
 
 src_unpack() {
 	unpack ${A}
@@ -27,7 +23,7 @@ src_unpack() {
 	epatch "${FILESDIR}"/${PN}-4.6.1-config-1.patch
 	epatch "${FILESDIR}"/${PN}-4.6.1-lang.patch
 	epatch "${FILESDIR}"/${PN}-4.7.0-prtime.patch
-	epatch "${FILESDIR}"/${PN}-4.8-pkgconfig-gentoo.patch
+	epatch "${FILESDIR}"/${PN}-4.8-pkgconfig-gentoo-1.patch
 
 	# Respect LDFLAGS
 	sed -i -e 's/\$(MKSHLIB) \$(OBJS)/\$(MKSHLIB) \$(LDFLAGS) \$(OBJS)/g' \
@@ -45,12 +41,11 @@ src_compile() {
 		*) die "Failed to detect whether your arch is 64bits or 32bits, disable distcc if you're using it, please";;
 	esac
 
-	myconf="${myconf} --libdir=/usr/$(get_libdir)/nspr \
-		--enable-system-sqlite 	--with-mozilla --with-pthreads"
+	myconf="${myconf} --libdir=/usr/$(get_libdir)"
 
 	ECONF_SOURCE="../mozilla/nsprpub" econf \
-		$(use_enable ipv6) \
 		$(use_enable debug) \
+		$(use_enable !debug optimize) \
 		${myconf} || die "econf failed"
 	make CC="$(tc-getCC)" CXX="$(tc-getCXX)" || die
 }
@@ -61,14 +56,16 @@ src_install () {
 	cd "${S}"/build
 	emake DESTDIR="${D}" install || die "emake install failed"
 
-	cd "${D}"/usr/$(get_libdir)/nspr
+	cd "${D}"/usr/$(get_libdir)
+	for file in *.a; do
+		einfo "removing static libraries as upstream has requested!"
+		rm ${file}
+	done
+
 	for file in *.so; do
 		mv ${file} ${file}.${MINOR_VERSION}
 		ln -s ${file}.${MINOR_VERSION} ${file}
 	done
-	# cope with libraries being in /usr/lib/nspr
-	dodir /etc/env.d
-	echo "LDPATH=/usr/$(get_libdir)/nspr" > "${D}/etc/env.d/08nspr"
 
 	# install nspr-config
 	dobin "${S}"/build/config/nspr-config

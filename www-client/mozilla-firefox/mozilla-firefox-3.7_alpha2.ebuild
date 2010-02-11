@@ -6,7 +6,7 @@ WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools java-pkg-opt-2
 
-XUL_PV="1.9.3_alpha1"
+XUL_PV="1.9.3_alpha2"
 MAJ_XUL_PV="1.9.3"
 MAJ_PV="${PV/_*/}" # Without the _rc and _beta stuff
 DESKTOP_PV="3.7"
