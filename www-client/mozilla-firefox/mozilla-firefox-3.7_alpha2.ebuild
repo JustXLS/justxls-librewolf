@@ -78,9 +78,6 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
-	# Fix broken check of sqlite-secure-delete
-	epatch "${FILESDIR}/1500-fix-broken-sqlite.patch"
-
 	eautoreconf
 
 	cd js/src
