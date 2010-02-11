@@ -28,7 +28,7 @@ SRC_URI="http://dev.gentoo.org/~anarchy/dist/firefox-${MY_PV}.source.tar.bz2
 
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.4
+	>=dev-libs/nss-3.12.6_beta
 	>=dev-libs/nspr-4.8
 	>=app-text/hunspell-1.2
 	>=dev-db/sqlite-3.6.22-r2[fts3,secure-delete]

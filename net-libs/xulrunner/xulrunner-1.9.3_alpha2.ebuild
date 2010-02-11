@@ -25,7 +25,7 @@ IUSE="+alsa debug libnotify wifi"
 RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=dev-lang/python-2.3[threads]
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.4
+	>=dev-libs/nss-3.12.6_beta
 	>=dev-libs/nspr-4.8
 	>=dev-db/sqlite-3.6.20-r1[fts3,secure-delete]
 	alsa? ( media-libs/alsa-lib )
