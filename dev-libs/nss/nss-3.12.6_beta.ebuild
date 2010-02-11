@@ -6,11 +6,11 @@ inherit eutils flag-o-matic multilib toolchain-funcs
 
 NSPR_VER="4.8"
 RTM_NAME="NSS_${PV//./_}_RTM"
+MY_PV="${PV/_beta/b}"
 DESCRIPTION="Mozilla's Network Security Services library that implements PKI support"
 HOMEPAGE="http://www.mozilla.org/projects/security/pki/nss/"
-SRC_URI="ftp://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/${RTM_NAME}/src/${P}.tar.gz"
-#SRC_URI="http://dev.gentoo.org/~armin76/dist/${P}.tar.bz2
-#	mirror://gentoo/${P}.tar.bz2"
+#SRC_URI="ftp://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/${RTM_NAME}/src/${P}.tar.gz"
+SRC_URI="http://dev.gentoo.org/~anarchy/dist/${PN}-${MY_PV}.tar.gz"
 
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 SLOT="0"
@@ -21,10 +21,13 @@ DEPEND="dev-util/pkgconfig"
 RDEPEND=">=dev-libs/nspr-${NSPR_VER}
 	>=dev-db/sqlite-3.5"
 
+S="${WORKDIR}/${PN}-${MY_PV}"
+
 src_unpack() {
 	unpack ${A}
 
 	# Custom changes for gentoo
+	cd ${S}
 	epatch "${FILESDIR}"/"${PN}"-3.12.5-gentoo-fixups.diff
 
 	cd "${S}"/mozilla/security/coreconf
