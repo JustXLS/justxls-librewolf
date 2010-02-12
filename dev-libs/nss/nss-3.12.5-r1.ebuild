@@ -95,12 +95,12 @@ src_install () {
 	done
 
 	if use utils; then
-		local nssutil
-		nssutils="certutil crlutil cmsutil modutil pk12util signtool signver ssltrap addbuiltin"
+		local nssutils
+		nssutils="certutil crlutil cmsutil modutil pk12util signtool signver ssltap addbuiltin"
 
 		cd "${S}"/mozilla/security/dist/*/bin/
 		for f in $nssutils; do
-			newbin ${f}
+			dobin ${f}
 		done
 	fi
 }
