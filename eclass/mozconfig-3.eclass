@@ -28,9 +28,6 @@ RDEPEND="x11-libs/libXrender
 	!<x11-base/xorg-x11-6.7.0-r2
 	>=x11-libs/cairo-1.6.0
 	system-sqlite? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )"
-	#According to bugs #18573, #204520, and couple of others in Mozilla's
-	#bugzilla. libmng and mng support has been removed in 2003.
-
 
 DEPEND="${RDEPEND}"
 
@@ -41,9 +38,7 @@ mozconfig_config() {
 	    mozconfig_annotate -thebes --enable-default-toolkit=gtk2
 	fi
 
-	if ! use dbus; then
-		mozconfig_annotate '' --disable-dbus
-	fi
+	mozconfig_use_enable dbus
 	mozconfig_use_enable startup-notification
 
 #	if use debug; then
@@ -65,10 +60,7 @@ mozconfig_config() {
 	fi
 #	fi
 
-	if ! use gnome; then
-		mozconfig_annotate -gnome --disable-gnomevfs
-		mozconfig_annotate -gnome --disable-gnomeui
-	fi
-
+	mozconfig_use_enable gnome gnomevfs
+	mozconfig_use_enable gnome gnomeui
 	mozconfig_use_enable system-sqlite
 }
