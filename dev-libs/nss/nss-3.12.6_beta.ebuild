@@ -29,6 +29,7 @@ src_unpack() {
 	# Custom changes for gentoo
 	cd ${S}
 	epatch "${FILESDIR}"/"${PN}"-3.12.5-gentoo-fixups.diff
+	epatch "${FILESDIR}"/"${PN}"-3.12.6-gentoo-fixup-warnings.patch
 
 	cd "${S}"/mozilla/security/coreconf
 
