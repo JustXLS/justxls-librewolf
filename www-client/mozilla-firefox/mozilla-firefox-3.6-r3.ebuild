@@ -25,7 +25,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa bindist java libnotify wifi"
+IUSE="+alsa bindist java libnotify +private wifi"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 SRC_URI="${REL_URI}/${MY_PV}/source/firefox-${MY_PV}.source.tar.bz2
@@ -58,7 +58,7 @@ RDEPEND="
 	x11-libs/pango[X]
 	wifi? ( net-wireless/wireless-tools )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
-	~net-libs/xulrunner-${XUL_PV}[java=,wifi=,libnotify=]"
+	~net-libs/xulrunner-${XUL_PV}[java=,wifi=,libnotify=,private=]"
 
 DEPEND="${RDEPEND}
 	java? ( >=virtual/jdk-1.4 )
@@ -105,6 +105,13 @@ pkg_setup() {
 		elog "to any users on your network or the internet. Doing so puts yourself into"
 		elog "a legal problem with Mozilla Foundation"
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
+	fi
+
+	if ! use private ; then
+		ewarn "You have disabled support for secure-delete in sqlite. This will be removed in"
+		ewarn "the next major release. If you would like secure-delete to be configurable,"
+		ewarn "PLEASE file a bug upstream and cc mozilla@gentoo.org"
+		epause	15
 	fi
 
 	java-pkg-opt-2_pkg_setup

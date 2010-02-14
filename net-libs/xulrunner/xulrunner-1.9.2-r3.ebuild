@@ -20,14 +20,15 @@ SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/s
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa debug libnotify wifi"
+IUSE="+alsa debug libnotify +private wifi"
 
 RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=dev-lang/python-2.3[threads]
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.4
 	>=dev-libs/nspr-4.8
-	>=dev-db/sqlite-3.6.22-r2[fts3,secure-delete]
+	private? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
+	!private? ( >=dev-db/sqlite-3.6.20-r1[fts3] )
 	alsa? ( media-libs/alsa-lib )
 	>=app-text/hunspell-1.2
 	>=media-libs/lcms-1.17
@@ -49,6 +50,13 @@ pkg_setup() {
 	export LC_ALL="C"
 	export LC_MESSAGES="C"
 	export LC_CTYPE="C"
+
+	if ! use private ; then
+		ewarn "You have disabled support for secure-delete in sqlite. This will be removed in"
+		ewarn "the next major release. If you would like secure-delete to be configurable,"
+		ewarn "PLEASE file a bug upstream and cc mozilla@gentoo.org"
+		epause	15
+	fi
 
 	java-pkg-opt-2_pkg_setup
 }
