@@ -6,7 +6,7 @@
 
 inherit multilib flag-o-matic mozcoreconf-2
 
-IUSE="gnome dbus startup-notification system-sqlite"
+IUSE="gnome dbus startup-notification"
 
 RDEPEND="x11-libs/libXrender
 	x11-libs/libXt

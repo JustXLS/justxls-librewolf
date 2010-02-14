@@ -19,7 +19,7 @@ HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="ldap crypt bindist mozdom replytolist lightning"
+IUSE="ldap crypt bindist mozdom lightning"
 PATCH="${PN}-3.0-patches-0.3"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases"
