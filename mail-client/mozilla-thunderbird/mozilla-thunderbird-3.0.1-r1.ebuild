@@ -19,7 +19,7 @@ HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="ldap crypt bindist mozdom lightning"
+IUSE="ldap crypt bindist mozdom replytolist lightning"
 PATCH="${PN}-3.0-patches-0.3"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases"
@@ -45,6 +45,7 @@ done
 RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.3
 	>=dev-libs/nspr-4.8
+	>=dev-db/sqlite-3.6.10
 	>=media-libs/lcms-1.17
 	>=app-text/hunspell-1.2
 	x11-libs/cairo[X]
@@ -145,15 +146,19 @@ src_configure() {
 	mozconfig_annotate '' --with-user-appdir=.thunderbird
 	mozconfig_annotate '' --with-system-nspr
 	mozconfig_annotate '' --with-system-nss
+	mozconfig_annotate '' --with-system-sqlite
 	mozconfig_annotate 'broken' --disable-crashreporter
 
 	# Use enable features
 	mozconfig_use_enable lightning calendar
-	mozconfig_use_enable !bindist official-branding
 
 	# Bug #72667
 	if use mozdom; then
 		MEXTENSIONS="${MEXTENSIONS},inspector"
+	fi
+
+	if ! use bindist; then
+		mozconfig_annotate '' --enable-official-branding
 	fi
 
 	# Finalize and report settings

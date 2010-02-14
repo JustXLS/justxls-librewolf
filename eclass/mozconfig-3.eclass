@@ -26,8 +26,7 @@ RDEPEND="x11-libs/libXrender
 	dbus? ( >=dev-libs/dbus-glib-0.72 )
 	startup-notification? ( >=x11-libs/startup-notification-0.8 )
 	!<x11-base/xorg-x11-6.7.0-r2
-	>=x11-libs/cairo-1.6.0
-	system-sqlite? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )"
+	>=x11-libs/cairo-1.6.0"
 
 DEPEND="${RDEPEND}"
 
@@ -62,5 +61,4 @@ mozconfig_config() {
 
 	mozconfig_use_enable gnome gnomevfs
 	mozconfig_use_enable gnome gnomeui
-	mozconfig_use_enable system-sqlite
 }

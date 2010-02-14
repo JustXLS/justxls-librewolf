@@ -52,6 +52,7 @@ RDEPEND="
 	>=dev-libs/nss-3.12.4
 	>=dev-libs/nspr-4.8
 	>=app-text/hunspell-1.2
+	>=dev-db/sqlite-3.6.22-r2[fts3,secure-delete]
 	alsa? ( media-libs/alsa-lib )
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
@@ -162,6 +163,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-oji --enable-mathml
 	mozconfig_annotate 'places' --enable-storage --enable-places
 	mozconfig_annotate '' --enable-safe-browsing
+	mozconfig_annotate 'sqlite' --enable-system-sqlite
 
 	# Build mozdevelop permately
 	mozconfig_annotate ''  --enable-jsd --enable-xpctools
@@ -187,10 +189,17 @@ src_configure() {
 	mozconfig_use_enable wifi necko-wifi
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
-	mozconfig_use_enable !bindist official-branding
 
 	# Other ff-specific settings
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
+
+	# Enable/Disable audio in firefox
+	mozconfig_use_enable alsa ogg
+	mozconfig_use_enable alsa wave
+
+	if ! use bindist ; then
+		mozconfig_annotate '' --enable-official-branding
+	fi
 
 	# Finalize and report settings
 	mozconfig_final
