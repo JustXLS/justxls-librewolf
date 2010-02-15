@@ -22,8 +22,7 @@ SLOT="0"
 LICENSE="MPL-1.1 GPL-2"
 IUSE="wifi"
 
-DEPEND=">=mail-client/mozilla-thunderbird-3.0
-	wifi? ( net-wireless/wireless-tools )"
+DEPEND=">=mail-client/mozilla-thunderbird-3.0"
 RDEPEND="${DEPEND}
 	|| (
 		(
@@ -35,8 +34,7 @@ RDEPEND="${DEPEND}
 			)
 		)
 		=app-crypt/gnupg-1.4*
-	)
-	wifi? ( net-wireless/wireless-tools )"
+	)"
 
 S="${WORKDIR}"/comm-central
 
@@ -97,10 +95,8 @@ src_configure() {
 		--enable-system-sqlite \
 		--with-default-mozilla-five-home=${MOZILLA_FIVE_HOME} \
 		--with-user-appdir=.thunderbird \
-		--enable-application=mail
-
-	# Use enable features
-	mozconfig_use_enable wifi necko-wifi
+		--enable-application=mail \
+		--disable-necko-wifi
 
 	# Finalize and report settings
 	mozconfig_final
