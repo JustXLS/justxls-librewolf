@@ -50,6 +50,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=media-libs/lcms-1.17
 	>=app-text/hunspell-1.2
 	x11-libs/cairo[X]
+	>=x11-libs/libnotify-0.4
 	x11-libs/pango[X]
 	!x11-plugins/lightning"
 
