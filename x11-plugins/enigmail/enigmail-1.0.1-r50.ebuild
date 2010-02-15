@@ -20,7 +20,7 @@ SRC_URI="http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases/${TBVE
 KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
 SLOT="0"
 LICENSE="MPL-1.1 GPL-2"
-IUSE=""
+IUSE="wifi"
 
 DEPEND=">=mail-client/mozilla-thunderbird-3.0"
 RDEPEND="${DEPEND}
@@ -34,7 +34,8 @@ RDEPEND="${DEPEND}
 			)
 		)
 		=app-crypt/gnupg-1.4*
-	)"
+	)
+	wifi? ( net-wireless/wireless-tools )"
 
 S="${WORKDIR}"/comm-central
 
@@ -96,6 +97,9 @@ src_configure() {
 		--with-default-mozilla-five-home=${MOZILLA_FIVE_HOME} \
 		--with-user-appdir=.thunderbird \
 		--enable-application=mail
+
+	# Use enable features
+	mozconfig_use_enable wifi necko-wifi
 
 	# Finalize and report settings
 	mozconfig_final
