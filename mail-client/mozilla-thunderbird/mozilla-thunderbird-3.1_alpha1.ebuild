@@ -19,7 +19,7 @@ HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="ldap crypt bindist lightning mozdom +private"
+IUSE="ldap crypt bindist libnotify lightning mozdom +private wifi"
 PATCH="${PN}-3.1-patches-0.1"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases"
@@ -50,8 +50,9 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=media-libs/lcms-1.17
 	>=app-text/hunspell-1.2
 	x11-libs/cairo[X]
-	>=x11-libs/libnotify-0.4
 	x11-libs/pango[X]
+	wifi? ( net-wireless/wireless-tools )
+	libnotify? ( >=x11-libs/libnotify-0.4 )
 	!x11-plugins/lightning"
 
 PDEPEND="crypt? ( >=x11-plugins/enigmail-1.0.1-r50 )"
@@ -145,8 +146,6 @@ src_configure() {
 
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 	mozconfig_annotate '' --enable-application=mail
-	mozconfig_use_enable ldap
-	mozconfig_use_enable ldap ldap-experimental
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 	mozconfig_annotate '' --with-user-appdir=.thunderbird
 	mozconfig_annotate '' --with-system-nspr
@@ -155,7 +154,11 @@ src_configure() {
 	mozconfig_annotate 'broken' --disable-crashreporter
 
 	# Use enable features
+	mozconfig_use_enable ldap
+	mozconfig_use_enable ldap ldap-experimental
+	mozconfig_use_enable libnotify
 	mozconfig_use_enable lightning calendar
+	mozconfig_use_enable wifi necko-wifi
 
 	# Bug #72667
 	if use mozdom; then
