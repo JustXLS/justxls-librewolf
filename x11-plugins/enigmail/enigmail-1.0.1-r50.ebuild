@@ -22,7 +22,8 @@ SLOT="0"
 LICENSE="MPL-1.1 GPL-2"
 IUSE="wifi"
 
-DEPEND=">=mail-client/mozilla-thunderbird-3.0"
+DEPEND=">=mail-client/mozilla-thunderbird-3.0
+	wifi? ( net-wireless/wireless-tools )"
 RDEPEND="${DEPEND}
 	|| (
 		(
