@@ -20,7 +20,6 @@ SRC_URI="http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases/${TBVE
 KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
 SLOT="0"
 LICENSE="MPL-1.1 GPL-2"
-IUSE="wifi"
 
 DEPEND=">=mail-client/mozilla-thunderbird-3.0"
 RDEPEND="${DEPEND}
