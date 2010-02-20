@@ -52,7 +52,8 @@ RDEPEND="
 	>=dev-libs/nss-3.12.4
 	>=dev-libs/nspr-4.8
 	>=app-text/hunspell-1.2
-	>=dev-db/sqlite-3.6.22-r2[fts3,secure-delete]
+	private? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
+	!private? ( >=dev-db/sqlite-3.6.22-r2[fts3] )
 	alsa? ( media-libs/alsa-lib )
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
