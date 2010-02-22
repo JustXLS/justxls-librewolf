@@ -22,7 +22,7 @@ HOMEPAGE="http://www.seamonkey-project.org"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa +chatzilla +composer +crypt java ldap +mailclient +private +roaming"
+IUSE="+alsa +chatzilla +composer +crypt java ldap +mailclient +roaming -system-sqlite"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases"
 SRC_URI="${REL_URI}/${MY_PV}/source/${MY_P}.source.tar.bz2
@@ -50,8 +50,7 @@ RDEPEND="java? ( virtual/jre )
 	>=dev-libs/nss-3.12.2
 	>=dev-libs/nspr-4.8
 	alsa? ( media-libs/alsa-lib )
-	private? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
-	!private? ( >=dev-db/sqlite-3.6.22-r2[fts3] )
+	system-sqlite? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
 	>=app-text/hunspell-1.2
 	>=x11-libs/gtk+-2.10.0
 	>=x11-libs/cairo-1.8.8[X]
@@ -106,12 +105,6 @@ src_unpack() {
 }
 
 pkg_setup() {
-	if ! use private ; then
-		ewarn "You have disabled support for secure-delete in sqlite. This will be removed in"
-		ewarn "the next major release. If you would like secure-delete to be configurable,"
-		ewarn "PLEASE file a bug upstream and cc mozilla@gentoo.org"
-	fi
-
 	java-pkg-opt-2_pkg_setup
 }
 
@@ -172,7 +165,6 @@ src_configure() {
 	mozconfig_annotate 'broken' --disable-mochitest
 	mozconfig_annotate 'broken' --disable-crashreporter
 	mozconfig_annotate '' --enable-system-hunspell
-	mozconfig_annotate '' --enable-system-sqlite
 	mozconfig_annotate '' --enable-jsd
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
@@ -192,6 +184,7 @@ src_configure() {
 	mozconfig_use_enable ldap
 	mozconfig_use_enable ldap ldap-experimental
 	mozconfig_use_enable mailclient mailnews
+	mozconfig_use_enable system-sqlite
 
 	# Finalize and report settings
 	mozconfig_final
