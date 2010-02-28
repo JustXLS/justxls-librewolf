@@ -211,7 +211,7 @@ src_install() {
 		newicon "${S}"/other-licenses/branding/thunderbird/content/icon48.png thunderbird-icon.png
 		domenu "${FILESDIR}"/icon/${PN}.desktop
 	else
-		newicon "${S}"/mail/base/content/icon48.png thunderbird-icon-unbranded.png
+		newicon "${S}"/mail/branding/unofficial/content/icon48.png thunderbird-icon-unbranded.png
 		newmenu "${FILESDIR}"/icon/${PN}-unbranded.desktop \
 			${PN}.desktop
 	fi

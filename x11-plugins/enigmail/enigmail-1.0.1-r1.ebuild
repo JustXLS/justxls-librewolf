@@ -8,8 +8,8 @@ EAPI="2"
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozextension autotools
 MY_P="${P/_beta/b}"
 EMVER="${PV}"
-TBVER="3.1a1"
-PATCH="mozilla-thunderbird-3.1-patches-0.1"
+TBVER="3.0.1"
+PATCH="mozilla-thunderbird-3.0-patches-0.3"
 
 DESCRIPTION="GnuPG encryption plugin for thunderbird."
 HOMEPAGE="http://enigmail.mozdev.org"
@@ -20,22 +20,23 @@ SRC_URI="http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases/${TBVE
 KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
 SLOT="0"
 LICENSE="MPL-1.1 GPL-2"
+IUSE="system-sqlite"
 
-DEPEND=">=mail-client/mozilla-thunderbird-3.0"
+DEPEND=">=mail-client/mozilla-thunderbird-3.0[system-sqlite=]"
 RDEPEND="${DEPEND}
+	system-sqlite? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
 	|| (
 		(
 			>=app-crypt/gnupg-2.0
 			|| (
 				app-crypt/pinentry[gtk]
 				app-crypt/pinentry[qt4]
-				app-crypt/pinentry[qt3]
 			)
 		)
 		=app-crypt/gnupg-1.4*
 	)"
 
-S="${WORKDIR}"/comm-central
+S="${WORKDIR}"/comm-1.9.1
 
 pkg_setup() {
 	# EAPI=2 ensures they are set properly.
@@ -50,6 +51,7 @@ src_unpack() {
 
 src_prepare(){
 	# Apply our patches
+	EPATCH_EXCLUDE="106-bz466250_att349521_fix_ftbfs_with_cairo_fb.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
@@ -69,7 +71,6 @@ src_prepare(){
 
 	# Fix installation of enigmail.js
 	epatch "${FILESDIR}"/70_enigmail-fix.patch
-	epatch "${FILESDIR}"/71_tb31-seamonkey21-fix.patch
 
 	eautoreconf
 }
@@ -94,8 +95,9 @@ src_configure() {
 		--enable-system-sqlite \
 		--with-default-mozilla-five-home=${MOZILLA_FIVE_HOME} \
 		--with-user-appdir=.thunderbird \
-		--enable-application=mail \
-		--disable-necko-wifi
+		--enable-application=mail
+
+	mozconfig_use_enable system-sqlite
 
 	# Finalize and report settings
 	mozconfig_final
