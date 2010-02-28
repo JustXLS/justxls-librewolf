@@ -22,7 +22,7 @@ HOMEPAGE="http://www.seamonkey-project.org"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa +chatzilla +composer +crypt java ldap +mailclient +roaming -system-sqlite"
+IUSE="+alsa +chatzilla +composer +crypt java ldap +mailclient +roaming system-sqlite"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases"
 SRC_URI="${REL_URI}/${MY_PV}/source/${MY_P}.source.tar.bz2
@@ -63,12 +63,6 @@ DEPEND="${RDEPEND}
 
 S="${WORKDIR}/comm-1.9.1"
 
-# Needed by src_compile() and src_install().
-# Would do in pkg_setup but that loses the export attribute,
-# they become pure shell variables.
-export BUILD_OFFICIAL=1
-export MOZILLA_OFFICIAL=1
-
 linguas() {
 	local LANG SLANG
 	for LANG in ${LINGUAS}; do
@@ -105,6 +99,9 @@ src_unpack() {
 }
 
 pkg_setup() {
+	export BUILD_OFFICIAL=1
+	export MOZILLA_OFFICIAL=1
+
 	java-pkg-opt-2_pkg_setup
 }
 

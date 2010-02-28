@@ -19,7 +19,7 @@ HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="ldap crypt bindist lightning mozdom +private"
+IUSE="ldap crypt bindist lightning mozdom system-sqlite"
 PATCH="${PN}-3.0-patches-0.3"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases"
@@ -45,8 +45,7 @@ done
 RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.3
 	>=dev-libs/nspr-4.8
-	private? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
-	!private? ( >=dev-db/sqlite-3.6.20-r1[fts3] )
+	system-sqlite? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
 	>=media-libs/lcms-1.17
 	>=app-text/hunspell-1.2
 	x11-libs/cairo[X]
@@ -56,12 +55,6 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 PDEPEND="crypt? ( >=x11-plugins/enigmail-1.0 )"
 
 S="${WORKDIR}"/comm-1.9.1
-
-# Needed by src_compile() and src_install().
-# Would do in pkg_setup but that loses the export attribute, they
-# become pure shell variables.
-export BUILD_OFFICIAL=1
-export MOZILLA_OFFICIAL=1
 
 linguas() {
 	local LANG SLANG
@@ -86,6 +79,9 @@ linguas() {
 }
 
 pkg_setup(){
+	export BUILD_OFFICIAL=1
+	export MOZILLA_OFFICIAL=1
+
 	if ! use bindist; then
 		elog "You are enabling official branding. You may not redistribute this build"
 		elog "to any users on your network or the internet. Doing so puts yourself into"
@@ -93,12 +89,6 @@ pkg_setup(){
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
 
-	if ! use private ; then
-		ewarn "You have disabled support for secure-delete in sqlite. This will be removed in"
-		ewarn "the next major release. If you would like secure-delete to be configurable,"
-		ewarn "PLEASE file a bug upstream and cc mozilla@gentoo.org"
-		epause	15
-	fi
 }
 
 src_unpack() {
@@ -154,11 +144,11 @@ src_configure() {
 	mozconfig_annotate '' --with-user-appdir=.thunderbird
 	mozconfig_annotate '' --with-system-nspr
 	mozconfig_annotate '' --with-system-nss
-	mozconfig_annotate '' --with-system-sqlite
 	mozconfig_annotate 'broken' --disable-crashreporter
 
 	# Use enable features
 	mozconfig_use_enable lightning calendar
+	mozconfig_use_enable system-sqlite
 
 	# Bug #72667
 	if use mozdom; then

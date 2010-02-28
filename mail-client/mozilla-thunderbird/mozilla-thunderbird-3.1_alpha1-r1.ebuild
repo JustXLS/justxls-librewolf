@@ -19,7 +19,7 @@ HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="ldap crypt bindist libnotify lightning mozdom +private wifi"
+IUSE="ldap crypt bindist libnotify lightning mozdom system-sqlite wifi"
 PATCH="${PN}-3.1-patches-0.1"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases"
@@ -45,8 +45,7 @@ SRC_URI="${REL_URI}/${MY_PV2}/source/thunderbird-${MY_PV2}.source.tar.bz2
 RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.3
 	>=dev-libs/nspr-4.8
-	private? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
-	!private? ( >=dev-db/sqlite-3.6.20-r1[fts3] )
+	system-sqlite? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
 	>=media-libs/lcms-1.17
 	>=app-text/hunspell-1.2
 	x11-libs/cairo[X]
@@ -82,22 +81,15 @@ S="${WORKDIR}"/comm-central
 #}
 
 pkg_setup(){
+	export BUILD_OFFICIAL=1
+	export MOZILLA_OFFICIAL=1
+
 	if ! use bindist; then
 		elog "You are enabling official branding. You may not redistribute this build"
 		elog "to any users on your network or the internet. Doing so puts yourself into"
 		elog "a legal problem with Mozilla Foundation"
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
-
-	if ! use private ; then
-		ewarn "You have disabled support for secure-delete in sqlite. This will be removed in"
-		ewarn "the next major release. If you would like secure-delete to be configurable,"
-		ewarn "PLEASE file a bug upstream and cc mozilla@gentoo.org"
-		epause	15
-	fi
-
-	export BUILD_OFFICIAL=1
-	export MOZILLA_OFFICIAL=1
 }
 
 src_unpack() {
@@ -150,7 +142,6 @@ src_configure() {
 	mozconfig_annotate '' --with-user-appdir=.thunderbird
 	mozconfig_annotate '' --with-system-nspr
 	mozconfig_annotate '' --with-system-nss
-	mozconfig_annotate '' --with-system-sqlite
 	mozconfig_annotate 'broken' --disable-crashreporter
 
 	# Use enable features
@@ -159,14 +150,12 @@ src_configure() {
 	mozconfig_use_enable libnotify
 	mozconfig_use_enable lightning calendar
 	mozconfig_use_enable wifi necko-wifi
+	mozconfig_use_enable system-sqlite
+	mozconfig_use_enable !bindist official-branding
 
 	# Bug #72667
 	if use mozdom; then
 		MEXTENSIONS="${MEXTENSIONS},inspector"
-	fi
-
-	if ! use bindist; then
-		mozconfig_annotate '' --enable-official-branding
 	fi
 
 	# Finalize and report settings
