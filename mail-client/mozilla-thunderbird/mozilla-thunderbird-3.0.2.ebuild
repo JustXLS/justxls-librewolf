@@ -78,7 +78,7 @@ linguas() {
 	done
 }
 
-pkg_setup(){
+pkg_setup() {
 	export BUILD_OFFICIAL=1
 	export MOZILLA_OFFICIAL=1
 
@@ -88,7 +88,6 @@ pkg_setup(){
 		elog "a legal problem with Mozilla Foundation"
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
-
 }
 
 src_unpack() {
