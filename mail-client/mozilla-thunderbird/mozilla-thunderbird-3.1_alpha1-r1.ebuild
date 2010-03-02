@@ -80,7 +80,7 @@ S="${WORKDIR}"/comm-central
 #	done
 #}
 
-pkg_setup(){
+pkg_setup() {
 	export BUILD_OFFICIAL=1
 	export MOZILLA_OFFICIAL=1
 
