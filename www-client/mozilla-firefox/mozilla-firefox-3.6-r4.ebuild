@@ -107,13 +107,6 @@ pkg_setup() {
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
 
-	if ! use private ; then
-		ewarn "You have disabled support for secure-delete in sqlite. This will be removed in"
-		ewarn "the next major release. If you would like secure-delete to be configurable,"
-		ewarn "PLEASE file a bug upstream and cc mozilla@gentoo.org"
-		epause	15
-	fi
-
 	java-pkg-opt-2_pkg_setup
 }
 
