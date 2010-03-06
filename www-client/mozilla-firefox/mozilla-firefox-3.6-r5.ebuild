@@ -235,7 +235,7 @@ src_install() {
 		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5.desktop \
 			${PN}-${DESKTOP_PV}.desktop
 	else
-		newicon "${S}"/browser/base/branding/icon48.png firefox-icon-unbranded.png
+		newicon "${S}"/browser/branding/unofficial/content/icon48.png firefox-icon-unbranded.png
 		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5-unbranded.desktop \
 			${PN}-${DESKTOP_PV}.desktop
 		sed -i -e "s:Bon Echo:Namoroka:" \
