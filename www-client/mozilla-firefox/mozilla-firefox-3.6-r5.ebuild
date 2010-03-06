@@ -129,6 +129,9 @@ src_prepare() {
 	# Fix media build failure
 	epatch "${FILESDIR}/xulrunner-1.9.2-noalsa-fixup.patch"
 
+	# Fix broken alignment
+	epatch "${FILESDIR}/1000_fix_alignment.patch"
+
 	eautoreconf
 
 	cd js/src

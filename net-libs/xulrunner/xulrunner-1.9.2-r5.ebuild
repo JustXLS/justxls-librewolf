@@ -68,6 +68,9 @@ src_prepare() {
 	# Fix broken media support
 	epatch "${FILESDIR}/${PN}-1.9.2-noalsa-fixup.patch"
 
+	# Fix broken alignment
+	epatch "${FILESDIR}/1000_fix_alignment.patch"
+
 	# Same as in config/autoconf.mk.in
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
 	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_PV}/sdk"
