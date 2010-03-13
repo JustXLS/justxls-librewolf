@@ -10,8 +10,8 @@ inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozext
 # Languages not rebuilt for beta3 "pt-PT he sr bg gl zn-CN vi"
 #NOSHORTLANGS="es-AR en-GB pt-BR"
 
-MY_PV2="${PV/_alpha/a}"
-MY_P="${P/_alpha/a}"
+MY_PV2="${PV/_beta/b}"
+MY_P="${P/_beta/b}"
 
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
