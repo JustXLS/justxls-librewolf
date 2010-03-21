@@ -1,17 +1,17 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/mail-client/mozilla-thunderbird/mozilla-thunderbird-3.0.ebuild,v 1.3 2009/12/19 17:21:05 anarchy Exp $
+# $Header: /var/cvsroot/gentoo-x86/mail-client/mozilla-thunderbird/mozilla-thunderbird-3.0.3-r1.ebuild,v 1.1 2010/03/07 20:51:54 anarchy Exp $
 EAPI="2"
 WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozextension autotools
 
-#LANGS="af ar be ca cs de el en-US en-GB es-AR es-ES et eu fi fr fy-NL ga-IE hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR ro ru si sk sv-SE ta-LK tr uk"
-# Languages not rebuilt for beta3 "pt-PT he sr bg gl zn-CN vi"
-#NOSHORTLANGS="es-AR en-GB pt-BR"
+LANGS="af be bg ca cs da de el en-GB en-US es-AR es-ES eu fi fr ga-IE he hu it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR pt-PT ru sk sv-SE tr uk zh-CN zh-TW"
+# Languages not rebuilt for "sl mk"
+NOSHORTLANGS="en-GB es-AR pt-BR zh-TW"
 
-MY_PV2="${PV/_beta/b}"
-MY_P="${P/_beta/b}"
+MY_PV2="${PV/_rc/rc}"
+MY_P="${P/_rc/rc}"
 
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
@@ -19,28 +19,28 @@ HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="alsa ldap crypt bindist libnotify lightning mozdom system-sqlite wifi"
-PATCH="${PN}-3.1-patches-0.1"
+IUSE="alsa ldap crypt bindist lightning mozdom system-sqlite"
+PATCH="${PN}-3.0-patches-0.3"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases"
 SRC_URI="${REL_URI}/${MY_PV2}/source/thunderbird-${MY_PV2}.source.tar.bz2
 	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
 
-#for X in ${LANGS} ; do
-#	if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
-#		SRC_URI="${SRC_URI}
-#			linguas_${X/-/_}? ( ${REL_URI}/${MY_PV2}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
-#	fi
-#	IUSE="${IUSE} linguas_${X/-/_}"
-#	# english is handled internally
-#	if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
-#		if [ "${X}" != "en-US" ]; then
-#			SRC_URI="${SRC_URI}
-#				linguas_${X%%-*}? ( ${REL_URI}/${PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
-#		fi
-#		IUSE="${IUSE} linguas_${X%%-*}"
-#	fi
-#done
+for X in ${LANGS} ; do
+	if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
+		SRC_URI="${SRC_URI}
+			linguas_${X/-/_}? ( ${REL_URI}/${MY_PV2}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+	fi
+	IUSE="${IUSE} linguas_${X/-/_}"
+	# english is handled internally
+	if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
+		if [ "${X}" != "en-US" ]; then
+			SRC_URI="${SRC_URI}
+				linguas_${X%%-*}? ( ${REL_URI}/${PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+		fi
+		IUSE="${IUSE} linguas_${X%%-*}"
+	fi
+done
 
 RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.3
@@ -51,35 +51,33 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=app-text/hunspell-1.2
 	x11-libs/cairo[X]
 	x11-libs/pango[X]
-	wifi? ( net-wireless/wireless-tools )
-	libnotify? ( >=x11-libs/libnotify-0.4 )
 	!x11-plugins/lightning"
 
-PDEPEND="crypt? ( >=x11-plugins/enigmail-1.0.1-r50 )"
+PDEPEND="crypt? ( >=x11-plugins/enigmail-1.0 )"
 
-S="${WORKDIR}"/comm-central
+S="${WORKDIR}"/comm-1.9.1
 
-#linguas() {
-#	local LANG SLANG
-#	for LANG in ${LINGUAS}; do
-#		if has ${LANG} en en_US; then
-#			has en ${linguas} || linguas="${linguas:+"${linguas} "}en"
-#			continue
-#		elif has ${LANG} ${LANGS//-/_}; then
-#			has ${LANG//_/-} ${linguas} || linguas="${linguas:+"${linguas} "}${LANG//_/-}"
-#			continue
-#		elif [[ " ${LANGS} " == *" ${LANG}-"* ]]; then
-#			for X in ${LANGS}; do
-#				if [[ "${X}" == "${LANG}-"* ]] && \
-#					[[ " ${NOSHORTLANGS} " != *" ${X} "* ]]; then
-#					has ${X} ${linguas} || linguas="${linguas:+"${linguas} "}${X}"
-#					continue 2
-#				fi
-#			done
-#		fi
-#		ewarn "Sorry, but ${PN} does not support the ${LANG} LINGUA"
-#	done
-#}
+linguas() {
+	local LANG SLANG
+	for LANG in ${LINGUAS}; do
+		if has ${LANG} en en_US; then
+			has en ${linguas} || linguas="${linguas:+"${linguas} "}en"
+			continue
+		elif has ${LANG} ${LANGS//-/_}; then
+			has ${LANG//_/-} ${linguas} || linguas="${linguas:+"${linguas} "}${LANG//_/-}"
+			continue
+		elif [[ " ${LANGS} " == *" ${LANG}-"* ]]; then
+			for X in ${LANGS}; do
+				if [[ "${X}" == "${LANG}-"* ]] && \
+					[[ " ${NOSHORTLANGS} " != *" ${X} "* ]]; then
+					has ${X} ${linguas} || linguas="${linguas:+"${linguas} "}${X}"
+					continue 2
+				fi
+			done
+		fi
+		ewarn "Sorry, but ${PN} does not support the ${LANG} LINGUA"
+	done
+}
 
 pkg_setup() {
 	export BUILD_OFFICIAL=1
@@ -108,12 +106,10 @@ src_unpack() {
 
 src_prepare() {
 	# Apply our patches
+	EPATCH_EXCLUDE="106-bz466250_att349521_fix_ftbfs_with_cairo_fb.patch"
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
-
-	# Fix broken media support
-	epatch "${FILESDIR}/${PN}-3.1-noalsa-fixup.patch"
 
 	eautoreconf
 
@@ -142,6 +138,8 @@ src_configure() {
 
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 	mozconfig_annotate '' --enable-application=mail
+	mozconfig_use_enable ldap
+	mozconfig_use_enable ldap ldap-experimental
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 	mozconfig_annotate '' --with-user-appdir=.thunderbird
 	mozconfig_annotate '' --with-system-nspr
@@ -149,19 +147,18 @@ src_configure() {
 	mozconfig_annotate 'broken' --disable-crashreporter
 
 	# Use enable features
-	mozconfig_use_enable ldap
-	mozconfig_use_enable ldap ldap-experimental
-	mozconfig_use_enable libnotify
 	mozconfig_use_enable lightning calendar
-	mozconfig_use_enable wifi necko-wifi
 	mozconfig_use_enable system-sqlite
-	mozconfig_use_enable !bindist official-branding
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
 
 	# Bug #72667
 	if use mozdom; then
 		MEXTENSIONS="${MEXTENSIONS},inspector"
+	fi
+
+	if ! use bindist; then
+		mozconfig_annotate '' --enable-official-branding
 	fi
 
 	# Finalize and report settings
@@ -208,16 +205,16 @@ src_install() {
 		unzip "${S}"/mozilla/dist/xpi-stage/gdata-provider.xpi
 	fi
 
-	#linguas
-	#for X in ${linguas}; do
-	#	[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${P}-${X}"
-	#done
+	linguas
+	for X in ${linguas}; do
+		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${P}-${X}"
+	done
 
 	if ! use bindist; then
 		newicon "${S}"/other-licenses/branding/thunderbird/content/icon48.png thunderbird-icon.png
 		domenu "${FILESDIR}"/icon/${PN}.desktop
 	else
-		newicon "${S}"/mail/branding/unofficial/content/icon48.png thunderbird-icon-unbranded.png
+		newicon "${S}"/mail/branding/nightly/content/icon48.png thunderbird-icon-unbranded.png
 		newmenu "${FILESDIR}"/icon/${PN}-unbranded.desktop \
 			${PN}.desktop
 	fi
