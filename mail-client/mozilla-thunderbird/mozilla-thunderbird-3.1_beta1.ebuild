@@ -96,14 +96,14 @@ pkg_setup() {
 src_unpack() {
 	unpack ${A}
 
-	linguas
-	for X in ${linguas}; do
-		# FIXME: Add support for unpacking xpis to portage
-		[[ ${X} != "en" ]] && xpi_unpack "${P}-${X}.xpi"
-	done
-	if [[ ${linguas} != "" && ${linguas} != "en" ]]; then
-		einfo "Selected language packs (first will be default): ${linguas}"
-	fi
+#	linguas
+#	for X in ${linguas}; do
+#		# FIXME: Add support for unpacking xpis to portage
+#		[[ ${X} != "en" ]] && xpi_unpack "${P}-${X}.xpi"
+#	done
+#	if [[ ${linguas} != "" && ${linguas} != "en" ]]; then
+#		einfo "Selected language packs (first will be default): ${linguas}"
+#	fi
 }
 
 src_prepare() {
@@ -197,15 +197,22 @@ src_install() {
 	emake DESTDIR="${D}" install || die "emake install failed"
 
 	if use lightning ; then
-		declare emid
+		declare emid emd1 emid2
 
-		cd "${T}"
-		unzip "${S}"/mozilla/dist/xpi-stage/gdata-provider.xpi install.rdf
-		emid=$(sed -n '/<em:id>/!d; s/.*\({.*}\).*/\1/; p; q' install.rdf)
-
+		emid="{a62ef8ec-5fdc-40c2-873c-223b8a6925cc}"
 		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid}
 		cd "${D}"${MOZILLA_FIVE_HOME}/extensions/${emid}
 		unzip "${S}"/mozilla/dist/xpi-stage/gdata-provider.xpi
+
+		emid1="calendar-timezones@mozilla.org"
+		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid1}
+		cd "${D}"${MOZILLA_FIVE_HOME}/extensions/${emid1}
+		unzip "${S}"/mozilla/dist/xpi-stage/calendar-timezones.xpi
+
+		emid2="{e2fda1a4-762b-4020-b5ad-a41df1933103}"
+		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid2}
+		cd "${D}"${MOZILLA_FIVE_HOME}/extensions/${emid2}
+		unzip "${S}"/mozilla/dist/xpi-stage/lightning.xpi
 	fi
 
 	#linguas
