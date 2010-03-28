@@ -27,7 +27,7 @@ RDEPEND="java? ( >=virtual/jre-1.4 )
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.6_beta
 	>=dev-libs/nspr-4.8
-	system-sqlite? ( >=dev-db/sqlite-3.6.20-r1[fts3,secure-delete] )
+	system-sqlite? ( >=dev-db/sqlite-3.6.23[fts3,secure-delete] )
 	alsa? ( media-libs/alsa-lib )
 	>=app-text/hunspell-1.2
 	>=media-libs/lcms-1.17
@@ -58,6 +58,8 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
+
+	epatch "${FILESDIR}/1000_fix-system-sqlite-2.6.23.patch"
 
 	# Same as in config/autoconf.mk.in
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
@@ -109,9 +111,6 @@ src_configure() {
 	mozconfig_annotate '' --enable-oji --enable-mathml
 	mozconfig_annotate 'places' --enable-storage --enable-places
 	mozconfig_annotate '' --enable-safe-browsing
-
-	# Build mozdevelop permately
-	mozconfig_annotate ''  --enable-jsd --enable-xpctools
 
 	# System-wide install specs
 	mozconfig_annotate '' --disable-installer
