@@ -147,6 +147,7 @@ src_configure() {
 	mozconfig_annotate '' --with-system-nspr
 	mozconfig_annotate '' --with-system-nss
 	mozconfig_annotate 'broken' --disable-crashreporter
+	mozconfig_annotate '' --with-system-hunspell
 
 	# Use enable features
 	mozconfig_use_enable ldap
