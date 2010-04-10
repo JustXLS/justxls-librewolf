@@ -59,7 +59,7 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
-	epatch "${FILESDIR}/1000_fix-system-sqlite-2.6.23.patch"
+	epatch "${FILESDIR}/1000_fix-system-sqlite.patch"
 
 	# Same as in config/autoconf.mk.in
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
