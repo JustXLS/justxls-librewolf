@@ -80,6 +80,9 @@ src_prepare() {
 
 	epatch "${FILESDIR}/1000_fix-system-sqlite.patch"
 
+	# Allow user to apply any additional patches without modifing ebuild
+	epatch_user
+
 	eautoreconf
 
 	cd js/src
@@ -139,7 +142,7 @@ src_configure() {
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_enable !bindist official-branding
 
-	if [[ ($(tc-arch) == "amd64" || $(tc-arch) == "x86" || $(tc-arch) == "arm" || $(tc-arch) == "sparc" ) ]];  then
+	if use amd64 || use x86 || use arm || use sparc; then
 		mozconfig_annotate '' --enable-tracejit
 	fi
 
