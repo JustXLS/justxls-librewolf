@@ -139,6 +139,10 @@ src_configure() {
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_enable !bindist official-branding
 
+	if [[ ($(tc-arch) == "amd64" || $(tc-arch) == "x86" || $(tc-arch) == "arm" || $(tc-arch) == "sparc" ) ]];  then
+		mozconfig_annotate '' --enable-tracejit
+	fi
+
 	# Other ff-specific settings
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 

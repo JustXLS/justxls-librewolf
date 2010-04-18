@@ -133,6 +133,10 @@ src_configure() {
 	mozconfig_use_enable alsa wave
 	mozconfig_use_enable system-sqlite
 
+	if [[ ($(tc-arch) == "amd64" || $(tc-arch) == "x86" || $(tc-arch) == "arm" || $(tc-arch) == "sparc" ) ]];  then
+		mozconfig_annotate '' --enable-tracejit
+	fi
+
 	# Debug
 	if use debug ; then
 		mozconfig_annotate 'debug' --disable-optimize
