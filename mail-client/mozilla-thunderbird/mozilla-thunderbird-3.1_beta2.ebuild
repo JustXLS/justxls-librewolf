@@ -22,8 +22,8 @@ LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="alsa ldap crypt bindist libnotify lightning mozdom system-sqlite wifi"
 PATCH="${PN}-3.1-patches-0.1"
 
-REL_URI="http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases"
-SRC_URI="${REL_URI}/${MY_PV2}/source/thunderbird-${MY_PV2}.source.tar.bz2
+REL_URI="ftp://ftp.mozilla.org/pub/mozilla.org/thunderbird/nightly/"
+SRC_URI="${REL_URI}/${MY_PV2}-candidates/build1/source/thunderbird-${MY_PV2}.source.tar.bz2
 	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
 
 #for X in ${LANGS} ; do
@@ -57,7 +57,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 
 PDEPEND="crypt? ( >=x11-plugins/enigmail-1.0.1-r50 )"
 
-S="${WORKDIR}"/comm-central
+S="${WORKDIR}"/comm-1.9.2
 
 #linguas() {
 #	local LANG SLANG
