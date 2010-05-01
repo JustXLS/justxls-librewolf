@@ -23,7 +23,7 @@ IUSE="alsa ldap crypt bindist libnotify lightning mozdom system-sqlite wifi"
 PATCH="${PN}-3.1-patches-0.1"
 
 REL_URI="ftp://ftp.mozilla.org/pub/mozilla.org/thunderbird/nightly/"
-SRC_URI="${REL_URI}/${MY_PV2}-candidates/build1/source/thunderbird-${MY_PV2}.source.tar.bz2
+SRC_URI="${REL_URI}/${MY_PV2}-candidates/build2/source/thunderbird-${MY_PV2}.source.tar.bz2
 	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
 
 #for X in ${LANGS} ; do
