@@ -8,12 +8,14 @@ EAPI="2"
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozextension autotools
 MY_P="${P/_beta/b}"
 EMVER="${PV}"
-TBVER="3.1b1"
+TBVER="3.1b2"
 PATCH="mozilla-thunderbird-3.1-patches-0.1"
 
 DESCRIPTION="GnuPG encryption plugin for thunderbird."
 HOMEPAGE="http://enigmail.mozdev.org"
-SRC_URI="http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases/${TBVER}/source/thunderbird-${TBVER}.source.tar.bz2
+REL_URI="ftp://ftp.mozilla.org/pub/mozilla.org/thunderbird/nightly/"
+# SRC_URI="http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases/${TBVER}/source/thunderbird-${TBVER}.source.tar.bz2
+SRC_URI="${REL_URI}/${TBVER}-candidates/build2/source/thunderbird-${TBVER}.source.tar.bz2
 	http://www.mozilla-enigmail.org/download/source/${PN}-${EMVER}.tar.gz
 	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
 
@@ -37,7 +39,7 @@ RDEPEND="${DEPEND}
 		=app-crypt/gnupg-1.4*
 	)"
 
-S="${WORKDIR}"/comm-central
+S="${WORKDIR}"/comm-1.9.2
 
 pkg_setup() {
 	# EAPI=2 ensures they are set properly.
@@ -97,7 +99,8 @@ src_configure() {
 		--with-default-mozilla-five-home=${MOZILLA_FIVE_HOME} \
 		--with-user-appdir=.thunderbird \
 		--enable-application=mail \
-		--disable-necko-wifi
+		--disable-necko-wifi \
+		--disable-libnotify
 
 	mozconfig_use_enable system-sqlite
 
