@@ -6,12 +6,13 @@ WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozextension autotools
 
-#LANGS="af ar be ca cs de el en-US en-GB es-AR es-ES et eu fi fr fy-NL ga-IE hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR ro ru si sk sv-SE ta-LK tr uk"
-# Languages not rebuilt for beta3 "pt-PT he sr bg gl zn-CN vi"
-#NOSHORTLANGS="es-AR en-GB pt-BR"
+# Port before completeion.
+# ta-LK sl mk 
+LANGS="af ar be bg ca cs da de el en-GB en-US es-AR es-ES et eu fi fr fy-NL ga-IE he hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR pt-PT ro ru si sk sv-SE tr uk zh-CN zh-TW"
+NOSHORTLANGS="en-GB es-AR pt-BR zh-TW" 
 
-MY_PV2="${PV/_beta/b}"
-MY_P="${P/_beta/b}"
+MY_PV2="${PV/_rc/rc}"
+MY_P="${P/_rc/rc}"
 
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
@@ -22,25 +23,25 @@ LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="alsa ldap crypt bindist libnotify lightning mozdom system-sqlite wifi"
 PATCH="${PN}-3.1-patches-0.1"
 
-REL_URI="ftp://ftp.mozilla.org/pub/mozilla.org/thunderbird/nightly/"
-SRC_URI="${REL_URI}/${MY_PV2}-candidates/build2/source/thunderbird-${MY_PV2}.source.tar.bz2
+REL_URI="http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases"
+SRC_URI="${REL_URI}/${MY_PV2}/source/thunderbird-${MY_PV2}.source.tar.bz2
 	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
 
-#for X in ${LANGS} ; do
-#	if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
-#		SRC_URI="${SRC_URI}
-#			linguas_${X/-/_}? ( ${REL_URI}/${MY_PV2}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
-#	fi
-#	IUSE="${IUSE} linguas_${X/-/_}"
-#	# english is handled internally
-#	if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
-#		if [ "${X}" != "en-US" ]; then
-#			SRC_URI="${SRC_URI}
-#				linguas_${X%%-*}? ( ${REL_URI}/${PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
-#		fi
-#		IUSE="${IUSE} linguas_${X%%-*}"
-#	fi
-#done
+for X in ${LANGS} ; do
+	if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
+		SRC_URI="${SRC_URI}
+			linguas_${X/-/_}? ( ${REL_URI}/${MY_PV2}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+	fi
+	IUSE="${IUSE} linguas_${X/-/_}"
+	# english is handled internally
+	if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
+		if [ "${X}" != "en-US" ]; then
+			SRC_URI="${SRC_URI}
+				linguas_${X%%-*}? ( ${REL_URI}/${PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+		fi
+		IUSE="${IUSE} linguas_${X%%-*}"
+	fi
+done
 
 RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.3
@@ -55,31 +56,31 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	libnotify? ( >=x11-libs/libnotify-0.4 )
 	!x11-plugins/lightning"
 
-PDEPEND="crypt? ( >=x11-plugins/enigmail-1.0.1-r50 )"
+PDEPEND="crypt? ( >=x11-plugins/enigmail-1.1 )"
 
 S="${WORKDIR}"/comm-1.9.2
 
-#linguas() {
-#	local LANG SLANG
-#	for LANG in ${LINGUAS}; do
-#		if has ${LANG} en en_US; then
-#			has en ${linguas} || linguas="${linguas:+"${linguas} "}en"
-#			continue
-#		elif has ${LANG} ${LANGS//-/_}; then
-#			has ${LANG//_/-} ${linguas} || linguas="${linguas:+"${linguas} "}${LANG//_/-}"
-#			continue
-#		elif [[ " ${LANGS} " == *" ${LANG}-"* ]]; then
-#			for X in ${LANGS}; do
-#				if [[ "${X}" == "${LANG}-"* ]] && \
-#					[[ " ${NOSHORTLANGS} " != *" ${X} "* ]]; then
-#					has ${X} ${linguas} || linguas="${linguas:+"${linguas} "}${X}"
-#					continue 2
-#				fi
-#			done
-#		fi
-#		ewarn "Sorry, but ${PN} does not support the ${LANG} LINGUA"
-#	done
-#}
+linguas() {
+	local LANG SLANG
+	for LANG in ${LINGUAS}; do
+		if has ${LANG} en en_US; then
+			has en ${linguas} || linguas="${linguas:+"${linguas} "}en"
+			continue
+		elif has ${LANG} ${LANGS//-/_}; then
+			has ${LANG//_/-} ${linguas} || linguas="${linguas:+"${linguas} "}${LANG//_/-}"
+			continue
+		elif [[ " ${LANGS} " == *" ${LANG}-"* ]]; then
+			for X in ${LANGS}; do
+				if [[ "${X}" == "${LANG}-"* ]] && \
+					[[ " ${NOSHORTLANGS} " != *" ${X} "* ]]; then
+					has ${X} ${linguas} || linguas="${linguas:+"${linguas} "}${X}"
+					continue 2
+				fi
+			done
+		fi
+		ewarn "Sorry, but ${PN} does not support the ${LANG} LINGUA"
+	done
+}
 
 pkg_setup() {
 	export BUILD_OFFICIAL=1
@@ -96,14 +97,14 @@ pkg_setup() {
 src_unpack() {
 	unpack ${A}
 
-#	linguas
-#	for X in ${linguas}; do
-#		# FIXME: Add support for unpacking xpis to portage
-#		[[ ${X} != "en" ]] && xpi_unpack "${P}-${X}.xpi"
-#	done
-#	if [[ ${linguas} != "" && ${linguas} != "en" ]]; then
-#		einfo "Selected language packs (first will be default): ${linguas}"
-#	fi
+	linguas
+	for X in ${linguas}; do
+		# FIXME: Add support for unpacking xpis to portage
+		[[ ${X} != "en" ]] && xpi_unpack "${P}-${X}.xpi"
+	done
+	if [[ ${linguas} != "" && ${linguas} != "en" ]]; then
+		einfo "Selected language packs (first will be default): ${linguas}"
+	fi
 }
 
 src_prepare() {
@@ -216,10 +217,10 @@ src_install() {
 		unzip "${S}"/mozilla/dist/xpi-stage/lightning.xpi
 	fi
 
-	#linguas
-	#for X in ${linguas}; do
-	#	[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${P}-${X}"
-	#done
+	linguas
+	for X in ${linguas}; do
+		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${P}-${X}"
+	done
 
 	if ! use bindist; then
 		newicon "${S}"/other-licenses/branding/thunderbird/content/icon48.png thunderbird-icon.png

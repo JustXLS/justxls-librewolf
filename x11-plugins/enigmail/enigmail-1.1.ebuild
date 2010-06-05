@@ -8,14 +8,13 @@ EAPI="2"
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozextension autotools
 MY_P="${P/_beta/b}"
 EMVER="${PV}"
-TBVER="3.1b2"
+TBVER="3.1rc1"
 PATCH="mozilla-thunderbird-3.1-patches-0.1"
 
 DESCRIPTION="GnuPG encryption plugin for thunderbird."
 HOMEPAGE="http://enigmail.mozdev.org"
 REL_URI="ftp://ftp.mozilla.org/pub/mozilla.org/thunderbird/nightly/"
-# SRC_URI="http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases/${TBVER}/source/thunderbird-${TBVER}.source.tar.bz2
-SRC_URI="${REL_URI}/${TBVER}-candidates/build2/source/thunderbird-${TBVER}.source.tar.bz2
+SRC_URI="http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases/${TBVER}/source/thunderbird-${TBVER}.source.tar.bz2
 	http://www.mozilla-enigmail.org/download/source/${PN}-${EMVER}.tar.gz
 	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
 
@@ -24,7 +23,7 @@ SLOT="0"
 LICENSE="MPL-1.1 GPL-2"
 IUSE="system-sqlite"
 
-DEPEND=">=mail-client/mozilla-thunderbird-3.1_alpha1"
+DEPEND=">=mail-client/mozilla-thunderbird-3.1_beta1[system-sqlite=]"
 RDEPEND="${DEPEND}
 	system-sqlite? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
 	|| (
@@ -33,7 +32,6 @@ RDEPEND="${DEPEND}
 			|| (
 				app-crypt/pinentry[gtk]
 				app-crypt/pinentry[qt4]
-				app-crypt/pinentry[qt3]
 			)
 		)
 		=app-crypt/gnupg-1.4*
@@ -73,7 +71,6 @@ src_prepare(){
 
 	# Fix installation of enigmail.js
 	epatch "${FILESDIR}"/70_enigmail-fix.patch
-	epatch "${FILESDIR}"/71_tb31-seamonkey21-fix.patch
 
 	eautoreconf
 }
@@ -95,7 +92,6 @@ src_configure() {
 	mozconfig_annotate '' \
 		--with-system-nspr \
 		--with-system-nss \
-		--enable-system-sqlite \
 		--with-default-mozilla-five-home=${MOZILLA_FIVE_HOME} \
 		--with-user-appdir=.thunderbird \
 		--enable-application=mail \
