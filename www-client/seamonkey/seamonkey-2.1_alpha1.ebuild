@@ -1,19 +1,21 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.0.2.ebuild,v 1.1 2010/01/15 01:18:57 anarchy Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.0.4-r1.ebuild,v 1.1 2010/04/09 03:56:59 polynomial-c Exp $
 
 EAPI="2"
 WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib fdo-mime autotools mozextension java-pkg-opt-2
 
-PATCH="${PN}-2.0.3-patches-0.1"
-EMVER="1.0.1"
+PATCH="${PN}-2.0.5-patches-01"
+EMVER="1.1"
 
-LANGS="be ca cs de en-US es-AR es-ES fr gl hu it ja ka lt nb-NO nl pl pt-PT ru sk sv-SE tr"
-NOSHORTLANGS="es-AR es-ES nb-NO pt-PT sv-SE"
+#LANGS="be ca cs de en-US es-AR es-ES fr gl hu it ja ka lt nb-NO nl pl pt-PT ru sk sv-SE tr"
+#NOSHORTLANGS="es-AR es-ES nb-NO pt-PT sv-SE"
 
-MY_PV="${PV/_rc/rc}"
+MY_PV="${PV/_alpha/a}"
+MY_PV="${MY_PV/_beta/b}"
+MY_PV="${MY_PV/_rc/rc}"
 MY_P="${PN}-${MY_PV}"
 
 DESCRIPTION="Seamonkey Web Browser"
@@ -22,46 +24,49 @@ HOMEPAGE="http://www.seamonkey-project.org"
 KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa +chatzilla +composer +crypt java ldap +mailclient +roaming system-sqlite"
+IUSE="+alsa +chatzilla +composer +crypt libnotify java ldap +mailclient +roaming system-sqlite wifi"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases"
 SRC_URI="${REL_URI}/${MY_PV}/source/${MY_P}.source.tar.bz2
 	http://dev.gentoo.org/~polynomial-c/${PATCH}.tar.bz2
 	crypt? ( mailclient? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz ) )"
 
-for X in ${LANGS} ; do
-	if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
-		SRC_URI="${SRC_URI}
-			linguas_${X/-/_}? ( ${REL_URI}/${MY_PV}/langpack/${MY_P}.${X}.langpack.xpi -> ${MY_P}-${X}.xpi )"
-	fi
-	IUSE="${IUSE} linguas_${X/-/_}"
-	# english is handled internally
-	if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
-		if [ "${X}" != "en-US" ]; then
-			SRC_URI="${SRC_URI}
-				linguas_${X%%-*}? ( ${REL_URI}/${MY_PV}/langpack/${MY_P}.${X}.langpack.xpi -> ${MY_P}-${X}.xpi )"
-		fi
-		IUSE="${IUSE} linguas_${X%%-*}"
-	fi
-done
+#for X in ${LANGS} ; do
+#	if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
+#		SRC_URI="${SRC_URI}
+#			linguas_${X/-/_}? ( ${REL_URI}/${MY_PV}/langpack/${MY_P}.${X}.langpack.xpi -> ${MY_P}-${X}.xpi )"
+#	fi
+#	IUSE="${IUSE} linguas_${X/-/_}"
+#	# english is handled internally
+#	if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
+#		if [ "${X}" != "en-US" ]; then
+#			SRC_URI="${SRC_URI}
+#				linguas_${X%%-*}? ( ${REL_URI}/${MY_PV}/langpack/${MY_P}.${X}.langpack.xpi -> ${MY_P}-${X}.xpi )"
+#		fi
+#		IUSE="${IUSE} linguas_${X%%-*}"
+#	fi
+#done
 
 RDEPEND="java? ( virtual/jre )
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.2
-	>=dev-libs/nspr-4.8
+	>=dev-libs/nspr-4.8.4
 	alsa? ( media-libs/alsa-lib )
-	system-sqlite? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
+	system-sqlite? ( >=dev-db/sqlite-3.6.23.1[fts3,secure-delete] )
+	>=media-libs/libpng-1.4.1[apng]
 	>=app-text/hunspell-1.2
 	>=x11-libs/gtk+-2.10.0
 	>=x11-libs/cairo-1.8.8[X]
 	>=x11-libs/pango-1.14.0[X]
-	crypt? ( mailclient? ( >=app-crypt/gnupg-1.4 ) )"
+	libnotify? ( >=x11-libs/libnotify-0.4 )
+	crypt? ( mailclient? ( >=app-crypt/gnupg-1.4 ) )
+	wifi? ( net-wireless/wireless-tools )"
 
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
 	java? ( >=virtual/jdk-1.4 )"
 
-S="${WORKDIR}/comm-1.9.1"
+S="${WORKDIR}/comm-central"
 
 linguas() {
 	local LANG SLANG
@@ -88,14 +93,14 @@ linguas() {
 src_unpack() {
 	unpack ${A}
 
-	linguas
-	for X in ${linguas}; do
-		# FIXME: Add support for unpacking xpis to portage
-		[[ ${X} != "en" ]] && xpi_unpack "${MY_P}-${X}.xpi"
-	done
-	if [[ ${linguas} != "" && ${linguas} != "en" ]]; then
-		einfo "Selected language packs (first will be default): ${linguas}"
-	fi
+	#linguas
+	#for X in ${linguas}; do
+	#	# FIXME: Add support for unpacking xpis to portage
+	#	[[ ${X} != "en" ]] && xpi_unpack "${MY_P}-${X}.xpi"
+	#done
+	#if [[ ${linguas} != "" && ${linguas} != "en" ]]; then
+	#	einfo "Selected language packs (first will be default): ${linguas}"
+	#fi
 }
 
 pkg_setup() {
@@ -109,9 +114,13 @@ src_prepare() {
 	java-pkg-opt-2_src_prepare
 
 	# Apply our patches
+	EPATCH_EXCLUDE="1002_fix-system-hunspell-dict-detections.patch
+			118-bz467766_att351173-dont-reset-user-prefs-on-upgrade.patch
+			310-gecko-1.9.1-cairo-1.8.10-crash-fix.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
+
 
 	if use crypt && use mailclient ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
@@ -121,6 +130,14 @@ src_prepare() {
 		cd "${S}"
 	fi
 
+	pushd "${S}"/mozilla &>/dev/null || die pushd
+	epatch "${FILESDIR}"/2.1a1/v00e-551438-embedded-1.4.1.diff
+	#epatch "${FILESDIR}"/2.1a1/nspr-static-assert-configure-test.patch
+	epatch "${FILESDIR}"/2.1a1/${MY_P}-svg-compile-error.patch
+	popd &>/dev/null || die popd
+
+	eautoreconf
+	cd "${S}"/mozilla || die
 	eautoreconf
 }
 
@@ -177,11 +194,19 @@ src_configure() {
 	# Enable/Disable based on USE flags
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
+	mozconfig_use_enable libnotify
 	mozconfig_use_enable java javaxpcom
 	mozconfig_use_enable ldap
 	mozconfig_use_enable ldap ldap-experimental
 	mozconfig_use_enable mailclient mailnews
 	mozconfig_use_enable system-sqlite
+	mozconfig_use_enable wifi necko-wifi
+
+        # ZOMG! Mozilla guys wanna have APNG in libpng if building with
+        # system-libpng. Kids, leave your fingers from drugs that make you
+        # do such nasty "extensions"!!!
+        # See https://bugs.gentoo.org/183370 for details.
+        mozconfig_annotate '' --with-system-png
 
 	# Finalize and report settings
 	mozconfig_final
@@ -230,14 +255,15 @@ src_install() {
 		unzip "${S}"/mozilla/dist/bin/enigmail*.xpi
 	fi
 
-	linguas
-	for X in ${linguas}; do
-		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${MY_P}-${X}"
-	done
+	#linguas
+	#for X in ${linguas}; do
+	#	[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${MY_P}-${X}"
+	#done
 
 	# Install icon and .desktop for menu entry
-	newicon "${S}"/suite/branding/content/icon64.png seamonkey.png
-	domenu "${FILESDIR}"/icon/seamonkey.desktop
+	newicon "${S}"/suite/branding/nightly/content/icon64.png seamonkey.png \
+		|| die "newicon"
+	domenu "${FILESDIR}"/icon/seamonkey.desktop || die "domenu"
 
 	# Add StartupNotify=true bug 290401
 	if use startup-notification ; then
@@ -250,10 +276,11 @@ src_install() {
 
 	# Plugins dir
 	rm -rf "${D}"${MOZILLA_FIVE_HOME}/plugins || die "failed to remove existing plugins dir"
-	dosym ../nsbrowser/plugins "${MOZILLA_FIVE_HOME}"/plugins
+	dosym ../nsbrowser/plugins "${MOZILLA_FIVE_HOME}"/plugins \
+		|| die "dosym"
 
 	# shiny new man page
-	doman "${S}"/suite/app/${PN}.1
+	doman "${S}"/suite/app/${PN}.1 || die "doman"
 }
 
 pkg_preinst() {
