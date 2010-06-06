@@ -10,4 +10,5 @@
 >=www-client/mozilla-firefox-3.7_alpha1
 >=mail-client/mozilla-thunderbird-3.1_alpha1
 >=x11-plugins/enigmail-1.0.1-r50
+>=www-client/seamonkey-2.1_alpha1
 
