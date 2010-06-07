@@ -1,6 +1,6 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/nspr/nspr-4.8.3-r2.ebuild,v 1.1 2010/02/11 03:30:01 anarchy Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/nspr/nspr-4.8.4-r1.ebuild,v 1.1 2010/05/16 18:39:14 anarchy Exp $
 
 inherit eutils multilib toolchain-funcs versionator
 
@@ -8,8 +8,9 @@ MIN_PV="$(get_version_component_range 2)"
 
 DESCRIPTION="Netscape Portable Runtime"
 HOMEPAGE="http://www.mozilla.org/projects/nspr/"
-SRC_URI="ftp://ftp.mozilla.org/pub/mozilla.org/nspr/releases/v${PV}/src/${P}.tar.gz"
-
+#SRC_URI="ftp://ftp.mozilla.org/pub/mozilla.org/nspr/releases/v${PV}/src/${P}.tar.gz"
+SRC_URI="http://dev.gentoo.org/~anarchy/dist/${P}.tar.gz
+"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
@@ -23,7 +24,7 @@ src_unpack() {
 	epatch "${FILESDIR}"/${PN}-4.6.1-config-1.patch
 	epatch "${FILESDIR}"/${PN}-4.6.1-lang.patch
 	epatch "${FILESDIR}"/${PN}-4.7.0-prtime.patch
-	epatch "${FILESDIR}"/${PN}-4.8-pkgconfig-gentoo-1.patch
+	epatch "${FILESDIR}"/${PN}-4.8-pkgconfig-gentoo-3.patch
 
 	# Respect LDFLAGS
 	sed -i -e 's/\$(MKSHLIB) \$(OBJS)/\$(MKSHLIB) \$(LDFLAGS) \$(OBJS)/g' \
@@ -47,7 +48,7 @@ src_compile() {
 		$(use_enable debug) \
 		$(use_enable !debug optimize) \
 		${myconf} || die "econf failed"
-	make CC="$(tc-getCC)" CXX="$(tc-getCXX)" || die
+	emake CC="$(tc-getCC)" CXX="$(tc-getCXX)" || die "failed to build"
 }
 
 src_install () {
@@ -59,23 +60,23 @@ src_install () {
 	cd "${D}"/usr/$(get_libdir)
 	for file in *.a; do
 		einfo "removing static libraries as upstream has requested!"
-		rm ${file}
+		rm -f ${file} || die "failed to remove staic libraries."
 	done
 
 	for file in *.so; do
-		mv ${file} ${file}.${MINOR_VERSION}
-		ln -s ${file}.${MINOR_VERSION} ${file}
+		mv ${file} ${file}.${MINOR_VERSION} || die "failed to mv files around"
+		ln -s ${file}.${MINOR_VERSION} ${file} || die "failed to symlink files."
 	done
 
 	# install nspr-config
-	dobin "${S}"/build/config/nspr-config
+	dobin "${S}"/build/config/nspr-config || die "failed to install nspr-config"
 
 	# create pkg-config file
 	insinto /usr/$(get_libdir)/pkgconfig/
-	doins "${S}"/build/config/nspr.pc
+	doins "${S}"/build/config/nspr.pc || die "failed to insall nspr pkg-config file"
 
 	# Remove stupid files in /usr/bin
-	rm "${D}"/usr/bin/prerr.properties
+	rm -f "${D}"/usr/bin/prerr.properties || die "failed to cleanup unneeded files"
 }
 
 pkg_postinst() {

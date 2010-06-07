@@ -53,7 +53,7 @@ diff -urN nspr-4.8-orig/mozilla/nsprpub/config/nspr.pc.in nspr-4.8/mozilla/nsprp
 +Name: NSPR
 +Description: The Netscape Portable Runtime
 +Version: @MOD_MAJOR_VERSION@.@MOD_MINOR_VERSION@.@MOD_PATCH_VERSION@
-+Libs: -L${libdir} -lplds@MOD_MAJOR_VERSION@ -lplc@MOD_MAJOR_VERSION@ -lnspr@MOD_MAJOR_VERSION@ -lpthread 
++Libs: -L${libdir} -lplds@MOD_MAJOR_VERSION@ -lplc@MOD_MAJOR_VERSION@ -lnspr@MOD_MAJOR_VERSION@ -lpthread -Wl,-R${libdir}
 +Cflags: -I${includedir}
 +
 diff -urN nspr-4.8-orig/mozilla/nsprpub/config/rules.mk nspr-4.8/mozilla/nsprpub/config/rules.mk
