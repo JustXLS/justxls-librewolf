@@ -7,8 +7,8 @@ WANT_AUTOCONF="2.1"
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozextension autotools
 
 # Port before completeion.
-# ta-LK sl mk 
-LANGS="af ar be bg ca cs da de el en-GB en-US es-AR es-ES et eu fi fr fy-NL ga-IE he hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR pt-PT ro ru si sk sv-SE tr uk zh-CN zh-TW"
+# ta-LK mk 
+LANGS="af ar be bg ca cs da de el en-GB en-US es-AR es-ES et eu fi fr fy-NL ga-IE he hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR pt-PT ro ru si sk sl sv-SE tr uk zh-CN zh-TW"
 NOSHORTLANGS="en-GB es-AR pt-BR zh-TW" 
 
 MY_PV="${PV/_rc/rc}"
