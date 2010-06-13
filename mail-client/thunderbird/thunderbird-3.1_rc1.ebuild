@@ -11,7 +11,7 @@ inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozext
 LANGS="af ar be bg ca cs da de el en-GB en-US es-AR es-ES et eu fi fr fy-NL ga-IE he hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR pt-PT ro ru si sk sv-SE tr uk zh-CN zh-TW"
 NOSHORTLANGS="en-GB es-AR pt-BR zh-TW" 
 
-MY_PV2="${PV/_rc/rc}"
+MY_PV="${PV/_rc/rc}"
 MY_P="${P/_rc/rc}"
 
 DESCRIPTION="Thunderbird Mail Client"
@@ -21,23 +21,23 @@ KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="alsa ldap crypt bindist libnotify lightning mozdom system-sqlite wifi"
-PATCH="${PN}-3.1-patches-0.1"
+PATCH="mozilla-${PN}-3.1-patches-0.1"
 
-REL_URI="http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases"
-SRC_URI="${REL_URI}/${MY_PV2}/source/thunderbird-${MY_PV2}.source.tar.bz2
+REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases"
+SRC_URI="${REL_URI}/${MY_PV}/source/${MY_P}.source.tar.bz2
 	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
 
 for X in ${LANGS} ; do
 	if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
 		SRC_URI="${SRC_URI}
-			linguas_${X/-/_}? ( ${REL_URI}/${MY_PV2}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+			linguas_${X/-/_}? ( ${REL_URI}/${MY_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
 	fi
 	IUSE="${IUSE} linguas_${X/-/_}"
 	# english is handled internally
 	if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
 		if [ "${X}" != "en-US" ]; then
 			SRC_URI="${SRC_URI}
-				linguas_${X%%-*}? ( ${REL_URI}/${PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+				linguas_${X%%-*}? ( ${REL_URI}/${MY_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
 		fi
 		IUSE="${IUSE} linguas_${X%%-*}"
 	fi
@@ -125,7 +125,7 @@ src_prepare() {
 }
 
 src_configure() {
-	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/mozilla-${PN}"
 	MEXTENSIONS="default"
 
 	####################################
@@ -194,7 +194,7 @@ src_compile() {
 }
 
 src_install() {
-	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/mozilla-${PN}"
 
 	emake DESTDIR="${D}" install || die "emake install failed"
 

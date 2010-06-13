@@ -23,7 +23,7 @@ SLOT="0"
 LICENSE="MPL-1.1 GPL-2"
 IUSE="system-sqlite"
 
-DEPEND=">=mail-client/mozilla-thunderbird-3.1_beta1[system-sqlite=]"
+DEPEND=">=mail-client/thunderbird-3.1_beta1[system-sqlite=]"
 RDEPEND="${DEPEND}
 	system-sqlite? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
 	|| (
