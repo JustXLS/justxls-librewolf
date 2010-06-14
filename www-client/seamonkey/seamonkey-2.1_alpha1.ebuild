@@ -50,7 +50,7 @@ SRC_URI="${REL_URI}/${MY_PV}/source/${MY_P}.source.tar.bz2
 RDEPEND="java? ( virtual/jre )
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.2
-	>=dev-libs/nspr-4.8.4
+	>=dev-libs/nspr-4.8.5
 	alsa? ( media-libs/alsa-lib )
 	system-sqlite? ( >=dev-db/sqlite-3.6.23.1[fts3,secure-delete] )
 	>=app-text/hunspell-1.2
@@ -131,8 +131,8 @@ src_prepare() {
 
 	pushd "${S}"/mozilla &>/dev/null || die pushd
 	epatch "${FILESDIR}"/2.1a1/v00e-551438-embedded-1.4.1.diff
-	#epatch "${FILESDIR}"/2.1a1/nspr-static-assert-configure-test.patch
-	epatch "${FILESDIR}"/2.1a1/${MY_P}-svg-compile-error.patch
+	epatch "${FILESDIR}"/2.1a1/nspr-static-assert-configure-test.patch
+	#epatch "${FILESDIR}"/2.1a1/${MY_P}-svg-compile-error.patch
 	popd &>/dev/null || die popd
 
 	eautoreconf
