@@ -1,16 +1,17 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/www-client/mozilla-firefox/mozilla-firefox-3.6.ebuild,v 1.2 2010/01/22 13:45:32 anarchy Exp $
+
 EAPI="2"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools java-pkg-opt-2
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools java-pkg-opt-2 mozextension versionator
 
-XUL_PV="1.9.3_alpha5"
 MAJ_XUL_PV="1.9.3"
-MAJ_PV="${PV/_*/}" # Without the _rc and _beta stuff
-DESKTOP_PV="3.7"
-MY_PV="${PV/_alpha/a}" # Handle beta for SRC_URI
+MAJ_FF_PV="$(get_version_component_range 1-2)" # 3.5, 3.6, 4.0, etc.
+XUL_PV="${MAJ_XUL_PV}${PV/${MAJ_FF_PV}/}" # 1.9.3_alpha6, 1.9.2.3, etc.
+FF_PV="${PV/_alpha/a}" # Handle beta for SRC_URI
+CHANGESET="18463a042fca"
 PATCH="${PN}-3.7-patches-0.1"
 
 DESCRIPTION="Firefox Web Browser"
@@ -19,35 +20,90 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa bindist java libnotify system-sqlite wifi"
+IUSE="+alsa bindist java libnotify system-sqlite +webm wifi"
 
-#REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
-#SRC_URI="${REL_URI}/${MY_PV}/source/firefox-${MY_PV}.source.tar.bz2
-SRC_URI="http://dev.gentoo.org/~anarchy/dist/firefox-${MY_PV}.source.tar.bz2
-	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
+# More URIs appended below...
+SRC_URI="http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
 
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.6_beta
-	>=dev-libs/nspr-4.8
+	>=dev-libs/nss-3.12.6
+	>=dev-libs/nspr-4.8.5
 	>=app-text/hunspell-1.2
-	system-sqlite? ( >=dev-db/sqlite-3.6.23[fts3,secure-delete] )
-	alsa? ( media-libs/alsa-lib )
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
-	wifi? ( net-wireless/wireless-tools )
+
+	alsa? ( media-libs/alsa-lib )
+	java? ( >=virtual/jre-1.4 )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
-	~net-libs/xulrunner-${XUL_PV}[java=,wifi=,libnotify=,system-sqlite=]"
+	system-sqlite? ( >=dev-db/sqlite-3.6.23[fts3,secure-delete] )
+	wifi? ( net-wireless/wireless-tools )
+	~net-libs/xulrunner-${XUL_PV}[java=,wifi=,libnotify=,system-sqlite=,webm=]"
 
 DEPEND="${RDEPEND}
 	java? ( >=virtual/jdk-1.4 )
 	dev-util/pkgconfig"
 
-RDEPEND="${RDEPEND} java? ( >=virtual/jre-1.4 )"
+if [[ ${PV} =~ alpha ]]; then
+	# No source releases or language packs for alpha
+	SRC_URI="${SRC_URI}
+		http://hg.mozilla.org/mozilla-central/archive/${CHANGESET}.tar.bz2 ->
+		firefox-${FF_PV}_${CHANGESET}.source.tar.bz2"
+	S="${WORKDIR}/mozilla-central-${CHANGESET}"
+else
+	# This list can be updated with scripts/get_langs.sh from mozilla overlay
+	LANGS="af ar as be bg bn-BD bn-IN ca cs cy da de el en en-GB en-US eo es-AR
+	es-CL es-ES es-MX et eu fa fi fr fy-NL ga-IE gl gu-IN he hi-IN hr hu id is
+	it ja ka kk kn ko ku lt lv mk ml mr nb-NO nl nn-NO oc or pa-IN pl pt-BR
+	pt-PT rm ro ru si sk sl sq sr sv-SE ta ta-LK te th tr uk vi zh-CN zh-TW"
+	NOSHORTLANGS="en-GB es-AR es-CL es-MX pt-BR zh-CN zh-TW"
 
-S="${WORKDIR}/mozilla-1.9.3"
+	REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
+	SRC_URI="${SRC_URI}
+		${REL_URI}/${FF_PV}/source/firefox-${FF_PV}.source.tar.bz2"
+
+	for X in ${LANGS} ; do
+		if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
+			SRC_URI="${SRC_URI}
+				linguas_${X/-/_}? ( ${REL_URI}/${FF_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+		fi
+		IUSE="${IUSE} linguas_${X/-/_}"
+		# english is handled internally
+		if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
+			if [ "${X}" != "en-US" ]; then
+				SRC_URI="${SRC_URI}
+					linguas_${X%%-*}? ( ${REL_URI}/${FF_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+			fi
+			IUSE="${IUSE} linguas_${X%%-*}"
+		fi
+	done
+
+	S="${WORKDIR}/mozilla-${MAJ_XUL_PV}"
+fi
 
 QA_PRESTRIPPED="usr/$(get_libdir)/${PN}/firefox"
+
+linguas() {
+	local LANG SLANG
+	for LANG in ${LINGUAS}; do
+		if has ${LANG} en en_US; then
+			has en ${linguas} || linguas="${linguas:+"${linguas} "}en"
+			continue
+		elif has ${LANG} ${LANGS//-/_}; then
+			has ${LANG//_/-} ${linguas} || linguas="${linguas:+"${linguas} "}${LANG//_/-}"
+			continue
+		elif [[ " ${LANGS} " == *" ${LANG}-"* ]]; then
+			for X in ${LANGS}; do
+				if [[ "${X}" == "${LANG}-"* ]] && \
+					[[ " ${NOSHORTLANGS} " != *" ${X} "* ]]; then
+					has ${X} ${linguas} || linguas="${linguas:+"${linguas} "}${X}"
+					continue 2
+				fi
+			done
+		fi
+		ewarn "Sorry, but ${PN} does not support the ${LANG} LINGUA"
+	done
+}
 
 pkg_setup() {
 	# Ensure we always build with C locale.
@@ -68,17 +124,29 @@ pkg_setup() {
 }
 
 src_unpack() {
-	unpack firefox-${MY_PV}.source.tar.bz2 ${PATCH}.tar.bz2
+	unpack firefox-${FF_PV}.source.tar.bz2 ${PATCH}.tar.bz2
 
+	[[ ${PV} =~ alpha ]] && return
+
+	linguas
+	for X in ${linguas}; do
+		# FIXME: Add support for unpacking xpis to portage
+		[[ ${X} != "en" ]] && xpi_unpack "${P}-${X}.xpi"
+	done
 }
 
 src_prepare() {
+	# Doesn't apply
+	rm "${WORKDIR}/118-bz467766_att351173"* || die "rm failed"
+	# Not needed anymore
+	rm "${WORKDIR}/401-libsydney_oss.patch" || die "rm failed"
+	# Doesn't apply (Not needed anymore?)
+	rm "${WORKDIR}/402-oggzfbsd.patch" || die "rm failed"
+
 	# Apply our patches
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
-
-	epatch "${FILESDIR}/1000_fix-system-sqlite.patch"
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
@@ -131,6 +199,7 @@ src_configure() {
 	mozconfig_annotate '' --with-system-nss
 	mozconfig_annotate '' --enable-system-lcms
 	mozconfig_annotate '' --with-system-bz2
+	mozconfig_annotate '' --with-system-libevent=/usr
 	mozconfig_annotate '' --with-system-libxul
 	mozconfig_annotate '' --with-libxul-sdk=/usr/$(get_libdir)/xulrunner-devel-${MAJ_XUL_PV}
 
@@ -140,7 +209,14 @@ src_configure() {
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
 	mozconfig_use_enable system-sqlite
+	mozconfig_use_enable webm
 	mozconfig_use_enable !bindist official-branding
+
+	# NOTE: Uses internal copy of libvpx
+	if use webm && ! use alsa; then
+		ewarn "USE=webm needs USE=alsa, disabling WebM support."
+		mozconfig_annotate '+webm -alsa' --disable-webm
+	fi
 
 	if use amd64 || use x86 || use arm || use sparc; then
 		mozconfig_annotate '' --enable-tracejit
@@ -176,22 +252,29 @@ src_install() {
 
 	emake DESTDIR="${D}" install || die "emake install failed"
 
+	if [[ ${PV} =~ alpha ]]; then
+		linguas
+		for X in ${linguas}; do
+			[[ ${X} != "en" ]] && xpi_install "${WORKDIR}/${P}-${X}"
+		done
+	fi
+
 	# Install icon and .desktop for menu entry
 	if ! use bindist ; then
 		newicon "${S}"/other-licenses/branding/firefox/content/icon48.png firefox-icon.png
 		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5.desktop \
-			${PN}-${DESKTOP_PV}.desktop
+			${PN}-${MAJ_FF_PV}.desktop
 	else
 		newicon "${S}"/browser/base/branding/icon48.png firefox-icon-unbranded.png
 		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5-unbranded.desktop \
-			${PN}-${DESKTOP_PV}.desktop
+			${PN}-${MAJ_FF_PV}.desktop
 		sed -i -e "s:Bon Echo:Shiretoko:" \
-			"${D}"/usr/share/applications/${PN}-${DESKTOP_PV}.desktop || die "sed failed!"
+			"${D}"/usr/share/applications/${PN}-${MAJ_FF_PV}.desktop || die "sed failed!"
 	fi
 
 	# Add StartupNotify=true bug 237317
 	if use startup-notification ; then
-		echo "StartupNotify=true" >> "${D}"/usr/share/applications/${PN}-${DESKTOP_PV}.desktop
+		echo "StartupNotify=true" >> "${D}"/usr/share/applications/${PN}-${MAJ_FF_PV}.desktop
 	fi
 
 	pax-mark m "${D}"/${MOZILLA_FIVE_HOME}/firefox

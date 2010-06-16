@@ -5,43 +5,60 @@
 EAPI="2"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-pkg-opt-2 autotools
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-pkg-opt-2 autotools python versionator
 
-MY_PV="${PV/_alpha/a}"
-MY_PV="${MY_PV/1.9.3/3.7}"
-MAJ_PV="1.9.3" # from mozilla-* branch name
+MAJ_XUL_PV="$(get_version_component_range 1-3)" # from mozilla-* branch name
+MAJ_FF_PV="3.7"
+FF_PV="${PV/${MAJ_XUL_PV}/${MAJ_FF_PV}}" # 3.7_alpha6, 3.6.3, etc.
+FF_PV="${FF_PV/_alpha/a}"
+CHANGESET="18463a042fca"
 PATCH="${PN}-1.9.3-patches-0.1"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
-SRC_URI="http://dev.gentoo.org/~anarchy/dist/firefox-${MY_PV}.source.tar.bz2
-	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
 
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa debug libnotify system-sqlite wifi"
+IUSE="+alsa debug libnotify system-sqlite +webm wifi"
 
-RDEPEND="java? ( >=virtual/jre-1.4 )
-	>=dev-lang/python-2.3[threads]
+# More URIs appended below...
+SRC_URI="http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
+
+RDEPEND="
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.6_beta
-	>=dev-libs/nspr-4.8
-	system-sqlite? ( >=dev-db/sqlite-3.6.23[fts3,secure-delete] )
-	alsa? ( media-libs/alsa-lib )
+	>=dev-libs/nss-3.12.6
+	>=dev-libs/nspr-4.8.5
 	>=app-text/hunspell-1.2
 	>=media-libs/lcms-1.17
 	>=x11-libs/cairo-1.8.8[X]
+	>=dev-libs/libevent-1.4.7
 	x11-libs/pango[X]
 	x11-libs/libXt
-	wifi? ( net-wireless/wireless-tools )
-	libnotify? ( >=x11-libs/libnotify-0.4 )"
+
+	alsa? ( media-libs/alsa-lib )
+	java? ( >=virtual/jre-1.4 )
+	libnotify? ( >=x11-libs/libnotify-0.4 )
+	system-sqlite? ( >=dev-db/sqlite-3.6.23[fts3,secure-delete] )
+	wifi? ( net-wireless/wireless-tools )"
 
 DEPEND="java? ( >=virtual/jdk-1.4 )
 	${RDEPEND}
+	=dev-lang/python-2*[threads]
 	dev-util/pkgconfig"
 
-S="${WORKDIR}/mozilla-${MAJ_PV}"
+if [[ ${PV} =~ alpha ]]; then
+	# hg snapshot tarball
+	SRC_URI="${SRC_URI}
+		http://hg.mozilla.org/mozilla-central/archive/${CHANGESET}.tar.bz2 ->
+		firefox-${FF_PV}_${CHANGESET}.source.tar.bz2"
+	S="${WORKDIR}/mozilla-central-${CHANGESET}"
+else
+	REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
+	SRC_URI="${SRC_URI}
+		${REL_URI}/${FF_PV}/source/firefox-${FF_PV}.source.tar.bz2"
+	S="${WORKDIR}/mozilla-${MAJ_XUL_PV}"
+fi
 
 pkg_setup() {
 	# Ensure we always build with C locale.
@@ -51,26 +68,33 @@ pkg_setup() {
 	export LC_CTYPE="C"
 
 	java-pkg-opt-2_pkg_setup
+
+	python_set_active_version 2
 }
 
 src_prepare() {
+	# Doesn't apply
+	rm "${WORKDIR}/118-bz467766_att351173"* || die "rm failed"
+	# Not needed anymore
+	rm "${WORKDIR}/401-libsydney_oss.patch" || die "rm failed"
+	# Doesn't apply (Not needed anymore?)
+	rm "${WORKDIR}/402-oggzfbsd.patch" || die "rm failed"
+
 	# Apply our patches
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
-	epatch "${FILESDIR}/1000_fix-system-sqlite.patch"
-
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
 
 	# Same as in config/autoconf.mk.in
-	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
-	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_PV}/sdk"
+	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_XUL_PV}"
+	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_XUL_PV}/sdk"
 
 	# Gentoo install dirs
-	sed -i -e "s:@PV@:${MAJ_PV}:" "${S}"/config/autoconf.mk.in \
-		|| die "${MAJ_PV} sed failed!"
+	sed -i -e "s:@PV@:${MAJ_XUL_PV}:" "${S}"/config/autoconf.mk.in \
+		|| die "${MAJ_XUL_PV} sed failed!"
 
 	# Enable gnomebreakpad
 	if use debug ; then
@@ -96,7 +120,7 @@ src_configure() {
 
 	MEXTENSIONS="default"
 
-	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
+	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_XUL_PV}"
 
 	# It doesn't compile on alpha without this LDFLAGS
 	use alpha && append-ldflags "-Wl,--no-relax"
@@ -128,6 +152,7 @@ src_configure() {
 	mozconfig_annotate '' --with-system-nss
 	mozconfig_annotate '' --enable-system-lcms
 	mozconfig_annotate '' --with-system-bz2
+	mozconfig_annotate '' --with-system-libevent=/usr
 
 	mozconfig_use_enable libnotify
 	mozconfig_use_enable java javaxpcom
@@ -135,9 +160,16 @@ src_configure() {
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
 	mozconfig_use_enable system-sqlite
+	mozconfig_use_enable webm
+
+	# NOTE: Uses internal copy of libvpx
+	if use webm && ! use alsa; then
+		ewarn "USE=webm needs USE=alsa, disabling WebM support."
+		mozconfig_annotate '+webm -alsa' --disable-webm
+	fi
 
 	if use amd64 || use x86 || use arm || use sparc; then
-		mozconfig_annotate '' --enable-tracejit
+		mozconfig_annotate 'tracejit' --enable-tracejit
 	fi
 
 	# Debug
@@ -168,7 +200,7 @@ src_configure() {
 	sed -i -e "s:/usr/lib/mozilla/plugins:/usr/$(get_libdir)/nsbrowser/plugins:" \
 		"${S}"/xpcom/io/nsAppFileLocationProvider.cpp || die "sed failed to replace plugin path!"
 
-	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" econf
+	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" PYTHON="$(PYTHON)" econf
 }
 
 src_install() {
@@ -176,11 +208,11 @@ src_install() {
 
 	rm "${D}"/usr/bin/xulrunner
 
-	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
-	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_PV}/sdk"
+	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_XUL_PV}"
+	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_XUL_PV}/sdk"
 
 	dodir /usr/bin
-	dosym "${MOZLIBDIR}/xulrunner" "/usr/bin/xulrunner-${MAJ_PV}" || die
+	dosym "${MOZLIBDIR}/xulrunner" "/usr/bin/xulrunner-${MAJ_XUL_PV}" || die
 
 	# env.d file for ld search path
 	dodir /etc/env.d
