@@ -22,6 +22,7 @@ SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="+alsa bindist java libnotify system-sqlite +webm wifi"
 
+REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 # More URIs appended below...
 SRC_URI="http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
 
@@ -44,23 +45,26 @@ DEPEND="${RDEPEND}
 	java? ( >=virtual/jdk-1.4 )
 	dev-util/pkgconfig"
 
-if [[ ${PV} =~ alpha ]]; then
-	# No source releases or language packs for alpha
+# No source releases for alpha|beta
+if [[ ${PV} =~ alpha|beta ]]; then
 	SRC_URI="${SRC_URI}
 		http://hg.mozilla.org/mozilla-central/archive/${CHANGESET}.tar.bz2 ->
 		firefox-${FF_PV}_${CHANGESET}.source.tar.bz2"
 	S="${WORKDIR}/mozilla-central-${CHANGESET}"
 else
+	SRC_URI="${SRC_URI}
+		${REL_URI}/${FF_PV}/source/firefox-${FF_PV}.source.tar.bz2"
+	S="${WORKDIR}/mozilla-${MAJ_XUL_PV}"
+fi
+
+# No language packs for alphas
+if ! [[ ${PV} =~ alpha ]]; then
 	# This list can be updated with scripts/get_langs.sh from mozilla overlay
 	LANGS="af ar as be bg bn-BD bn-IN ca cs cy da de el en en-GB en-US eo es-AR
 	es-CL es-ES es-MX et eu fa fi fr fy-NL ga-IE gl gu-IN he hi-IN hr hu id is
 	it ja ka kk kn ko ku lt lv mk ml mr nb-NO nl nn-NO oc or pa-IN pl pt-BR
 	pt-PT rm ro ru si sk sl sq sr sv-SE ta ta-LK te th tr uk vi zh-CN zh-TW"
 	NOSHORTLANGS="en-GB es-AR es-CL es-MX pt-BR zh-CN zh-TW"
-
-	REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
-	SRC_URI="${SRC_URI}
-		${REL_URI}/${FF_PV}/source/firefox-${FF_PV}.source.tar.bz2"
 
 	for X in ${LANGS} ; do
 		if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
@@ -77,8 +81,6 @@ else
 			IUSE="${IUSE} linguas_${X%%-*}"
 		fi
 	done
-
-	S="${WORKDIR}/mozilla-${MAJ_XUL_PV}"
 fi
 
 QA_PRESTRIPPED="usr/$(get_libdir)/${PN}/firefox"

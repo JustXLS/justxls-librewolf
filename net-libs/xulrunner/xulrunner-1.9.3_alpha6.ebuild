@@ -47,7 +47,7 @@ DEPEND="java? ( >=virtual/jdk-1.4 )
 	=dev-lang/python-2*[threads]
 	dev-util/pkgconfig"
 
-if [[ ${PV} =~ alpha ]]; then
+if [[ ${PV} =~ alpha|beta ]]; then
 	# hg snapshot tarball
 	SRC_URI="${SRC_URI}
 		http://hg.mozilla.org/mozilla-central/archive/${CHANGESET}.tar.bz2 ->
