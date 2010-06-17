@@ -126,7 +126,12 @@ pkg_setup() {
 }
 
 src_unpack() {
-	unpack firefox-${FF_PV}.source.tar.bz2 ${PATCH}.tar.bz2
+	# No source releases for alpha|beta
+	if [[ ${PV} =~ alpha|beta ]]; then
+		unpack firefox-${FF_PV}_${CHANGESET}.source.tar.bz2 ${PATCH}.tar.bz2
+	else
+		unpack firefox-${FF_PV}.source.tar.bz2 ${PATCH}.tar.bz2
+	fi
 
 	[[ ${PV} =~ alpha ]] && return
 
@@ -138,8 +143,6 @@ src_unpack() {
 }
 
 src_prepare() {
-	# Doesn't apply
-	rm "${WORKDIR}/118-bz467766_att351173"* || die "rm failed"
 	# Not needed anymore
 	rm "${WORKDIR}/401-libsydney_oss.patch" || die "rm failed"
 	# Doesn't apply (Not needed anymore?)
