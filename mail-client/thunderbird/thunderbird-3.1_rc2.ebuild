@@ -1,14 +1,16 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/mail-client/mozilla-thunderbird/mozilla-thunderbird-3.0.ebuild,v 1.3 2009/12/19 17:21:05 anarchy Exp $
-EAPI="2"
+
+EAPI="3"
 WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozextension autotools
 
-# Port before completeion.
-# ta-LK mk 
-LANGS="af ar be bg ca cs da de el en-GB en-US es-AR es-ES et eu fi fr fy-NL ga-IE he hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR pt-PT ro ru si sk sl sv-SE tr uk zh-CN zh-TW"
+# This list can be updated using get_langs.sh from the mozilla overlay
+LANGS="af ar be bg bn-BD ca cs da de el en en-GB en-US en-US es-AR es-ES et eu
+fi fr fy-NL ga-IE he hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR pt-PT ro
+ru si sk sl sq sv-SE tr uk zh-CN zh-TW"
 NOSHORTLANGS="en-GB es-AR pt-BR zh-TW" 
 
 MY_PV="${PV/_rc/rc}"
@@ -17,7 +19,7 @@ MY_P="${P/_rc/rc}"
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 
-KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
+KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="alsa ldap crypt bindist libnotify lightning mozdom system-sqlite wifi"
@@ -46,14 +48,16 @@ done
 RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.3
 	>=dev-libs/nspr-4.8
-	alsa? ( media-libs/alsa-lib )
-	system-sqlite? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
 	>=media-libs/lcms-1.17
 	>=app-text/hunspell-1.2
 	x11-libs/cairo[X]
 	x11-libs/pango[X]
-	wifi? ( net-wireless/wireless-tools )
+
+	alsa? ( media-libs/alsa-lib )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
+	system-sqlite? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
+	wifi? ( net-wireless/wireless-tools )
+
 	!x11-plugins/lightning"
 
 PDEPEND="crypt? ( >=x11-plugins/enigmail-1.1 )"
@@ -145,8 +149,10 @@ src_configure() {
 	mozconfig_annotate '' --enable-application=mail
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 	mozconfig_annotate '' --with-user-appdir=.thunderbird
-	mozconfig_annotate '' --with-system-nspr
-	mozconfig_annotate '' --with-system-nss
+	mozconfig_annotate '' --with-system-nspr --with-nspr-prefix="${EPREFIX}"/usr
+	mozconfig_annotate '' --with-system-nss --with-nss-prefix="${EPREFIX}"/usr
+	mozconfig_annotate '' --with-sqlite-prefix="${EPREFIX}"/usr
+	mozconfig_annotate '' --x-includes="${EPREFIX}"/usr/include --x-libraries="${EPREFIX}"/usr/$(get_libdir)
 	mozconfig_annotate 'broken' --disable-crashreporter
 	mozconfig_annotate '' --with-system-hunspell
 
@@ -203,17 +209,17 @@ src_install() {
 
 		emid="{a62ef8ec-5fdc-40c2-873c-223b8a6925cc}"
 		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid}
-		cd "${D}"${MOZILLA_FIVE_HOME}/extensions/${emid}
+		cd "${ED}"${MOZILLA_FIVE_HOME}/extensions/${emid}
 		unzip "${S}"/mozilla/dist/xpi-stage/gdata-provider.xpi
 
 		emid1="calendar-timezones@mozilla.org"
 		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid1}
-		cd "${D}"${MOZILLA_FIVE_HOME}/extensions/${emid1}
+		cd "${ED}"${MOZILLA_FIVE_HOME}/extensions/${emid1}
 		unzip "${S}"/mozilla/dist/xpi-stage/calendar-timezones.xpi
 
 		emid2="{e2fda1a4-762b-4020-b5ad-a41df1933103}"
 		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid2}
-		cd "${D}"${MOZILLA_FIVE_HOME}/extensions/${emid2}
+		cd "${ED}"${MOZILLA_FIVE_HOME}/extensions/${emid2}
 		unzip "${S}"/mozilla/dist/xpi-stage/lightning.xpi
 	fi
 
@@ -236,6 +242,6 @@ src_install() {
 
 	# Enable very specific settings for thunderbird-3
 	cp "${FILESDIR}"/thunderbird-gentoo-default-prefs.js \
-		"${D}/${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js" || \
+		"${ED}/${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js" || \
 		die "failed to cp thunderbird-gentoo-default-prefs.js"
 }
