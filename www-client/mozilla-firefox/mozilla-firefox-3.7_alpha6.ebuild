@@ -126,12 +126,7 @@ pkg_setup() {
 }
 
 src_unpack() {
-	# No source releases for alpha|beta
-	if [[ ${PV} =~ alpha|beta ]]; then
-		unpack firefox-${FF_PV}_${CHANGESET}.source.tar.bz2 ${PATCH}.tar.bz2
-	else
-		unpack firefox-${FF_PV}.source.tar.bz2 ${PATCH}.tar.bz2
-	fi
+	unpack ${A}
 
 	[[ ${PV} =~ alpha ]] && return
 
