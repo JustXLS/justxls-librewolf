@@ -33,7 +33,6 @@ RDEPEND="
 	>=app-text/hunspell-1.2
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
-
 	alsa? ( media-libs/alsa-lib )
 	java? ( >=virtual/jre-1.4 )
 	libnotify? ( >=x11-libs/libnotify-0.4 )

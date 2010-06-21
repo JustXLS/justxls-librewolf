@@ -30,12 +30,11 @@ RDEPEND="
 	>=dev-libs/nss-3.12.6
 	>=dev-libs/nspr-4.8.5
 	>=app-text/hunspell-1.2
-	>=media-libs/lcms-1.17
+ 	=media-libs/lcms-1*
 	>=x11-libs/cairo-1.8.8[X]
 	>=dev-libs/libevent-1.4.7
 	x11-libs/pango[X]
 	x11-libs/libXt
-
 	alsa? ( media-libs/alsa-lib )
 	java? ( >=virtual/jre-1.4 )
 	libnotify? ( >=x11-libs/libnotify-0.4 )

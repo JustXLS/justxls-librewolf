@@ -48,16 +48,14 @@ done
 RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.3
 	>=dev-libs/nspr-4.8
-	>=media-libs/lcms-1.17
+	 =media-libs/lcms-1*
 	>=app-text/hunspell-1.2
 	x11-libs/cairo[X]
 	x11-libs/pango[X]
-
 	alsa? ( media-libs/alsa-lib )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
 	system-sqlite? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
 	wifi? ( net-wireless/wireless-tools )
-
 	!x11-plugins/lightning"
 
 PDEPEND="crypt? ( >=x11-plugins/enigmail-1.1 )"
