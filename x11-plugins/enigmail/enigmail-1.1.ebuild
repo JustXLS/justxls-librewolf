@@ -8,7 +8,7 @@ EAPI="2"
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozextension autotools
 MY_P="${P/_beta/b}"
 EMVER="${PV}"
-TBVER="3.1rc1"
+TBVER="3.1rc2"
 PATCH="mozilla-thunderbird-3.1-patches-0.1"
 
 DESCRIPTION="GnuPG encryption plugin for thunderbird."
