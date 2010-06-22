@@ -1,4 +1,5 @@
 #!/bin/sh
+# vim: set sts=2 sw=2 et tw=0 :
 
 if test -z "${2}"; then
 	echo "Usage: ${0} <product> <version>"
@@ -8,7 +9,16 @@ fi
 INBUILT_LANGS="en en-US"
 PRODUCT="${1}"
 VER="${2}"
-MIRROR_URI="http://releases.mozilla.org/pub/mozilla.org/${PRODUCT}/releases/${VER}/linux-i686/xpi/"
-XPI_LANGS=$(wget -q "${MIRROR_URI}" -O - | grep -o '[a-zA-Z-]\+\.xpi' | uniq | sed 's/\.xpi//')
-LANGS=$(echo ${INBUILT_LANGS} ${XPI_LANGS} | tr " " "\n" | sort -d)
+MOZ_URI="http://releases.mozilla.org/pub/mozilla.org/${PRODUCT}/releases/${VER}"
+if [[ "${PRODUCT}" =~ (firefox|thunderbird) ]]; then
+  LANG_URI="${MOZ_URI}/linux-i686/xpi/"
+  XPI_LANGS=$(wget -q "${LANG_URI}" -O - | grep -o '[a-zA-Z.-]\+\.xpi' | sed 's/\.xpi//')
+elif [[ "${PRODUCT}" =~ seamonkey ]]; then
+  LANG_URI="${MOZ_URI}/langpack/"
+  XPI_LANGS=$(wget -q "${LANG_URI}" -O - | grep -o '[a-zA-Z.-]\+\.xpi' | sed 's/\.\(.*\)\.langpack\.xpi/\1/')
+else
+  echo 'Unknown product, dying...'
+  exit 1
+fi
+LANGS=$(echo ${INBUILT_LANGS} ${XPI_LANGS} | tr " " "\n" | sort -d | uniq)
 echo ${LANGS}
