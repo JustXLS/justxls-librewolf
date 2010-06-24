@@ -10,8 +10,12 @@ INBUILT_LANGS="en en-US"
 PRODUCT="${1}"
 VER="${2}"
 MOZ_URI="http://releases.mozilla.org/pub/mozilla.org/${PRODUCT}/releases/${VER}"
-if [[ "${PRODUCT}" =~ (firefox|thunderbird) ]]; then
-  LANG_URI="${MOZ_URI}/linux-i686/xpi/"
+if [[ "${PRODUCT}" =~ (firefox|thunderbird|icecat) ]]; then
+  if [[ "${PRODUCT}" =~ icecat ]]; then
+    LANG_URI="http://gnuzilla.gnu.org/download/langpacks/${VER}"
+  else
+    LANG_URI="${MOZ_URI}/linux-i686/xpi/"
+  fi
   XPI_LANGS=$(wget -q "${LANG_URI}" -O - | grep -o '[a-zA-Z.-]\+\.xpi' | sed 's/\.xpi//')
 elif [[ "${PRODUCT}" =~ seamonkey ]]; then
   LANG_URI="${MOZ_URI}/langpack/"
