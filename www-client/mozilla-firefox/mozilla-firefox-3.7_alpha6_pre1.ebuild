@@ -12,8 +12,7 @@ MAJ_FF_PV="$(get_version_component_range 1-2)" # 3.5, 3.6, 4.0, etc.
 XUL_PV="${MAJ_XUL_PV}${PV/${MAJ_FF_PV}/}" # 1.9.3_alpha6, 1.9.2.3, etc.
 FF_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-FF_PV="${FF_PV/_pre*/}" # Remove _pre for SRC_URI
-CHANGESET="0dd4e086cea5"
+CHANGESET="fae5d6bd9c53"
 PATCH="${PN}-3.7-patches-0.1"
 
 DESCRIPTION="Firefox Web Browser"
@@ -22,7 +21,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa bindist java libnotify system-sqlite +webm wifi"
+IUSE="+alsa bindist +ipc java libnotify system-sqlite +webm wifi"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 # More URIs appended below...
@@ -203,6 +202,7 @@ src_configure() {
 	mozconfig_annotate '' --with-system-libxul
 	mozconfig_annotate '' --with-libxul-sdk=/usr/$(get_libdir)/xulrunner-devel-${MAJ_XUL_PV}
 
+	mozconfig_use_enable ipc # +ipc, upstream default
 	mozconfig_use_enable libnotify
 	mozconfig_use_enable java javaxpcom
 	mozconfig_use_enable wifi necko-wifi

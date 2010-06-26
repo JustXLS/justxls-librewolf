@@ -12,8 +12,7 @@ MAJ_FF_PV="3.7"
 FF_PV="${PV/${MAJ_XUL_PV}/${MAJ_FF_PV}}" # 3.7_alpha6, 3.6.3, etc.
 FF_PV="${FF_PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-FF_PV="${FF_PV/_pre*/}" # Handle _pre* for SRC_URI
-CHANGESET="0dd4e086cea5"
+CHANGESET="fae5d6bd9c53"
 PATCH="${PN}-1.9.3-patches-0.1"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
@@ -22,7 +21,7 @@ HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa debug libnotify system-sqlite +webm wifi"
+IUSE="+alsa debug +ipc libnotify system-sqlite +webm wifi"
 
 # More URIs appended below...
 SRC_URI="http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
@@ -37,6 +36,7 @@ RDEPEND="
 	>=dev-libs/libevent-1.4.7
 	x11-libs/pango[X]
 	x11-libs/libXt
+	x11-libs/pixman
 	alsa? ( media-libs/alsa-lib )
 	java? ( >=virtual/jre-1.4 )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
@@ -154,6 +154,7 @@ src_configure() {
 	mozconfig_annotate '' --with-system-bz2
 	mozconfig_annotate '' --with-system-libevent=/usr
 
+	mozconfig_use_enable ipc # +ipc, upstream default
 	mozconfig_use_enable libnotify
 	mozconfig_use_enable java javaxpcom
 	mozconfig_use_enable wifi necko-wifi
@@ -235,13 +236,14 @@ pkg_postinst() {
 	ewarn "If that does not fix the problem, rebuild dev-libs/nss"
 	ewarn "Try dev-util/lafilefixer if you get build failures related to .la files"
 
-	einfo
-	einfo "All prefs can be overridden by the user. The preferences are to make"
-	einfo "use of xulrunner out of the box on an average system without the user"
-	einfo "having to go through and enable the basics."
+	# What does this mean?
+	#einfo
+	#einfo "All prefs can be overridden by the user. The preferences are to make"
+	#einfo "use of xulrunner out of the box on an average system without the user"
+	#einfo "having to go through and enable the basics."
 
 	einfo
 	ewarn "Any package that requires xulrunner:1.9 slot could and most likely will"
-	ewarn "have issues. These issues should be reported to maintainer, and mozilla herd"
-	ewarn "should be cc'd on the bug report. Thank you anarchy@gentoo.org ."
+	ewarn "have issues. These issues should be reported to maintainer,"
+	ewarn "and mozilla@gentoo.org should be CC'd on the bug report."
 }
