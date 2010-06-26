@@ -10,7 +10,9 @@ inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-p
 MAJ_XUL_PV="$(get_version_component_range 1-3)" # from mozilla-* branch name
 MAJ_FF_PV="3.7"
 FF_PV="${PV/${MAJ_XUL_PV}/${MAJ_FF_PV}}" # 3.7_alpha6, 3.6.3, etc.
-FF_PV="${FF_PV/_alpha/a}"
+FF_PV="${FF_PV/_alpha/a}" # Handle alpha for SRC_URI
+FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
+FF_PV="${FF_PV/_pre*/}" # Handle _pre* for SRC_URI
 CHANGESET="0dd4e086cea5"
 PATCH="${PN}-1.9.3-patches-0.1"
 
