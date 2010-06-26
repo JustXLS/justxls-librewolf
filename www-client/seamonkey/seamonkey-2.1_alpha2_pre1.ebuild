@@ -59,7 +59,7 @@ RDEPEND="java? ( virtual/jre )
 	>=dev-libs/nss-3.12.2
 	>=dev-libs/nspr-4.8.5_pre
 	alsa? ( media-libs/alsa-lib )
-	system-sqlite? ( >=dev-db/sqlite-3.6.23.1[fts3,secure-delete,unlock-notify] )
+	system-sqlite? ( >=dev-db/sqlite-3.6.23.1-r1[fts3,secure-delete,unlock-notify] )
 	>=app-text/hunspell-1.2
 	>=x11-libs/gtk+-2.10.0
 	>=x11-libs/cairo-1.8.8[X]
