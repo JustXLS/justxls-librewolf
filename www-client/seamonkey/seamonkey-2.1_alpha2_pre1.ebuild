@@ -10,8 +10,8 @@ inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib fdo-mi
 PATCH="${PN}-2.0.5-patches-01"
 EMVER="1.1"
 
-#LANGS="be ca cs de en-US es-AR es-ES fr gl hu it ja ka lt nb-NO nl pl pt-PT ru sk sv-SE tr"
-#NOSHORTLANGS="es-AR es-ES nb-NO pt-PT sv-SE"
+LANGS=""
+NOSHORTLANGS=""
 
 MY_PV="${PV/_pre*}"
 MY_PV="${MY_PV/_alpha/a}"
@@ -22,6 +22,9 @@ MY_P="${PN}-${MY_PV}"
 if [[ ${PV} == *_pre* ]] ; then
 	REL_URI="ftp://ftp.mozilla.org/pub/mozilla.org/${PN}/nightly/${MY_PV}-candidates/build${PV##*_pre}"
 	KEYWORDS=""
+	ewarn "You're using an unofficial release of ${PN}. Don't file any bug in Gentoo's"
+	ewarn "Bugtracker against this package in case it breaks for you. Those belong to"
+	ewarn "upstream: https://bugzilla.mozilla.org"
 else
 	REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases/${MY_PV}"
 	KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
@@ -38,21 +41,23 @@ SRC_URI="${REL_URI}/source/${MY_P}.source.tar.bz2
 	http://dev.gentoo.org/~polynomial-c/${PATCH}.tar.bz2
 	crypt? ( mailclient? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz ) )"
 
-#for X in ${LANGS} ; do
-#	if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
-#		SRC_URI="${SRC_URI}
-#			linguas_${X/-/_}? ( ${REL_URI}/langpack/${MY_P}.${X}.langpack.xpi -> ${MY_P}-${X}.xpi )"
-#	fi
-#	IUSE="${IUSE} linguas_${X/-/_}"
-#	# english is handled internally
-#	if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
-#		if [ "${X}" != "en-US" ]; then
-#			SRC_URI="${SRC_URI}
-#				linguas_${X%%-*}? ( ${REL_URI}/langpack/${MY_P}.${X}.langpack.xpi -> ${MY_P}-${X}.xpi )"
-#		fi
-#		IUSE="${IUSE} linguas_${X%%-*}"
-#	fi
-#done
+if [[ ${PV} != *_alpha* ]] ; then
+	for X in ${LANGS} ; do
+		if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
+			SRC_URI="${SRC_URI}
+				linguas_${X/-/_}? ( ${REL_URI}/langpack/${MY_P}.${X}.langpack.xpi -> ${MY_P}-${X}.xpi )"
+		fi
+		IUSE="${IUSE} linguas_${X/-/_}"
+		# english is handled internally
+		if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
+			if [ "${X}" != "en-US" ]; then
+				SRC_URI="${SRC_URI}
+					linguas_${X%%-*}? ( ${REL_URI}/langpack/${MY_P}.${X}.langpack.xpi -> ${MY_P}-${X}.xpi )"
+			fi
+			IUSE="${IUSE} linguas_${X%%-*}"
+		fi
+	done
+fi
 
 RDEPEND="java? ( virtual/jre )
 	>=sys-devel/binutils-2.16.1
@@ -99,14 +104,16 @@ linguas() {
 src_unpack() {
 	unpack ${A}
 
-	#linguas
-	#for X in ${linguas}; do
-	#	# FIXME: Add support for unpacking xpis to portage
-	#	[[ ${X} != "en" ]] && xpi_unpack "${MY_P}-${X}.xpi"
-	#done
-	#if [[ ${linguas} != "" && ${linguas} != "en" ]]; then
-	#	einfo "Selected language packs (first will be default): ${linguas}"
-	#fi
+	if [[ ${PV} != *_alpha* ]] ; then
+		linguas
+		for X in ${linguas}; do
+			# FIXME: Add support for unpacking xpis to portage
+			[[ ${X} != "en" ]] && xpi_unpack "${MY_P}-${X}.xpi"
+		done
+		if [[ ${linguas} != "" && ${linguas} != "en" ]]; then
+			einfo "Selected language packs (first will be default): ${linguas}"
+		fi
+	fi
 }
 
 pkg_setup() {

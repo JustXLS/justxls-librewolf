@@ -10,8 +10,8 @@ inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib fdo-mi
 PATCH="${PN}-2.0.5-patches-01"
 EMVER="1.1"
 
-#LANGS="be ca cs de en-US es-AR es-ES fr gl hu it ja ka lt nb-NO nl pl pt-PT ru sk sv-SE tr"
-#NOSHORTLANGS="es-AR es-ES nb-NO pt-PT sv-SE"
+LANGS=""
+NOSHORTLANGS=""
 
 MY_PV="${PV/_alpha/a}"
 MY_PV="${MY_PV/_beta/b}"
@@ -31,26 +31,28 @@ SRC_URI="${REL_URI}/${MY_PV}/source/${MY_P}.source.tar.bz2
 	http://dev.gentoo.org/~polynomial-c/${PATCH}.tar.bz2
 	crypt? ( mailclient? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz ) )"
 
-#for X in ${LANGS} ; do
-#	if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
-#		SRC_URI="${SRC_URI}
-#			linguas_${X/-/_}? ( ${REL_URI}/${MY_PV}/langpack/${MY_P}.${X}.langpack.xpi -> ${MY_P}-${X}.xpi )"
-#	fi
-#	IUSE="${IUSE} linguas_${X/-/_}"
-#	# english is handled internally
-#	if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
-#		if [ "${X}" != "en-US" ]; then
-#			SRC_URI="${SRC_URI}
-#				linguas_${X%%-*}? ( ${REL_URI}/${MY_PV}/langpack/${MY_P}.${X}.langpack.xpi -> ${MY_P}-${X}.xpi )"
-#		fi
-#		IUSE="${IUSE} linguas_${X%%-*}"
-#	fi
-#done
+if [[ ${PV} != *_alpha* ]] ; then
+	for X in ${LANGS} ; do
+		if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
+			SRC_URI="${SRC_URI}
+				linguas_${X/-/_}? ( ${REL_URI}/${MY_PV}/langpack/${MY_P}.${X}.langpack.xpi -> ${MY_P}-${X}.xpi )"
+		fi
+		IUSE="${IUSE} linguas_${X/-/_}"
+		# english is handled internally
+		if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
+			if [ "${X}" != "en-US" ]; then
+				SRC_URI="${SRC_URI}
+					linguas_${X%%-*}? ( ${REL_URI}/${MY_PV}/langpack/${MY_P}.${X}.langpack.xpi -> ${MY_P}-${X}.xpi )"
+			fi
+			IUSE="${IUSE} linguas_${X%%-*}"
+		fi
+	done
+fi
 
 RDEPEND="java? ( virtual/jre )
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.2
-	>=dev-libs/nspr-4.8.5
+	>=dev-libs/nspr-4.8.5_pre
 	alsa? ( media-libs/alsa-lib )
 	system-sqlite? ( >=dev-db/sqlite-3.6.23.1[fts3,secure-delete] )
 	>=app-text/hunspell-1.2
@@ -92,14 +94,16 @@ linguas() {
 src_unpack() {
 	unpack ${A}
 
-	#linguas
-	#for X in ${linguas}; do
-	#	# FIXME: Add support for unpacking xpis to portage
-	#	[[ ${X} != "en" ]] && xpi_unpack "${MY_P}-${X}.xpi"
-	#done
-	#if [[ ${linguas} != "" && ${linguas} != "en" ]]; then
-	#	einfo "Selected language packs (first will be default): ${linguas}"
-	#fi
+	if [[ ${PV} != *_alpha* ]] ; then
+		linguas
+		for X in ${linguas}; do
+			# FIXME: Add support for unpacking xpis to portage
+			[[ ${X} != "en" ]] && xpi_unpack "${MY_P}-${X}.xpi"
+		done
+		if [[ ${linguas} != "" && ${linguas} != "en" ]]; then
+			einfo "Selected language packs (first will be default): ${linguas}"
+		fi
+	fi
 }
 
 pkg_setup() {
