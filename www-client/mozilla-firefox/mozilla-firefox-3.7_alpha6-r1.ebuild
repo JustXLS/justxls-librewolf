@@ -11,7 +11,7 @@ MAJ_XUL_PV="1.9.3"
 MAJ_FF_PV="$(get_version_component_range 1-2)" # 3.5, 3.6, 4.0, etc.
 XUL_PV="${MAJ_XUL_PV}${PV/${MAJ_FF_PV}/}" # 1.9.3_alpha6, 1.9.2.3, etc.
 FF_PV="${PV/_alpha/a}" # Handle beta for SRC_URI
-CHANGESET="18463a042fca"
+CHANGESET="0dd4e086cea5"
 PATCH="${PN}-3.7-patches-0.1"
 
 DESCRIPTION="Firefox Web Browser"
