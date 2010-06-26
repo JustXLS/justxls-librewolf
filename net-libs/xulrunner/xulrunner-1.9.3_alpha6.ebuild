@@ -38,7 +38,7 @@ RDEPEND="
 	alsa? ( media-libs/alsa-lib )
 	java? ( >=virtual/jre-1.4 )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
-	system-sqlite? ( >=dev-db/sqlite-3.6.23[fts3,secure-delete,unlock_notify] )
+	system-sqlite? ( >=dev-db/sqlite-3.6.23[fts3,secure-delete,unlock-notify] )
 	wifi? ( net-wireless/wireless-tools )"
 
 DEPEND="java? ( >=virtual/jdk-1.4 )
