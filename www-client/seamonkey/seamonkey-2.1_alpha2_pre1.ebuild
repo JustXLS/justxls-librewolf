@@ -22,9 +22,6 @@ MY_P="${PN}-${MY_PV}"
 if [[ ${PV} == *_pre* ]] ; then
 	REL_URI="ftp://ftp.mozilla.org/pub/mozilla.org/${PN}/nightly/${MY_PV}-candidates/build${PV##*_pre}"
 	KEYWORDS=""
-	ewarn "You're using an unofficial release of ${PN}. Don't file any bug in Gentoo's"
-	ewarn "Bugtracker against this package in case it breaks for you. Those belong to"
-	ewarn "upstream: https://bugzilla.mozilla.org"
 else
 	REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases/${MY_PV}"
 	KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
@@ -62,9 +59,10 @@ fi
 RDEPEND="java? ( virtual/jre )
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.2
-	>=dev-libs/nspr-4.8.5
+	>=dev-libs/nspr-4.8.5_pre
 	alsa? ( media-libs/alsa-lib )
 	system-sqlite? ( >=dev-db/sqlite-3.6.23.1-r1[fts3,secure-delete,unlock-notify] )
+	>=media-libs/libpng-1.4.1[apng]
 	>=app-text/hunspell-1.2
 	>=x11-libs/gtk+-2.10.0
 	>=x11-libs/cairo-1.8.8[X]
@@ -117,6 +115,12 @@ src_unpack() {
 }
 
 pkg_setup() {
+	if [[ ${PV} == *_pre* ]] ; then
+		ewarn "You're using an unofficial release of ${PN}. Don't file any bug in"
+		ewarn "Gentoo's Bugtracker against this package in case it breaks for you."
+		ewarn "Those belong to upstream: https://bugzilla.mozilla.org"
+	fi
+
 	export BUILD_OFFICIAL=1
 	export MOZILLA_OFFICIAL=1
 
@@ -212,6 +216,12 @@ src_configure() {
 	mozconfig_use_enable mailclient mailnews
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_enable wifi necko-wifi
+
+        # ZOMG! Mozilla guys wanna have APNG in libpng if building with
+        # system-libpng. Kids, leave your fingers from drugs that make you
+        # do such nasty "extensions"!!!
+        # See https://bugs.gentoo.org/183370 for details.
+        mozconfig_annotate '' --with-system-png
 
 	# Finalize and report settings
 	mozconfig_final
