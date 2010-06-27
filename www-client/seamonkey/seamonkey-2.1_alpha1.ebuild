@@ -8,7 +8,7 @@ WANT_AUTOCONF="2.1"
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib fdo-mime autotools mozextension java-pkg-opt-2
 
 PATCH="${PN}-2.0.5-patches-01"
-EMVER="1.1"
+EMVER="1.1.1"
 
 LANGS=""
 NOSHORTLANGS=""
