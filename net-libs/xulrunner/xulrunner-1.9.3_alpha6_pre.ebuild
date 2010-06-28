@@ -12,7 +12,7 @@ MAJ_FF_PV="3.7"
 FF_PV="${PV/${MAJ_XUL_PV}/${MAJ_FF_PV}}" # 3.7_alpha6, 3.6.3, etc.
 FF_PV="${FF_PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-CHANGESET="fae5d6bd9c53"
+CHANGESET="b2fa82bc1a64"
 PATCH="${PN}-1.9.3-patches-0.1"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
@@ -51,8 +51,8 @@ DEPEND="java? ( >=virtual/jdk-1.4 )
 if [[ ${PV} =~ alpha|beta ]]; then
 	# hg snapshot tarball
 	SRC_URI="${SRC_URI}
-		http://dev.gentoo.org/~nirbheek/mozilla/dist/firefox-${FF_PV}_${CHANGESET}.source.tar.bz2"
-	S="${WORKDIR}/mozilla-central-${CHANGESET}"
+		http://dev.gentoo.org/~anarchy/mozilla/firefox/firefox-${FF_PV}_${CHANGESET}.source.tar.bz2"
+	S="${WORKDIR}/mozilla-central"
 else
 	REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 	SRC_URI="${SRC_URI}

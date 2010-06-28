@@ -12,7 +12,7 @@ MAJ_FF_PV="$(get_version_component_range 1-2)" # 3.5, 3.6, 4.0, etc.
 XUL_PV="${MAJ_XUL_PV}${PV/${MAJ_FF_PV}/}" # 1.9.3_alpha6, 1.9.2.3, etc.
 FF_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-CHANGESET="fae5d6bd9c53"
+CHANGESET="b2fa82bc1a64"
 PATCH="${PN}-3.7-patches-0.1"
 
 DESCRIPTION="Firefox Web Browser"
@@ -48,8 +48,8 @@ DEPEND="${RDEPEND}
 # No source releases for alpha|beta
 if [[ ${PV} =~ alpha|beta ]]; then
 	SRC_URI="${SRC_URI}
-		http://dev.gentoo.org/~nirbheek/mozilla/dist/firefox-${FF_PV}_${CHANGESET}.source.tar.bz2"
-	S="${WORKDIR}/mozilla-central-${CHANGESET}"
+		http://dev.gentoo.org/~anarchy/mozilla/firefox/firefox-${FF_PV}_${CHANGESET}.source.tar.bz2"
+	S="${WORKDIR}/mozilla-central"
 else
 	SRC_URI="${SRC_URI}
 		${REL_URI}/${FF_PV}/source/firefox-${FF_PV}.source.tar.bz2"
