@@ -142,6 +142,7 @@ src_prepare() {
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
 		cd "${S}"/mailnews/extensions/enigmail || die
 		epatch "${FILESDIR}"/enigmail/70_enigmail-fix.patch
+		epatch "${FILESDIR}"/enigmail/enigmail-1.1.2-seamonkey-2.1a2-versionfix.patch
 		makemake2
 		cd "${S}"
 	fi
