@@ -7,13 +7,13 @@ WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-pkg-opt-2 autotools python versionator
 
-MAJ_XUL_PV="$(get_version_component_range 1-3)" # from mozilla-* branch name
-MAJ_FF_PV="3.7"
+MAJ_XUL_PV="$(get_version_component_range 1-2)" # from mozilla-* branch name
+MAJ_FF_PV="4.0"
 FF_PV="${PV/${MAJ_XUL_PV}/${MAJ_FF_PV}}" # 3.7_alpha6, 3.6.3, etc.
 FF_PV="${FF_PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-CHANGESET="b2fa82bc1a64"
-PATCH="${PN}-1.9.3-patches-0.1"
+CHANGESET="2f7e4b1a5030"
+PATCH="${PN}-2.0-patches-0.1"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
@@ -24,7 +24,7 @@ LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="+alsa debug +ipc libnotify system-sqlite +webm wifi"
 
 # More URIs appended below...
-SRC_URI="http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
+SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
 RDEPEND="
 	>=sys-devel/binutils-2.16.1

@@ -7,13 +7,13 @@ WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools java-pkg-opt-2 mozextension versionator
 
-MAJ_XUL_PV="1.9.3"
+MAJ_XUL_PV="2.0"
 MAJ_FF_PV="$(get_version_component_range 1-2)" # 3.5, 3.6, 4.0, etc.
 XUL_PV="${MAJ_XUL_PV}${PV/${MAJ_FF_PV}/}" # 1.9.3_alpha6, 1.9.2.3, etc.
 FF_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-CHANGESET="b2fa82bc1a64"
-PATCH="${PN}-3.7-patches-0.1"
+CHANGESET="2f7e4b1a5030"
+PATCH="${PN}-4.0-patches-0.1"
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
@@ -25,7 +25,7 @@ IUSE="+alsa bindist +ipc java libnotify system-sqlite +webm wifi"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 # More URIs appended below...
-SRC_URI="http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
+SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
@@ -57,7 +57,7 @@ else
 fi
 
 # No language packs for alphas
-if ! [[ ${PV} =~ alpha ]]; then
+if ! [[ ${PV} =~ alpha|beta ]]; then
 	# This list can be updated with scripts/get_langs.sh from mozilla overlay
 	LANGS="af ar as be bg bn-BD bn-IN ca cs cy da de el en en-GB en-US eo es-AR
 	es-CL es-ES es-MX et eu fa fi fr fy-NL ga-IE gl gu-IN he hi-IN hr hu id is
