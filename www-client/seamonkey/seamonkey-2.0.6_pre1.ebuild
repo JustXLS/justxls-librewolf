@@ -120,7 +120,7 @@ src_unpack() {
 pkg_setup() {
         if [[ ${PV} == *_pre* ]] ; then
 	        ewarn "You're using an unofficial release of ${PN}. Don't file any bug in"
-                ewarn "Gentoo's Bugtracker against this package in case it breaks for you."
+		ewarn "Gentoo's Bugtracker against this package in case it breaks for you."
     	        ewarn "Those belong to upstream: https://bugzilla.mozilla.org"
         fi
 
