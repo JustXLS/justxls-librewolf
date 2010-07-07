@@ -1,0 +1,44 @@
+diff --git a/configure.in b/configure.in
+--- a/configure.in
++++ b/configure.in
+@@ -1533,17 +1533,17 @@ hppa* | parisc)
+ sun4u | sparc*)
+     CPU_ARCH=sparc
+     ;;
+ 
+ x86_64 | ia64)
+     CPU_ARCH="$OS_TEST"
+     ;;
+ 
+-arm)
++arm*)
+     CPU_ARCH=arm
+     ;;
+ esac
+ 
+ if test -z "$OS_TARGET"; then
+     OS_TARGET=$OS_ARCH
+ fi
+ OS_CONFIG="${OS_TARGET}${OS_RELEASE}"
+diff --git a/js/src/configure.in b/js/src/configure.in
+--- a/js/src/configure.in
++++ b/js/src/configure.in
+@@ -1270,17 +1270,17 @@ hppa* | parisc)
+ sun4u | sparc*)
+     CPU_ARCH=sparc
+     ;;
+ 
+ x86_64 | ia64)
+     CPU_ARCH="$OS_TEST"
+     ;;
+ 
+-arm)
++arm*)
+     CPU_ARCH=arm
+     ;;
+ esac
+ 
+ if test -z "$OS_TARGET"; then
+     OS_TARGET=$OS_ARCH
+ fi
+ OS_CONFIG="${OS_TARGET}${OS_RELEASE}"

@@ -136,7 +136,7 @@ src_prepare() {
 	pushd "${S}"/mozilla &>/dev/null || die pushd
 	epatch "${FILESDIR}"/2.1a1/v00e-551438-embedded-1.4.1.diff
 	epatch "${FILESDIR}"/2.1a1/nspr-static-assert-configure-test.patch
-	#epatch "${FILESDIR}"/2.1a1/${MY_P}-svg-compile-error.patch
+	epatch "${FILESDIR}"/2.1a1/701-arm.patch
 	popd &>/dev/null || die popd
 
 	eautoreconf

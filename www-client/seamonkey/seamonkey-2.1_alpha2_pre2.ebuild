@@ -147,9 +147,9 @@ src_prepare() {
 		cd "${S}"
 	fi
 
-	#pushd "${S}"/mozilla &>/dev/null || die pushd
-
-	#popd &>/dev/null || die popd
+	pushd "${S}"/mozilla &>/dev/null || die pushd
+	epatch "${FILESDIR}"/2.1a1/701-arm.patch
+	popd &>/dev/null || die popd
 
 	eautoreconf
 	cd "${S}"/mozilla || die
