@@ -17,20 +17,20 @@ MY_PV="${PV/_pre*}"
 MY_PV="${MY_PV/_rc/rc}"
 MY_P="${PN}-${MY_PV}"
 
+# release versions usually have language packs. So be careful with changing this.
+HAS_LANGS="true"
 if [[ ${PV} == *_pre* ]] ; then
 	# pre-releases. No need for arch teams to change KEYWORDS here.
 
 	REL_URI="ftp://ftp.mozilla.org/pub/mozilla.org/${PN}/nightly/${MY_PV}-candidates/build${PV##*_pre}"
 	KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 	#KEYWORDS=""
-	HAS_LANGS="true"
+	#HAS_LANGS="false"
 else
 	# This is where arch teams should change the KEYWORDS.
 
 	REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases/${MY_PV}"
 	KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
-	# release versions usually have language packs. So be careful with changing this.
-	HAS_LANGS="true"
 fi
 
 DESCRIPTION="Seamonkey Web Browser"
@@ -118,11 +118,11 @@ src_unpack() {
 }
 
 pkg_setup() {
-        if [[ ${PV} == *_pre* ]] ; then
-	        ewarn "You're using an unofficial release of ${PN}. Don't file any bug in"
+	if [[ ${PV} == *_pre* ]] ; then
+		ewarn "You're using an unofficial release of ${PN}. Don't file any bug in"
 		ewarn "Gentoo's Bugtracker against this package in case it breaks for you."
-    	        ewarn "Those belong to upstream: https://bugzilla.mozilla.org"
-        fi
+		ewarn "Those belong to upstream: https://bugzilla.mozilla.org"
+	fi
 
 	export BUILD_OFFICIAL=1
 	export MOZILLA_OFFICIAL=1
@@ -246,13 +246,13 @@ src_install() {
 	emake DESTDIR="${D}" install || die "emake install failed"
 
 	if use crypt && use mailclient ; then
-		cd "${T}"
-		unzip "${S}"/mozilla/dist/bin/enigmail*.xpi install.rdf
+		cd "${T}" || die
+		unzip "${S}"/mozilla/dist/bin/enigmail*.xpi install.rdf || die
 		emid=$(sed -n '/<em:id>/!d; s/.*\({.*}\).*/\1/; p; q' install.rdf)
 
-		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid}
-		cd "${D}"${MOZILLA_FIVE_HOME}/extensions/${emid}
-		unzip "${S}"/mozilla/dist/bin/enigmail*.xpi
+		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid} || die
+		cd "${D}"${MOZILLA_FIVE_HOME}/extensions/${emid} || die
+		unzip "${S}"/mozilla/dist/bin/enigmail*.xpi || die
 	fi
 
 	if ${HAS_LANGS} ; then
@@ -263,8 +263,8 @@ src_install() {
 	fi
 
 	# Install icon and .desktop for menu entry
-	newicon "${S}"/suite/branding/content/icon64.png seamonkey.png
-	domenu "${FILESDIR}"/icon/seamonkey.desktop
+	newicon "${S}"/suite/branding/content/icon64.png seamonkey.png || die
+	domenu "${FILESDIR}"/icon/seamonkey.desktop || die
 
 	# Add StartupNotify=true bug 290401
 	if use startup-notification ; then
@@ -277,10 +277,10 @@ src_install() {
 
 	# Plugins dir
 	rm -rf "${D}"${MOZILLA_FIVE_HOME}/plugins || die "failed to remove existing plugins dir"
-	dosym ../nsbrowser/plugins "${MOZILLA_FIVE_HOME}"/plugins
+	dosym ../nsbrowser/plugins "${MOZILLA_FIVE_HOME}"/plugins || die
 
 	# shiny new man page
-	doman "${S}"/suite/app/${PN}.1
+	doman "${S}"/suite/app/${PN}.1 || die
 }
 
 pkg_preinst() {

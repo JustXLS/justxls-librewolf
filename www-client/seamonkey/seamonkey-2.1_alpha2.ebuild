@@ -19,10 +19,18 @@ MY_PV="${MY_PV/_beta/b}"
 MY_PV="${MY_PV/_rc/rc}"
 MY_P="${PN}-${MY_PV}"
 
+# release versions usually have language packs. So be careful with changing this.
+HAS_LANGS="true"
 if [[ ${PV} == *_pre* ]] ; then
+	# pre-releases. No need for arch teams to change KEYWORDS here.
+
 	REL_URI="ftp://ftp.mozilla.org/pub/mozilla.org/${PN}/nightly/${MY_PV}-candidates/build${PV##*_pre}"
 	KEYWORDS=""
+	#KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
+	HAS_LANGS="false"
 else
+	# This is where arch teams should change the KEYWORDS.
+
 	REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases/${MY_PV}"
 	KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 fi
@@ -38,7 +46,7 @@ SRC_URI="${REL_URI}/source/${MY_P}.source.tar.bz2
 	http://dev.gentoo.org/~polynomial-c/${PATCH}.tar.bz2
 	crypt? ( mailclient? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz ) )"
 
-if [[ ${PV} != *_alpha* ]] ; then
+if ${HAS_LANGS} ; then
 	for X in ${LANGS} ; do
 		if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
 			SRC_URI="${SRC_URI}
@@ -101,7 +109,7 @@ linguas() {
 src_unpack() {
 	unpack ${A}
 
-	if [[ ${PV} != *_alpha* ]] ; then
+	if ${HAS_LANGS} ; then
 		linguas
 		for X in ${linguas}; do
 			# FIXME: Add support for unpacking xpis to portage
@@ -255,24 +263,26 @@ src_install() {
 	emake DESTDIR="${D}" install || die "emake install failed"
 
 	if use crypt && use mailclient ; then
-		cd "${T}"
-		unzip "${S}"/mozilla/dist/bin/enigmail*.xpi install.rdf
+		cd "${T}" || die
+		unzip "${S}"/mozilla/dist/bin/enigmail*.xpi install.rdf || die
 		emid=$(sed -n '/<em:id>/!d; s/.*\({.*}\).*/\1/; p; q' install.rdf)
 
-		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid}
-		cd "${D}"${MOZILLA_FIVE_HOME}/extensions/${emid}
-		unzip "${S}"/mozilla/dist/bin/enigmail*.xpi
+		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid} || die
+		cd "${D}"${MOZILLA_FIVE_HOME}/extensions/${emid} || die
+		unzip "${S}"/mozilla/dist/bin/enigmail*.xpi || die
 	fi
 
-	#linguas
-	#for X in ${linguas}; do
-	#	[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${MY_P}-${X}"
-	#done
+	if ${HAS_LANGS} ; then
+		linguas
+		for X in ${linguas}; do
+			[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${MY_P}-${X}"
+		done
+	fi
 
 	# Install icon and .desktop for menu entry
 	newicon "${S}"/suite/branding/nightly/content/icon64.png seamonkey.png \
-		|| die "newicon"
-	domenu "${FILESDIR}"/icon/seamonkey.desktop || die "domenu"
+		|| die
+	domenu "${FILESDIR}"/icon/seamonkey.desktop || die
 
 	# Add StartupNotify=true bug 290401
 	if use startup-notification ; then
@@ -281,15 +291,15 @@ src_install() {
 
 	# Add our default prefs
 	sed "s|SEAMONKEY_PVR|${PVR}|" "${FILESDIR}"/all-gentoo.js \
-		> "${D}"${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js
+		> "${D}"${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js \
+			|| die
 
 	# Plugins dir
 	rm -rf "${D}"${MOZILLA_FIVE_HOME}/plugins || die "failed to remove existing plugins dir"
-	dosym ../nsbrowser/plugins "${MOZILLA_FIVE_HOME}"/plugins \
-		|| die "dosym"
+	dosym ../nsbrowser/plugins "${MOZILLA_FIVE_HOME}"/plugins || die
 
 	# shiny new man page
-	doman "${S}"/suite/app/${PN}.1 || die "doman"
+	doman "${S}"/suite/app/${PN}.1 || die
 }
 
 pkg_preinst() {
