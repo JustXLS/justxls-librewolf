@@ -33,6 +33,7 @@ else
 
 	REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases/${MY_PV}"
 	KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
+	[[ ${PV} == *alpha* ]] && HAS_LANGS="false"
 fi
 
 DESCRIPTION="Seamonkey Web Browser"

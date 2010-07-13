@@ -15,6 +15,8 @@ NOSHORTLANGS="en-GB es-AR es-ES nb-NO pt-PT sv-SE zh-CN"
 
 MY_PV="${PV/_pre*}"
 MY_PV="${MY_PV/_rc/rc}"
+MY_PV="${MY_PV/_alpha/a}"
+MY_PV="${MY_PV/_beta/b}"
 MY_P="${PN}-${MY_PV}"
 
 # release versions usually have language packs. So be careful with changing this.
@@ -31,6 +33,7 @@ else
 
 	REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases/${MY_PV}"
 	KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
+	[[ ${PV} == *alpha* ]] && HAS_LANGS="false"
 fi
 
 DESCRIPTION="Seamonkey Web Browser"
