@@ -212,6 +212,13 @@ src_install() {
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_XUL_PV}"
 	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_XUL_PV}/sdk"
 
+	if has_multilib_profile; then
+		local config
+		for config in "${D}"/etc/gre.d/*.system.conf ; do
+			mv "${config}" "${config%.conf}.${CHOST}.conf"
+		done
+	fi
+
 	dodir /usr/bin
 	dosym "${MOZLIBDIR}/xulrunner" "/usr/bin/xulrunner-${MAJ_XUL_PV}" || die
 
