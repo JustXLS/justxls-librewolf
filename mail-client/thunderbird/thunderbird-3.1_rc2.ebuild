@@ -48,7 +48,6 @@ done
 RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.3
 	>=dev-libs/nspr-4.8
-	 =media-libs/lcms-1*
 	>=app-text/hunspell-1.2
 	x11-libs/cairo[X]
 	x11-libs/pango[X]

@@ -196,7 +196,6 @@ src_configure() {
 	mozconfig_annotate '' --enable-system-hunspell
 	mozconfig_annotate '' --with-system-nspr
 	mozconfig_annotate '' --with-system-nss
-	mozconfig_annotate '' --enable-system-lcms
 	mozconfig_annotate '' --with-system-bz2
 	mozconfig_annotate '' --with-system-libevent=/usr
 	mozconfig_annotate '' --with-system-libxul

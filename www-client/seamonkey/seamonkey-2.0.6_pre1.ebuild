@@ -195,7 +195,6 @@ src_configure() {
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate '' --with-system-nspr
 	mozconfig_annotate '' --with-system-nss
-	mozconfig_annotate '' --enable-system-lcms
 	mozconfig_annotate '' --with-system-bz2
 	mozconfig_annotate '' --enable-oji --enable-mathml
 	mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks

@@ -31,7 +31,6 @@ RDEPEND="
 	>=dev-libs/nss-3.12.6
 	>=dev-libs/nspr-4.8.5
 	>=app-text/hunspell-1.2
- 	=media-libs/lcms-1*
 	>=x11-libs/cairo-1.8.8[X]
 	>=dev-libs/libevent-1.4.7
 	x11-libs/pango[X]
@@ -150,7 +149,6 @@ src_configure() {
 	mozconfig_annotate '' --enable-system-hunspell
 	mozconfig_annotate '' --with-system-nspr
 	mozconfig_annotate '' --with-system-nss
-	mozconfig_annotate '' --enable-system-lcms
 	mozconfig_annotate '' --with-system-bz2
 	mozconfig_annotate '' --with-system-libevent=/usr
 
