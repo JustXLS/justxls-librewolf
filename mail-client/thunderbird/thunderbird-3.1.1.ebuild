@@ -1,6 +1,6 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/mail-client/mozilla-thunderbird/mozilla-thunderbird-3.0.ebuild,v 1.3 2009/12/19 17:21:05 anarchy Exp $
+# $Header: /var/cvsroot/gentoo-x86/mail-client/thunderbird/thunderbird-3.1.ebuild,v 1.6 2010/07/18 23:55:10 anarchy Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
@@ -8,10 +8,10 @@ WANT_AUTOCONF="2.1"
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozextension autotools
 
 # This list can be updated using get_langs.sh from the mozilla overlay
-LANGS="af ar be bg bn-BD ca cs da de el en en-GB en-US en-US es-AR es-ES et eu
-fi fr fy-NL ga-IE he hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR pt-PT ro
-ru si sk sl sq sv-SE tr uk zh-CN zh-TW"
-NOSHORTLANGS="en-GB es-AR pt-BR zh-TW" 
+LANGS="af ar be bg bn-BD ca cs da de el en en-GB en-US es-AR es-ES et eu fi fr \
+fy-NL ga-IE he hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR pt-PT ro ru si \
+sk sl sq sv-SE tr uk zh-CN zh-TW"
+NOSHORTLANGS="en-GB es-AR pt-BR zh-TW"
 
 MY_PV="${PV/_rc/rc}"
 MY_P="${P/_rc/rc}"
@@ -19,7 +19,7 @@ MY_P="${P/_rc/rc}"
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 
-KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="alsa ldap crypt bindist libnotify lightning mozdom system-sqlite wifi"
@@ -51,10 +51,12 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=app-text/hunspell-1.2
 	x11-libs/cairo[X]
 	x11-libs/pango[X]
+
 	alsa? ( media-libs/alsa-lib )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
 	system-sqlite? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
 	wifi? ( net-wireless/wireless-tools )
+
 	!x11-plugins/lightning"
 
 PDEPEND="crypt? ( >=x11-plugins/enigmail-1.1 )"
@@ -114,8 +116,10 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
-	# Fix broken media support
-	epatch "${FILESDIR}/${PN}-3.1-noalsa-fixup.patch"
+	epatch "${FILESDIR}"/${PN}-3.1-gcc45.patch
+
+	# ARM fixes, bug 327783
+	epatch "${FILESDIR}/${PN}-xul-1.9.2-arm-fixes.patch"
 
 	eautoreconf
 
@@ -238,7 +242,7 @@ src_install() {
 	use crypt && ewarn "Please remerge x11-plugins/enigmail after updating ${PN}."
 
 	# Enable very specific settings for thunderbird-3
-	cp "${FILESDIR}"/thunderbird-gentoo-default-prefs.js \
+	cp "${FILESDIR}"/thunderbird-gentoo-default-prefs-1.js \
 		"${ED}/${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js" || \
 		die "failed to cp thunderbird-gentoo-default-prefs.js"
 }
