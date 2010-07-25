@@ -13,7 +13,7 @@ XUL_PV="${MAJ_XUL_PV}${PV/${MAJ_FF_PV}/}" # 1.9.3_alpha6, 1.9.2.3, etc.
 FF_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
 CHANGESET="ab7618bb5c48"
-PATCH="${PN}-4.0-patches-0.1"
+PATCH="mozilla-${PN}-4.0-patches-0.1"
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
@@ -82,7 +82,7 @@ if ! [[ ${PV} =~ alpha|beta ]]; then
 	done
 fi
 
-QA_PRESTRIPPED="usr/$(get_libdir)/${PN}/firefox"
+QA_PRESTRIPPED="usr/$(get_libdir)/mozilla-${PN}/firefox"
 
 linguas() {
 	local LANG SLANG
@@ -102,7 +102,7 @@ linguas() {
 				fi
 			done
 		fi
-		ewarn "Sorry, but ${PN} does not support the ${LANG} LINGUA"
+		ewarn "Sorry, but ${P} does not support the ${LANG} LINGUA"
 	done
 }
 
@@ -126,8 +126,6 @@ pkg_setup() {
 
 src_unpack() {
 	unpack ${A}
-
-	[[ ${PV} =~ alpha ]] && return
 
 	linguas
 	for X in ${linguas}; do
@@ -157,7 +155,7 @@ src_prepare() {
 }
 
 src_configure() {
-	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/mozilla-${PN}"
 	MEXTENSIONS="default"
 
 	####################################
@@ -247,25 +245,23 @@ src_compile() {
 }
 
 src_install() {
-	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/mozilla-${PN}"
 
 	emake DESTDIR="${D}" install || die "emake install failed"
 
-	if [[ ${PV} =~ alpha ]]; then
-		linguas
-		for X in ${linguas}; do
-			[[ ${X} != "en" ]] && xpi_install "${WORKDIR}/${P}-${X}"
-		done
-	fi
+	linguas
+	for X in ${linguas}; do
+		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}/${P}-${X}"
+	done
 
 	# Install icon and .desktop for menu entry
 	if ! use bindist ; then
-		newicon "${S}"/other-licenses/branding/firefox/content/icon48.png firefox-icon.png
-		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5.desktop \
+		newicon "${S}"/other-licenses/branding/firefox/content/icon48.png ${PN}-icon.png
+		newmenu "${FILESDIR}"/icon/${PN}-1.5.desktop \
 			${PN}-${MAJ_FF_PV}.desktop
 	else
-		newicon "${S}"/browser/base/branding/icon48.png firefox-icon-unbranded.png
-		newmenu "${FILESDIR}"/icon/mozilla-firefox-1.5-unbranded.desktop \
+		newicon "${S}"/browser/base/branding/icon48.png ${PN}-icon-unbranded.png
+		newmenu "${FILESDIR}"/icon/${PN}-1.5-unbranded.desktop \
 			${PN}-${MAJ_FF_PV}.desktop
 		sed -i -e "s:Bon Echo:Shiretoko:" \
 			"${D}"/usr/share/applications/${PN}-${MAJ_FF_PV}.desktop || die "sed failed!"
