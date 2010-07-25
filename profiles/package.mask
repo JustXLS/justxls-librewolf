@@ -7,6 +7,6 @@
 
 # These are experimental use with caution!!
 >=net-libs/xulrunner-1.9.3_alpha1
->=www-client/mozilla-firefox-3.7_alpha1
+>=www-client/firefox-3.7_alpha1
 >=www-client/seamonkey-2.1_alpha1
 
