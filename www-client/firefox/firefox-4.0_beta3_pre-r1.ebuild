@@ -82,7 +82,7 @@ if ! [[ ${PV} =~ alpha|beta ]]; then
 	done
 fi
 
-QA_PRESTRIPPED="usr/$(get_libdir)/mozilla-${PN}/firefox"
+QA_PRESTRIPPED="usr/$(get_libdir)/${PN}/firefox"
 
 linguas() {
 	local LANG SLANG
@@ -135,6 +135,11 @@ src_unpack() {
 }
 
 src_prepare() {
+	# Fix the install path
+	einfo
+	einfo "Fixing install location patch"
+	sed -i -e 's:mozilla-firefox:firefox:g' ${WORKDIR}/001-*
+
 	# Not needed anymore
 	rm "${WORKDIR}/401-libsydney_oss.patch" || die "rm failed"
 	# Doesn't apply (Not needed anymore?)
