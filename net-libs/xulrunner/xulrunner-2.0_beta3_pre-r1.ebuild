@@ -97,6 +97,9 @@ src_prepare() {
 			"${S}"/build/unix/run-mozilla.sh || die "sed failed!"
 	fi
 
+	#Ensure we disable javaxpcom by default to prevent configure breakage
+	sed -i -e s:MOZ_JAVAXPCOM\=1::g ${S}/xulrunner/confvars.sh
+
 	eautoreconf
 
 	cd js/src
@@ -133,7 +136,6 @@ src_configure() {
 	mozconfig_annotate '' --enable-oji --enable-mathml
 	mozconfig_annotate 'places' --enable-storage --enable-places
 	mozconfig_annotate '' --enable-safe-browsing
-	mozconfig_annotate 'broken' --disable--javaxpcom
 
 	# System-wide install specs
 	mozconfig_annotate '' --disable-installer
