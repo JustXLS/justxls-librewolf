@@ -5,7 +5,7 @@
 EAPI="2"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib fdo-mime autotools mozextension java-pkg-opt-2
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib fdo-mime autotools mozextension
 
 PATCH="${PN}-2.0.5-patches-01"
 EMVER="1.1.2"
@@ -41,7 +41,7 @@ HOMEPAGE="http://www.seamonkey-project.org"
 
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa +chatzilla +composer +crypt libnotify java ldap +mailclient +roaming system-sqlite wifi"
+IUSE="+alsa +chatzilla +composer +crypt libnotify ldap +mailclient +roaming system-sqlite wifi"
 
 SRC_URI="${REL_URI}/source/${MY_P}.source.tar.bz2
 	http://dev.gentoo.org/~polynomial-c/${PATCH}.tar.bz2
@@ -65,8 +65,7 @@ if ${HAS_LANGS} ; then
 	done
 fi
 
-RDEPEND="java? ( virtual/jre )
-	>=sys-devel/binutils-2.16.1
+RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.2
 	>=dev-libs/nspr-4.8.5
 	alsa? ( media-libs/alsa-lib )
@@ -80,8 +79,7 @@ RDEPEND="java? ( virtual/jre )
 	wifi? ( net-wireless/wireless-tools )"
 
 DEPEND="${RDEPEND}
-	dev-util/pkgconfig
-	java? ( >=virtual/jdk-1.4 )"
+	dev-util/pkgconfig"
 
 S="${WORKDIR}/comm-central"
 
@@ -131,13 +129,9 @@ pkg_setup() {
 
 	export BUILD_OFFICIAL=1
 	export MOZILLA_OFFICIAL=1
-
-	java-pkg-opt-2_pkg_setup
 }
 
 src_prepare() {
-	java-pkg-opt-2_src_prepare
-
 	# Apply our patches
 	EPATCH_EXCLUDE="1002_fix-system-hunspell-dict-detections.patch
 			118-bz467766_att351173-dont-reset-user-prefs-on-upgrade.patch
@@ -159,6 +153,10 @@ src_prepare() {
 	pushd "${S}"/mozilla &>/dev/null || die pushd
 	epatch "${FILESDIR}"/2.1a1/701-arm.patch
 	popd &>/dev/null || die popd
+
+	#Ensure we disable javaxpcom by default to prevent configure breakage
+	sed -i -e s:MOZ_JAVAXPCOM\=1::g ${S}/mozilla/xulrunner/confvars.sh \
+		|| die "sed javaxpcom"
 
 	eautoreconf
 	cd "${S}"/mozilla || die
@@ -218,7 +216,6 @@ src_configure() {
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
 	mozconfig_use_enable libnotify
-	mozconfig_use_enable java javaxpcom
 	mozconfig_use_enable ldap
 	mozconfig_use_enable ldap ldap-experimental
 	mozconfig_use_enable mailclient mailnews
@@ -298,7 +295,6 @@ src_install() {
 	rm -rf "${D}"${MOZILLA_FIVE_HOME}/plugins || die "failed to remove existing plugins dir"
 	dosym ../nsbrowser/plugins "${MOZILLA_FIVE_HOME}"/plugins || die
 
-	# shiny new man page
 	doman "${S}"/suite/app/${PN}.1 || die
 }
 
