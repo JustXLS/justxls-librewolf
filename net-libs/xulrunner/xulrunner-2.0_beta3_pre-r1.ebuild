@@ -5,7 +5,7 @@
 EAPI="2"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-pkg-opt-2 autotools python versionator
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib autotools python versionator
 
 MAJ_XUL_PV="$(get_version_component_range 1-2)" # from mozilla-* branch name
 MAJ_FF_PV="4.0"
@@ -37,13 +37,11 @@ RDEPEND="
 	x11-libs/libXt
 	x11-libs/pixman
 	alsa? ( media-libs/alsa-lib )
-	java? ( >=virtual/jre-1.4 )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
 	system-sqlite? ( >=dev-db/sqlite-3.6.23.1-r1[fts3,secure-delete,unlock-notify] )
 	wifi? ( net-wireless/wireless-tools )"
 
-DEPEND="java? ( >=virtual/jdk-1.4 )
-	${RDEPEND}
+DEPEND="${RDEPEND}
 	=dev-lang/python-2*[threads]
 	dev-util/pkgconfig"
 
@@ -65,8 +63,6 @@ pkg_setup() {
 	export LC_ALL="C"
 	export LC_MESSAGES="C"
 	export LC_CTYPE="C"
-
-	java-pkg-opt-2_pkg_setup
 
 	python_set_active_version 2
 }
@@ -137,6 +133,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-oji --enable-mathml
 	mozconfig_annotate 'places' --enable-storage --enable-places
 	mozconfig_annotate '' --enable-safe-browsing
+	mozconfig_annotate 'broken' --disable--javaxpcom
 
 	# System-wide install specs
 	mozconfig_annotate '' --disable-installer
@@ -154,7 +151,6 @@ src_configure() {
 
 	mozconfig_use_enable ipc # +ipc, upstream default
 	mozconfig_use_enable libnotify
-	mozconfig_use_enable java javaxpcom
 	mozconfig_use_enable wifi necko-wifi
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
@@ -228,24 +224,12 @@ src_install() {
 	cp "${FILESDIR}"/xulrunner-default-prefs.js \
 		"${D}/${MOZLIBDIR}/defaults/pref/all-gentoo.js" || \
 			die "failed to cp xulrunner-default-prefs.js"
-
-	if use java ; then
-		java-pkg_regjar "${D}/${MOZLIBDIR}/javaxpcom.jar"
-		java-pkg_regjar "${D}/${SDKDIR}/lib/MozillaGlue.jar"
-		java-pkg_regjar "${D}/${SDKDIR}/lib/MozillaInterfaces.jar"
-	fi
 }
 
 pkg_postinst() {
 	ewarn "If firefox fails to start with \"failed to load xpcom\", run revdep-rebuild"
 	ewarn "If that does not fix the problem, rebuild dev-libs/nss"
 	ewarn "Try dev-util/lafilefixer if you get build failures related to .la files"
-
-	# What does this mean?
-	#einfo
-	#einfo "All prefs can be overridden by the user. The preferences are to make"
-	#einfo "use of xulrunner out of the box on an average system without the user"
-	#einfo "having to go through and enable the basics."
 
 	einfo
 	ewarn "Any package that requires xulrunner:1.9 slot could and most likely will"

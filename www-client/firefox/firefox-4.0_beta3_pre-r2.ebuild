@@ -1,11 +1,11 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/mozilla-firefox/mozilla-firefox-3.6.ebuild,v 1.2 2010/01/22 13:45:32 anarchy Exp $
+# $Header: $
 
 EAPI="2"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools java-pkg-opt-2 mozextension versionator
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools mozextension versionator
 
 MAJ_XUL_PV="2.0"
 MAJ_FF_PV="$(get_version_component_range 1-2)" # 3.5, 3.6, 4.0, etc.
@@ -21,7 +21,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa bindist +ipc java libnotify system-sqlite +webm wifi"
+IUSE="+alsa bindist +ipc libnotify system-sqlite +webm wifi"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 # More URIs appended below...
@@ -35,14 +35,12 @@ RDEPEND="
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
 	alsa? ( media-libs/alsa-lib )
-	java? ( >=virtual/jre-1.4 )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
 	system-sqlite? ( >=dev-db/sqlite-3.6.23.1-r1[fts3,secure-delete,unlock-notify] )
 	wifi? ( net-wireless/wireless-tools )
-	~net-libs/xulrunner-${XUL_PV}[java=,wifi=,libnotify=,system-sqlite=,webm=]"
+	~net-libs/xulrunner-${XUL_PV}[wifi=,libnotify=,system-sqlite=,webm=]"
 
 DEPEND="${RDEPEND}
-	java? ( >=virtual/jdk-1.4 )
 	dev-util/pkgconfig"
 
 # No source releases for alpha|beta
@@ -120,8 +118,6 @@ pkg_setup() {
 		elog "a legal problem with Mozilla Foundation"
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
-
-	java-pkg-opt-2_pkg_setup
 }
 
 src_unpack() {
@@ -187,6 +183,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-oji --enable-mathml
 	mozconfig_annotate 'places' --enable-storage --enable-places
 	mozconfig_annotate '' --enable-safe-browsing
+	mozconfig_annotate 'broken' --disable-javaxpcom
 
 	# System-wide install specs
 	mozconfig_annotate '' --disable-installer
@@ -206,7 +203,6 @@ src_configure() {
 
 	mozconfig_use_enable ipc # +ipc, upstream default
 	mozconfig_use_enable libnotify
-	mozconfig_use_enable java javaxpcom
 	mozconfig_use_enable wifi necko-wifi
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
