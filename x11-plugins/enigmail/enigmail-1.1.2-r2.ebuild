@@ -56,9 +56,6 @@ src_prepare(){
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
-	# ARM fixes, bug 327783
-	epatch "${FILESDIR}/thunderbird-xul-1.9.2-arm-fixes.patch"
-
 	cd mozilla
 	eautoreconf
 	cd js/src
