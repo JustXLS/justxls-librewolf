@@ -1,6 +1,6 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-plugins/enigmail/enigmail-1.0.0.ebuild,v 1.1 2009/12/08 21:40:53 anarchy Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-plugins/enigmail/enigmail-1.1.2-r1.ebuild,v 1.6 2010/07/26 19:24:59 maekke Exp $
 
 WANT_AUTOCONF="2.1"
 EAPI="2"
@@ -8,22 +8,22 @@ EAPI="2"
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozextension autotools
 MY_P="${P/_beta/b}"
 EMVER="${PV}"
-TBVER="3.1rc2"
-PATCH="mozilla-thunderbird-3.1-patches-0.1"
+TBVER="3.1.1"
+PATCH="thunderbird-3.1-patches-0.2"
 
 DESCRIPTION="GnuPG encryption plugin for thunderbird."
 HOMEPAGE="http://enigmail.mozdev.org"
 REL_URI="ftp://ftp.mozilla.org/pub/mozilla.org/thunderbird/nightly/"
 SRC_URI="http://releases.mozilla.org/pub/mozilla.org/thunderbird/releases/${TBVER}/source/thunderbird-${TBVER}.source.tar.bz2
 	http://www.mozilla-enigmail.org/download/source/${PN}-${EMVER}.tar.gz
-	http://dev.gentoo.org/~anarchy/dist/${PATCH}.tar.bz2"
+	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
-KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
+KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
 SLOT="0"
 LICENSE="MPL-1.1 GPL-2"
 IUSE="system-sqlite"
 
-DEPEND=">=mail-client/thunderbird-3.1_beta1[system-sqlite=]"
+DEPEND=">=mail-client/thunderbird-3.1.1-r1[system-sqlite=]"
 RDEPEND="${DEPEND}
 	system-sqlite? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
 	|| (
@@ -56,6 +56,9 @@ src_prepare(){
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
+	# ARM fixes, bug 327783
+	epatch "${FILESDIR}/thunderbird-xul-1.9.2-arm-fixes.patch"
+
 	cd mozilla
 	eautoreconf
 	cd js/src
@@ -71,12 +74,13 @@ src_prepare(){
 
 	# Fix installation of enigmail.js
 	epatch "${FILESDIR}"/70_enigmail-fix.patch
+	epatch "${FILESDIR}"/75_enigmai-js-fixup.patch
 
 	eautoreconf
 }
 
 src_configure() {
-	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/mozilla-thunderbird"
+	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/thunderbird"
 
 	####################################
 	#
@@ -143,7 +147,7 @@ src_compile() {
 }
 
 src_install() {
-	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/mozilla-thunderbird"
+	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/thunderbird"
 	declare emid
 
 	cd "${T}"
