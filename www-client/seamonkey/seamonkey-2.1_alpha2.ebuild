@@ -44,7 +44,7 @@ LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="+alsa +chatzilla +composer +crypt libnotify ldap +mailclient +roaming system-sqlite wifi"
 
 SRC_URI="${REL_URI}/source/${MY_P}.source.tar.bz2
-	http://dev.gentoo.org/~polynomial-c/${PATCH}.tar.bz2
+	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.bz2
 	crypt? ( mailclient? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz ) )"
 
 if ${HAS_LANGS} ; then
