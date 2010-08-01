@@ -13,7 +13,7 @@ XUL_PV="${MAJ_XUL_PV}${PV/${MAJ_FF_PV}/}" # 1.9.3_alpha6, 1.9.2.3, etc.
 FF_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
 CHANGESET="ab7618bb5c48"
-PATCH="mozilla-${PN}-4.0-patches-0.1"
+PATCH="${PN}-4.0-patches-0.2"
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
@@ -131,16 +131,6 @@ src_unpack() {
 }
 
 src_prepare() {
-	# Fix the install path
-	einfo
-	einfo "Fixing install location patch"
-	sed -i -e 's:mozilla-firefox:firefox:g' ${WORKDIR}/001-*
-
-	# Not needed anymore
-	rm "${WORKDIR}/401-libsydney_oss.patch" || die "rm failed"
-	# Doesn't apply (Not needed anymore?)
-	rm "${WORKDIR}/402-oggzfbsd.patch" || die "rm failed"
-
 	# Apply our patches
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
