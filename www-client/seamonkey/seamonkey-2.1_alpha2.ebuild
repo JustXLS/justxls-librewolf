@@ -41,7 +41,7 @@ HOMEPAGE="http://www.seamonkey-project.org"
 
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa +chatzilla +composer +crypt libnotify ldap +mailclient +roaming system-sqlite wifi"
+IUSE="+alsa +chatzilla +composer +crypt +cups libnotify ldap +mailclient +roaming system-sqlite wifi"
 
 SRC_URI="${REL_URI}/source/${MY_P}.source.tar.bz2
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.bz2
@@ -76,6 +76,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=x11-libs/pango-1.14.0[X]
 	libnotify? ( >=x11-libs/libnotify-0.4 )
 	crypt? ( mailclient? ( >=app-crypt/gnupg-1.4 ) )
+	cups? ( net-print/cups[gnutls] )
 	wifi? ( net-wireless/wireless-tools )"
 
 DEPEND="${RDEPEND}
@@ -215,6 +216,7 @@ src_configure() {
 	# Enable/Disable based on USE flags
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
+	mozconfig_use_enable cups printing
 	mozconfig_use_enable libnotify
 	mozconfig_use_enable ldap
 	mozconfig_use_enable ldap ldap-experimental
