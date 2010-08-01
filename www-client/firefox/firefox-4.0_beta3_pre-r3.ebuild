@@ -21,7 +21,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa bindist +ipc libnotify system-sqlite +webm wifi"
+IUSE="+alsa bindist +cups +ipc libnotify system-sqlite +webm wifi"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 # More URIs appended below...
@@ -38,6 +38,7 @@ RDEPEND="
 	libnotify? ( >=x11-libs/libnotify-0.4 )
 	system-sqlite? ( >=dev-db/sqlite-3.6.23.1-r1[fts3,secure-delete,unlock-notify] )
 	wifi? ( net-wireless/wireless-tools )
+	cups? ( net-print/cups[gnutls] )
 	~net-libs/xulrunner-${XUL_PV}[wifi=,libnotify=,system-sqlite=,webm=]"
 
 DEPEND="${RDEPEND}
@@ -200,6 +201,7 @@ src_configure() {
 	mozconfig_use_enable alsa wave
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_enable webm
+	mozconfig_use_enable cups printing
 	mozconfig_use_enable !bindist official-branding
 
 	# NOTE: Uses internal copy of libvpx
