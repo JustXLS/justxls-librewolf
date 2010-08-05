@@ -5,7 +5,7 @@
 EAPI="2"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib autotools python versionator
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib autotools python versionator pax-utils
 
 MAJ_XUL_PV="$(get_version_component_range 1-2)" # from mozilla-* branch name
 MAJ_FF_PV="4.0"
@@ -221,6 +221,8 @@ src_install() {
 	cp "${FILESDIR}"/xulrunner-default-prefs.js \
 		"${D}/${MOZLIBDIR}/defaults/pref/all-gentoo.js" || \
 			die "failed to cp xulrunner-default-prefs.js"
+
+	pax-mark m "${D}"/${MOZLIBDIR}/plugin-container
 }
 
 pkg_postinst() {
