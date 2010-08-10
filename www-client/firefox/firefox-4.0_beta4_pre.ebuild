@@ -29,7 +29,7 @@ SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.6
+	>=dev-libs/nss-3.12.8_beta1
 	>=dev-libs/nspr-4.8.5
 	>=app-text/hunspell-1.2
 	>=x11-libs/cairo-1.8.8[X]
