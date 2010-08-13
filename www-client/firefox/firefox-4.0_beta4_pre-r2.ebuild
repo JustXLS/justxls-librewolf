@@ -147,6 +147,10 @@ src_prepare() {
 
 	cd js/src
 	eautoreconf
+
+	# Ensure we keep a sane enviroment
+	sed -i -e "s:MOZ_SERVICES_SYNC\=:MOZ_SERVICES_SYNC\=1:g" \
+		${S}/browser/confvars.sh || die "failed to enable sync services"
 }
 
 src_configure() {

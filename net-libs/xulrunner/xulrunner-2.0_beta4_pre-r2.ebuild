@@ -98,6 +98,9 @@ src_prepare() {
 
 	cd js/src
 	eautoreconf
+
+	# Make sure we stay in sync and echo this last
+	echo "MOZ_SERVICES_SYNC=1" >> ${S}/xulrunner/confvars.sh
 }
 
 src_configure() {
