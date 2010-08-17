@@ -66,10 +66,11 @@ if ${HAS_LANGS} ; then
 fi
 
 RDEPEND=">=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.2
+	>=dev-libs/nss-3.12.8_beta1
 	>=dev-libs/nspr-4.8.5
 	alsa? ( media-libs/alsa-lib )
 	system-sqlite? ( >=dev-db/sqlite-3.6.23.1-r1[fts3,secure-delete,unlock-notify] )
+	>=media-libs/libpng-1.4.1[apng]
 	>=app-text/hunspell-1.2
 	>=x11-libs/gtk+-2.10.0
 	>=x11-libs/cairo-1.8.8[X]
@@ -141,7 +142,7 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
-	epatch "${FILESDIR}/2.1/comm-1.9.2-disable-printing.patch"
+	epatch "${FILESDIR}/2.1/${PN}-2.1a3-disable-printing.patch"
 
 	if use crypt && use mailclient ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
@@ -152,9 +153,8 @@ src_prepare() {
 		cd "${S}"
 	fi
 
-	pushd "${S}"/mozilla &>/dev/null || die pushd
-	epatch "${FILESDIR}"/2.1/701-arm.patch
-	popd &>/dev/null || die popd
+	#pushd "${S}"/mozilla &>/dev/null || die pushd
+	#popd &>/dev/null || die popd
 
 	#Ensure we disable javaxpcom by default to prevent configure breakage
 	sed -i -e s:MOZ_JAVAXPCOM\=1::g ${S}/mozilla/xulrunner/confvars.sh \
@@ -224,6 +224,12 @@ src_configure() {
 	mozconfig_use_enable mailclient mailnews
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_enable wifi necko-wifi
+
+        # ZOMG! Mozilla guys wanna have APNG in libpng if building with
+        # system-libpng. Kids, leave your fingers from drugs that make you
+        # do such nasty "extensions"!!!
+        # See https://bugs.gentoo.org/183370 for details.
+        mozconfig_annotate '' --with-system-png
 
 	# Finalize and report settings
 	mozconfig_final

@@ -1,0 +1,81 @@
+--- comm-central/mailnews/base/src/Makefile.in
++++ comm-central/mailnews/base/src/Makefile.in
+@@ -71,7 +71,6 @@
+ 		nsMsgServiceProvider.cpp \
+ 		nsSubscribeDataSource.cpp \
+ 		nsSubscribableServer.cpp \
+-		nsMsgPrintEngine.cpp \
+ 		nsStatusBarBiffManager.cpp \
+ 		nsMsgDBView.cpp \
+ 		nsMsgThreadedDBView.cpp \
+@@ -93,6 +92,12 @@
+ 		nsMailDirProvider.cpp\
+ 		$(NULL)
+ 
++ifdef NS_PRINTING
++CPPSRCS			+= \
++		nsMsgPrintEngine.cpp \
++		$(NULL)
++endif
++
+ ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
+ CMMSRCS = nsMessengerOSXIntegration.mm
+ endif
+--- comm-central/mailnews/base/src/nsMessenger.cpp
++++ comm-central/mailnews/base/src/nsMessenger.cpp
+@@ -78,7 +78,10 @@
+ #include "nsIContentViewer.h"
+ 
+ // embedding
++#ifdef NS_PRINTING
+ #include "nsIWebBrowserPrint.h"
++#include "nsMsgPrintEngine.h"
++#endif
+ 
+ /* for access to docshell */
+ #include "nsPIDOMWindow.h"
+@@ -122,9 +125,6 @@
+ #include "nsMsgMimeCID.h"
+ #include "nsIMimeConverter.h"
+ 
+-// Printing
+-#include "nsMsgPrintEngine.h"
+-
+ // Save As
+ #include "nsIFilePicker.h"
+ #include "nsIStringBundle.h"
+--- comm-central/mailnews/build/nsMailModule.cpp
++++ comm-central/mailnews/build/nsMailModule.cpp
+@@ -109,7 +109,9 @@
+ #include "nsMsgServiceProvider.h"
+ #include "nsSubscribeDataSource.h"
+ #include "nsSubscribableServer.h"
++#ifdef NS_PRINTING
+ #include "nsMsgPrintEngine.h"
++#endif
+ #include "nsMsgSearchSession.h"
+ #include "nsMsgSearchTerm.h"
+ #include "nsMsgSearchAdapter.h"
+@@ -351,7 +353,9 @@
+ NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsMsgServiceProviderService, Init)
+ NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsSubscribeDataSource, Init)
+ NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsSubscribableServer, Init)
++#ifdef NS_PRINTING
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgPrintEngine)
++#endif
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsFolderCompactState)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsOfflineStoreCompactState)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgThreadedDBView)
+@@ -805,10 +809,12 @@
+       NS_MSGWINDOW_CONTRACTID,
+       nsMsgWindowConstructor,
+     },
++#ifdef NS_PRINTING
+     { "Mail/News Print Engine", NS_MSG_PRINTENGINE_CID,
+       NS_MSGPRINTENGINE_CONTRACTID,
+       nsMsgPrintEngineConstructor,
+     },
++#endif
+     { "Mail/News Service Provider Service", NS_MSGSERVICEPROVIDERSERVICE_CID,
+       NS_MSGSERVICEPROVIDERSERVICE_CONTRACTID,
+       nsMsgServiceProviderServiceConstructor,
