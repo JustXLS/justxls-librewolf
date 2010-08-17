@@ -66,7 +66,7 @@ if ${HAS_LANGS} ; then
 fi
 
 RDEPEND=">=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.8_beta1
+	>=dev-libs/nss-3.12.6
 	>=dev-libs/nspr-4.8.5
 	alsa? ( media-libs/alsa-lib )
 	system-sqlite? ( >=dev-db/sqlite-3.6.23.1-r1[fts3,secure-delete,unlock-notify] )
