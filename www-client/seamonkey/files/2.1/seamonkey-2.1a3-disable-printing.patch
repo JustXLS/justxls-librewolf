@@ -1,6 +1,115 @@
---- comm-central/mailnews/base/src/Makefile.in
-+++ comm-central/mailnews/base/src/Makefile.in
-@@ -71,7 +71,6 @@
+diff --git a/mailnews/base/build/nsMsgFactory.cpp b/mailnews/base/build/nsMsgFactory.cpp
+--- a/mailnews/base/build/nsMsgFactory.cpp
++++ b/mailnews/base/build/nsMsgFactory.cpp
+@@ -105,17 +105,19 @@
+ 
+ #include "nsMsgFilterService.h"
+ #include "nsMsgWindow.h"
+ 
+ #include "nsMsgServiceProvider.h"
+ #include "nsSubscribeDataSource.h"
+ #include "nsSubscribableServer.h"
+ 
++#ifdef NS_PRINTING
+ #include "nsMsgPrintEngine.h"
++#endif
+ #include "nsMsgSearchSession.h"
+ #include "nsMsgSearchTerm.h"
+ #include "nsMsgSearchAdapter.h"
+ #include "nsMsgFolderCompactor.h"
+ #include "nsMsgThreadedDBView.h"
+ #include "nsMsgSpecialViews.h"
+ #include "nsMsgXFVirtualFolderDBView.h"
+ #include "nsMsgQuickSearchDBView.h"
+@@ -174,17 +176,19 @@ NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsSt
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsCopyMessageStreamListener)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgCopyService)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgFolderCache)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgStatusFeedback)
+ NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsMsgWindow,Init)
+ NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsMsgServiceProviderService, Init)
+ NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsSubscribeDataSource, Init)
+ NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsSubscribableServer, Init)
++#ifdef NS_PRINTING
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgPrintEngine)
++#endif
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsFolderCompactState)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsOfflineStoreCompactState)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgThreadedDBView)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgThreadsWithUnreadDBView)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgWatchedThreadsWithUnreadDBView)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgSearchDBView)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgXFVirtualFolderDBView)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgQuickSearchDBView)
+@@ -232,17 +236,19 @@ NS_DEFINE_NAMED_CID(NS_MSGSEARCHVALIDITY
+ NS_DEFINE_NAMED_CID(NS_MSGBIFFMANAGER_CID);
+ NS_DEFINE_NAMED_CID(NS_MSGPURGESERVICE_CID);
+ NS_DEFINE_NAMED_CID(NS_STATUSBARBIFFMANAGER_CID);
+ NS_DEFINE_NAMED_CID(NS_COPYMESSAGESTREAMLISTENER_CID);
+ NS_DEFINE_NAMED_CID(NS_MSGCOPYSERVICE_CID);
+ NS_DEFINE_NAMED_CID(NS_MSGFOLDERCACHE_CID);
+ NS_DEFINE_NAMED_CID(NS_MSGSTATUSFEEDBACK_CID);
+ NS_DEFINE_NAMED_CID(NS_MSGWINDOW_CID);
++#ifdef NS_PRINTING
+ NS_DEFINE_NAMED_CID(NS_MSG_PRINTENGINE_CID);
++#endif
+ NS_DEFINE_NAMED_CID(NS_MSGSERVICEPROVIDERSERVICE_CID);
+ NS_DEFINE_NAMED_CID(NS_SUBSCRIBEDATASOURCE_CID);
+ NS_DEFINE_NAMED_CID(NS_SUBSCRIBABLESERVER_CID);
+ NS_DEFINE_NAMED_CID(NS_MSGLOCALFOLDERCOMPACTOR_CID);
+ NS_DEFINE_NAMED_CID(NS_MSG_OFFLINESTORECOMPACTOR_CID);
+ NS_DEFINE_NAMED_CID(NS_MSGTHREADEDDBVIEW_CID);
+ NS_DEFINE_NAMED_CID(NS_MSGTHREADSWITHUNREADDBVIEW_CID);
+ NS_DEFINE_NAMED_CID(NS_MSGWATCHEDTHREADSWITHUNREADDBVIEW_CID);
+@@ -294,17 +300,19 @@ const mozilla::Module::CIDEntry kMailNew
+   { &kNS_MSGBIFFMANAGER_CID, false, NULL, nsMsgBiffManagerConstructor },
+   { &kNS_MSGPURGESERVICE_CID, false, NULL, nsMsgPurgeServiceConstructor },
+   { &kNS_STATUSBARBIFFMANAGER_CID, false, NULL, nsStatusBarBiffManagerConstructor },
+   { &kNS_COPYMESSAGESTREAMLISTENER_CID, false, NULL, nsCopyMessageStreamListenerConstructor },
+   { &kNS_MSGCOPYSERVICE_CID, false, NULL, nsMsgCopyServiceConstructor },
+   { &kNS_MSGFOLDERCACHE_CID, false, NULL, nsMsgFolderCacheConstructor },
+   { &kNS_MSGSTATUSFEEDBACK_CID, false, NULL, nsMsgStatusFeedbackConstructor },
+   { &kNS_MSGWINDOW_CID, false, NULL, nsMsgWindowConstructor },
++#ifdef NS_PRINTING
+   { &kNS_MSG_PRINTENGINE_CID, false, NULL, nsMsgPrintEngineConstructor },
++#endif
+   { &kNS_MSGSERVICEPROVIDERSERVICE_CID, false, NULL, nsMsgServiceProviderServiceConstructor },
+   { &kNS_SUBSCRIBEDATASOURCE_CID, false, NULL, nsSubscribeDataSourceConstructor },
+   { &kNS_SUBSCRIBABLESERVER_CID, false, NULL, nsSubscribableServerConstructor },
+   { &kNS_MSGLOCALFOLDERCOMPACTOR_CID, false, NULL, nsFolderCompactStateConstructor },
+   { &kNS_MSG_OFFLINESTORECOMPACTOR_CID, false, NULL, nsOfflineStoreCompactStateConstructor },
+   { &kNS_MSGTHREADEDDBVIEW_CID, false, NULL, nsMsgThreadedDBViewConstructor },
+   { &kNS_MSGTHREADSWITHUNREADDBVIEW_CID, false, NULL, nsMsgThreadsWithUnreadDBViewConstructor },
+   { &kNS_MSGWATCHEDTHREADSWITHUNREADDBVIEW_CID, false, NULL, nsMsgWatchedThreadsWithUnreadDBViewConstructor },
+@@ -358,17 +366,19 @@ const mozilla::Module::ContractIDEntry k
+   { NS_MSGBIFFMANAGER_CONTRACTID, &kNS_MSGBIFFMANAGER_CID },
+   { NS_MSGPURGESERVICE_CONTRACTID, &kNS_MSGPURGESERVICE_CID },
+   { NS_STATUSBARBIFFMANAGER_CONTRACTID, &kNS_STATUSBARBIFFMANAGER_CID },
+   { NS_COPYMESSAGESTREAMLISTENER_CONTRACTID, &kNS_COPYMESSAGESTREAMLISTENER_CID },
+   { NS_MSGCOPYSERVICE_CONTRACTID, &kNS_MSGCOPYSERVICE_CID },
+   { NS_MSGFOLDERCACHE_CONTRACTID, &kNS_MSGFOLDERCACHE_CID },
+   { NS_MSGSTATUSFEEDBACK_CONTRACTID, &kNS_MSGSTATUSFEEDBACK_CID },
+   { NS_MSGWINDOW_CONTRACTID, &kNS_MSGWINDOW_CID },
++#ifdef NS_PRINTING
+   { NS_MSGPRINTENGINE_CONTRACTID, &kNS_MSG_PRINTENGINE_CID },
++#endif
+   { NS_MSGSERVICEPROVIDERSERVICE_CONTRACTID, &kNS_MSGSERVICEPROVIDERSERVICE_CID },
+   { NS_SUBSCRIBEDATASOURCE_CONTRACTID, &kNS_SUBSCRIBEDATASOURCE_CID },
+   { NS_SUBSCRIBABLESERVER_CONTRACTID, &kNS_SUBSCRIBABLESERVER_CID },
+   { NS_MSGLOCALFOLDERCOMPACTOR_CONTRACTID, &kNS_MSGLOCALFOLDERCOMPACTOR_CID },
+   { NS_MSGOFFLINESTORECOMPACTOR_CONTRACTID, &kNS_MSG_OFFLINESTORECOMPACTOR_CID },
+   { NS_MSGTHREADEDDBVIEW_CONTRACTID, &kNS_MSGTHREADEDDBVIEW_CID },
+   { NS_MSGTHREADSWITHUNREADDBVIEW_CONTRACTID, &kNS_MSGTHREADSWITHUNREADDBVIEW_CID },
+   { NS_MSGWATCHEDTHREADSWITHUNREADDBVIEW_CONTRACTID, &kNS_MSGWATCHEDTHREADSWITHUNREADDBVIEW_CID },
+diff --git a/mailnews/base/src/Makefile.in b/mailnews/base/src/Makefile.in
+--- a/mailnews/base/src/Makefile.in
++++ b/mailnews/base/src/Makefile.in
+@@ -66,17 +66,16 @@ CPPSRCS		= \
+ 		nsMsgFolderCache.cpp \
+ 		nsMsgFolderCacheElement.cpp \
+ 		nsMsgFolderCompactor.cpp \
+ 		nsMsgStatusFeedback.cpp \
+ 		nsMsgWindow.cpp \
  		nsMsgServiceProvider.cpp \
  		nsSubscribeDataSource.cpp \
  		nsSubscribableServer.cpp \
@@ -8,22 +117,41 @@
  		nsStatusBarBiffManager.cpp \
  		nsMsgDBView.cpp \
  		nsMsgThreadedDBView.cpp \
-@@ -93,6 +92,12 @@
+ 		nsMsgSpecialViews.cpp \
+ 		nsMsgQuickSearchDBView.cpp \
+ 		nsMsgSearchDBView.cpp \
+ 		nsMsgXFVirtualFolderDBView.cpp \
+ 		nsMsgXFViewThread.cpp \
+@@ -88,16 +87,20 @@ CPPSRCS		= \
+ 		nsSpamSettings.cpp \
+ 		nsCidProtocolHandler.cpp \
+ 		nsMsgContentPolicy.cpp \
+ 		nsMsgTagService.cpp\
+                 nsMsgFolderNotificationService.cpp\
  		nsMailDirProvider.cpp\
  		$(NULL)
  
 +ifdef NS_PRINTING
-+CPPSRCS				+= \
-+		nsMsgPrintEngine.cpp \
-+		$(NULL)
++CPPSRCS += nsMsgPrintEngine.cpp
 +endif
 +
  ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
  CMMSRCS = nsMessengerOSXIntegration.mm
  endif
---- comm-central/mailnews/base/src/nsMessenger.cpp
-+++ comm-central/mailnews/base/src/nsMessenger.cpp
-@@ -78,7 +78,10 @@
+ 
+ ifeq ($(OS_ARCH),WINNT)
+ ifdef BUILD_STATIC_LIBS
+ DEFINES	+= -DMOZ_STATIC_BUILD
+ endif
+diff --git a/mailnews/base/src/nsMessenger.cpp b/mailnews/base/src/nsMessenger.cpp
+--- a/mailnews/base/src/nsMessenger.cpp
++++ b/mailnews/base/src/nsMessenger.cpp
+@@ -73,17 +73,20 @@
+ #include "nsRDFCID.h"
+ 
+ // gecko
+ #include "nsLayoutCID.h"
+ #include "nsIMarkupDocumentViewer.h"
  #include "nsIContentViewer.h"
  
  // embedding
@@ -34,7 +162,17 @@
  
  /* for access to docshell */
  #include "nsPIDOMWindow.h"
-@@ -122,9 +125,6 @@
+ #include "nsIDocShell.h"
+ #include "nsIDocShellLoadInfo.h"
+ #include "nsIDocShellTreeItem.h"
+ #include "nsIDocShellTreeNode.h"
+ #include "nsIWebNavigation.h"
+@@ -117,19 +120,16 @@
+ // undo
+ #include "nsITransaction.h"
+ #include "nsMsgTxn.h"
+ 
+ // charset conversions
  #include "nsMsgMimeCID.h"
  #include "nsIMimeConverter.h"
  
@@ -44,9 +182,20 @@
  // Save As
  #include "nsIFilePicker.h"
  #include "nsIStringBundle.h"
---- comm-central/mailnews/build/nsMailModule.cpp
-+++ comm-central/mailnews/build/nsMailModule.cpp
-@@ -108,7 +108,9 @@
+ #include "nsIPrefService.h"
+ #include "nsIPrefBranch.h"
+ #include "nsIPrefBranch2.h"
+ #include "nsCExternalHandlerService.h"
+ #include "nsIExternalProtocolService.h"
+diff --git a/mailnews/build/nsMailModule.cpp b/mailnews/build/nsMailModule.cpp
+--- a/mailnews/build/nsMailModule.cpp
++++ b/mailnews/build/nsMailModule.cpp
+@@ -103,17 +103,19 @@
+ #include "nsMsgCopyService.h"
+ #include "nsMsgFolderCache.h"
+ #include "nsMsgStatusFeedback.h"
+ #include "nsMsgFilterService.h"
+ #include "nsMsgWindow.h"
  #include "nsMsgServiceProvider.h"
  #include "nsSubscribeDataSource.h"
  #include "nsSubscribableServer.h"
@@ -56,7 +205,17 @@
  #include "nsMsgSearchSession.h"
  #include "nsMsgSearchTerm.h"
  #include "nsMsgSearchAdapter.h"
-@@ -350,7 +352,9 @@
+ #include "nsMsgFolderCompactor.h"
+ #include "nsMsgThreadedDBView.h"
+ #include "nsMsgSpecialViews.h"
+ #include "nsMsgXFVirtualFolderDBView.h"
+ #include "nsMsgQuickSearchDBView.h"
+@@ -345,17 +347,19 @@ NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsSt
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsCopyMessageStreamListener)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgCopyService)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgFolderCache)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgStatusFeedback)
+ NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsMsgWindow,Init)
  NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsMsgServiceProviderService, Init)
  NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsSubscribeDataSource, Init)
  NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsSubscribableServer, Init)
@@ -66,7 +225,37 @@
  NS_GENERIC_FACTORY_CONSTRUCTOR(nsFolderCompactState)
  NS_GENERIC_FACTORY_CONSTRUCTOR(nsOfflineStoreCompactState)
  NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgThreadedDBView)
-@@ -801,7 +805,9 @@
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgThreadsWithUnreadDBView)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgWatchedThreadsWithUnreadDBView)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgSearchDBView)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgXFVirtualFolderDBView)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgQuickSearchDBView)
+@@ -403,17 +407,19 @@ NS_DEFINE_NAMED_CID(NS_MSGSEARCHVALIDITY
+ NS_DEFINE_NAMED_CID(NS_MSGBIFFMANAGER_CID);
+ NS_DEFINE_NAMED_CID(NS_MSGPURGESERVICE_CID);
+ NS_DEFINE_NAMED_CID(NS_STATUSBARBIFFMANAGER_CID);
+ NS_DEFINE_NAMED_CID(NS_COPYMESSAGESTREAMLISTENER_CID);
+ NS_DEFINE_NAMED_CID(NS_MSGCOPYSERVICE_CID);
+ NS_DEFINE_NAMED_CID(NS_MSGFOLDERCACHE_CID);
+ NS_DEFINE_NAMED_CID(NS_MSGSTATUSFEEDBACK_CID);
+ NS_DEFINE_NAMED_CID(NS_MSGWINDOW_CID);
++#ifdef NS_PRINTING
+ NS_DEFINE_NAMED_CID(NS_MSG_PRINTENGINE_CID);
++#endif
+ NS_DEFINE_NAMED_CID(NS_MSGSERVICEPROVIDERSERVICE_CID);
+ NS_DEFINE_NAMED_CID(NS_SUBSCRIBEDATASOURCE_CID);
+ NS_DEFINE_NAMED_CID(NS_SUBSCRIBABLESERVER_CID);
+ NS_DEFINE_NAMED_CID(NS_MSGLOCALFOLDERCOMPACTOR_CID);
+ NS_DEFINE_NAMED_CID(NS_MSG_OFFLINESTORECOMPACTOR_CID);
+ NS_DEFINE_NAMED_CID(NS_MSGTHREADEDDBVIEW_CID);
+ NS_DEFINE_NAMED_CID(NS_MSGTHREADSWITHUNREADDBVIEW_CID);
+ NS_DEFINE_NAMED_CID(NS_MSGWATCHEDTHREADSWITHUNREADDBVIEW_CID);
+@@ -796,17 +802,19 @@ const mozilla::Module::CIDEntry kMailNew
+   { &kNS_MSGBIFFMANAGER_CID, false, NULL, nsMsgBiffManagerConstructor},
+   { &kNS_MSGPURGESERVICE_CID, false, NULL, nsMsgPurgeServiceConstructor},
+   { &kNS_STATUSBARBIFFMANAGER_CID, false, NULL, nsStatusBarBiffManagerConstructor},
+   { &kNS_COPYMESSAGESTREAMLISTENER_CID, false, NULL, nsCopyMessageStreamListenerConstructor},
+   { &kNS_MSGCOPYSERVICE_CID, false, NULL, nsMsgCopyServiceConstructor},
    { &kNS_MSGFOLDERCACHE_CID, false, NULL, nsMsgFolderCacheConstructor},
    { &kNS_MSGSTATUSFEEDBACK_CID, false, NULL, nsMsgStatusFeedbackConstructor},
    { &kNS_MSGWINDOW_CID, false, NULL, nsMsgWindowConstructor},
@@ -76,3 +265,28 @@
    { &kNS_MSGSERVICEPROVIDERSERVICE_CID, false, NULL, nsMsgServiceProviderServiceConstructor},
    { &kNS_SUBSCRIBEDATASOURCE_CID, false, NULL, nsSubscribeDataSourceConstructor},
    { &kNS_SUBSCRIBABLESERVER_CID, false, NULL, nsSubscribableServerConstructor},
+   { &kNS_MSGLOCALFOLDERCOMPACTOR_CID, false, NULL, nsFolderCompactStateConstructor},
+   { &kNS_MSG_OFFLINESTORECOMPACTOR_CID, false, NULL, nsOfflineStoreCompactStateConstructor},
+   { &kNS_MSGTHREADEDDBVIEW_CID, false, NULL, nsMsgThreadedDBViewConstructor},
+   { &kNS_MSGTHREADSWITHUNREADDBVIEW_CID, false, NULL, nsMsgThreadsWithUnreadDBViewConstructor},
+   { &kNS_MSGWATCHEDTHREADSWITHUNREADDBVIEW_CID, false, NULL, nsMsgWatchedThreadsWithUnreadDBViewConstructor
+@@ -989,17 +997,19 @@ const mozilla::Module::ContractIDEntry k
+   { NS_MSGBIFFMANAGER_CONTRACTID, &kNS_MSGBIFFMANAGER_CID },
+   { NS_MSGPURGESERVICE_CONTRACTID, &kNS_MSGPURGESERVICE_CID },
+   { NS_STATUSBARBIFFMANAGER_CONTRACTID, &kNS_STATUSBARBIFFMANAGER_CID },
+   { NS_COPYMESSAGESTREAMLISTENER_CONTRACTID, &kNS_COPYMESSAGESTREAMLISTENER_CID },
+   { NS_MSGCOPYSERVICE_CONTRACTID, &kNS_MSGCOPYSERVICE_CID },
+   { NS_MSGFOLDERCACHE_CONTRACTID, &kNS_MSGFOLDERCACHE_CID },
+   { NS_MSGSTATUSFEEDBACK_CONTRACTID, &kNS_MSGSTATUSFEEDBACK_CID },
+   { NS_MSGWINDOW_CONTRACTID, &kNS_MSGWINDOW_CID },
++#ifdef NS_PRINTING
+   { NS_MSGPRINTENGINE_CONTRACTID, &kNS_MSG_PRINTENGINE_CID },
++#endif
+   { NS_MSGSERVICEPROVIDERSERVICE_CONTRACTID, &kNS_MSGSERVICEPROVIDERSERVICE_CID },
+   { NS_SUBSCRIBEDATASOURCE_CONTRACTID, &kNS_SUBSCRIBEDATASOURCE_CID },
+   { NS_SUBSCRIBABLESERVER_CONTRACTID, &kNS_SUBSCRIBABLESERVER_CID },
+   { NS_MSGLOCALFOLDERCOMPACTOR_CONTRACTID, &kNS_MSGLOCALFOLDERCOMPACTOR_CID },
+   { NS_MSGOFFLINESTORECOMPACTOR_CONTRACTID, &kNS_MSG_OFFLINESTORECOMPACTOR_CID },
+   { NS_MSGTHREADEDDBVIEW_CONTRACTID, &kNS_MSGTHREADEDDBVIEW_CID },
+   { NS_MSGTHREADSWITHUNREADDBVIEW_CONTRACTID, &kNS_MSGTHREADSWITHUNREADDBVIEW_CID },
+   { NS_MSGWATCHEDTHREADSWITHUNREADDBVIEW_CONTRACTID, &kNS_MSGWATCHEDTHREADSWITHUNREADDBVIEW_CID },
