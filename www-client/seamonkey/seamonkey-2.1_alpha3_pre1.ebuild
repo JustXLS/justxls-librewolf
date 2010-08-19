@@ -45,7 +45,7 @@ IUSE="+alsa +chatzilla +composer +crypt +cups libnotify ldap +mailclient +roamin
 
 SRC_URI="${REL_URI}/source/${MY_P}.source.tar.bz2
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.bz2
-	crypt? ( mailclient? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz ) )"
+	crypt? ( mailclient? ( http://dev.gentoo.org/~anarchy/dist/enigmail-${EMVER}-20100819.tar.gz ) )"
 
 if ${HAS_LANGS} ; then
 	for X in ${LANGS} ; do
@@ -147,7 +147,6 @@ src_prepare() {
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
 		cd "${S}"/mailnews/extensions/enigmail || die
 		epatch "${FILESDIR}"/enigmail/70_enigmail-fix.patch
-		epatch "${FILESDIR}"/enigmail/enigmail-1.1.2-seamonkey-2.1a2-versionfix.patch
 		makemake2
 		cd "${S}"
 	fi
