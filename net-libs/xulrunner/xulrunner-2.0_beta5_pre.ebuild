@@ -12,7 +12,7 @@ MAJ_FF_PV="4.0"
 FF_PV="${PV/${MAJ_XUL_PV}/${MAJ_FF_PV}}" # 3.7_alpha6, 3.6.3, etc.
 FF_PV="${FF_PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-CHANGESET="33ff08c153d4"
+CHANGESET="137f0ce0e0ca"
 PATCH="${PN}-2.0-patches-0.2"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
@@ -125,7 +125,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 	mozconfig_annotate '' --enable-application=xulrunner
 	mozconfig_annotate '' --disable-mailnews
-	mozconfig_annotate 'broken' --disable-crashreporter
+	mozconfig_annotate '' --enable-crashreporter
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
