@@ -1,11 +1,11 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.9.2.ebuild,v 1.2 2010/01/22 13:43:38 anarchy Exp $
+# $Header: $
 
-EAPI="2"
+EAPI="3"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib autotools python versionator pax-utils
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib autotools python versionator pax-utils prefix
 
 MAJ_XUL_PV="$(get_version_component_range 1-2)" # from mozilla-* branch name
 MAJ_FF_PV="4.0"
@@ -13,15 +13,15 @@ FF_PV="${PV/${MAJ_XUL_PV}/${MAJ_FF_PV}}" # 3.7_alpha6, 3.6.3, etc.
 FF_PV="${FF_PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
 CHANGESET="137f0ce0e0ca"
-PATCH="${PN}-2.0-patches-0.2"
+PATCH="${PN}-2.0-patches-0.3"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
 
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa debug +cups +ipc libnotify system-sqlite +webm wifi"
+IUSE="+alsa +cups debug +ipc libnotify system-sqlite +webm wifi"
 
 # More URIs appended below...
 SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
@@ -78,6 +78,12 @@ src_prepare() {
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
 
+	eprefixify \
+		extensions/java/xpcom/interfaces/org/mozilla/xpcom/Mozilla.java \
+		xpcom/build/nsXPCOMPrivate.h \
+		xulrunner/installer/Makefile.in \
+		xulrunner/app/nsRegisterGREUnix.cpp
+
 	# Same as in config/autoconf.mk.in
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_XUL_PV}"
 	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_XUL_PV}/sdk"
@@ -92,16 +98,13 @@ src_prepare() {
 			"${S}"/build/unix/run-mozilla.sh || die "sed failed!"
 	fi
 
-	#Ensure we disable javaxpcom by default to prevent configure breakage
-	sed -i -e s:MOZ_JAVAXPCOM\=1::g ${S}/xulrunner/confvars.sh
+	# Make sure we stay in sync and echo this last
+	echo "MOZ_SERVICES_SYNC=1" >> ${S}/xulrunner/confvars.sh
 
 	eautoreconf
 
 	cd js/src
 	eautoreconf
-
-	# Make sure we stay in sync and echo this last
-	echo "MOZ_SERVICES_SYNC=1" >> ${S}/xulrunner/confvars.sh
 }
 
 src_configure() {
@@ -144,8 +147,9 @@ src_configure() {
 	# Use system libraries
 	mozconfig_annotate '' --enable-system-cairo
 	mozconfig_annotate '' --enable-system-hunspell
-	mozconfig_annotate '' --with-system-nspr
-	mozconfig_annotate '' --with-system-nss
+	mozconfig_annotate '' --with-system-nspr --with-nspr-prefix="${EPREFIX}"/usr
+	mozconfig_annotate '' --with-system-nss --with-nss-prefix="${EPREFIX}"/usr
+	mozconfig_annotate '' --x-includes="${EPREFIX}"/usr/include --x-libraries="${EPREFIX}"/usr/$(get_libdir)
 	mozconfig_annotate '' --with-system-bz2
 	mozconfig_annotate '' --with-system-libevent=/usr
 
@@ -196,11 +200,15 @@ src_configure() {
 	sed -i -e "s:/usr/lib/mozilla/plugins:/usr/$(get_libdir)/nsbrowser/plugins:" \
 		"${S}"/xpcom/io/nsAppFileLocationProvider.cpp || die "sed failed to replace plugin path!"
 
+	# hack added to workaround bug 299905 on hosts with libc that doesn't
+	# support tls, (probably will only hit this condition with Gentoo Prefix)
+	tc-has-tls -l || export ac_cv_thread_keyword=no
+
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" PYTHON="$(PYTHON)" econf
 }
 
 src_install() {
-	emake DESTDIR="${D}" install || die "emake install failed"
+	emake DESTDIR="${ED}" install || die "emake install failed"
 
 	rm "${D}"/usr/bin/xulrunner
 
@@ -209,7 +217,7 @@ src_install() {
 
 	if has_multilib_profile; then
 		local config
-		for config in "${D}"/etc/gre.d/*.system.conf ; do
+		for config in "${ED}"/etc/gre.d/*.system.conf ; do
 			mv "${config}" "${config%.conf}.${CHOST}.conf"
 		done
 	fi
@@ -219,7 +227,7 @@ src_install() {
 
 	# env.d file for ld search path
 	dodir /etc/env.d
-	echo "LDPATH=${MOZLIBDIR}" > "${D}"/etc/env.d/08xulrunner || die "env.d failed"
+	echo "LDPATH=${EPREFIX}/${MOZLIBDIR}" > "${ED}"/etc/env.d/08xulrunner || die "env.d failed"
 
 	# Add our defaults to xulrunner and out of firefox
 	cp "${FILESDIR}"/xulrunner-default-prefs.js \
@@ -233,12 +241,7 @@ src_install() {
 }
 
 pkg_postinst() {
-	ewarn "If firefox fails to start with \"failed to load xpcom\", run revdep-rebuild"
-	ewarn "If that does not fix the problem, rebuild dev-libs/nss"
-	ewarn "Try dev-util/lafilefixer if you get build failures related to .la files"
-
-	einfo
-	ewarn "Any package that requires xulrunner:1.9 slot could and most likely will"
-	ewarn "have issues. These issues should be reported to maintainer,"
-	ewarn "and mozilla@gentoo.org should be CC'd on the bug report."
+	ewarn "This is experimental DO NOT file a bug report unless you can"
+	ewarn "are willing to provide a patch. All bugs that are filled without a patch"
+	ewarn "will be closed INVALID!!"
 }

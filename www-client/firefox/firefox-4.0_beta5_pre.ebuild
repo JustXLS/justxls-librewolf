@@ -2,10 +2,10 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="2"
+EAPI="3"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools mozextension versionator
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools mozextension versionator python
 
 MAJ_XUL_PV="2.0"
 MAJ_FF_PV="$(get_version_component_range 1-2)" # 3.5, 3.6, 4.0, etc.
@@ -13,12 +13,12 @@ XUL_PV="${MAJ_XUL_PV}${PV/${MAJ_FF_PV}/}" # 1.9.3_alpha6, 1.9.2.3, etc.
 FF_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
 CHANGESET="137f0ce0e0ca"
-PATCH="${PN}-4.0-patches-0.2"
+PATCH="${PN}-4.0-patches-0.3"
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
 
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~ia64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="+alsa bindist +cups +ipc libnotify system-sqlite +webm wifi"
@@ -119,6 +119,8 @@ pkg_setup() {
 		elog "a legal problem with Mozilla Foundation"
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
+
+	python_set_active_version 2
 }
 
 src_unpack() {
@@ -140,17 +142,14 @@ src_prepare() {
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
 
-	#Ensure we disable javaxpcom by default to prevent configure breakage
-	sed -i -e s:MOZ_JAVAXPCOM\=1::g ${S}/xulrunner/confvars.sh
+	# Ensure we keep a sane enviroment
+	sed -i -e "s:MOZ_SERVICES_SYNC\=:MOZ_SERVICES_SYNC\=1:g" \
+		${S}/browser/confvars.sh || die "failed to enable sync services"
 
 	eautoreconf
 
 	cd js/src
 	eautoreconf
-
-	# Ensure we keep a sane enviroment
-	sed -i -e "s:MOZ_SERVICES_SYNC\=:MOZ_SERVICES_SYNC\=1:g" \
-		${S}/browser/confvars.sh || die "failed to enable sync services"
 }
 
 src_configure() {
@@ -191,12 +190,13 @@ src_configure() {
 	# Use system libraries
 	mozconfig_annotate '' --enable-system-cairo
 	mozconfig_annotate '' --enable-system-hunspell
-	mozconfig_annotate '' --with-system-nspr
-	mozconfig_annotate '' --with-system-nss
+	mozconfig_annotate '' --with-system-nspr --with-nspr-prefix="${EPREFIX}"/usr
+	mozconfig_annotate '' --with-system-nss --with-nss-prefix="${EPREFIX}"/usr
+	mozconfig_annotate '' --x-includes="${EPREFIX}"/usr/include	--x-libraries="${EPREFIX}"/usr/$(get_libdir)
 	mozconfig_annotate '' --with-system-bz2
 	mozconfig_annotate '' --with-system-libevent=/usr
 	mozconfig_annotate '' --with-system-libxul
-	mozconfig_annotate '' --with-libxul-sdk=/usr/$(get_libdir)/xulrunner-devel-${MAJ_XUL_PV}
+	mozconfig_annotate '' --with-libxul-sdk="${EPREFIX}"/usr/$(get_libdir)/xulrunner-devel-${MAJ_XUL_PV}
 
 	mozconfig_use_enable ipc # +ipc, upstream default
 	mozconfig_use_enable libnotify
@@ -234,7 +234,7 @@ src_configure() {
 	#
 	####################################
 
-	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" econf
+	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" PYTHON="$(PYTHON)" econf
 }
 
 src_compile() {
@@ -268,14 +268,14 @@ src_install() {
 
 	# Add StartupNotify=true bug 237317
 	if use startup-notification ; then
-		echo "StartupNotify=true" >> "${D}"/usr/share/applications/${PN}-${MAJ_FF_PV}.desktop
+		echo "StartupNotify=true" >> "${ED}"/usr/share/applications/${PN}-${MAJ_FF_PV}.desktop
 	fi
 
-	pax-mark m "${D}"/${MOZILLA_FIVE_HOME}/firefox
+	pax-mark m "${ED}"/${MOZILLA_FIVE_HOME}/firefox
 
 	# Enable very specific settings not inherited from xulrunner
 	cp "${FILESDIR}"/firefox-default-prefs.js \
-		"${D}/${MOZILLA_FIVE_HOME}/defaults/preferences/all-gentoo.js" || \
+		"${ED}/${MOZILLA_FIVE_HOME}/defaults/preferences/all-gentoo.js" || \
 		die "failed to cp firefox-default-prefs.js"
 
 	# Plugins dir
@@ -284,7 +284,7 @@ src_install() {
 
 	# very ugly hack to make firefox not sigbus on sparc
 	use sparc && { sed -e 's/Firefox/FirefoxGentoo/g' \
-					 -i "${D}/${MOZILLA_FIVE_HOME}/application.ini" || \
+					 -i "${ED}/${MOZILLA_FIVE_HOME}/application.ini" || \
 					 die "sparc sed failed"; }
 }
 
