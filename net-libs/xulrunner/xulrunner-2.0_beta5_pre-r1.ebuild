@@ -12,7 +12,7 @@ MAJ_FF_PV="4.0"
 FF_PV="${PV/${MAJ_XUL_PV}/${MAJ_FF_PV}}" # 3.7_alpha6, 3.6.3, etc.
 FF_PV="${FF_PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-CHANGESET="137f0ce0e0ca"
+CHANGESET="99367f10f79e"
 PATCH="${PN}-2.0-patches-0.3"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
@@ -75,6 +75,9 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
+	# This will be landed before the next snapshot is rolled.
+	epatch "${FILESDIR}"/1003-fix-breakage-nsRegisterGREUnix.patch
+
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
 
@@ -83,6 +86,10 @@ src_prepare() {
 		xpcom/build/nsXPCOMPrivate.h \
 		xulrunner/installer/Makefile.in \
 		xulrunner/app/nsRegisterGREUnix.cpp
+
+	# fix double symbols due to double -ljemalloc
+	sed -i -e '/^LIBS += $(JEMALLOC_LIBS)/s/^/#/' \
+		xulrunner/stub/Makefile.in || die
 
 	# Same as in config/autoconf.mk.in
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_XUL_PV}"
@@ -137,6 +144,8 @@ src_configure() {
 	mozconfig_annotate '' --enable-oji --enable-mathml
 	mozconfig_annotate 'places' --enable-storage --enable-places
 	mozconfig_annotate '' --enable-safe-browsing
+	# This will be removed when packages moving to webkit complete their move
+	mozconfig_annotate '' --enable-shared-js
 
 	# System-wide install specs
 	mozconfig_annotate '' --disable-installer
