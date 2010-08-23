@@ -194,7 +194,7 @@ src_configure() {
 	mozconfig_annotate '' --with-system-nss --with-nss-prefix="${EPREFIX}"/usr
 	mozconfig_annotate '' --x-includes="${EPREFIX}"/usr/include	--x-libraries="${EPREFIX}"/usr/$(get_libdir)
 	mozconfig_annotate '' --with-system-bz2
-	mozconfig_annotate '' --with-system-libevent=/usr
+	mozconfig_annotate '' --with-system-libevent="${EPREFIX}"/usr
 	mozconfig_annotate '' --with-system-libxul
 	mozconfig_annotate '' --with-libxul-sdk="${EPREFIX}"/usr/$(get_libdir)/xulrunner-devel-${MAJ_XUL_PV}
 
@@ -263,7 +263,7 @@ src_install() {
 		newmenu "${FILESDIR}"/icon/${PN}-1.5-unbranded.desktop \
 			${PN}-${MAJ_FF_PV}.desktop
 		sed -i -e "s:Bon Echo:Shiretoko:" \
-			"${D}"/usr/share/applications/${PN}-${MAJ_FF_PV}.desktop || die "sed failed!"
+			"${ED}"/usr/share/applications/${PN}-${MAJ_FF_PV}.desktop || die "sed failed!"
 	fi
 
 	# Add StartupNotify=true bug 237317
@@ -279,7 +279,7 @@ src_install() {
 		die "failed to cp firefox-default-prefs.js"
 
 	# Plugins dir
-	dosym ../nsbrowser/plugins "${MOZILLA_FIVE_HOME}"/plugins \
+	dosym ../nsbrowser/plugins "${ED}/${MOZILLA_FIVE_HOME}"/plugins \
 		|| die "failed to symlink"
 
 	# very ugly hack to make firefox not sigbus on sparc
