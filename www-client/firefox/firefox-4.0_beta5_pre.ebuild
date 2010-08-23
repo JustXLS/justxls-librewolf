@@ -279,7 +279,7 @@ src_install() {
 		die "failed to cp firefox-default-prefs.js"
 
 	# Plugins dir
-	dosym ../nsbrowser/plugins "${ED}/${MOZILLA_FIVE_HOME}"/plugins \
+	dosym ../nsbrowser/plugins "${MOZILLA_FIVE_HOME}"/plugins \
 		|| die "failed to symlink"
 
 	# very ugly hack to make firefox not sigbus on sparc
