@@ -151,7 +151,7 @@ src_configure() {
 	mozconfig_annotate '' --with-system-nss --with-nss-prefix="${EPREFIX}"/usr
 	mozconfig_annotate '' --x-includes="${EPREFIX}"/usr/include --x-libraries="${EPREFIX}"/usr/$(get_libdir)
 	mozconfig_annotate '' --with-system-bz2
-	mozconfig_annotate '' --with-system-libevent=/usr
+	mozconfig_annotate '' --with-system-libevent="${EPREFIX}"/usr
 
 	mozconfig_use_enable ipc # +ipc, upstream default
 	mozconfig_use_enable libnotify
@@ -208,9 +208,9 @@ src_configure() {
 }
 
 src_install() {
-	emake DESTDIR="${ED}" install || die "emake install failed"
+	emake DESTDIR="${D}" install || die "emake install failed"
 
-	rm "${D}"/usr/bin/xulrunner
+	rm "${ED}"/usr/bin/xulrunner
 
 	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_XUL_PV}"
 	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_XUL_PV}/sdk"
@@ -231,13 +231,13 @@ src_install() {
 
 	# Add our defaults to xulrunner and out of firefox
 	cp "${FILESDIR}"/xulrunner-default-prefs.js \
-		"${D}/${MOZLIBDIR}/defaults/pref/all-gentoo.js" || \
+		"${ED}/${MOZLIBDIR}/defaults/pref/all-gentoo.js" || \
 			die "failed to cp xulrunner-default-prefs.js"
 
 	# Create a tempory symlink to ensure sync works until path search is fixed
-	dosym /usr/$(get_libdir)/libnss3.so ${MOZLIBDIR}/libnss3.so
+	dosym /usr/$(get_libdir)/libnss3.so "${ED}/${MOZLIBDIR}/libnss3.so"
 
-	pax-mark m "${D}"/${MOZLIBDIR}/plugin-container
+	pax-mark m "${ED}"/${MOZLIBDIR}/plugin-container
 }
 
 pkg_postinst() {
