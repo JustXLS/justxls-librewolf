@@ -12,7 +12,7 @@ MAJ_FF_PV="$(get_version_component_range 1-2)" # 3.5, 3.6, 4.0, etc.
 XUL_PV="${MAJ_XUL_PV}${PV/${MAJ_FF_PV}/}" # 1.9.3_alpha6, 1.9.2.3, etc.
 FF_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-CHANGESET="99367f10f79e"
+CHANGESET="72d2863f43c7"
 PATCH="${PN}-4.0-patches-0.3"
 
 DESCRIPTION="Firefox Web Browser"
@@ -142,10 +142,6 @@ src_prepare() {
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
 
-	# Ensure we keep a sane enviroment
-	sed -i -e "s:MOZ_SERVICES_SYNC\=:MOZ_SERVICES_SYNC\=1:g" \
-		${S}/browser/confvars.sh || die "failed to enable sync services"
-
 	eautoreconf
 
 	cd js/src
@@ -194,7 +190,6 @@ src_configure() {
 	mozconfig_annotate '' --with-system-nss --with-nss-prefix="${EPREFIX}"/usr
 	mozconfig_annotate '' --x-includes="${EPREFIX}"/usr/include	--x-libraries="${EPREFIX}"/usr/$(get_libdir)
 	mozconfig_annotate '' --with-system-bz2
-	mozconfig_annotate '' --with-system-libevent="${EPREFIX}"/usr
 	mozconfig_annotate '' --with-system-libxul
 	mozconfig_annotate '' --with-libxul-sdk="${EPREFIX}"/usr/$(get_libdir)/xulrunner-devel-${MAJ_XUL_PV}
 

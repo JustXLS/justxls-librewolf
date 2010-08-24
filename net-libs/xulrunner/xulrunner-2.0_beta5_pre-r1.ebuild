@@ -12,7 +12,7 @@ MAJ_FF_PV="4.0"
 FF_PV="${PV/${MAJ_XUL_PV}/${MAJ_FF_PV}}" # 3.7_alpha6, 3.6.3, etc.
 FF_PV="${FF_PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-CHANGESET="99367f10f79e"
+CHANGESET="72d2863f43c7"
 PATCH="${PN}-2.0-patches-0.3"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
@@ -74,9 +74,6 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
-
-	# This will be landed before the next snapshot is rolled.
-	epatch "${FILESDIR}"/1003-fix-breakage-nsRegisterGREUnix.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
