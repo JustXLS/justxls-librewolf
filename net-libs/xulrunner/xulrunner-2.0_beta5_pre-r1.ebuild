@@ -240,9 +240,6 @@ src_install() {
 		"${ED}/${MOZLIBDIR}/defaults/pref/all-gentoo.js" || \
 			die "failed to cp xulrunner-default-prefs.js"
 
-	# Create a tempory symlink to ensure sync works until path search is fixed
-	dosym /usr/$(get_libdir)/libnss3.so "${MOZLIBDIR}/libnss3.so"
-
 	pax-mark m "${ED}"/${MOZLIBDIR}/plugin-container
 }
 
