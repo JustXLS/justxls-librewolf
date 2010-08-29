@@ -132,7 +132,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 	mozconfig_annotate '' --enable-application=xulrunner
 	mozconfig_annotate '' --disable-mailnews
-	mozconfig_annotate '' --enable-crashreporter
+	mozconfig_annotate 'broken' --disable-crashreporter
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
