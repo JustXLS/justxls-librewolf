@@ -75,6 +75,8 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
+	epatch "${FILESDIR}/bug-gentoo-2.0_beta5.patch"
+
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
 
