@@ -1,5 +1,7 @@
 # HG changeset patch
 # Parent 83e9c68be99dc3a13080639d6f3d52ed30a0aa0c
+# User Jory A. Pratt <anarchy@gentoo.org>
+Cleanup MOZ_IMG_ENCODERS as all are force built.
 
 diff --git a/config/autoconf.mk.in b/config/autoconf.mk.in
 --- a/config/autoconf.mk.in
