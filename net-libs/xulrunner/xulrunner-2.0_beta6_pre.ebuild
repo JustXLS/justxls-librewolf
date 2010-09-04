@@ -136,7 +136,6 @@ src_configure() {
 	mozconfig_annotate '' --enable-application=xulrunner
 	mozconfig_annotate '' --disable-mailnews
 	mozconfig_annotate 'broken' --disable-crashreporter
-	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
 	# Bug 60668: Galeon doesn't build without oji enabled, so enable it
