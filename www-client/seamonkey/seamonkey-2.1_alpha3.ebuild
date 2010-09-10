@@ -66,11 +66,10 @@ if ${HAS_LANGS} ; then
 fi
 
 RDEPEND=">=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.6
-	>=dev-libs/nspr-4.8.5
+	>=dev-libs/nss-3.12.7
+	>=dev-libs/nspr-4.8.6
 	alsa? ( media-libs/alsa-lib )
 	system-sqlite? ( >=dev-db/sqlite-3.6.23.1-r1[fts3,secure-delete,unlock-notify] )
-	>=media-libs/libpng-1.4.1[apng]
 	>=app-text/hunspell-1.2
 	>=x11-libs/gtk+-2.10.0
 	>=x11-libs/cairo-1.8.8[X]
@@ -224,12 +223,6 @@ src_configure() {
 	mozconfig_use_enable mailclient mailnews
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_enable wifi necko-wifi
-
-        # ZOMG! Mozilla guys wanna have APNG in libpng if building with
-        # system-libpng. Kids, leave your fingers from drugs that make you
-        # do such nasty "extensions"!!!
-        # See https://bugs.gentoo.org/183370 for details.
-        mozconfig_annotate '' --with-system-png
 
 	# Finalize and report settings
 	mozconfig_final
