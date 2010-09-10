@@ -42,7 +42,8 @@ RDEPEND="
 	~net-libs/xulrunner-${XUL_PV}[wifi=,libnotify=,system-sqlite=,webm=]"
 
 DEPEND="${RDEPEND}
-	dev-util/pkgconfig"
+	dev-util/pkgconfig
+	webm? ( dev-lang/yasm )"
 
 # No source releases for alpha|beta
 if [[ ${PV} =~ alpha|beta ]]; then
