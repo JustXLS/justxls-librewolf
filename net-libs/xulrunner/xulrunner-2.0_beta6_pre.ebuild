@@ -46,7 +46,7 @@ RDEPEND="
 DEPEND="${RDEPEND}
 	=dev-lang/python-2*[threads]
 	dev-util/pkgconfig
-	webm? ( dev-lang/yasm )"
+	dev-lang/yasm"
 
 if [[ ${PV} =~ alpha|beta ]]; then
 	# hg snapshot tarball
