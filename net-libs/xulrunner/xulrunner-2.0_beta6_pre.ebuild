@@ -78,6 +78,7 @@ src_prepare() {
 
 	epatch "${FILESDIR}/bug-591145.patch"
 	epatch "${FILESDIR}/bug-591145-configure.patch"
+	epatch "${FILESDIR}/mozilla-central-libjpeg-turbo-v1.1.patch"
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
