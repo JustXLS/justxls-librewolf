@@ -38,7 +38,7 @@ RDEPEND="
 	libnotify? ( >=x11-libs/libnotify-0.4 )
 	system-sqlite? ( >=dev-db/sqlite-3.7.0.1[fts3,secure-delete,unlock-notify] )
 	wifi? ( net-wireless/wireless-tools )
-	cups? ( net-print/cups[gnutls] )
+	net-print/cups
 	~net-libs/xulrunner-${XUL_PV}[wifi=,libnotify=,system-sqlite=,qt=,webm=]"
 
 DEPEND="${RDEPEND}
@@ -205,7 +205,6 @@ src_configure() {
 	mozconfig_use_enable alsa wave
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_enable webm
-	mozconfig_use_enable cups printing
 	mozconfig_use_enable !bindist official-branding
 
 	# NOTE: Uses internal copy of libvpx
