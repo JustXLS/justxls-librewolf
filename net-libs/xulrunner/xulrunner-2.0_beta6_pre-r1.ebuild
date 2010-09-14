@@ -21,7 +21,7 @@ HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa +cups debug +ipc libnotify system-sqlite +webm wifi"
+IUSE="+alsa +cups debug +ipc libnotify system-sqlite qt +webm wifi"
 
 # More URIs appended below...
 SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
@@ -41,6 +41,10 @@ RDEPEND="
 	system-sqlite? ( >=dev-db/sqlite-3.7.0.1[fts3,secure-delete,unlock-notify] )
 	wifi? ( net-wireless/wireless-tools )
 	cups? ( net-print/cups[gnutls] )
+	qt? (
+			x11-libs/qt-gui
+			x11-libs/qt-core
+		)
 	!www-plugins/weave"
 
 DEPEND="${RDEPEND}
@@ -137,7 +141,11 @@ src_configure() {
 	mozconfig_annotate '' --disable-mailnews
 	mozconfig_annotate 'broken' --disable-crashreporter
 	mozconfig_annotate '' --enable-canvas
-	mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
+	if use qt; then
+		mozconfig_annotate 'qt'  --enable-default-toolkit=cairo-qt
+	else
+		mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
+	fi
 	# Bug 60668: Galeon doesn't build without oji enabled, so enable it
 	# regardless of java setting.
 	mozconfig_annotate '' --enable-oji --enable-mathml
