@@ -31,7 +31,7 @@ RDEPEND="
 	>=dev-libs/nss-3.12.8_beta1
 	>=dev-libs/nspr-4.8.5
 	>=app-text/hunspell-1.2
-	>=x11-libs/cairo-1.8.8[X]
+	>=x11-libs/cairo-1.10[X]
 	>=dev-libs/libevent-1.4.7
 	x11-libs/pango[X]
 	x11-libs/libXt
@@ -75,6 +75,8 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
+
+	epatch "${FILESDIR}/check_for_moz_widget_qt_before_including_gfxQPainterSurface.patch"
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user

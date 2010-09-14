@@ -1,0 +1,47 @@
+# HG changeset patch
+# User Joseph Yasi <yasi@uiuc.edu>
+# Parent 3f91f47a29a8d8345c64a53cc4e802cde962dcd5
+Ensure that MOZ_WIDGET_QT is defined before including headers that will
+break non qt builds.
+
+diff --git a/gfx/thebes/gfxASurface.cpp b/gfx/thebes/gfxASurface.cpp
+--- a/gfx/thebes/gfxASurface.cpp
++++ b/gfx/thebes/gfxASurface.cpp
+@@ -60,17 +60,17 @@
+ #include "gfxQuartzSurface.h"
+ #include "gfxQuartzImageSurface.h"
+ #endif
+ 
+ #ifdef MOZ_DFB
+ #include "gfxDirectFBSurface.h"
+ #endif
+ 
+-#ifdef CAIRO_HAS_QT_SURFACE
++#ifdef CAIRO_HAS_QT_SURFACE && defined(MOZ_WIDGET_QT)
+ #include "gfxQPainterSurface.h"
+ #endif
+ 
+ #ifdef CAIRO_HAS_DDRAW_SURFACE
+ #include "gfxDDrawSurface.h"
+ #endif
+ 
+ #include <stdio.h>
+@@ -186,17 +186,17 @@ gfxASurface::Wrap (cairo_surface_t *csur
+         result = new gfxQuartzImageSurface(csurf);
+     }
+ #endif
+ #ifdef MOZ_DFB
+     else if (stype == CAIRO_SURFACE_TYPE_DIRECTFB) {
+         result = new gfxDirectFBSurface(csurf);
+     }
+ #endif
+-#ifdef CAIRO_HAS_QT_SURFACE
++#ifdef CAIRO_HAS_QT_SURFACE && defined(MOZ_WIDGET_QT)
+     else if (stype == CAIRO_SURFACE_TYPE_QT) {
+         result = new gfxQPainterSurface(csurf);
+     }
+ #endif
+ #ifdef CAIRO_HAS_DDRAW_SURFACE
+     else if (stype == CAIRO_SURFACE_TYPE_DDRAW) {
+         result = new gfxDDrawSurface(csurf);
+     }
