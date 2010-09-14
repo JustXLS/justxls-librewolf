@@ -12,8 +12,8 @@ MAJ_FF_PV="4.0"
 FF_PV="${PV/${MAJ_XUL_PV}/${MAJ_FF_PV}}" # 3.7_alpha6, 3.6.3, etc.
 FF_PV="${FF_PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-CHANGESET="278f4bc80145"
-PATCH="${PN}-2.0-patches-0.5"
+CHANGESET="b397e6db5067"
+PATCH="${PN}-2.0-patches-0.7"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
@@ -75,10 +75,6 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
-
-	epatch "${FILESDIR}/bug-591145.patch"
-	epatch "${FILESDIR}/bug-591145-configure.patch"
-	epatch "${FILESDIR}/mozilla-central-libjpeg-turbo-v1.1.patch"
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
