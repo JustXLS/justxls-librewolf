@@ -21,7 +21,7 @@ HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa debug +ipc libnotify system-sqlite qt +webm wifi"
+IUSE="+alsa debug +ipc libnotify system-sqlite qt4 +webm wifi"
 
 # More URIs appended below...
 SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
@@ -31,7 +31,7 @@ RDEPEND="
 	>=dev-libs/nss-3.12.8_beta1
 	>=dev-libs/nspr-4.8.5
 	>=app-text/hunspell-1.2
-	!qt? ( >=x11-libs/cairo-1.10[X] )
+	!qt4? ( >=x11-libs/cairo-1.10[X] )
 	>=dev-libs/libevent-1.4.7
 	x11-libs/pango[X]
 	net-print/cups
@@ -41,10 +41,10 @@ RDEPEND="
 	libnotify? ( >=x11-libs/libnotify-0.4 )
 	system-sqlite? ( >=dev-db/sqlite-3.7.0.1[fts3,secure-delete,unlock-notify] )
 	wifi? ( net-wireless/wireless-tools )
-	qt? (
+	qt4? (
 			x11-libs/qt-gui
 			x11-libs/qt-core
-			>=x11-libs/cairo-1.10[X,qt]
+			>=x11-libs/cairo-1.10[X,qt4]
 		)
 	!www-plugins/weave"
 
@@ -142,7 +142,7 @@ src_configure() {
 	mozconfig_annotate '' --disable-mailnews
 	mozconfig_annotate 'broken' --disable-crashreporter
 	mozconfig_annotate '' --enable-canvas
-	if use qt; then
+	if use qt4; then
 		mozconfig_annotate 'qt'  --enable-default-toolkit=cairo-qt
 	else
 		mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
