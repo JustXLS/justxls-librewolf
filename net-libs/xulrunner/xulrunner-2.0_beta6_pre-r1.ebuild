@@ -34,13 +34,13 @@ RDEPEND="
 	!qt? ( >=x11-libs/cairo-1.10[X] )
 	>=dev-libs/libevent-1.4.7
 	x11-libs/pango[X]
+	net-print/cups
 	x11-libs/libXt
 	x11-libs/pixman
 	alsa? ( media-libs/alsa-lib )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
 	system-sqlite? ( >=dev-db/sqlite-3.7.0.1[fts3,secure-delete,unlock-notify] )
 	wifi? ( net-wireless/wireless-tools )
-	net-print/cups
 	qt? (
 			x11-libs/qt-gui
 			x11-libs/qt-core
