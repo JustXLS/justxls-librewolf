@@ -17,7 +17,7 @@ diff --git a/gfx/thebes/gfxASurface.cpp b/gfx/thebes/gfxASurface.cpp
  #endif
  
 -#ifdef CAIRO_HAS_QT_SURFACE
-+#ifdef defined(CAIRO_HAS_QT_SURFACE) && defined(MOZ_WIDGET_QT)
++#if defined(CAIRO_HAS_QT_SURFACE) && defined(MOZ_WIDGET_QT)
  #include "gfxQPainterSurface.h"
  #endif
  
