@@ -9,7 +9,7 @@ NSPR_VER="4.8.3-r2"
 RTM_NAME="NSS_${PV//./_}_RTM"
 DESCRIPTION="Mozilla's Network Security Services library that implements PKI support"
 HOMEPAGE="http://www.mozilla.org/projects/security/pki/nss/"
-SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/firefox/${P}.tar.gz"
+SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/firefox/${P}.tar.bz2"
 # SRC_URI="ftp://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/${RTM_NAME}/src/${P}.tar.gz"
 
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
