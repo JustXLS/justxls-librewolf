@@ -12,7 +12,7 @@ MAJ_FF_PV="4.0"
 FF_PV="${PV/${MAJ_XUL_PV}/${MAJ_FF_PV}}" # 3.7_alpha6, 3.6.3, etc.
 FF_PV="${FF_PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-CHANGESET="4097291a632c"
+CHANGESET="14b390aa5b85"
 PATCH="${PN}-2.0-patches-0.7"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
@@ -21,7 +21,7 @@ HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa debug +ipc libnotify system-sqlite qt4 +webm wifi"
+IUSE="+alsa +cups debug +ipc libnotify system-sqlite qt4 +webm wifi"
 
 # More URIs appended below...
 SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
@@ -34,10 +34,10 @@ RDEPEND="
 	!qt4? ( >=x11-libs/cairo-1.10[X] )
 	>=dev-libs/libevent-1.4.7
 	x11-libs/pango[X]
-	net-print/cups
 	x11-libs/libXt
 	x11-libs/pixman
 	alsa? ( media-libs/alsa-lib )
+	cups? ( net-print/cups )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
 	system-sqlite? ( >=dev-db/sqlite-3.7.0.1[fts3,secure-delete,unlock-notify] )
 	wifi? ( net-wireless/wireless-tools )
@@ -77,11 +77,10 @@ pkg_setup() {
 
 src_prepare() {
 	# Apply our patches
+	EPATCH_EXCLUDE="1005-fix_no_sunstdio.patch"
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
-
-	epatch "${FILESDIR}/check_for_moz_widget_qt_before_including_gfxQPainterSurface.patch"
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
@@ -177,6 +176,7 @@ src_configure() {
 	mozconfig_use_enable alsa wave
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_enable webm
+	mozconfig_use_enable cups printing
 
 	# NOTE: Uses internal copy of libvpx
 	if use webm && ! use alsa; then

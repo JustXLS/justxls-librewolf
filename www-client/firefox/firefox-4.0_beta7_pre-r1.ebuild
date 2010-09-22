@@ -12,7 +12,7 @@ MAJ_FF_PV="$(get_version_component_range 1-2)" # 3.5, 3.6, 4.0, etc.
 XUL_PV="${MAJ_XUL_PV}${PV/${MAJ_FF_PV}/}" # 1.9.3_alpha6, 1.9.2.3, etc.
 FF_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-CHANGESET="4097291a632c"
+CHANGESET="14b390aa5b85"
 PATCH="${PN}-4.0-patches-0.3"
 
 DESCRIPTION="Firefox Web Browser"
@@ -34,8 +34,8 @@ RDEPEND="
 	>=app-text/hunspell-1.2
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
-	net-print/cups
 	alsa? ( media-libs/alsa-lib )
+	cups? ( net-print/cups )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
 	system-sqlite? ( >=dev-db/sqlite-3.7.0.1[fts3,secure-delete,unlock-notify] )
 	wifi? ( net-wireless/wireless-tools )
@@ -168,7 +168,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 	mozconfig_annotate '' --enable-application=browser
 	mozconfig_annotate '' --disable-mailnews
-	mozconfig_annotate '' --enable-crashreporter
+	mozconfig_annotate '' --disable-crashreporter
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
 	if use qt4; then
@@ -205,6 +205,7 @@ src_configure() {
 	mozconfig_use_enable alsa wave
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_enable webm
+	mozconfig_use_enable cups printing
 	mozconfig_use_enable !bindist official-branding
 
 	# NOTE: Uses internal copy of libvpx
