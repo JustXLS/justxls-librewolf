@@ -12,8 +12,8 @@ MAJ_FF_PV="4.0"
 FF_PV="${PV/${MAJ_XUL_PV}/${MAJ_FF_PV}}" # 3.7_alpha6, 3.6.3, etc.
 FF_PV="${FF_PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-CHANGESET="14b390aa5b85"
-PATCH="${PN}-2.0-patches-0.7"
+CHANGESET="49cc66b9f097"
+PATCH="${PN}-2.0-patches-0.8"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
@@ -21,7 +21,7 @@ HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa +cups debug +ipc libnotify system-sqlite qt4 +webm wifi"
+IUSE="+alsa +cups debug +ipc libnotify system-sqlite +webm wifi"
 
 # More URIs appended below...
 SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
@@ -31,7 +31,7 @@ RDEPEND="
 	>=dev-libs/nss-3.12.8_beta1
 	>=dev-libs/nspr-4.8.5
 	>=app-text/hunspell-1.2
-	!qt4? ( >=x11-libs/cairo-1.10[X] )
+	>=x11-libs/cairo-1.10[X]
 	>=dev-libs/libevent-1.4.7
 	x11-libs/pango[X]
 	x11-libs/libXt
@@ -41,11 +41,6 @@ RDEPEND="
 	libnotify? ( >=x11-libs/libnotify-0.4 )
 	system-sqlite? ( >=dev-db/sqlite-3.7.0.1[fts3,secure-delete,unlock-notify] )
 	wifi? ( net-wireless/wireless-tools )
-	qt4? (
-			x11-libs/qt-gui
-			x11-libs/qt-core
-			>=x11-libs/cairo-1.10[X,qt4]
-		)
 	!www-plugins/weave"
 
 DEPEND="${RDEPEND}
@@ -77,7 +72,6 @@ pkg_setup() {
 
 src_prepare() {
 	# Apply our patches
-	EPATCH_EXCLUDE="1005-fix_no_sunstdio.patch"
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
@@ -141,11 +135,8 @@ src_configure() {
 	mozconfig_annotate '' --disable-mailnews
 	mozconfig_annotate 'broken' --disable-crashreporter
 	mozconfig_annotate '' --enable-canvas
-	if use qt4; then
-		mozconfig_annotate 'qt'  --enable-default-toolkit=cairo-qt
-	else
-		mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
-	fi
+	mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
+
 	# Bug 60668: Galeon doesn't build without oji enabled, so enable it
 	# regardless of java setting.
 	mozconfig_annotate '' --enable-oji --enable-mathml

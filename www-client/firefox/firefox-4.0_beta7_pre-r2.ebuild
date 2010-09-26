@@ -12,7 +12,7 @@ MAJ_FF_PV="$(get_version_component_range 1-2)" # 3.5, 3.6, 4.0, etc.
 XUL_PV="${MAJ_XUL_PV}${PV/${MAJ_FF_PV}/}" # 1.9.3_alpha6, 1.9.2.3, etc.
 FF_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-CHANGESET="14b390aa5b85"
+CHANGESET="49cc66b9f097"
 PATCH="${PN}-4.0-patches-0.3"
 
 DESCRIPTION="Firefox Web Browser"
@@ -21,7 +21,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~ia64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa bindist +cups +ipc libnotify system-sqlite qt4 +webm wifi"
+IUSE="+alsa bindist +cups +ipc libnotify system-sqlite +webm wifi"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 # More URIs appended below...
@@ -39,7 +39,7 @@ RDEPEND="
 	libnotify? ( >=x11-libs/libnotify-0.4 )
 	system-sqlite? ( >=dev-db/sqlite-3.7.0.1[fts3,secure-delete,unlock-notify] )
 	wifi? ( net-wireless/wireless-tools )
-	~net-libs/xulrunner-${XUL_PV}[wifi=,libnotify=,system-sqlite=,qt4=,webm=]"
+	~net-libs/xulrunner-${XUL_PV}[wifi=,libnotify=,system-sqlite=,webm=]"
 
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
@@ -171,11 +171,8 @@ src_configure() {
 	mozconfig_annotate '' --disable-crashreporter
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
-	if use qt4; then
-		mozconfig_annotate 'qt' --enable-default-toolkit=cairo-qt
-	else
-		mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
-	fi
+	mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
+
 	# Bug 60668: Galeon doesn't build without oji enabled, so enable it
 	# regardless of java setting.
 	mozconfig_annotate '' --enable-oji --enable-mathml
