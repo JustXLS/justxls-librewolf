@@ -39,7 +39,7 @@ RDEPEND="
 	libnotify? ( >=x11-libs/libnotify-0.4 )
 	system-sqlite? ( >=dev-db/sqlite-3.7.0.1[fts3,secure-delete,unlock-notify] )
 	wifi? ( net-wireless/wireless-tools )
-	~net-libs/xulrunner-${XUL_PV}[wifi=,libnotify=,system-sqlite=,webm=]"
+	~net-libs/xulrunner-${XUL_PV}[wifi=,libnotify=,system-sqlite=,webm=,cups=]"
 
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
