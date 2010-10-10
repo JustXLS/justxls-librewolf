@@ -12,7 +12,7 @@ MAJ_FF_PV="$(get_version_component_range 1-2)" # 3.5, 3.6, 4.0, etc.
 XUL_PV="${MAJ_XUL_PV}${PV/${MAJ_FF_PV}/}" # 1.9.3_alpha6, 1.9.2.3, etc.
 FF_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-CHANGESET="5a2012482a63"
+CHANGESET="a78a893049bc"
 PATCH="${PN}-4.0-patches-0.3"
 
 DESCRIPTION="Firefox Web Browser"
@@ -21,7 +21,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~ia64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa bindist +cups +ipc libnotify system-sqlite +webm wifi"
+IUSE="+alsa bindist +ipc libnotify system-sqlite +webm wifi"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 # More URIs appended below...
@@ -35,11 +35,10 @@ RDEPEND="
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
 	alsa? ( media-libs/alsa-lib )
-	cups? ( net-print/cups )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
 	system-sqlite? ( >=dev-db/sqlite-3.7.0.1[fts3,secure-delete,unlock-notify] )
 	wifi? ( net-wireless/wireless-tools )
-	~net-libs/xulrunner-${XUL_PV}[wifi=,libnotify=,system-sqlite=,webm=,cups=]"
+	~net-libs/xulrunner-${XUL_PV}[wifi=,libnotify=,system-sqlite=,webm=]"
 
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
@@ -202,7 +201,6 @@ src_configure() {
 	mozconfig_use_enable alsa wave
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_enable webm
-	mozconfig_use_enable cups printing
 	mozconfig_use_enable !bindist official-branding
 
 	# NOTE: Uses internal copy of libvpx
