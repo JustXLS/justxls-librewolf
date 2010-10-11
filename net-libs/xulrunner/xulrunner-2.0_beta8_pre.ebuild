@@ -12,7 +12,7 @@ MAJ_FF_PV="4.0"
 FF_PV="${PV/${MAJ_XUL_PV}/${MAJ_FF_PV}}" # 3.7_alpha6, 3.6.3, etc.
 FF_PV="${FF_PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-CHANGESET="2b78824f6508"
+CHANGESET="c5afefc3d6f5"
 PATCH="${PN}-2.0-patches-0.8"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
@@ -248,4 +248,8 @@ pkg_postinst() {
 	ewarn "This is experimental DO NOT file a bug report unless you can"
 	ewarn "are willing to provide a patch. All bugs that are filled without a patch"
 	ewarn "will be closed INVALID!!"
+	ewarn ""
+	ewarn "If you fail to see a browser windows upon update please ensure you"
+	ewarn "did not compile with sys-devel/gcc-4.5.x, this is a known issue and we"
+	ewarn "are working to get it resolved."
 }
