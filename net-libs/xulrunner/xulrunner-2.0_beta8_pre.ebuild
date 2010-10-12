@@ -76,6 +76,9 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
+	# Remove on next snapshot roll landed on tree 2010/10/11
+	epatch "${FILESDIR}/${PN}-2.0-gcc45-overflow.patch"
+
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
 
@@ -248,8 +251,4 @@ pkg_postinst() {
 	ewarn "This is experimental DO NOT file a bug report unless you can"
 	ewarn "are willing to provide a patch. All bugs that are filled without a patch"
 	ewarn "will be closed INVALID!!"
-	ewarn ""
-	ewarn "If you fail to see a browser windows upon update please ensure you"
-	ewarn "did not compile with sys-devel/gcc-4.5.x, this is a known issue and we"
-	ewarn "are working to get it resolved."
 }
