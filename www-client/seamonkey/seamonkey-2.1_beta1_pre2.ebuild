@@ -41,7 +41,7 @@ HOMEPAGE="http://www.seamonkey-project.org"
 
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa +chatzilla +composer +crypt +cups libnotify ldap +mailclient +roaming system-sqlite +vpx wifi"
+IUSE="+alsa +chatzilla +composer +crypt +cups ldap libnotify +mailclient +roaming system-sqlite +vpx wifi"
 
 SRC_URI="${REL_URI}/source/${MY_P}.source.tar.bz2
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.bz2
@@ -70,7 +70,6 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nspr-4.8.6
 	alsa? ( media-libs/alsa-lib )
 	system-sqlite? ( >=dev-db/sqlite-3.7.0.1[fts3,secure-delete,unlock-notify] )
-	>=media-libs/libpng-1.4.1[apng]
 	>=app-text/hunspell-1.2
 	>=x11-libs/gtk+-2.10.0
 	>=x11-libs/cairo-1.10.0[X]
@@ -130,6 +129,13 @@ pkg_setup() {
 		ewarn "You're using an unofficial release of ${PN}. Don't file any bug in"
 		ewarn "Gentoo's Bugtracker against this package in case it breaks for you."
 		ewarn "Those belong to upstream: https://bugzilla.mozilla.org"
+	fi
+
+	if use ldap ; then
+		einfo "Please add EXTRA_ECONF=\"--enable-ldap --enable-ldap-experimental\""
+		einfo "to /etc/portage/env/www-client/seamonkey , soon as this is fixed upstream"
+		einfo "we will move back to a normal useflag experience. Thank You mozilla@gentoo.org"
+		epause 10
 	fi
 
 	# Ensure we always build with C locale.
@@ -234,8 +240,8 @@ src_configure() {
 	mozconfig_use_enable alsa wave
 	mozconfig_use_enable cups printing
 	mozconfig_use_enable libnotify
-	mozconfig_use_enable ldap
-	mozconfig_use_enable ldap ldap-experimental
+	#mozconfig_use_enable ldap
+	#mozconfig_use_enable ldap ldap-experimental
 	mozconfig_use_enable mailclient mailnews
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_enable vpx webm
@@ -250,12 +256,6 @@ src_configure() {
 	if use amd64 || use x86 || use arm || use sparc; then
 		mozconfig_annotate '' --enable-tracejit
 	fi
-
-        # ZOMG! Mozilla guys wanna have APNG in libpng if building with
-        # system-libpng. Kids, leave your fingers from drugs that make you
-        # do such nasty "extensions"!!!
-        # See https://bugs.gentoo.org/183370 for details.
-        mozconfig_annotate '' --with-system-png
 
 	# Finalize and report settings
 	mozconfig_final
