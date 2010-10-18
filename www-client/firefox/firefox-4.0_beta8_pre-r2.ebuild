@@ -1,23 +1,19 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-3.6.9-r1.ebuild,v 1.1 2010/09/16 12:03:09 anarchy Exp $
+# $Header: $
+
 EAPI="3"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools mozextension java-pkg-opt-2 python
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools mozextension versionator python
 
-LANGS="af ar as be bg bn-BD bn-IN ca cs cy da de el en en-GB en-US eo es-AR \
-es-CL es-ES es-MX et eu fa fi fr fy-NL ga-IE gl gu-IN he hi-IN hr hu id is it \
-ja ka kk kn ko ku lt lv mk ml mr nb-NO nl nn-NO oc or pa-IN pl pt-BR pt-PT rm \
-ro ru si sk sl sq sr sv-SE ta ta-LK te th tr uk vi zh-CN zh-TW"
-NOSHORTLANGS="en-GB es-AR es-CL es-MX pt-BR zh-CN zh-TW"
-
-MAJ_XUL_PV="1.9.2"
-MAJ_PV="${PV/_*/}" # Without the _rc and _beta stuff
-DESKTOP_PV="3.6"
-MY_PV="${PV/_rc/rc}" # Handle beta for SRC_URI
-XUL_PV="${MAJ_XUL_PV}${MAJ_PV/${DESKTOP_PV}/}" # Major + Minor version no.s
-PATCH="${PN}-3.6-patches-0.2"
+MAJ_XUL_PV="2.0"
+MAJ_FF_PV="$(get_version_component_range 1-2)" # 3.5, 3.6, 4.0, etc.
+XUL_PV="${MAJ_XUL_PV}${PV/${MAJ_FF_PV}/}" # 1.9.3_alpha6, 1.9.2.3, etc.
+FF_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
+FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
+CHANGESET="5176c8f2691e"
+PATCH="${PN}-4.0-patches-0.4"
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
@@ -25,53 +21,66 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~ia64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa bindist +ipc java libnotify system-sqlite wifi"
+IUSE="+alsa bindist +ipc libnotify system-sqlite +webm wifi"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
-SRC_URI="${REL_URI}/${MY_PV}/source/firefox-${MY_PV}.source.tar.bz2
-	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
-
-for X in ${LANGS} ; do
-	if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
-		SRC_URI="${SRC_URI}
-			linguas_${X/-/_}? ( ${REL_URI}/${MY_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
-	fi
-	IUSE="${IUSE} linguas_${X/-/_}"
-	# english is handled internally
-	if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
-		if [ "${X}" != "en-US" ]; then
-			SRC_URI="${SRC_URI}
-				linguas_${X%%-*}? ( ${REL_URI}/${PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
-		fi
-		IUSE="${IUSE} linguas_${X%%-*}"
-	fi
-done
+# More URIs appended below...
+SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.7
-	>=dev-libs/nspr-4.8.6
+	>=dev-libs/nss-3.12.8_beta1
+	>=dev-libs/nspr-4.8.5
 	>=app-text/hunspell-1.2
-	system-sqlite? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
-	alsa? ( media-libs/alsa-lib )
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
-	net-print/cups
-	wifi? ( net-wireless/wireless-tools )
+	alsa? ( media-libs/alsa-lib )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
-	~net-libs/xulrunner-${XUL_PV}[ipc=,java=,wifi=,libnotify=,system-sqlite=]"
+	system-sqlite? ( >=dev-db/sqlite-3.7.0.1[fts3,secure-delete,unlock-notify] )
+	wifi? ( net-wireless/wireless-tools )
+	~net-libs/xulrunner-${XUL_PV}[wifi=,libnotify=,system-sqlite=,webm=]"
 
 DEPEND="${RDEPEND}
-	java? ( >=virtual/jdk-1.4 )
-	=dev-lang/python-2*[threads]
-	dev-util/pkgconfig"
+	dev-util/pkgconfig
+	webm? ( dev-lang/yasm )"
 
-RDEPEND="${RDEPEND} java? ( >=virtual/jre-1.4 )"
+# No source releases for alpha|beta
+if [[ ${PV} =~ alpha|beta ]]; then
+	SRC_URI="${SRC_URI}
+		http://dev.gentoo.org/~anarchy/mozilla/firefox/firefox-${FF_PV}_${CHANGESET}.source.tar.bz2"
+	S="${WORKDIR}/mozilla-central"
+else
+	SRC_URI="${SRC_URI}
+		${REL_URI}/${FF_PV}/source/firefox-${FF_PV}.source.tar.bz2"
+	S="${WORKDIR}/mozilla-${MAJ_XUL_PV}"
+fi
 
-S="${WORKDIR}/mozilla-1.9.2"
+# No language packs for alphas
+if ! [[ ${PV} =~ alpha|beta ]]; then
+	# This list can be updated with scripts/get_langs.sh from mozilla overlay
+	LANGS="af ar as be bg bn-BD bn-IN ca cs cy da de el en en-GB en-US eo es-AR
+	es-CL es-ES es-MX et eu fa fi fr fy-NL ga-IE gl gu-IN he hi-IN hr hu id is
+	it ja ka kk kn ko ku lt lv mk ml mr nb-NO nl nn-NO oc or pa-IN pl pt-BR
+	pt-PT rm ro ru si sk sl sq sr sv-SE ta ta-LK te th tr uk vi zh-CN zh-TW"
+	NOSHORTLANGS="en-GB es-AR es-CL es-MX pt-BR zh-CN zh-TW"
 
-# This is a copy of the launcher program installed as part of xulrunner, so has
-# already been stripped. Bug #332071 for details.
+	for X in ${LANGS} ; do
+		if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
+			SRC_URI="${SRC_URI}
+				linguas_${X/-/_}? ( ${REL_URI}/${FF_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+		fi
+		IUSE="${IUSE} linguas_${X/-/_}"
+		# english is handled internally
+		if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
+			if [ "${X}" != "en-US" ]; then
+				SRC_URI="${SRC_URI}
+					linguas_${X%%-*}? ( ${REL_URI}/${FF_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+			fi
+			IUSE="${IUSE} linguas_${X%%-*}"
+		fi
+	done
+fi
+
 QA_PRESTRIPPED="usr/$(get_libdir)/${PN}/firefox"
 
 linguas() {
@@ -92,12 +101,10 @@ linguas() {
 				fi
 			done
 		fi
-		ewarn "Sorry, but ${PN} does not support the ${LANG} LINGUA"
+		ewarn "Sorry, but ${P} does not support the ${LANG} LINGUA"
 	done
 }
 
-# XXX FIXME XXX: All refs to mozilla-${PN} need to become ${PN} with the next bump
-# Note that this WILL cause breakage for packages that use fx's libdir and includedir
 pkg_setup() {
 	# Ensure we always build with C locale.
 	export LANG="C"
@@ -113,13 +120,11 @@ pkg_setup() {
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
 
-	java-pkg-opt-2_pkg_setup
-
 	python_set_active_version 2
 }
 
 src_unpack() {
-	unpack firefox-${MY_PV}.source.tar.bz2 ${PATCH}.tar.bz2
+	unpack ${A}
 
 	linguas
 	for X in ${linguas}; do
@@ -134,9 +139,7 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
-	epatch "${FILESDIR}/fix_blocklist_support.patch"
-
-	# Allow user to apply additional patches without modifing ebuild
+	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
 
 	eautoreconf
@@ -164,18 +167,16 @@ src_configure() {
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 	mozconfig_annotate '' --enable-application=browser
 	mozconfig_annotate '' --disable-mailnews
-	mozconfig_annotate 'broken' --disable-crashreporter
+	mozconfig_annotate '' --disable-crashreporter
 	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
+
 	# Bug 60668: Galeon doesn't build without oji enabled, so enable it
 	# regardless of java setting.
 	mozconfig_annotate '' --enable-oji --enable-mathml
 	mozconfig_annotate 'places' --enable-storage --enable-places
 	mozconfig_annotate '' --enable-safe-browsing
-
-	# Build mozdevelop permately
-	mozconfig_annotate ''  --enable-jsd --enable-xpctools
 
 	# System-wide install specs
 	mozconfig_annotate '' --disable-installer
@@ -195,12 +196,22 @@ src_configure() {
 
 	mozconfig_use_enable ipc # +ipc, upstream default
 	mozconfig_use_enable libnotify
-	mozconfig_use_enable java javaxpcom
 	mozconfig_use_enable wifi necko-wifi
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
 	mozconfig_use_enable system-sqlite
+	mozconfig_use_enable webm
 	mozconfig_use_enable !bindist official-branding
+
+	# NOTE: Uses internal copy of libvpx
+	if use webm && ! use alsa; then
+		ewarn "USE=webm needs USE=alsa, disabling WebM support."
+		mozconfig_annotate '+webm -alsa' --disable-webm
+	fi
+
+	if use amd64 || use x86 || use arm || use sparc; then
+		mozconfig_annotate '' --enable-tracejit
+	fi
 
 	# Other ff-specific settings
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
@@ -234,25 +245,25 @@ src_install() {
 
 	linguas
 	for X in ${linguas}; do
-		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${P}-${X}"
+		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}/${P}-${X}"
 	done
 
 	# Install icon and .desktop for menu entry
 	if ! use bindist ; then
 		newicon "${S}"/other-licenses/branding/firefox/content/icon48.png ${PN}-icon.png
 		newmenu "${FILESDIR}"/icon/${PN}-1.5.desktop \
-			mozilla-${PN}-${DESKTOP_PV}.desktop
+			${PN}-${MAJ_FF_PV}.desktop
 	else
-		newicon "${S}"/browser/branding/unofficial/content/icon48.png ${PN}-icon-unbranded.png
+		newicon "${S}"/browser/base/branding/icon48.png ${PN}-icon-unbranded.png
 		newmenu "${FILESDIR}"/icon/${PN}-1.5-unbranded.desktop \
-			mozilla-${PN}-${DESKTOP_PV}.desktop
-		sed -i -e "s:Bon\ Echo:Namoroka:" \
-			"${ED}"/usr/share/applications/mozilla-${PN}-${DESKTOP_PV}.desktop || die "sed failed!"
+			${PN}-${MAJ_FF_PV}.desktop
+		sed -i -e "s:Bon Echo:Shiretoko:" \
+			"${ED}"/usr/share/applications/${PN}-${MAJ_FF_PV}.desktop || die "sed failed!"
 	fi
 
 	# Add StartupNotify=true bug 237317
 	if use startup-notification ; then
-		echo "StartupNotify=true" >> "${ED}"/usr/share/applications/mozilla-${PN}-${DESKTOP_PV}.desktop
+		echo "StartupNotify=true" >> "${ED}"/usr/share/applications/${PN}-${MAJ_FF_PV}.desktop
 	fi
 
 	pax-mark m "${ED}"/${MOZILLA_FIVE_HOME}/firefox
@@ -273,10 +284,8 @@ src_install() {
 }
 
 pkg_postinst() {
-	ewarn "We have finished moving away from mozilla-${PN}"
-	ewarn "to plain jane ${PN}. If for some reason you have a bug"
-	ewarn "that results please open a report and assign to maintainer"
-	ewarn "with mozilla@gentoo.org being CC'd on the bug report."
+	ewarn "All the packages built against ${PN} won't compile,"
+	ewarn "any package that fails to build warrants a bug report."
 	elog
 
 	# Update mimedb for the new .desktop file

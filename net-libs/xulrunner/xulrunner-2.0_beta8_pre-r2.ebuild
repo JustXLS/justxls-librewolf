@@ -1,52 +1,63 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-1.9.2.9-r1.ebuild,v 1.1 2010/09/16 11:58:12 anarchy Exp $
+# $Header: $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib java-pkg-opt-2 autotools python prefix pax-utils
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib autotools python versionator pax-utils prefix
 
-MY_PV="${PV/_rc/rc}" # Handle beta
-MY_PV="${MY_PV/1.9.2/3.6}"
-MAJ_PV="1.9.2" # from mozilla-* branch name
-PATCH="${PN}-1.9.2-patches-0.7"
+MAJ_XUL_PV="$(get_version_component_range 1-2)" # from mozilla-* branch name
+MAJ_FF_PV="4.0"
+FF_PV="${PV/${MAJ_XUL_PV}/${MAJ_FF_PV}}" # 3.7_alpha6, 3.6.3, etc.
+FF_PV="${FF_PV/_alpha/a}" # Handle alpha for SRC_URI
+FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
+CHANGESET="5176c8f2691e"
+PATCH="${PN}-2.0-patches-0.9"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
-SRC_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${MY_PV}/source/firefox-${MY_PV}.source.tar.bz2
-	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa debug +ipc libnotify system-sqlite wifi"
+IUSE="+alsa debug +ipc libnotify system-sqlite +webm wifi"
+
+# More URIs appended below...
+SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.7
-	>=dev-libs/nspr-4.8.6
-	system-sqlite? ( >=dev-db/sqlite-3.6.22-r2[fts3,secure-delete] )
-	alsa? ( media-libs/alsa-lib )
+	>=dev-libs/nss-3.12.8_beta1
+	>=dev-libs/nspr-4.8.5
 	>=app-text/hunspell-1.2
-	>=x11-libs/cairo-1.8.8[X]
+	>=x11-libs/cairo-1.10[X]
+	>=dev-libs/libevent-1.4.7
 	x11-libs/pango[X]
-	net-print/cups
 	x11-libs/libXt
 	x11-libs/pixman
-	>=dev-libs/libevent-1.4.7
+	alsa? ( media-libs/alsa-lib )
+	libnotify? ( >=x11-libs/libnotify-0.4 )
+	system-sqlite? ( >=dev-db/sqlite-3.7.0.1[fts3,secure-delete,unlock-notify] )
 	wifi? ( net-wireless/wireless-tools )
-	libnotify? ( >=x11-libs/libnotify-0.4 )"
+	!www-plugins/weave"
 
-DEPEND="java? ( >=virtual/jdk-1.4 )
-	${RDEPEND}
+DEPEND="${RDEPEND}
 	=dev-lang/python-2*[threads]
-	dev-util/pkgconfig"
+	dev-util/pkgconfig
+	dev-lang/yasm"
 
-# virtual/jre should not be in DEPEND. bug 325981
-RDEPEND="java? ( >=virtual/jre-1.4 ) ${RDEPEND}"
-
-S="${WORKDIR}/mozilla-${MAJ_PV}"
+if [[ ${PV} =~ alpha|beta ]]; then
+	# hg snapshot tarball
+	SRC_URI="${SRC_URI}
+		http://dev.gentoo.org/~anarchy/mozilla/firefox/firefox-${FF_PV}_${CHANGESET}.source.tar.bz2"
+	S="${WORKDIR}/mozilla-central"
+else
+	REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
+	SRC_URI="${SRC_URI}
+		${REL_URI}/${FF_PV}/source/firefox-${FF_PV}.source.tar.bz2"
+	S="${WORKDIR}/mozilla-${MAJ_XUL_PV}"
+fi
 
 pkg_setup() {
 	# Ensure we always build with C locale.
@@ -55,18 +66,18 @@ pkg_setup() {
 	export LC_MESSAGES="C"
 	export LC_CTYPE="C"
 
-	java-pkg-opt-2_pkg_setup
-
 	python_set_active_version 2
 }
 
 src_prepare() {
 	# Apply our patches
+	EPATCH_EXCLUDE="1003-fix-weavecrypto-to-searchpath.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
-	epatch "${FILESDIR}/fix_crash_in_windowwatcher.patch"
+	# Allow user to apply any additional patches without modifing ebuild
+	epatch_user
 
 	eprefixify \
 		extensions/java/xpcom/interfaces/org/mozilla/xpcom/Mozilla.java \
@@ -78,22 +89,22 @@ src_prepare() {
 	sed -i -e '/^LIBS += $(JEMALLOC_LIBS)/s/^/#/' \
 		xulrunner/stub/Makefile.in || die
 
-	# Allow user to apply additional patches without modifing ebuild
-	epatch_user
-
 	# Same as in config/autoconf.mk.in
-	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
-	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_PV}/sdk"
+	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_XUL_PV}"
+	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_XUL_PV}/sdk"
 
 	# Gentoo install dirs
-	sed -i -e "s:@PV@:${MAJ_PV}:" "${S}"/config/autoconf.mk.in \
-		|| die "${MAJ_PV} sed failed!"
+	sed -i -e "s:@PV@:${MAJ_XUL_PV}:" "${S}"/config/autoconf.mk.in \
+		|| die "${MAJ_XUL_PV} sed failed!"
 
 	# Enable gnomebreakpad
 	if use debug ; then
 		sed -i -e "s:GNOME_DISABLE_CRASH_DIALOG=1:GNOME_DISABLE_CRASH_DIALOG=0:g" \
 			"${S}"/build/unix/run-mozilla.sh || die "sed failed!"
 	fi
+
+	# Make sure we stay in sync and echo this last
+	echo "MOZ_SERVICES_SYNC=1" >> ${S}/xulrunner/confvars.sh
 
 	eautoreconf
 
@@ -113,7 +124,7 @@ src_configure() {
 
 	MEXTENSIONS="default"
 
-	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
+	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_XUL_PV}"
 
 	# It doesn't compile on alpha without this LDFLAGS
 	use alpha && append-ldflags "-Wl,--no-relax"
@@ -123,17 +134,16 @@ src_configure() {
 	mozconfig_annotate '' --enable-application=xulrunner
 	mozconfig_annotate '' --disable-mailnews
 	mozconfig_annotate 'broken' --disable-crashreporter
-	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
+
 	# Bug 60668: Galeon doesn't build without oji enabled, so enable it
 	# regardless of java setting.
 	mozconfig_annotate '' --enable-oji --enable-mathml
 	mozconfig_annotate 'places' --enable-storage --enable-places
 	mozconfig_annotate '' --enable-safe-browsing
-
-	# Build mozdevelop permately
-	mozconfig_annotate ''  --enable-jsd --enable-xpctools
+	# This will be removed when packages moving to webkit complete their move
+	mozconfig_annotate '' --enable-shared-js
 
 	# System-wide install specs
 	mozconfig_annotate '' --disable-installer
@@ -152,11 +162,21 @@ src_configure() {
 
 	mozconfig_use_enable ipc # +ipc, upstream default
 	mozconfig_use_enable libnotify
-	mozconfig_use_enable java javaxpcom
 	mozconfig_use_enable wifi necko-wifi
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
 	mozconfig_use_enable system-sqlite
+	mozconfig_use_enable webm
+
+	# NOTE: Uses internal copy of libvpx
+	if use webm && ! use alsa; then
+		ewarn "USE=webm needs USE=alsa, disabling WebM support."
+		mozconfig_annotate '+webm -alsa' --disable-webm
+	fi
+
+	if use amd64 || use x86 || use arm || use sparc; then
+		mozconfig_annotate 'tracejit' --enable-tracejit
+	fi
 
 	# Debug
 	if use debug ; then
@@ -198,8 +218,8 @@ src_install() {
 
 	rm "${ED}"/usr/bin/xulrunner
 
-	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_PV}"
-	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_PV}/sdk"
+	MOZLIBDIR="/usr/$(get_libdir)/${PN}-${MAJ_XUL_PV}"
+	SDKDIR="/usr/$(get_libdir)/${PN}-devel-${MAJ_XUL_PV}/sdk"
 
 	if has_multilib_profile; then
 		local config
@@ -209,7 +229,7 @@ src_install() {
 	fi
 
 	dodir /usr/bin
-	dosym "${MOZLIBDIR}/xulrunner" "/usr/bin/xulrunner-${MAJ_PV}" || die
+	dosym "${MOZLIBDIR}/xulrunner" "/usr/bin/xulrunner-${MAJ_XUL_PV}" || die
 
 	# env.d file for ld search path
 	dodir /etc/env.d
@@ -220,28 +240,11 @@ src_install() {
 		"${ED}/${MOZLIBDIR}/defaults/pref/all-gentoo.js" || \
 			die "failed to cp xulrunner-default-prefs.js"
 
-	pax-mark m "${D}"/${MOZLIBDIR}/plugin-container
-
-	if use java ; then
-		java-pkg_regjar "${ED}/${MOZLIBDIR}/javaxpcom.jar"
-		java-pkg_regso "${ED}/${MOZLIBDIR}/libjavaxpcomglue.so"
-		java-pkg_regjar "${ED}/${SDKDIR}/lib/MozillaGlue.jar"
-		java-pkg_regjar "${ED}/${SDKDIR}/lib/MozillaInterfaces.jar"
-	fi
+	pax-mark m "${ED}"/${MOZLIBDIR}/plugin-container
 }
 
 pkg_postinst() {
-	ewarn "If firefox fails to start with \"failed to load xpcom\", run revdep-rebuild"
-	ewarn "If that does not fix the problem, rebuild dev-libs/nss"
-	ewarn "Try dev-util/lafilefixer if you get build failures related to .la files"
-
-	einfo
-	einfo "All prefs can be overridden by the user. The preferences are to make"
-	einfo "use of xulrunner out of the box on an average system without the user"
-	einfo "having to go through and enable the basics."
-
-	einfo
-	ewarn "Any package that requires xulrunner:1.9 slot could and most likely will"
-	ewarn "have issues. These issues should be reported to maintainer, and mozilla herd"
-	ewarn "should be cc'd on the bug report. Thank you anarchy@gentoo.org ."
+	ewarn "This is experimental DO NOT file a bug report unless you can"
+	ewarn "are willing to provide a patch. All bugs that are filled without a patch"
+	ewarn "will be closed INVALID!!"
 }
