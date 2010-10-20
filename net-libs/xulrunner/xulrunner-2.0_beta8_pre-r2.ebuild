@@ -103,9 +103,6 @@ src_prepare() {
 			"${S}"/build/unix/run-mozilla.sh || die "sed failed!"
 	fi
 
-	# Make sure we stay in sync and echo this last
-	echo "MOZ_SERVICES_SYNC=1" >> ${S}/xulrunner/confvars.sh
-
 	eautoreconf
 
 	cd js/src
