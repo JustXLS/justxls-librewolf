@@ -268,10 +268,6 @@ src_configure() {
 	# Work around breakage in makeopts with --no-print-directory
 	MAKEOPTS="${MAKEOPTS/--no-print-directory/}"
 
-	cd "${S}"/directory/c-sdk || dir
-	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" PYTHON="$(PYTHON)" econf
-	cd "${S}" || die
-
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" PYTHON="$(PYTHON)" econf
 }
 
