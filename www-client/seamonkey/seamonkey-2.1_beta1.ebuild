@@ -10,8 +10,8 @@ inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib fdo-mi
 PATCH="${PN}-2.0.5-patches-01"
 EMVER="1.1.2"
 
-LANGS=""
-NOSHORTLANGS=""
+LANGS="de en es-ES fr lt nb-NO ru sk"
+NOSHORTLANGS="es-ES nb-NO"
 
 MY_PV="${PV/_pre*}"
 MY_PV="${MY_PV/_alpha/a}"
@@ -41,11 +41,11 @@ HOMEPAGE="http://www.seamonkey-project.org"
 
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa +chatzilla +composer +crypt +cups ldap libnotify +mailclient +roaming system-sqlite +vpx wifi"
+IUSE="+alsa +chatzilla +composer +crypt libnotify ldap +mailclient +roaming system-sqlite +vpx wifi"
 
 SRC_URI="${REL_URI}/source/${MY_P}.source.tar.bz2
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.bz2
-	crypt? ( mailclient? ( http://dev.gentoo.org/~anarchy/dist/enigmail-${EMVER}-20100819.tar.gz ) )"
+	crypt? ( mailclient? ( http://dev.gentoo.org/~polynomial-c/mozilla/enigmail-${EMVER}-20101020.tar.bz2 ) )"
 
 if ${HAS_LANGS} ; then
 	for X in ${LANGS} ; do
@@ -69,16 +69,15 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.8
 	>=dev-libs/nspr-4.8.6
 	alsa? ( media-libs/alsa-lib )
-	system-sqlite? ( >=dev-db/sqlite-3.7.0.1[fts3,secure-delete,unlock-notify] )
+	system-sqlite? ( >=dev-db/sqlite-3.7.1[fts3,secure-delete,unlock-notify] )
 	>=app-text/hunspell-1.2
 	>=x11-libs/gtk+-2.10.0
 	>=x11-libs/cairo-1.10.0[X]
 	>=x11-libs/pango-1.14.0[X]
 	libnotify? ( >=x11-libs/libnotify-0.4 )
 	crypt? ( mailclient? ( >=app-crypt/gnupg-1.4 ) )
-	cups? ( net-print/cups[gnutls] )
-	vpx? ( media-libs/libvpx )
 	wifi? ( net-wireless/wireless-tools )"
+	#vpx? ( media-libs/libvpx )
 
 DEPEND="${RDEPEND}
 	=dev-lang/python-2*[threads]
@@ -131,13 +130,6 @@ pkg_setup() {
 		ewarn "Those belong to upstream: https://bugzilla.mozilla.org"
 	fi
 
-	if use ldap ; then
-		einfo "Please add EXTRA_ECONF=\"--enable-ldap --enable-ldap-experimental\""
-		einfo "to /etc/portage/env/www-client/seamonkey , soon as this is fixed upstream"
-		einfo "we will move back to a normal useflag experience. Thank You mozilla@gentoo.org"
-		epause 10
-	fi
-
 	# Ensure we always build with C locale.
 	export LANG="C"
 	export LC_ALL="C"
@@ -159,8 +151,8 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
-	epatch "${FILESDIR}"/2.1/${PN}-2.1b1-compile-fix.patch
 	#epatch "${FILESDIR}"/2.1/${PN}-2.1b1-system-libvpx.patch
+	epatch "${FILESDIR}"/2.1/${PN}-2.1b1-configure-fix.patch
 
 	if use crypt && use mailclient ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
@@ -233,15 +225,18 @@ src_configure() {
 	mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks
 	mozconfig_annotate '' --disable-installer
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
-	#mozconfig_annotate '' --disable-ctypes
+	mozconfig_annotate '' --enable-printing
 
 	# Enable/Disable based on USE flags
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
-	mozconfig_use_enable cups printing
 	mozconfig_use_enable libnotify
-	#mozconfig_use_enable ldap
-	#mozconfig_use_enable ldap ldap-experimental
+	mozconfig_use_enable ldap
+	mozconfig_use_enable ldap ldap-experimental
+	#if use ldap ; then
+	#	mozconfig_annotate 'ldap' --enable-ldap
+	#	mozconfig_annotate 'ldap' --enable-ldap-experimental
+	#fi
 	mozconfig_use_enable mailclient mailnews
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_enable vpx webm
@@ -272,6 +267,10 @@ src_configure() {
 
 	# Work around breakage in makeopts with --no-print-directory
 	MAKEOPTS="${MAKEOPTS/--no-print-directory/}"
+
+	cd "${S}"/directory/c-sdk || dir
+	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" PYTHON="$(PYTHON)" econf
+	cd "${S}" || die
 
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" PYTHON="$(PYTHON)" econf
 }
