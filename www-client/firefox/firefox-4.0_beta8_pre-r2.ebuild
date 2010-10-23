@@ -140,6 +140,8 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
+	epatch "${FILESDIR}"/sync-weavecrypto-js-nssfixup.patch
+
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
 
