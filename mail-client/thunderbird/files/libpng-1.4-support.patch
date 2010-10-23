@@ -1,0 +1,15 @@
+--- comm-1.9.2/mozilla/modules/libpr0n/encoders/png/nsPNGEncoder.cppa	2010-04-30 22:44:29.000000000 +0300
++++ comm-1.9.2/mozilla/modules/libpr0n/encoders/png/nsPNGEncoder.cpp	2010-05-07 18:23:12.563590173 +0300
+@@ -135,9 +135,9 @@ NS_IMETHODIMP nsPNGEncoder::StartImageEn
+
+   // initialize
+   mPNG = png_create_write_struct(PNG_LIBPNG_VER_STRING,
+-                                 png_voidp_NULL,
+-                                 ErrorCallback,
+-                                 ErrorCallback);
++                                 NULL,
++                                 NULL,
++                                 NULL);
+   if (! mPNG)
+     return NS_ERROR_OUT_OF_MEMORY;
+
