@@ -68,6 +68,7 @@ fi
 RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.7
 	>=dev-libs/nspr-4.8.6
+	>=media-libs/libpng-1.4.3
 	alsa? ( media-libs/alsa-lib )
 	system-sqlite? ( >=dev-db/sqlite-3.6.23.1-r1[fts3,secure-delete,unlock-notify] )
 	>=app-text/hunspell-1.2
@@ -208,6 +209,7 @@ src_configure() {
 	mozconfig_annotate '' --with-system-nspr
 	mozconfig_annotate '' --with-system-nss
 	mozconfig_annotate '' --with-system-bz2
+	mozconfig_annotate '' --with-system-png
 	mozconfig_annotate '' --enable-oji --enable-mathml
 	mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks
 	mozconfig_annotate '' --disable-installer
