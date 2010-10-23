@@ -68,7 +68,7 @@ fi
 RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.7
 	>=dev-libs/nspr-4.8.6
-	>=media-libs/libpng-1.4.3
+	>=media-libs/libpng-1.4.4[apng]
 	alsa? ( media-libs/alsa-lib )
 	system-sqlite? ( >=dev-db/sqlite-3.6.23.1-r1[fts3,secure-delete,unlock-notify] )
 	>=app-text/hunspell-1.2
