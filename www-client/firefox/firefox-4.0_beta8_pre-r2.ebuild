@@ -34,6 +34,7 @@ RDEPEND="
 	>=app-text/hunspell-1.2
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
+	media-libs/libpng[apng]
 	alsa? ( media-libs/alsa-lib )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
 	system-sqlite? ( >=dev-db/sqlite-3.7.0.1[fts3,secure-delete,unlock-notify] )
@@ -191,6 +192,7 @@ src_configure() {
 	mozconfig_annotate '' --with-system-nss --with-nss-prefix="${EPREFIX}"/usr
 	mozconfig_annotate '' --x-includes="${EPREFIX}"/usr/include	--x-libraries="${EPREFIX}"/usr/$(get_libdir)
 	mozconfig_annotate '' --with-system-bz2
+	mozconfig_annotate '' --with-system-png
 	mozconfig_annotate '' --with-system-libxul
 	mozconfig_annotate '' --with-libxul-sdk="${EPREFIX}"/usr/$(get_libdir)/xulrunner-devel-${MAJ_XUL_PV}
 

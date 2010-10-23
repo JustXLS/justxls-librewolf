@@ -34,6 +34,7 @@ RDEPEND="
 	>=x11-libs/cairo-1.10[X]
 	>=dev-libs/libevent-1.4.7
 	x11-libs/pango[X]
+	media-libs/libpng[apng]
 	x11-libs/libXt
 	x11-libs/pixman
 	alsa? ( media-libs/alsa-lib )
@@ -156,6 +157,7 @@ src_configure() {
 	mozconfig_annotate '' --x-includes="${EPREFIX}"/usr/include --x-libraries="${EPREFIX}"/usr/$(get_libdir)
 	mozconfig_annotate '' --with-system-bz2
 	mozconfig_annotate '' --with-system-libevent="${EPREFIX}"/usr
+	mozconfig_annotate '' --with-system-png
 
 	mozconfig_use_enable ipc # +ipc, upstream default
 	mozconfig_use_enable libnotify
