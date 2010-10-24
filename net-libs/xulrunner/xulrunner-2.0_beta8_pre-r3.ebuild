@@ -12,8 +12,8 @@ MAJ_FF_PV="4.0"
 FF_PV="${PV/${MAJ_XUL_PV}/${MAJ_FF_PV}}" # 3.7_alpha6, 3.6.3, etc.
 FF_PV="${FF_PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-CHANGESET="5176c8f2691e"
-PATCH="${PN}-2.0-patches-0.9"
+CHANGESET="de2d90ff2ac7"
+PATCH="${PN}-2.0-patches-1.0"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
@@ -37,6 +37,7 @@ RDEPEND="
 	media-libs/libpng[apng]
 	x11-libs/libXt
 	x11-libs/pixman
+	webm? ( media-libs/libvpx )
 	alsa? ( media-libs/alsa-lib )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
 	system-sqlite? ( >=dev-db/sqlite-3.7.0.1[fts3,secure-delete,unlock-notify] )
@@ -72,7 +73,6 @@ pkg_setup() {
 
 src_prepare() {
 	# Apply our patches
-	EPATCH_EXCLUDE="1003-fix-weavecrypto-to-searchpath.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
@@ -158,6 +158,9 @@ src_configure() {
 	mozconfig_annotate '' --with-system-bz2
 	mozconfig_annotate '' --with-system-libevent="${EPREFIX}"/usr
 	mozconfig_annotate '' --with-system-png
+	if use webm ; then
+		mozconfig_annotate '' --with-system-libvpx
+	fi
 
 	mozconfig_use_enable ipc # +ipc, upstream default
 	mozconfig_use_enable libnotify

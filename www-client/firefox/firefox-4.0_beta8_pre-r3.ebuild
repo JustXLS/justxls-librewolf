@@ -12,8 +12,8 @@ MAJ_FF_PV="$(get_version_component_range 1-2)" # 3.5, 3.6, 4.0, etc.
 XUL_PV="${MAJ_XUL_PV}${PV/${MAJ_FF_PV}/}" # 1.9.3_alpha6, 1.9.2.3, etc.
 FF_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-CHANGESET="5176c8f2691e"
-PATCH="${PN}-4.0-patches-0.4"
+CHANGESET="de2d90ff2ac7"
+PATCH="${PN}-4.0-patches-0.5"
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
@@ -35,6 +35,7 @@ RDEPEND="
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
 	media-libs/libpng[apng]
+	webm? ( media-libs/libvpx )
 	alsa? ( media-libs/alsa-lib )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
 	system-sqlite? ( >=dev-db/sqlite-3.7.0.1[fts3,secure-delete,unlock-notify] )
@@ -140,8 +141,6 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
-	epatch "${FILESDIR}"/sync-weavecrypto-js-nssfixup.patch
-
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
 
@@ -195,6 +194,9 @@ src_configure() {
 	mozconfig_annotate '' --x-includes="${EPREFIX}"/usr/include	--x-libraries="${EPREFIX}"/usr/$(get_libdir)
 	mozconfig_annotate '' --with-system-bz2
 	mozconfig_annotate '' --with-system-png
+	if use webm ; then
+		mozconfig_annotate '' --with-system-libvpx
+	fi
 	mozconfig_annotate '' --with-system-libxul
 	mozconfig_annotate '' --with-libxul-sdk="${EPREFIX}"/usr/$(get_libdir)/xulrunner-devel-${MAJ_XUL_PV}
 
