@@ -1,6 +1,6 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/mail-client/thunderbird/thunderbird-3.1.5.ebuild,v 1.4 2010/10/22 01:46:06 anarchy Exp $
+# $Header: /var/cvsroot/gentoo-x86/mail-client/thunderbird/thunderbird-3.1.6.ebuild,v 1.1 2010/10/28 15:40:01 polynomial-c Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
@@ -115,8 +115,9 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
-	epatch "${FILESDIR}"/bug-606109.patch
-	epatch "${FILESDIR}"/libpng-1.4-support.patch
+	epatch "${FILESDIR}/bug-606109.patch"
+	epatch "${FILESDIR}/xulrunner-1.9.2-gtk+-2.21.patch"
+	epatch "${FILESDIR}/libpng-1.4-support.patch"
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
@@ -156,7 +157,7 @@ src_configure() {
 	mozconfig_annotate '' --x-includes="${EPREFIX}"/usr/include --x-libraries="${EPREFIX}"/usr/$(get_libdir)
 	mozconfig_annotate 'broken' --disable-crashreporter
 	mozconfig_annotate '' --enable-system-hunspell
-	mozconfig_annotate '' --with-system-png
+	mozconfig_annotate '' --enable-system-png
 
 	# Use enable features
 	mozconfig_use_enable ldap
