@@ -12,7 +12,7 @@ MAJ_FF_PV="$(get_version_component_range 1-2)" # 3.5, 3.6, 4.0, etc.
 XUL_PV="${MAJ_XUL_PV}${PV/${MAJ_FF_PV}/}" # 1.9.3_alpha6, 1.9.2.3, etc.
 FF_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-CHANGESET="de2d90ff2ac7"
+CHANGESET="799a83ba5f86"
 PATCH="${PN}-4.0-patches-0.5"
 
 DESCRIPTION="Firefox Web Browser"
@@ -137,6 +137,7 @@ src_unpack() {
 
 src_prepare() {
 	# Apply our patches
+	EPATCH_EXCLUDE="1003-allow_weave_to_find_nss3.patch"
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"

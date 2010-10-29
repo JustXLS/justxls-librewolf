@@ -12,7 +12,7 @@ MAJ_FF_PV="4.0"
 FF_PV="${PV/${MAJ_XUL_PV}/${MAJ_FF_PV}}" # 3.7_alpha6, 3.6.3, etc.
 FF_PV="${FF_PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-CHANGESET="de2d90ff2ac7"
+CHANGESET="799a83ba5f86"
 PATCH="${PN}-2.0-patches-1.0"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
