@@ -2,6 +2,7 @@ pref("app.update.enabled", false);
 pref("app.update.autoInstallEnabled", false);
 pref("browser.display.use_system_colors",   true);
 pref("intl.locale.matchOS", true);
+pref("general.useragent.locale", "chrome://global/locale/intl.properties");
 pref("mail.shell.checkDefaultClient", false);
 
 # Do not switch to Smart Folders after upgrade to 3.0b4

@@ -10,5 +10,5 @@ pref("browser.urlbar.hideGoButton",        true);
 pref("accessibility.typeaheadfind",        true);
 pref("browser.shell.checkDefaultBrowser",  false); 
 pref("browser.EULA.override",              true); 
-pref("general.useragent.vendor", "Gentoo");
 pref("intl.locale.matchOS", true);
+pref("general.useragent.locale", "chrome://global/locale/intl.properties");
