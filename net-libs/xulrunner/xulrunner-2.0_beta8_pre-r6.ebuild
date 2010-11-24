@@ -12,7 +12,7 @@ MAJ_FF_PV="4.0"
 FF_PV="${PV/${MAJ_XUL_PV}/${MAJ_FF_PV}}" # 3.7_alpha6, 3.6.3, etc.
 FF_PV="${FF_PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-CHANGESET="88c3e3c42550"
+CHANGESET="597e4c5ded14"
 PATCH="${PN}-2.0-patches-1.1"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
@@ -187,6 +187,9 @@ src_configure() {
 		mozconfig_annotate 'debug' --enable-debug-modules=all
 		mozconfig_annotate 'debug' --enable-debugger-info-modules
 	fi
+
+	# omni.jar breaks ff on xr
+	mozconfig_annotate '' --enable-chrome-format=jar
 
 	# Finalize and report settings
 	mozconfig_final
