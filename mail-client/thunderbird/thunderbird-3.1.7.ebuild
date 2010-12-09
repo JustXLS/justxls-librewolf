@@ -23,7 +23,7 @@ KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd ~amd64-linu
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="+alsa ldap +crypt bindist libnotify +lightning mozdom system-sqlite wifi"
-PATCH="${PN}-3.1-patches-1.1"
+PATCH="${PN}-3.1-patches-1.2"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases"
 SRC_URI="${REL_URI}/${MY_PV}/source/${MY_P}.source.tar.bz2
@@ -116,7 +116,6 @@ src_prepare() {
 	epatch "${WORKDIR}"
 
 	epatch "${FILESDIR}/bug-606109.patch"
-	epatch "${FILESDIR}/xulrunner-1.9.2-gtk+-2.21.patch"
 	epatch "${FILESDIR}/libpng-1.4-support.patch"
 
 	# Allow user to apply any additional patches without modifing ebuild
