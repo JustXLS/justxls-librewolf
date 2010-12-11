@@ -117,6 +117,7 @@ src_prepare() {
 
 	epatch "${FILESDIR}/bug-606109.patch"
 	epatch "${FILESDIR}/libpng-1.4-support.patch"
+	epatch "${FILESDIR}/${PN}-respect-ldflags.patch"
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
