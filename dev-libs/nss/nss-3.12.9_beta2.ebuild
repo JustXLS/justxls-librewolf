@@ -1,27 +1,24 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/nss/nss-3.12.7.ebuild,v 1.1 2010/08/07 01:31:03 anarchy Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/nss/nss-3.12.8.ebuild,v 1.8 2010/10/31 12:01:04 armin76 Exp $
 
 EAPI=3
 inherit eutils flag-o-matic multilib toolchain-funcs
 
-NSPR_VER="4.8.3-r2"
+NSPR_VER="4.8.6"
 RTM_NAME="NSS_${PV//./_}_RTM"
 DESCRIPTION="Mozilla's Network Security Services library that implements PKI support"
 HOMEPAGE="http://www.mozilla.org/projects/security/pki/nss/"
-SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/firefox/${P}.tar.bz2"
-# SRC_URI="ftp://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/${RTM_NAME}/src/${P}.tar.gz"
+SRC_URI="http://dev.gentoo.org/~anarchy/dist/${P}.tar.bz2"
 
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd ~amd64-linux ~x86-linux ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 sparc x86 ~x86-fbsd ~amd64-linux ~x86-linux ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
 IUSE="utils"
 
 DEPEND="dev-util/pkgconfig"
 RDEPEND=">=dev-libs/nspr-${NSPR_VER}
 	>=dev-db/sqlite-3.5"
-
-S="${WORKDIR}/${PN}-3.12.8"
 
 src_prepare() {
 	# Custom changes for gentoo
