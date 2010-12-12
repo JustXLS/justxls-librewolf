@@ -10,7 +10,7 @@ MIN_PV="$(get_version_component_range 2)"
 
 DESCRIPTION="Netscape Portable Runtime"
 HOMEPAGE="http://www.mozilla.org/projects/nspr/"
-SRC_URI="ftp://ftp.mozilla.org/pub/mozilla.org/nspr/releases/v${PV}/src/${P}.tar.gz"
+SRC_URI="http://dev.gentoo.org/~anarchy/dist/${P}.tar.bz2"
 
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 SLOT="0"
@@ -27,7 +27,7 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-4.7.1-solaris.patch
 	epatch "${FILESDIR}"/${PN}-4.7.4-solaris.patch
 	epatch "${FILESDIR}"/${PN}-4.8.3-aix-gcc.patch
-	epatch "${FILESDIR}"/${PN}-4.8.3-aix-soname.patch
+	#epatch "${FILESDIR}"/${PN}-4.8.3-aix-soname.patch
 	epatch "${FILESDIR}"/${PN}-4.8.4-darwin-install_name.patch
 	# make sure it won't find Perl out of Prefix
 	sed -i -e "s/perl5//g" mozilla/nsprpub/configure || die
