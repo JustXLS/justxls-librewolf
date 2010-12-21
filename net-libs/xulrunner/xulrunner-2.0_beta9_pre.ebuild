@@ -40,7 +40,7 @@ RDEPEND="
 	webm? ( media-libs/libvpx )
 	alsa? ( media-libs/alsa-lib )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
-	system-sqlite? ( >=dev-db/sqlite-3.7.0.1[fts3,secure-delete,unlock-notify] )
+	system-sqlite? ( >=dev-db/sqlite-3.7.3[fts3,secure-delete,unlock-notify] )
 	wifi? ( net-wireless/wireless-tools )
 	!www-plugins/weave"
 
