@@ -12,7 +12,7 @@ MAJ_FF_PV="4.0"
 FF_PV="${PV/${MAJ_XUL_PV}/${MAJ_FF_PV}}" # 3.7_alpha6, 3.6.3, etc.
 FF_PV="${FF_PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-CHANGESET="25d77f95d92c"
+CHANGESET="ed37d1bcaea4"
 PATCH="${PN}-2.0-patches-1.1"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
@@ -28,8 +28,8 @@ SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.8_beta1
-	>=dev-libs/nspr-4.8.5
+	>=dev-libs/nss-3.12.9_beta2
+	>=dev-libs/nspr-4.8.7_beta2
 	>=app-text/hunspell-1.2
 	>=x11-libs/cairo-1.10[X]
 	>=dev-libs/libevent-1.4.7
