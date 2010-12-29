@@ -17,7 +17,8 @@ SLOT="0"
 KEYWORDS="alpha amd64 ~arm hppa ppc ppc64 sparc x86 ~x86-fbsd"
 IUSE="threadsafe"
 
-S="${WORKDIR}/mozilla-1.9.2/js/src"
+S="${WORKDIR}/mozilla-1.9.2"
+BUILDDIR="${S}/js/src"
 
 RDEPEND="threadsafe? ( >=dev-libs/nspr-4.8.6 )"
 
@@ -31,14 +32,21 @@ pkg_setup(){
 
 src_prepare() {
 	unpack ${A}
+
+	epatch "${FILESDIR}/${PN}-1.9.2.13-as-needed.patch"
+
+	epatch_user
+
 	cd "${S}"
 	if [[ ${CHOST} == *-freebsd* ]]; then
 		# Don't try to be smart, this does not work in cross-compile anyway
-		ln -s "${S}/config/Linux_All.mk" "${S}/config/$(uname -s)$(uname -r).mk"
+		ln -s "${BUILDDIR}/config/Linux_All.mk" "${S}/config/$(uname -s)$(uname -r).mk"
 	fi
 }
 
 src_configure() {
+	cd ${BUILDDIR}
+
 	local myconf
 
 	if use threadsafe ; then
@@ -53,10 +61,12 @@ src_configure() {
 }
 
 src_compile() {
-	emake -j1 || die "emake without threadsafe enabled failed";
+	cd ${BUILDDIR}
+	emake -j1 || die "emake failed";
 }
 
 src_install() {
+	cd ${BUILDDIR}
 	emake install DESTDIR="${D}" || die
 	dodoc ../jsd/README
 	dohtml README.html
