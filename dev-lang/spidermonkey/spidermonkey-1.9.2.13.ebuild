@@ -23,6 +23,7 @@ BUILDDIR="${S}/js/src"
 RDEPEND="threadsafe? ( >=dev-libs/nspr-4.8.6 )"
 
 DEPEND="${RDEPEND}
+	app-arch/zip
 	=dev-lang/python-2*[threads]
 	dev-util/pkgconfig"
 
