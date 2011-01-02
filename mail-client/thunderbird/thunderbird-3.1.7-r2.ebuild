@@ -116,6 +116,7 @@ src_prepare() {
 	epatch "${WORKDIR}"
 
 	epatch "${FILESDIR}/bug-606109.patch"
+	epatch "${FILESDIR}/cups-1.4.4-fixup.patch"
 	epatch "${FILESDIR}/libpng-1.4-support.patch"
 	epatch "${FILESDIR}/${PN}-respect-ldflags.patch"
 
