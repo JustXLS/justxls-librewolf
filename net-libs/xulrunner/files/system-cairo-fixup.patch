@@ -1,7 +1,16 @@
+work around new features that are not avaliable in system-cairo on linux 
+(romaxa's patch with modification for return failure with <gcc-4.5)
+
 diff --git a/gfx/thebes/gfxASurface.cpp b/gfx/thebes/gfxASurface.cpp
 --- a/gfx/thebes/gfxASurface.cpp
 +++ b/gfx/thebes/gfxASurface.cpp
-@@ -222,7 +222,9 @@ gfxASurface::Init(cairo_surface_t* surfa
+@@ -216,19 +216,21 @@ gfxASurface::Init(cairo_surface_t* surfa
+ 
+     mSurface = surface;
+     mSurfaceValid = PR_TRUE;
+ 
+     if (existingSurface) {
+         mFloatingRefs = 0;
      } else {
          mFloatingRefs = 1;
 +#ifdef MOZ_TREE_CAIRO
@@ -11,7 +20,19 @@ diff --git a/gfx/thebes/gfxASurface.cpp b/gfx/thebes/gfxASurface.cpp
 +#endif
      }
  }
-@@ -438,6 +440,8 @@ gfxASurface::SetSubpixelAntialiasingEnab
+ 
+ gfxASurface::gfxSurfaceType
+ gfxASurface::GetType() const
+ {
+     if (!mSurfaceValid)
+         return (gfxSurfaceType)-1;
+@@ -432,26 +434,32 @@ gfxASurface::FormatFromContent(gfxASurfa
+     }
+ }
+ 
+ void
+ gfxASurface::SetSubpixelAntialiasingEnabled(PRBool aEnabled)
+ {
      if (!mSurfaceValid)
          return;
 +#ifdef MOZ_TREE_CAIRO
@@ -20,7 +41,9 @@ diff --git a/gfx/thebes/gfxASurface.cpp b/gfx/thebes/gfxASurface.cpp
 +#endif
  }
  
-@@ -447,5 +451,9 @@ gfxASurface::GetSubpixelAntialiasingEnab
+ PRBool
+ gfxASurface::GetSubpixelAntialiasingEnabled()
+ {
      if (!mSurfaceValid)
        return PR_FALSE;
 +#ifdef MOZ_TREE_CAIRO
@@ -30,39 +53,64 @@ diff --git a/gfx/thebes/gfxASurface.cpp b/gfx/thebes/gfxASurface.cpp
 +#endif
  }
  
+ PRInt32
+ gfxASurface::BytePerPixelFromFormat(gfxImageFormat format)
+ {
+     switch (format) {
+         case ImageFormatARGB32:
+         case ImageFormatRGB24:
 diff --git a/gfx/thebes/gfxTeeSurface.cpp b/gfx/thebes/gfxTeeSurface.cpp
 --- a/gfx/thebes/gfxTeeSurface.cpp
 +++ b/gfx/thebes/gfxTeeSurface.cpp
-@@ -47,4 +47,5 @@ gfxTeeSurface::gfxTeeSurface(cairo_surfa
+@@ -41,37 +41,46 @@
+ 
+ gfxTeeSurface::gfxTeeSurface(cairo_surface_t *csurf)
+ {
+     Init(csurf, PR_TRUE);
+ }
+ 
  gfxTeeSurface::gfxTeeSurface(gfxASurface **aSurfaces, PRInt32 aSurfaceCount)
  {
 +#ifdef MOZ_TREE_CAIRO
      NS_ASSERTION(aSurfaceCount > 0, "Must have a least one surface");
      cairo_surface_t *csurf = cairo_tee_surface_create(aSurfaces[0]->CairoSurface());
-@@ -54,4 +55,5 @@ gfxTeeSurface::gfxTeeSurface(gfxASurface
+     Init(csurf, PR_FALSE);
+ 
+     for (PRInt32 i = 1; i < aSurfaceCount; ++i) {
          cairo_tee_surface_add(csurf, aSurfaces[i]->CairoSurface());
      }
 +#endif
  }
  
-@@ -59,6 +61,8 @@ const gfxIntSize
- gfxTeeSurface::GetSize() const
- {
-+#ifdef MOZ_TREE_CAIRO
-     nsRefPtr<gfxASurface> master = Wrap(cairo_tee_surface_index(mSurface, 0));
-     return master->GetSize();
-+#endif
+-const gfxIntSize
+-gfxTeeSurface::GetSize() const
+-{
+-    nsRefPtr<gfxASurface> master = Wrap(cairo_tee_surface_index(mSurface, 0));
+-    return master->GetSize();
++const gfxIntSize                                                                
++gfxTeeSurface::GetSize() const                                                  
++{                                                                               
++#ifdef MOZ_TREE_CAIRO                                                           
++    nsRefPtr<gfxASurface> master = Wrap(cairo_tee_surface_index(mSurface, 0));  
++    return master->GetSize();                                                   
++#else                                                                           
++    gfxIntSize a;                                                               
++    return a;                                                                   
++#endif                                                                          
  }
  
-@@ -66,4 +70,5 @@ void
+ void
  gfxTeeSurface::GetSurfaces(nsTArray<nsRefPtr<gfxASurface> >* aSurfaces)
  {
 +#ifdef MOZ_TREE_CAIRO
      for (PRInt32 i = 0; ; ++i) {
          cairo_surface_t *csurf = cairo_tee_surface_index(mSurface, i);
-@@ -75,3 +80,4 @@ gfxTeeSurface::GetSurfaces(nsTArray<nsRe
+         if (cairo_surface_status(csurf))
+             break;
+         nsRefPtr<gfxASurface> *elem = aSurfaces->AppendElement();
+         if (!elem)
+             return;
          *elem = Wrap(csurf);
      }
 +#endif
  }
-
