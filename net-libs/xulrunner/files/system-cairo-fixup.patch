@@ -1,6 +1,27 @@
-work around new features that are not avaliable in system-cairo on linux 
-(romaxa's patch with modification for return failure with <gcc-4.5)
+work around new features that are not avaliable in system-cairo on linux
+(romaxa's original patch with modifications to use cairo-tee)
 
+diff --git a/config/system-headers b/config/system-headers
+--- a/config/system-headers
++++ b/config/system-headers
+@@ -81,16 +81,17 @@ pixman.h
+ cairo.h
+ cairo-atsui.h
+ cairo-beos.h
+ cairo-ft.h
+ cairo-glitz.h
+ cairo-os2.h
+ cairo-pdf.h
+ cairo-ps.h
++cairo-tee.h
+ cairo-quartz.h
+ cairo-win32.h
+ cairo-xlib.h
+ cairo-xlib-xrender.h
+ cairo-directfb.h
+ cairo-qpainter.h
+ #endif
+ dfiff.h
 diff --git a/gfx/thebes/gfxASurface.cpp b/gfx/thebes/gfxASurface.cpp
 --- a/gfx/thebes/gfxASurface.cpp
 +++ b/gfx/thebes/gfxASurface.cpp
@@ -49,7 +70,7 @@ diff --git a/gfx/thebes/gfxASurface.cpp b/gfx/thebes/gfxASurface.cpp
 +#ifdef MOZ_TREE_CAIRO
      return cairo_surface_get_subpixel_antialiasing(mSurface) == CAIRO_SUBPIXEL_ANTIALIASING_ENABLED;
 +#else
-+    return PR_FALSE;
++    return PR_TRUE;
 +#endif
  }
  
@@ -62,7 +83,20 @@ diff --git a/gfx/thebes/gfxASurface.cpp b/gfx/thebes/gfxASurface.cpp
 diff --git a/gfx/thebes/gfxTeeSurface.cpp b/gfx/thebes/gfxTeeSurface.cpp
 --- a/gfx/thebes/gfxTeeSurface.cpp
 +++ b/gfx/thebes/gfxTeeSurface.cpp
-@@ -41,37 +41,46 @@
+@@ -32,17 +32,21 @@
+  * and other provisions required by the GPL or the LGPL. If you do not delete
+  * the provisions above, a recipient may use your version of this file under
+  * the terms of any one of the MPL, the GPL or the LGPL.
+  *
+  * ***** END LICENSE BLOCK ***** */
+ 
+ #include "gfxTeeSurface.h"
+ 
++#ifdef MOZ_TREE_CAIRO
+ #include "cairo.h"
++#else
++#include "cairo-tee.h"
++#endif
  
  gfxTeeSurface::gfxTeeSurface(cairo_surface_t *csurf)
  {
@@ -71,46 +105,24 @@ diff --git a/gfx/thebes/gfxTeeSurface.cpp b/gfx/thebes/gfxTeeSurface.cpp
  
  gfxTeeSurface::gfxTeeSurface(gfxASurface **aSurfaces, PRInt32 aSurfaceCount)
  {
-+#ifdef MOZ_TREE_CAIRO
-     NS_ASSERTION(aSurfaceCount > 0, "Must have a least one surface");
-     cairo_surface_t *csurf = cairo_tee_surface_create(aSurfaces[0]->CairoSurface());
-     Init(csurf, PR_FALSE);
- 
-     for (PRInt32 i = 1; i < aSurfaceCount; ++i) {
-         cairo_tee_surface_add(csurf, aSurfaces[i]->CairoSurface());
-     }
-+#endif
- }
- 
--const gfxIntSize
--gfxTeeSurface::GetSize() const
--{
--    nsRefPtr<gfxASurface> master = Wrap(cairo_tee_surface_index(mSurface, 0));
--    return master->GetSize();
-+const gfxIntSize                                                                
-+gfxTeeSurface::GetSize() const                                                  
-+{                                                                               
-+#ifdef MOZ_TREE_CAIRO                                                           
-+    nsRefPtr<gfxASurface> master = Wrap(cairo_tee_surface_index(mSurface, 0));  
-+    return master->GetSize();                                                   
-+#else                                                                           
-+    gfxIntSize a;                                                               
-+    return a;                                                                   
-+#endif                                                                          
- }
- 
- void
- gfxTeeSurface::GetSurfaces(nsTArray<nsRefPtr<gfxASurface> >* aSurfaces)
- {
-+#ifdef MOZ_TREE_CAIRO
-     for (PRInt32 i = 0; ; ++i) {
-         cairo_surface_t *csurf = cairo_tee_surface_index(mSurface, i);
-         if (cairo_surface_status(csurf))
-             break;
-         nsRefPtr<gfxASurface> *elem = aSurfaces->AppendElement();
-         if (!elem)
-             return;
-         *elem = Wrap(csurf);
-     }
-+#endif
- }
+diff --git a/js/src/config/system-headers b/js/src/config/system-headers
+--- a/js/src/config/system-headers
++++ b/js/src/config/system-headers
+@@ -82,16 +82,17 @@ cairo.h
+ cairo-atsui.h
+ cairo-beos.h
+ cairo-ft.h
+ cairo-glitz.h
+ cairo-os2.h
+ cairo-pdf.h
+ cairo-ps.h
+ cairo-quartz.h
++cairo-tee.h
+ cairo-win32.h
+ cairo-xlib.h
+ cairo-xlib-xrender.h
+ cairo-directfb.h
+ cairo-qpainter.h
+ #endif
+ dfiff.h
+ exception
