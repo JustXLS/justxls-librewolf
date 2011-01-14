@@ -31,7 +31,7 @@ RDEPEND="
 	>=dev-libs/nss-3.12.9_beta2
 	>=dev-libs/nspr-4.8.7_beta2
 	>=app-text/hunspell-1.2
-	>=x11-libs/cairo-1.10.2[X,tee]
+	>=x11-libs/cairo-1.10.2[X]
 	>=dev-libs/libevent-1.4.7
 	x11-libs/pango[X]
 	media-libs/libpng[apng]
