@@ -47,16 +47,18 @@ diff --git a/gfx/thebes/gfxASurface.cpp b/gfx/thebes/gfxASurface.cpp
  {
      if (!mSurfaceValid)
          return (gfxSurfaceType)-1;
-@@ -432,26 +434,32 @@ gfxASurface::FormatFromContent(gfxASurfa
+@@ -430,28 +432,34 @@ gfxASurface::FormatFromContent(gfxASurfa
+         default:
+             return ImageFormatRGB24;
      }
  }
  
  void
  gfxASurface::SetSubpixelAntialiasingEnabled(PRBool aEnabled)
  {
++#ifdef MOZ_TREE_CAIRO
      if (!mSurfaceValid)
          return;
-+#ifdef MOZ_TREE_CAIRO
      cairo_surface_set_subpixel_antialiasing(mSurface,
          aEnabled ? CAIRO_SUBPIXEL_ANTIALIASING_ENABLED : CAIRO_SUBPIXEL_ANTIALIASING_DISABLED);
 +#endif
@@ -83,7 +85,7 @@ diff --git a/gfx/thebes/gfxASurface.cpp b/gfx/thebes/gfxASurface.cpp
 diff --git a/gfx/thebes/gfxTeeSurface.cpp b/gfx/thebes/gfxTeeSurface.cpp
 --- a/gfx/thebes/gfxTeeSurface.cpp
 +++ b/gfx/thebes/gfxTeeSurface.cpp
-@@ -32,17 +32,21 @@
+@@ -32,17 +32,24 @@
   * and other provisions required by the GPL or the LGPL. If you do not delete
   * the provisions above, a recipient may use your version of this file under
   * the terms of any one of the MPL, the GPL or the LGPL.
@@ -92,6 +94,9 @@ diff --git a/gfx/thebes/gfxTeeSurface.cpp b/gfx/thebes/gfxTeeSurface.cpp
  
  #include "gfxTeeSurface.h"
  
++/* Once cairo in tree is update ensure we remove the ifdef
++    and just include cairo-tee.h
++*/
 +#ifdef MOZ_TREE_CAIRO
  #include "cairo.h"
 +#else
