@@ -12,7 +12,7 @@ MAJ_FF_PV="$(get_version_component_range 1-2)" # 3.5, 3.6, 4.0, etc.
 XUL_PV="${MAJ_XUL_PV}${PV/${MAJ_FF_PV}/}" # 1.9.3_alpha6, 1.9.2.3, etc.
 FF_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
-CHANGESET="906f834203ff"
+CHANGESET="9c32afba1189"
 PATCH="${PN}-4.0-patches-0.6"
 
 DESCRIPTION="Firefox Web Browser"
@@ -29,8 +29,8 @@ SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.9_beta2
-	>=dev-libs/nspr-4.8.7_beta2
+	>=dev-libs/nss-3.12.9
+	>=dev-libs/nspr-4.8.7
 	>=app-text/hunspell-1.2
 	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
