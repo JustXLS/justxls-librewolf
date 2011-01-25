@@ -1,0 +1,74 @@
+--- enigmail/ipc/Makefile.in
++++ enigmail/ipc/Makefile.in
+@@ -34,7 +34,7 @@
+ # ***** END LICENSE BLOCK *****
+ 
+ 
+-DEPTH		= ../..
++DEPTH		= ../../../..
+ topsrcdir	= @top_srcdir@
+ srcdir		= @srcdir@
+ VPATH		= @srcdir@
+--- enigmail/ipc/public/Makefile.in
++++ enigmail/ipc/public/Makefile.in
+@@ -34,7 +34,7 @@
+ # ***** END LICENSE BLOCK *****
+ 
+ 
+-DEPTH		= ../../..
++DEPTH		= ../../../../..
+ topsrcdir	= @top_srcdir@
+ srcdir		= @srcdir@
+ VPATH		= @srcdir@
+--- enigmail/ipc/src/Makefile.in
++++ enigmail/ipc/src/Makefile.in
+@@ -34,7 +34,7 @@
+ # ***** END LICENSE BLOCK *****
+ 
+ 
+-DEPTH		= ../../..
++DEPTH		= ../../../../..
+ topsrcdir	= @top_srcdir@
+ srcdir		= @srcdir@
+ VPATH		= @srcdir@
+--- enigmail/ipc/build/Makefile.in
++++ enigmail/ipc/build/Makefile.in
+@@ -34,7 +34,7 @@
+ # ***** END LICENSE BLOCK *****
+ 
+ 
+-DEPTH		= ../../..
++DEPTH		= ../../../../..
+ topsrcdir	= @top_srcdir@
+ srcdir		= @srcdir@
+ VPATH		= @srcdir@
+--- enigmail/ipc/modules/Makefile.in
++++ enigmail/ipc/modules/Makefile.in
+@@ -38,7 +38,7 @@
+ 
+ # Specify these as parameters to the make command
+ 
+-DEPTH		= ../../..
++DEPTH		= ../../../../..
+ topsrcdir	= @top_srcdir@
+ srcdir		= @srcdir@
+ VPATH		= @srcdir@
+--- enigmail/ipc/tests/Makefile.in
++++ enigmail/ipc/tests/Makefile.in
+@@ -34,7 +34,7 @@
+ # ***** END LICENSE BLOCK *****
+ 
+ 
+-DEPTH           = ../../..
++DEPTH           = ../../../../..
+ topsrcdir       = @top_srcdir@
+ srcdir          = @srcdir@
+ VPATH           = @srcdir@
+--- enigmail/lang/current-languages.txt
++++ enigmail/lang/current-languages.txt
+@@ -1,5 +1,4 @@
+ ar
+-bg-BG
+ ca
+ cs-CZ
+ de-AT

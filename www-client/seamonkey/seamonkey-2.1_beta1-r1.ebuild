@@ -45,7 +45,7 @@ IUSE="+alsa +chatzilla +composer +crypt libnotify ldap +mailclient +roaming syst
 
 SRC_URI="${REL_URI}/source/${MY_P}.source.tar.bz2
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.bz2
-	crypt? ( mailclient? ( http://dev.gentoo.org/~polynomial-c/mozilla/enigmail-${EMVER}-20101020.tar.bz2 ) )"
+	crypt? ( mailclient? ( http://dev.gentoo.org/~polynomial-c/mozilla/enigmail-${EMVER}-20110124.tar.bz2 ) )"
 
 if ${HAS_LANGS} ; then
 	for X in ${LANGS} ; do
@@ -155,12 +155,14 @@ src_prepare() {
 	#epatch "${FILESDIR}"/2.1/${PN}-2.1b1-system-libvpx.patch
 	epatch "${FILESDIR}"/2.1/${PN}-2.1b1-configure-fix.patch
 	epatch "${FILESDIR}"/2.1/${PN}-2.1b1-bug607222.patch
+	#epatch "${FILESDIR}"/2.1/${PN}-2.1b1-bug484968.scrolltabs.02.diff
 
 	if use crypt && use mailclient ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
 		cd "${S}"/mailnews/extensions/enigmail || die
-		epatch "${FILESDIR}"/enigmail/70_enigmail-fix.patch
 		epatch "${FILESDIR}"/enigmail/enigmail-1.1.2-seamonkey-2.1b1-versionfix.patch
+		epatch "${FILESDIR}"/enigmail/enigmail-1.1.2-20110124-makefile.diff
+		eautomake
 		makemake2
 		cd "${S}"
 	fi
