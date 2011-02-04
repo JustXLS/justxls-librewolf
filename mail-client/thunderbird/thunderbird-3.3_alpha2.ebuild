@@ -15,6 +15,7 @@ inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozext
 
 MY_PV="${PV/_alpha/a}"
 MY_P="${P/_alpha/a}"
+EMVER="1.1.2"
 
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
@@ -26,7 +27,8 @@ IUSE="+alsa +crypt bindist libnotify +lightning mozdom system-sqlite wifi"
 #PATCH="${PN}-3.1-patches-1.2"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases"
-SRC_URI="${REL_URI}/${MY_PV}/source/${MY_P}.source.tar.bz2"
+SRC_URI="${REL_URI}/${MY_PV}/source/${MY_P}.source.tar.bz2
+	crypt? ( http://dev.gentoo.org/~polynomial-c/mozilla/enigmail-${EMVER}-20110124.tar.bz2 )"
 #	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
 #for X in ${LANGS} ; do
@@ -56,9 +58,16 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	libnotify? ( >=x11-libs/libnotify-0.4 )
 	system-sqlite? ( >=dev-db/sqlite-3.7.4[fts3,secure-delete,unlock-notify] )
 	wifi? ( net-wireless/wireless-tools )
-	!x11-plugins/lightning"
-
-PDEPEND="crypt? ( >=x11-plugins/enigmail-1.1 )"
+	!x11-plugins/lightning
+	crypt?  ( || (
+		( >=app-crypt/gnupg-2.0
+			|| (
+				app-crypt/pinentry[gtk]
+				app-crypt/pinentry[qt4]
+			)
+		)
+		=app-crypt/gnupg-1.4*
+	) )"
 
 S="${WORKDIR}"/comm-central
 
@@ -114,6 +123,16 @@ src_prepare() {
 	epatch "${FILESDIR}/2000-thunderbird_gentoo_install_dirs.patch"
 	epatch "${FILESDIR}/system-cairo-fixup.patch"
 
+	if use crypt ; then
+		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
+		cd "${S}"/mailnews/extensions/enigmail || die
+		epatch "${FILESDIR}"/enigmail-1.1.2-20110124-locale-fixup.diff
+		cd enigmail
+		./makemake -r
+		sed -i -e 's:@srcdir@:${S}/mailnews/extensions/enigmail:' Makefile.in
+		cd "${S}"
+	fi
+
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
 
@@ -142,6 +161,10 @@ src_configure() {
 	# It doesn't compile on alpha without this LDFLAGS
 	use alpha && append-ldflags "-Wl,--no-relax"
 
+	if use crypt ; then
+		# omni.jar breaks enigmail 
+		mozconfig_annotate '' --enable-chrome-format=jar
+	fi
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 	mozconfig_annotate '' --enable-application=mail
 	mozconfig_annotate '' --with-default-mozilla-five-home="${EPREFIX}${MOZILLA_FIVE_HOME}"
@@ -193,12 +216,28 @@ src_compile() {
 	# Should the build use multiprocessing? Not enabled by default, as it tends to break
 	[ "${WANT_MP}" = "true" ] && jobs=${MAKEOPTS} || jobs="-j1"
 	emake ${jobs} || die
+
+	# Only build enigmail extension if crypt enabled.
+	if use crypt ; then
+		emake -C "${S}"/mailnews/extensions/enigmail || die "make enigmail failed"
+		emake -C "${S}"/mailnews/extensions/enigmail xpi || die "make enigmail xpi failed"
+	fi
 }
 
 src_install() {
 	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 
 	emake DESTDIR="${D}" install || die "emake install failed"
+
+	if use crypt ; then
+		cd "${T}" || die
+		unzip "${S}"/mozilla/dist/bin/enigmail*.xpi install.rdf || die
+		emid=$(sed -n '/<em:id>/!d; s/.*\({.*}\).*/\1/; p; q' install.rdf)
+
+		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid} || die
+		cd "${D}"${MOZILLA_FIVE_HOME}/extensions/${emid} || die
+		unzip "${S}"/mozilla/dist/bin/enigmail*.xpi || die
+	fi
 
 	if use lightning ; then
 		declare emid emd1 emid2
