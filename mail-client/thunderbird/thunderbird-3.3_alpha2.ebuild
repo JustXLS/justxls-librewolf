@@ -59,6 +59,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	system-sqlite? ( >=dev-db/sqlite-3.7.4[fts3,secure-delete,unlock-notify] )
 	wifi? ( net-wireless/wireless-tools )
 	!x11-plugins/lightning
+	!x11-plugins/enigmail
 	crypt?  ( || (
 		( >=app-crypt/gnupg-2.0
 			|| (
@@ -277,9 +278,6 @@ src_install() {
 	fi
 
 	pax-mark m "${ED}"/${MOZILLA_FIVE_HOME}/thunderbird-bin
-
-	# Warn user that remerging enigmail is neccessary on USE=crypt
-	use crypt && ewarn "Please remerge x11-plugins/enigmail after updating ${PN}."
 
 	# Enable very specific settings for thunderbird-3
 	cp "${FILESDIR}"/thunderbird-gentoo-default-prefs-1.js \
