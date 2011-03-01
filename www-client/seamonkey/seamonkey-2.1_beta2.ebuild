@@ -158,6 +158,9 @@ src_prepare() {
 	epatch "${FILESDIR}"/2.1/${PN}-2.1b1-configure-fix.patch
 	epatch "${FILESDIR}"/2.1/${PN}-2.1b2-system-cairo-fixup.patch
 	epatch "${FILESDIR}"/2.1/${PN}-libnotify07.patch
+	if has_version \>=media-libs/libpng-1.5.0 ; then
+		epatch "${FILESDIR}"/2.1/xulrunner-libpng15.diff
+	fi
 
 	if use crypt && use mailclient ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
