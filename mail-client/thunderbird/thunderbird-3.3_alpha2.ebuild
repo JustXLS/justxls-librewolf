@@ -5,7 +5,7 @@
 EAPI="3"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozextension autotools pax-utils
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozextension autotools pax-utils python
 
 # This list can be updated using get_langs.sh from the mozilla overlay
 #LANGS="af ar be bg bn-BD ca cs da de el en en-GB en-US es-AR es-ES et eu fi fr \
@@ -70,6 +70,9 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 		=app-crypt/gnupg-1.4*
 	) )"
 
+DEPEND="${RDEPEND}
+	=dev-lang/python-2*[threads]"
+
 S="${WORKDIR}"/comm-central
 
 #linguas() {
@@ -104,6 +107,8 @@ pkg_setup() {
 		elog "a legal problem with Mozilla Foundation"
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
+
+	python_set_active_version 2
 }
 
 src_unpack() {
