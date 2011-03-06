@@ -21,7 +21,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~ia64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa bindist +ipc libnotify system-sqlite +webm wifi"
+IUSE=""
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 # More URIs appended below...
@@ -31,15 +31,8 @@ RDEPEND="
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.9
 	>=dev-libs/nspr-4.8.7
-	>=app-text/hunspell-1.2
-	>=x11-libs/cairo-1.8.8[X]
 	x11-libs/pango[X]
 	media-libs/libpng[apng]
-	webm? ( media-libs/libvpx )
-	alsa? ( media-libs/alsa-lib )
-	libnotify? ( >=x11-libs/libnotify-0.4 )
-	system-sqlite? ( >=dev-db/sqlite-3.7.4[fts3,secure-delete,unlock-notify] )
-	wifi? ( net-wireless/wireless-tools )
 	~net-libs/xulrunner-${XUL_PV}[wifi=,libnotify=,system-sqlite=,webm=]"
 
 DEPEND="${RDEPEND}
@@ -108,11 +101,7 @@ linguas() {
 }
 
 pkg_setup() {
-	# Ensure we always build with C locale.
-	export LANG="C"
-	export LC_ALL="C"
-	export LC_MESSAGES="C"
-	export LC_CTYPE="C"
+	moz_pkgsetup
 
 	if ! use bindist ; then
 		einfo
@@ -121,8 +110,6 @@ pkg_setup() {
 		elog "a legal problem with Mozilla Foundation"
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
-
-	python_set_active_version 2
 }
 
 src_unpack() {
@@ -143,6 +130,10 @@ src_prepare() {
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
+
+	# Disable gnomevfs extension
+	sed -i -e "s:gnomevfs::" "${S}/"browser/confvars.sh \
+		|| die "Failed to remove gnomevfs extension"
 
 	eautoreconf
 
@@ -167,57 +158,13 @@ src_configure() {
 	use alpha && append-ldflags "-Wl,--no-relax"
 
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
-	mozconfig_annotate '' --enable-application=browser
 	mozconfig_annotate '' --disable-mailnews
-	mozconfig_annotate '' --disable-crashreporter
-	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
-	mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
-
-	# Bug 60668: Galeon doesn't build without oji enabled, so enable it
-	# regardless of java setting.
-	mozconfig_annotate '' --enable-oji --enable-mathml
-	mozconfig_annotate 'places' --enable-storage --enable-places
 	mozconfig_annotate '' --enable-safe-browsing
-
-	# System-wide install specs
-	mozconfig_annotate '' --disable-installer
-	mozconfig_annotate '' --disable-updater
-	mozconfig_annotate '' --disable-strip
-	mozconfig_annotate '' --disable-install-strip
-
-	# Use system libraries
-	mozconfig_annotate '' --enable-system-cairo
-	mozconfig_annotate '' --enable-system-hunspell
-	mozconfig_annotate '' --with-system-nspr --with-nspr-prefix="${EPREFIX}"/usr
-	mozconfig_annotate '' --with-system-nss --with-nss-prefix="${EPREFIX}"/usr
-	mozconfig_annotate '' --x-includes="${EPREFIX}"/usr/include	--x-libraries="${EPREFIX}"/usr/$(get_libdir)
-	mozconfig_annotate '' --with-system-bz2
 	mozconfig_annotate '' --with-system-png
-	if use webm ; then
-		mozconfig_annotate '' --with-system-libvpx
-	fi
+
 	mozconfig_annotate '' --with-system-libxul
 	mozconfig_annotate '' --with-libxul-sdk="${EPREFIX}"/usr/$(get_libdir)/xulrunner-devel-${MAJ_XUL_PV}
-
-	mozconfig_use_enable ipc # +ipc, upstream default
-	mozconfig_use_enable libnotify
-	mozconfig_use_enable wifi necko-wifi
-	mozconfig_use_enable alsa ogg
-	mozconfig_use_enable alsa wave
-	mozconfig_use_enable system-sqlite
-	mozconfig_use_enable webm
-	mozconfig_use_enable !bindist official-branding
-
-	# NOTE: Uses internal copy of libvpx
-	if use webm && ! use alsa; then
-		ewarn "USE=webm needs USE=alsa, disabling WebM support."
-		mozconfig_annotate '+webm -alsa' --disable-webm
-	fi
-
-	if use amd64 || use x86 || use arm || use sparc; then
-		mozconfig_annotate '' --enable-tracejit
-	fi
 
 	# Other ff-specific settings
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}

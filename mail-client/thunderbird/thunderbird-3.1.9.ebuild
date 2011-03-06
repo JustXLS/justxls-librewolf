@@ -22,7 +22,7 @@ HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa ldap +crypt bindist libnotify +lightning mozdom system-sqlite wifi"
+IUSE="ldap +crypt +lightning mozdom"
 PATCH="${PN}-3.1-patches-1.2"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases"
@@ -48,18 +48,11 @@ done
 RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.8
 	>=dev-libs/nspr-4.8.6
-	>=app-text/hunspell-1.2
-	x11-libs/cairo[X]
 	x11-libs/pango[X]
 	media-libs/libpng[apng]
-	alsa? ( media-libs/alsa-lib )
-	libnotify? ( >=x11-libs/libnotify-0.4 )
-	system-sqlite? ( >=dev-db/sqlite-3.7.1[fts3,secure-delete,threadsafe] )
-	wifi? ( net-wireless/wireless-tools )
 	!x11-plugins/lightning"
 
-DEPEND="${RDEPEND}
-	=dev-lang/python-2*[threads]"
+DEPEND="${RDEPEND}"
 
 PDEPEND="crypt? ( >=x11-plugins/enigmail-1.1 )"
 
@@ -88,9 +81,7 @@ linguas() {
 }
 
 pkg_setup() {
-	export BUILD_OFFICIAL=1
-	export MOZILLA_OFFICIAL=1
-	export ALDFLAGS=${LDFLAGS}
+	moz_pkgsetup
 
 	if ! use bindist; then
 		elog "You are enabling official branding. You may not redistribute this build"
@@ -98,8 +89,6 @@ pkg_setup() {
 		elog "a legal problem with Mozilla Foundation"
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
-
-	python_set_active_version 2
 }
 
 src_unpack() {
@@ -147,7 +136,6 @@ src_configure() {
 	#
 	####################################
 
-	touch mail/config/mozconfig
 	mozconfig_init
 	mozconfig_config
 
@@ -155,27 +143,14 @@ src_configure() {
 	use alpha && append-ldflags "-Wl,--no-relax"
 
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
-	mozconfig_annotate '' --enable-application=mail
 	mozconfig_annotate '' --with-default-mozilla-five-home="${EPREFIX}${MOZILLA_FIVE_HOME}"
 	mozconfig_annotate '' --with-user-appdir=.thunderbird
 	mozconfig_annotate '' --with-system-png
-	mozconfig_annotate '' --with-system-nspr --with-nspr-prefix="${EPREFIX}"/usr
-	mozconfig_annotate '' --with-system-nss --with-nss-prefix="${EPREFIX}"/usr
-	mozconfig_annotate '' --with-sqlite-prefix="${EPREFIX}"/usr
-	mozconfig_annotate '' --x-includes="${EPREFIX}"/usr/include --x-libraries="${EPREFIX}"/usr/$(get_libdir)
-	mozconfig_annotate 'broken' --disable-crashreporter
-	mozconfig_annotate '' --enable-system-hunspell
 
 	# Use enable features
 	mozconfig_use_enable ldap
 	mozconfig_use_enable ldap ldap-experimental
-	mozconfig_use_enable libnotify
 	mozconfig_use_enable lightning calendar
-	mozconfig_use_enable wifi necko-wifi
-	mozconfig_use_enable system-sqlite
-	mozconfig_use_enable !bindist official-branding
-	mozconfig_use_enable alsa ogg
-	mozconfig_use_enable alsa wave
 
 	# Bug #72667
 	if use mozdom; then

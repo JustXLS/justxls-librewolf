@@ -21,7 +21,7 @@ HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa debug +ipc libnotify system-sqlite +webm wifi"
+IUSE=""
 
 # More URIs appended below...
 SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
@@ -30,22 +30,11 @@ RDEPEND="
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.9
 	>=dev-libs/nspr-4.8.7
-	>=app-text/hunspell-1.2
-	>=x11-libs/cairo-1.10.2[X]
-	>=dev-libs/libevent-1.4.7
 	x11-libs/pango[X]
 	media-libs/libpng[apng]
-	x11-libs/libXt
-	x11-libs/pixman
-	webm? ( media-libs/libvpx )
-	alsa? ( media-libs/alsa-lib )
-	libnotify? ( >=x11-libs/libnotify-0.4 )
-	system-sqlite? ( >=dev-db/sqlite-3.7.4[fts3,secure-delete,unlock-notify,debug=] )
-	wifi? ( net-wireless/wireless-tools )
 	!www-plugins/weave"
 
 DEPEND="${RDEPEND}
-	=dev-lang/python-2*[threads]
 	dev-util/pkgconfig
 	dev-lang/yasm"
 
@@ -62,13 +51,7 @@ else
 fi
 
 pkg_setup() {
-	# Ensure we always build with C locale.
-	export LANG="C"
-	export LC_ALL="C"
-	export LC_MESSAGES="C"
-	export LC_CTYPE="C"
-
-	python_set_active_version 2
+	moz_pkgsetup
 }
 
 src_prepare() {
@@ -104,6 +87,10 @@ src_prepare() {
 			"${S}"/build/unix/run-mozilla.sh || die "sed failed!"
 	fi
 
+	# Disable gnomevfs extension
+	sed -i -e "s:gnomevfs::" "${S}/"xulrunner/confvars.sh \
+		|| die "Failed to remove gnomevfs extension"
+
 	eautoreconf
 
 	cd js/src
@@ -129,64 +116,10 @@ src_configure() {
 
 	mozconfig_annotate '' --with-default-mozilla-five-home="${MOZLIBDIR}"
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
-	mozconfig_annotate '' --enable-application=xulrunner
 	mozconfig_annotate '' --disable-mailnews
-	mozconfig_annotate 'broken' --disable-crashreporter
 	mozconfig_annotate '' --enable-canvas
-	mozconfig_annotate 'gtk' --enable-default-toolkit=cairo-gtk2
-
-	# Bug 60668: Galeon doesn't build without oji enabled, so enable it
-	# regardless of java setting.
-	mozconfig_annotate '' --enable-oji --enable-mathml
-	mozconfig_annotate 'places' --enable-storage --enable-places
 	mozconfig_annotate '' --enable-safe-browsing
-	# This will be removed when packages moving to webkit complete their move
-	mozconfig_annotate '' --enable-shared-js
-
-	# System-wide install specs
-	mozconfig_annotate '' --disable-installer
-	mozconfig_annotate '' --disable-updater
-	mozconfig_annotate '' --disable-strip
-	mozconfig_annotate '' --disable-install-strip
-
-	# Use system libraries
-	mozconfig_annotate '' --enable-system-cairo
-	mozconfig_annotate '' --enable-system-hunspell
-	mozconfig_annotate '' --with-system-nspr --with-nspr-prefix="${EPREFIX}"/usr
-	mozconfig_annotate '' --with-system-nss --with-nss-prefix="${EPREFIX}"/usr
-	mozconfig_annotate '' --x-includes="${EPREFIX}"/usr/include --x-libraries="${EPREFIX}"/usr/$(get_libdir)
-	mozconfig_annotate '' --with-system-bz2
-	mozconfig_annotate '' --with-system-libevent="${EPREFIX}"/usr
 	mozconfig_annotate '' --with-system-png
-	if use webm ; then
-		mozconfig_annotate '' --with-system-libvpx
-	fi
-
-	mozconfig_use_enable ipc # +ipc, upstream default
-	mozconfig_use_enable libnotify
-	mozconfig_use_enable wifi necko-wifi
-	mozconfig_use_enable alsa ogg
-	mozconfig_use_enable alsa wave
-	mozconfig_use_enable system-sqlite
-	mozconfig_use_enable webm
-
-	# NOTE: Uses internal copy of libvpx
-	if use webm && ! use alsa; then
-		ewarn "USE=webm needs USE=alsa, disabling WebM support."
-		mozconfig_annotate '+webm -alsa' --disable-webm
-	fi
-
-	if use amd64 || use x86 || use arm || use sparc; then
-		mozconfig_annotate 'tracejit' --enable-tracejit
-	fi
-
-	# Debug
-	if use debug ; then
-		mozconfig_annotate 'debug' --disable-optimize
-		mozconfig_annotate 'debug' --enable-debug=-ggdb
-		mozconfig_annotate 'debug' --enable-debug-modules=all
-		mozconfig_annotate 'debug' --enable-debugger-info-modules
-	fi
 
 	# Finalize and report settings
 	mozconfig_final
