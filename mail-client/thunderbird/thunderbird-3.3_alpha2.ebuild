@@ -100,6 +100,7 @@ S="${WORKDIR}"/comm-central
 pkg_setup() {
 	export BUILD_OFFICIAL=1
 	export MOZILLA_OFFICIAL=1
+	export ALDFLAGS=${LDFLAGS}
 
 	if ! use bindist; then
 		elog "You are enabling official branding. You may not redistribute this build"

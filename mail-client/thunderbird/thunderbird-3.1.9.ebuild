@@ -1,6 +1,6 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/mail-client/thunderbird/thunderbird-3.1.6.ebuild,v 1.1 2010/10/28 15:40:01 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/mail-client/thunderbird/thunderbird-3.1.9.ebuild,v 1.1 2011/03/06 01:07:48 anarchy Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
@@ -54,7 +54,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	media-libs/libpng[apng]
 	alsa? ( media-libs/alsa-lib )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
-	system-sqlite? ( >=dev-db/sqlite-3.7.1[fts3,secure-delete] )
+	system-sqlite? ( >=dev-db/sqlite-3.7.1[fts3,secure-delete,threadsafe] )
 	wifi? ( net-wireless/wireless-tools )
 	!x11-plugins/lightning"
 
@@ -90,6 +90,7 @@ linguas() {
 pkg_setup() {
 	export BUILD_OFFICIAL=1
 	export MOZILLA_OFFICIAL=1
+	export ALDFLAGS=${LDFLAGS}
 
 	if ! use bindist; then
 		elog "You are enabling official branding. You may not redistribute this build"
@@ -116,14 +117,14 @@ src_unpack() {
 
 src_prepare() {
 	# Apply our patches
+	EPATCH_EXCLUDE="1002-fix_hunspell_double_buffer.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
 	epatch "${FILESDIR}/bug-606109.patch"
-	epatch "${FILESDIR}/cups-1.4.4-fixup.patch"
 	epatch "${FILESDIR}/libpng-1.4-support.patch"
-	epatch "${FILESDIR}/${PN}-respect-ldflags.patch"
+	epatch "${FILESDIR}/libnotify-0.7.patch"
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
