@@ -33,11 +33,7 @@ RDEPEND="app-arch/zip
 DEPEND="${RDEPEND}"
 
 mozconfig_config() {
-	if ${SM} || ${XUL} || ${TB} || ${FF} || ${IC}; then
-	    mozconfig_annotate thebes --enable-default-toolkit=cairo-gtk2
-	else
-	    mozconfig_annotate -thebes --enable-default-toolkit=gtk2
-	fi
+	mozconfig_annotate '' --enable-default-toolkit=cairo-gtk2
 
 	if has bindist ${IUSE}; then
 		mozconfig_use_enable !bindist official-branding
