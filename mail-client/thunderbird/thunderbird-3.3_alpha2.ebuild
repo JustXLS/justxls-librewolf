@@ -194,9 +194,7 @@ src_configure() {
 }
 
 src_compile() {
-	# Should the build use multiprocessing? Not enabled by default, as it tends to break
-	[ "${WANT_MP}" = "true" ] && jobs=${MAKEOPTS} || jobs="-j1"
-	emake ${jobs} || die
+	emake || die
 
 	# Only build enigmail extension if crypt enabled.
 	if use crypt ; then
