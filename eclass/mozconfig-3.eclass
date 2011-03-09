@@ -7,7 +7,7 @@
 inherit multilib flag-o-matic mozcoreconf-2
 
 # use-flags common among all mozilla ebuilds
-IUSE="+alsa gnome +dbus debug +ipc libnotify startup-notification system-sqlite +webm wifi"
+IUSE="+alsa +dbus debug +ipc libnotify startup-notification system-sqlite +webm wifi"
 
 RDEPEND="app-arch/zip
 	app-arch/unzip
@@ -23,7 +23,7 @@ RDEPEND="app-arch/zip
 	virtual/jpeg
 	alsa? ( media-libs/alsa-lib )
 	dbus? ( >=dev-libs/dbus-glib-0.72 )
-	gnome? ( libnotify? ( >=x11-libs/libnotify-0.4 ) )
+	libnotify? ( >=x11-libs/libnotify-0.4 )
 	startup-notification? ( >=x11-libs/startup-notification-0.8 )
 	system-sqlite? ( >=dev-db/sqlite-3.7.4[fts3,secure-delete,unlock-notify,debug=] )
 	webm? ( media-libs/libvpx 
@@ -45,6 +45,9 @@ mozconfig_config() {
 
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
+	if has crashreporter ${IUSE} ; then
+		mozconfig_use_enable crashreporter
+	fi
 	mozconfig_use_enable dbus
 	mozconfig_use_enable debug
 	mozconfig_use_enable debug tests
@@ -85,12 +88,11 @@ mozconfig_config() {
 	mozconfig_annotate '' --with-system-nspr --with-nspr-prefix="${EPREFIX}"/usr
 	mozconfig_annotate '' --with-system-nss --with-nss-prefix="${EPREFIX}"/usr
 	mozconfig_annotate '' --x-includes="${EPREFIX}"/usr/include --x-libraries="${EPREFIX}"/usr/$(get_libdir)
-	mozconfig_annotate 'broken' --disable-crashreporter
+	mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks
+	mozconfig_annotate '' --with-system-libevent="${EPREFIX}"/usr
+	mozconfig_annotate '' --enable-oji --enable-mathml
+	mozconfig_annotate 'broken' --disable-mochitest
 	mozconfig_annotate '' --enable-system-hunspell
 	mozconfig_annotate '' --disable-gnomevfs
 	mozconfig_annotate '' --enable-gio
-	mozconfig_annotate '' --with-system-libevent="${EPREFIX}"/usr
-	mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks
-	mozconfig_annotate '' --enable-oji --enable-mathml
-	mozconfig_annotate 'broken' --disable-mochitest
 }

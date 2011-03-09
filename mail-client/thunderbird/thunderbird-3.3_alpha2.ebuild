@@ -23,7 +23,7 @@ HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="bindist +crypt +lightning mozdom"
+IUSE="bindist +crashreporter +crypt +lightning mozdom"
 #PATCH="${PN}-3.1-patches-1.2"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases"

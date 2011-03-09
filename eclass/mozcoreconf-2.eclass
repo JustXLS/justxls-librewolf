@@ -80,11 +80,11 @@ moz_pkgsetup() {
 
 mozconfig_init() {
 	declare enable_optimize pango_version myext x
-	declare XUL=$([[ ${PN} == *xulrunner ]] && echo true || echo false)
-	declare FF=$([[ ${PN} == *firefox ]] && echo true || echo false)
-	declare IC=$([[ ${PN} == *icecat ]] && echo true || echo false)
+	declare XUL=$([[ ${PN} == xulrunner ]] && echo true || echo false)
+	declare FF=$([[ ${PN} == firefox ]] && echo true || echo false)
+	declare IC=$([[ ${PN} == icecat ]] && echo true || echo false)
 	declare SM=$([[ ${PN} == seamonkey ]] && echo true || echo false)
-	declare TB=$([[ ${PN} == *thunderbird ]] && echo true || echo false)
+	declare TB=$([[ ${PN} == thunderbird ]] && echo true || echo false)
 	declare EM=$([[ ${PN} == enigmail ]] && echo true || echo false)
 
 
