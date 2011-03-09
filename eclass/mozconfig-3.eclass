@@ -6,7 +6,8 @@
 
 inherit multilib flag-o-matic mozcoreconf-2
 
-IUSE="+alsa bindist gnome +dbus debug +ipc libnotify startup-notification system-sqlite +webm wifi"
+# use-flags common among all mozilla ebuilds
+IUSE="+alsa gnome +dbus debug +ipc libnotify startup-notification system-sqlite +webm wifi"
 
 RDEPEND="app-arch/zip
 	app-arch/unzip
@@ -38,7 +39,7 @@ mozconfig_config() {
 	    mozconfig_annotate -thebes --enable-default-toolkit=gtk2
 	fi
 
-	if [[ ${PN} = firefox || ${PN} = thunderbird ]]; then
+	if has bindist ${IUSE}; then
 		mozconfig_use_enable !bindist official-branding
 	fi
 
