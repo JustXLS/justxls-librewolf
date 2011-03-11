@@ -7,7 +7,7 @@
 inherit multilib flag-o-matic mozcoreconf-2
 
 # use-flags common among all mozilla ebuilds
-IUSE="+alsa +dbus debug +ipc libnotify startup-notification system-sqlite +webm wifi"
+IUSE="+alsa +dbus debug libnotify startup-notification system-sqlite +webm wifi"
 
 RDEPEND="app-arch/zip
 	app-arch/unzip
@@ -48,7 +48,9 @@ mozconfig_config() {
 	mozconfig_use_enable debug
 	mozconfig_use_enable debug tests
 	mozconfig_use_enable debug debugger-info-modeules
-	mozconfig_use_enable ipc
+	if has ipc ${IUSE}; then
+		mozconfig_use_enable ipc
+	fi
 	mozconfig_use_enable libnotify
 	mozconfig_use_enable startup-notification
 	mozconfig_use_enable system-sqlite
@@ -67,9 +69,7 @@ mozconfig_config() {
 			mozconfig_use_enable webm
 			mozconfig_use_with webm system-libvpx
 		fi
-	fi
 
-	if ${SM} || ${XUL} || ${FF} || ${IC}; then
 		if use amd64 || use x86 || use arm || use sparc; then
 			mozconfig_annotate '' --enable-tracejit
 		fi
