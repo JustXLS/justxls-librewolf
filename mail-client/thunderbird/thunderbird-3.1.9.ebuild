@@ -5,7 +5,7 @@
 EAPI="3"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozextension autotools python
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozextension autotools python pax-utils
 
 # This list can be updated using get_langs.sh from the mozilla overlay
 LANGS="af ar be bg bn-BD ca cs da de el en en-GB en-US es-AR es-ES et eu fi fr \
