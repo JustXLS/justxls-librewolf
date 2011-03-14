@@ -233,4 +233,6 @@ src_install() {
 	cp "${FILESDIR}"/thunderbird-gentoo-default-prefs-1.js \
 		"${ED}/${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js" || \
 		die "failed to cp thunderbird-gentoo-default-prefs.js"
+
+	pax-mark m "${ED}"/${MOZILLA_FIVE_HOME}/thunderbird-bin
 }
