@@ -12,6 +12,7 @@ MAJ_FF_PV="$(get_version_component_range 1-2)" # 3.5, 3.6, 4.0, etc.
 XUL_PV="${MAJ_XUL_PV}${PV/${MAJ_FF_PV}/}" # 1.9.3_alpha6, 1.9.2.3, etc.
 FF_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
+FF_PV="${FF_PV/_rc/rc}" # Handle rc for SRC_URI
 CHANGESET="e56ecd8b3a68"
 PATCH="${PN}-4.0-patches-0.7"
 
@@ -53,10 +54,11 @@ fi
 # No language packs for alphas
 if ! [[ ${PV} =~ alpha|beta ]]; then
 	# This list can be updated with scripts/get_langs.sh from mozilla overlay
-	LANGS="af ar as be bg bn-BD bn-IN ca cs cy da de el en en-GB en-US eo es-AR
-	es-CL es-ES es-MX et eu fa fi fr fy-NL ga-IE gl gu-IN he hi-IN hr hu id is
-	it ja ka kk kn ko ku lt lv mk ml mr nb-NO nl nn-NO oc or pa-IN pl pt-BR
-	pt-PT rm ro ru si sk sl sq sr sv-SE ta ta-LK te th tr uk vi zh-CN zh-TW"
+	LANGS="af ak ar ast be bg bn-BD bn-IN br bs ca cs cy da de
+	el en en-ZA eo es-ES et eu fa fi fr fy-NL ga-IE gd gl gu-IN
+	he hi-IN hr hu hy-AM id is it ja kk kn ko ku lg lt lv mai mk
+	ml mr nb-NO nl nn-NO nso or pa-IN pl pt-PT rm ro ru si sk sl
+	son sq sr sv-SE ta ta-LK te th tr uk zu"
 	NOSHORTLANGS="en-GB es-AR es-CL es-MX pt-BR zh-CN zh-TW"
 
 	for X in ${LANGS} ; do
