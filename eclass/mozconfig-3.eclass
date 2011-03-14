@@ -1,4 +1,4 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 #
@@ -58,6 +58,10 @@ mozconfig_config() {
 		mozconfig_annotate '' --with-sqlite-prefix="${EPREFIX}"/usr
 	fi
 	mozconfig_use_enable wifi necko-wifi
+
+	if ${XUL}; then
+		mozconfig_annotate 'mozjs' --enable-shared-js
+	fi
 
 	if ${SM} || ${XUL} || ${FF} || ${IC}; then
 		if use webm && ! use alsa; then
