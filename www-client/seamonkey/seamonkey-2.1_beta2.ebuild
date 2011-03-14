@@ -68,23 +68,13 @@ fi
 RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.9
 	>=dev-libs/nspr-4.8.7
-	alsa? ( media-libs/alsa-lib )
-	system-sqlite? ( >=dev-db/sqlite-3.7.4[fts3,secure-delete,unlock-notify] )
 	>=media-libs/libpng-1.4.1[apng]
-	>=app-text/hunspell-1.2
-	>=x11-libs/gtk+-2.10.0
-	>=x11-libs/cairo-1.10.0[X]
 	>=x11-libs/pango-1.14.0[X]
-	libnotify? ( >=x11-libs/libnotify-0.4 )
-	crypt? ( mailclient? ( >=app-crypt/gnupg-1.4 ) )
-	vpx? ( media-libs/libvpx )
-	wifi? ( net-wireless/wireless-tools )"
-	#vpx? ( media-libs/libvpx )
+	crypt? ( mailclient? ( >=app-crypt/gnupg-1.4 ) )"
 
 DEPEND="${RDEPEND}
-	=dev-lang/python-2*[threads]
 	dev-util/pkgconfig
-	vpx? ( dev-lang/yasm )"
+	dev-lang/yasm"
 
 S="${WORKDIR}/comm-central"
 
@@ -132,16 +122,7 @@ pkg_setup() {
 		ewarn "Those belong to upstream: https://bugzilla.mozilla.org"
 	fi
 
-	# Ensure we always build with C locale.
-	export LANG="C"
-	export LC_ALL="C"
-	export LC_MESSAGES="C"
-	export LC_CTYPE="C"
-
-	export BUILD_OFFICIAL=1
-	export MOZILLA_OFFICIAL=1
-
-	python_set_active_version 2
+	moz_pkgsetup
 }
 
 src_prepare() {
@@ -185,6 +166,11 @@ src_prepare() {
 	cd "${S}"/mozilla || die
 	eautoreconf
 	cd "${S}"/mozilla/js/src || die
+
+	# Disable gnomevfs extension
+	sed -i -e "s:gnomevfs::" "${S}/"suite/confvars.sh \
+		|| die "Failed to remove gnomevfs extension"
+
 	eautoreconf
 }
 
@@ -211,10 +197,6 @@ src_configure() {
 		MEXTENSIONS="${MEXTENSIONS},-sroaming"
 	fi
 
-	if ! use gnome ; then
-		MEXTENSIONS="${MEXTENSIONS},-gnomevfs"
-	fi
-
 	if ! use composer ; then
 		if ! use chatzilla && ! use mailclient ; then
 			mozconfig_annotate '-composer' --disable-composer
@@ -222,46 +204,13 @@ src_configure() {
 	fi
 
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
-	mozconfig_annotate '' --enable-application=suite
-	mozconfig_annotate 'broken' --disable-mochitest
-	mozconfig_annotate 'broken' --disable-crashreporter
-	mozconfig_annotate '' --enable-system-hunspell
 	mozconfig_annotate '' --enable-jsd
-	mozconfig_annotate '' --enable-image-encoder=all
 	mozconfig_annotate '' --enable-canvas
-	mozconfig_annotate '' --with-system-nspr
-	mozconfig_annotate '' --with-system-nss
-	mozconfig_annotate '' --with-system-bz2
-	mozconfig_annotate '' --enable-oji --enable-mathml
-	mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks
-	mozconfig_annotate '' --disable-installer
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
-	mozconfig_annotate '' --enable-printing
 
-	# Enable/Disable based on USE flags
-	mozconfig_use_enable alsa ogg
-	mozconfig_use_enable alsa wave
-	mozconfig_use_enable libnotify
 	mozconfig_use_enable ldap
 	mozconfig_use_enable ldap ldap-experimental
-	#if use ldap ; then
-	#	mozconfig_annotate 'ldap' --enable-ldap
-	#	mozconfig_annotate 'ldap' --enable-ldap-experimental
-	#fi
 	mozconfig_use_enable mailclient mailnews
-	mozconfig_use_enable system-sqlite
-	mozconfig_use_enable vpx webm
-	#mozconfig_use_with vpx system-vpx
-	mozconfig_use_enable wifi necko-wifi
-
-	if use vpx && ! use alsa; then
-		ewarn "USE=vpx needs USE=alsa, disabling WebM support."
-		mozconfig_annotate '+webm -alsa' --disable-webm
-	fi
-
-	if use amd64 || use x86 || use arm || use sparc; then
-		mozconfig_annotate '' --enable-tracejit
-	fi
 
 	if use mailclient && use crypt ; then
 		mozconfig_annotate "mail crypt" --enable-chrome-format=jar
