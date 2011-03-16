@@ -59,11 +59,11 @@ mozconfig_config() {
 	fi
 	mozconfig_use_enable wifi necko-wifi
 
-	if ${XUL}; then
+	if [[ ${PN} == xulrunner ]] ; then
 		mozconfig_annotate 'mozjs' --enable-shared-js
 	fi
 
-	if ${SM} || ${XUL} || ${FF} || ${IC}; then
+	if [[ ${PN} != thunderbird ]]; then
 		if use webm && ! use alsa; then
 			echo "Enabling alsa support due to webm request"
 			mozconfig_annotate '+webm -alsa' --enable-ogg
@@ -79,11 +79,6 @@ mozconfig_config() {
 		fi
 	fi
 
-	if ${SM} || ${TB} || ${XUL}; then
-		MEXTENSIONS="default"
-		mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
-	fi
-
 	# These are enabled by default in all mozilla applications
 	mozconfig_annotate '' --with-system-nspr --with-nspr-prefix="${EPREFIX}"/usr
 	mozconfig_annotate '' --with-system-nss --with-nss-prefix="${EPREFIX}"/usr
@@ -92,7 +87,7 @@ mozconfig_config() {
 	mozconfig_annotate '' --enable-system-hunspell
 	mozconfig_annotate '' --disable-gnomevfs
 	mozconfig_annotate '' --enable-gio
-	if ${XUL} || ${FF} || ${IC} || ${SM} ; then
+	if [[ ${PN} != thunderbird ]] ; then
 		mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks
 		mozconfig_annotate '' --enable-oji --enable-mathml
 		mozconfig_annotate 'broken' --disable-mochitest
