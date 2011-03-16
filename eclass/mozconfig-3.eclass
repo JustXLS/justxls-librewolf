@@ -88,11 +88,13 @@ mozconfig_config() {
 	mozconfig_annotate '' --with-system-nspr --with-nspr-prefix="${EPREFIX}"/usr
 	mozconfig_annotate '' --with-system-nss --with-nss-prefix="${EPREFIX}"/usr
 	mozconfig_annotate '' --x-includes="${EPREFIX}"/usr/include --x-libraries="${EPREFIX}"/usr/$(get_libdir)
-	mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks
 	mozconfig_annotate '' --with-system-libevent="${EPREFIX}"/usr
-	mozconfig_annotate '' --enable-oji --enable-mathml
-	mozconfig_annotate 'broken' --disable-mochitest
 	mozconfig_annotate '' --enable-system-hunspell
 	mozconfig_annotate '' --disable-gnomevfs
 	mozconfig_annotate '' --enable-gio
+	if ${XUL} || ${FF} || ${IC} || ${SM} ; then
+		mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks
+		mozconfig_annotate '' --enable-oji --enable-mathml
+		mozconfig_annotate 'broken' --disable-mochitest
+	fi
 }
