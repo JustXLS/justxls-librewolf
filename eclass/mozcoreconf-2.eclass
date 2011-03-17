@@ -248,6 +248,14 @@ mozconfig_init() {
 	! has_version ">=sys-libs/glibc-2.4" && mozconfig_annotate "we have old glibc" --disable-jemalloc
 }
 
+makemake2() {
+	for m in $(find ../ -name Makefile.in); do
+		topdir=$(echo "$m" | sed -r 's:[^/]+:..:g')
+		sed -e "s:@srcdir@:.:g" -e "s:@top_srcdir@:${topdir}:g" \
+			< ${m} > ${m%.in} || die "sed ${m} failed"
+	done
+}
+
 # mozconfig_final: display a table describing all configuration options paired
 # with reasons, then clean up extensions list
 mozconfig_final() {
