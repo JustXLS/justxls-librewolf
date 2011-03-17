@@ -15,7 +15,7 @@ inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozext
 
 MY_PV="${PV/_alpha/a}"
 MY_P="${P/_alpha/a}"
-EMVER="1.1.2"
+EMVER="1.2a1"
 
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
@@ -28,7 +28,7 @@ IUSE="bindist +crashreporter +crypt +ipc +lightning mozdom"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases"
 SRC_URI="${REL_URI}/${MY_PV}/source/${MY_P}.source.tar.bz2
-	crypt? ( http://dev.gentoo.org/~polynomial-c/mozilla/enigmail-${EMVER}-20110124.tar.bz2 )"
+	crypt? ( http://dev.gentoo.org/~anarchy/mozilla/firefox/enigmail-${EMVER}-20110316.tar.bz2 )"
 #	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
 #for X in ${LANGS} ; do
@@ -116,7 +116,6 @@ src_unpack() {
 src_prepare() {
 	epatch "${FILESDIR}/1001-xulrunner_fix_jemalloc_vs_aslr.patch"
 	epatch "${FILESDIR}/2000-thunderbird_gentoo_install_dirs.patch"
-	epatch "${FILESDIR}/system-cairo-fixup.patch"
 
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
