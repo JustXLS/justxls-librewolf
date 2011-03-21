@@ -41,7 +41,7 @@ HOMEPAGE="http://www.seamonkey-project.org"
 
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa +chatzilla +composer +crypt ldap +mailclient +roaming"
+IUSE="+alsa +chatzilla +composer +crypt ldap +mailclient +roaming +webm"
 
 SRC_URI="${REL_URI}/source/${MY_P}.source.tar.bz2
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.bz2
@@ -70,7 +70,10 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nspr-4.8.7
 	>=media-libs/libpng-1.4.1[apng]
 	>=x11-libs/pango-1.14.0[X]
-	crypt? ( mailclient? ( >=app-crypt/gnupg-1.4 ) )"
+
+	crypt? ( mailclient? ( >=app-crypt/gnupg-1.4 ) )
+	webm? ( media-libs/libvpx 
+		media-libs/alsa-lib )"
 
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
