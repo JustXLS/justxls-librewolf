@@ -58,7 +58,7 @@ if ! [[ ${PV} =~ alpha|beta ]]; then
 	el en en-ZA eo es-ES et eu fa fi fr fy-NL ga-IE gd gl gu-IN
 	he hi-IN hr hu hy-AM id is it ja kk kn ko ku lg lt lv mai mk
 	ml mr nb-NO nl nn-NO nso or pa-IN pl pt-PT rm ro ru si sk sl
-	son sq sr sv-SE ta ta-LK te th tr uk zu"
+	son sq sr sv-SE ta ta-LK te th tr uk vi zu"
 	NOSHORTLANGS="en-GB es-AR es-CL es-MX pt-BR zh-CN zh-TW"
 
 	for X in ${LANGS} ; do
