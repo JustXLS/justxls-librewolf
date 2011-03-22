@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-4.0.ebuild,v 1.1 2011/03/22 01:58:18 anarchy Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
@@ -14,15 +14,15 @@ FF_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
 FF_PV="${FF_PV/_rc/rc}" # Handle rc for SRC_URI
 CHANGESET="e56ecd8b3a68"
-PATCH="${PN}-4.0-patches-0.7"
+PATCH="${PN}-4.0-patches-0.8"
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
 
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~ia64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="bindist +ipc +webm"
+IUSE="bindist +ipc system-sqlite +webm"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 # More URIs appended below...
@@ -32,11 +32,12 @@ RDEPEND="
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.9
 	>=dev-libs/nspr-4.8.7
+	>=dev-libs/glib-2.26
 	x11-libs/pango[X]
 	media-libs/libpng[apng]
+	system-sqlite? ( >=dev-db/sqlite-3.7.4[fts3,secure-delete,unlock-notify,debug=] )
 	~net-libs/xulrunner-${XUL_PV}[wifi=,libnotify=,system-sqlite=,webm=]
-	
-	webm? ( media-libs/libvpx 
+	webm? ( media-libs/libvpx
 		media-libs/alsa-lib )"
 
 DEPEND="${RDEPEND}
@@ -167,15 +168,13 @@ src_configure() {
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate '' --enable-safe-browsing
 	mozconfig_annotate '' --with-system-png
-
 	mozconfig_annotate '' --with-system-libxul
 	mozconfig_annotate '' --with-libxul-sdk="${EPREFIX}"/usr/$(get_libdir)/xulrunner-devel-${MAJ_XUL_PV}
 
 	# Other ff-specific settings
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 
-	# omni.jar breaks ff on xr
-	mozconfig_annotate '' --enable-chrome-format=jar
+	mozconfig_use_enable system-sqlite
 
 	# Finalize and report settings
 	mozconfig_final
@@ -195,6 +194,11 @@ src_configure() {
 
 src_install() {
 	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+
+	# Enable very specific settings not inherited from xulrunner
+	cp "${FILESDIR}"/firefox-default-prefs.js \
+		"${S}/dist/bin/defaults/preferences/all-gentoo.js" || \
+		die "failed to cp firefox-default-prefs.js"
 
 	emake DESTDIR="${D}" install || die "emake install failed"
 
@@ -223,11 +227,6 @@ src_install() {
 
 	pax-mark m "${ED}"/${MOZILLA_FIVE_HOME}/firefox
 
-	# Enable very specific settings not inherited from xulrunner
-	cp "${FILESDIR}"/firefox-default-prefs.js \
-		"${ED}/${MOZILLA_FIVE_HOME}/defaults/preferences/all-gentoo.js" || \
-		die "failed to cp firefox-default-prefs.js"
-
 	# Plugins dir
 	dosym ../nsbrowser/plugins "${MOZILLA_FIVE_HOME}"/plugins \
 		|| die "failed to symlink"
@@ -239,10 +238,6 @@ src_install() {
 }
 
 pkg_postinst() {
-	ewarn "All the packages built against ${PN} won't compile,"
-	ewarn "any package that fails to build warrants a bug report."
-	elog
-
 	# Update mimedb for the new .desktop file
 	fdo-mime_desktop_database_update
 }

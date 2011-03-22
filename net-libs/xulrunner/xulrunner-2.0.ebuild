@@ -1,6 +1,6 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Header: /var/cvsroot/gentoo-x86/net-libs/xulrunner/xulrunner-2.0.ebuild,v 1.1 2011/03/22 01:48:02 anarchy Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
@@ -14,15 +14,15 @@ FF_PV="${FF_PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
 FF_PV="${FF_PV/_rc/rc}" # Handle rc for SRC_URI
 CHANGESET="e56ecd8b3a68"
-PATCH="${PN}-2.0-patches-1.2"
+PATCH="${PN}-2.0-patches-1.3"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
 
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+crashreporter +ipc +webm"
+IUSE="+crashreporter +ipc system-sqlite +webm"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 # More URIs appended below...
@@ -32,12 +32,12 @@ RDEPEND="
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.9
 	>=dev-libs/nspr-4.8.7
+	>=dev-libs/glib-2.26
 	x11-libs/pango[X]
 	media-libs/libpng[apng]
-
-	webm? ( media-libs/libvpx 
+	system-sqlite? ( >=dev-db/sqlite-3.7.4[fts3,secure-delete,unlock-notify,debug=] )
+	webm? ( media-libs/libvpx
 		media-libs/alsa-lib )
-
 	!www-plugins/weave"
 
 DEPEND="${RDEPEND}
@@ -125,6 +125,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate '' --enable-safe-browsing
 	mozconfig_annotate '' --with-system-png
+	mozconfig_use_enable system-sqlite
 
 	# Finalize and report settings
 	mozconfig_final
@@ -154,6 +155,11 @@ src_configure() {
 }
 
 src_install() {
+	# Add our defaults to xulrunner and out of firefox
+	cp "${FILESDIR}"/xulrunner-default-prefs.js \
+		"${S}/dist/bin/defaults/pref/all-gentoo.js" || \
+			die "failed to cp xulrunner-default-prefs.js"
+
 	emake DESTDIR="${D}" install || die "emake install failed"
 
 	rm "${ED}"/usr/bin/xulrunner
@@ -175,16 +181,5 @@ src_install() {
 	dodir /etc/env.d
 	echo "LDPATH=${EPREFIX}/${MOZLIBDIR}" > "${ED}"/etc/env.d/08xulrunner || die "env.d failed"
 
-	# Add our defaults to xulrunner and out of firefox
-	cp "${FILESDIR}"/xulrunner-default-prefs.js \
-		"${ED}/${MOZLIBDIR}/defaults/pref/all-gentoo.js" || \
-			die "failed to cp xulrunner-default-prefs.js"
-
 	pax-mark m "${ED}"/${MOZLIBDIR}/plugin-container
-}
-
-pkg_postinst() {
-	ewarn "This is experimental DO NOT file a bug report unless you can"
-	ewarn "are willing to provide a patch. All bugs that are filled without a patch"
-	ewarn "will be closed INVALID!!"
 }
