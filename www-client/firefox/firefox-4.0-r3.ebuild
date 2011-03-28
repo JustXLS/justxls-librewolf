@@ -22,7 +22,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="bindist +ipc system-sqlite +webm"
+IUSE="bindist gconf +ipc system-sqlite +webm"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 # More URIs appended below...
@@ -35,11 +35,11 @@ RDEPEND="
 	>=dev-libs/nss-3.12.9
 	>=dev-libs/nspr-4.8.7
 	>=dev-libs/glib-2.26
-	>=gnome-base/gconf-1.2.1:2
+	gconf? ( >=gnome-base/gconf-1.2.1:2 )
 	media-libs/libpng[apng]
 	x11-libs/pango[X]
 	system-sqlite? ( >=dev-db/sqlite-3.7.4[fts3,secure-delete,unlock-notify,debug=] )
-	~net-libs/xulrunner-${XUL_PV}[wifi=,libnotify=,system-sqlite=,webm=]
+	~net-libs/xulrunner-${XUL_PV}[wifi=,libnotify=,system-sqlite=,webm=,gconf=]
 	webm? ( media-libs/libvpx
 		media-libs/alsa-lib )"
 
@@ -137,6 +137,7 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
+	epatch "${FILESDIR}"/mozilla-2.0-gconf-config-update.patch
 	epatch "${FILESDIR}"/fix-preferences-gentoo.patch
 
 	# Allow user to apply any additional patches without modifing ebuild

@@ -22,7 +22,7 @@ HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
 KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
 SLOT="1.9"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+crashreporter +ipc system-sqlite +webm"
+IUSE="+crashreporter gconf +ipc system-sqlite +webm"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 # More URIs appended below...
@@ -33,6 +33,7 @@ RDEPEND="
 	>=dev-libs/nss-3.12.9
 	>=dev-libs/nspr-4.8.7
 	>=dev-libs/glib-2.26
+	gconf? ( >=gnome-base/gconf-1.2.1:2 )
 	x11-libs/pango[X]
 	media-libs/libpng[apng]
 	system-sqlite? ( >=dev-db/sqlite-3.7.4[fts3,secure-delete,unlock-notify,debug=] )
@@ -64,6 +65,8 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
+
+	epatch "${FILESDIR}"/mozilla-2.0-gconf-config-update.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
@@ -126,6 +129,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-safe-browsing
 	mozconfig_annotate '' --with-system-png
 	mozconfig_use_enable system-sqlite
+	mozconfig_use_enable gconf
 
 	# Finalize and report settings
 	mozconfig_final
