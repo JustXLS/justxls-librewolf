@@ -23,7 +23,7 @@ HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="bindist +crashreporter +crypt +ipc +lightning mozdom"
+IUSE="bindist gconf +crashreporter +crypt +ipc +lightning mozdom"
 #PATCH="${PN}-3.1-patches-1.2"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases"
@@ -50,6 +50,7 @@ SRC_URI="${REL_URI}/${MY_PV}/source/${MY_P}.source.tar.bz2
 RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.9
 	>=dev-libs/nspr-4.8.7
+	gconf? ( >=gnome-base/gconf-1.2.1:2 )
 	media-libs/libpng[apng]
 	!x11-plugins/lightning
 	!x11-plugins/enigmail
@@ -116,13 +117,14 @@ src_unpack() {
 src_prepare() {
 	epatch "${FILESDIR}/1001-xulrunner_fix_jemalloc_vs_aslr.patch"
 	epatch "${FILESDIR}/2000-thunderbird_gentoo_install_dirs.patch"
+	epatch "${FILESDIR}/thunderbird-3.3-gconf-config-update.patch"
 
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
 		cd "${S}"/mailnews/extensions/enigmail || die
 		epatch "${FILESDIR}"/enigmail-1.1.2-20110124-locale-fixup.diff
 		cd enigmail
-		./makemake -r
+		./makemake -r 2> /dev/null
 		sed -i -e 's:@srcdir@:${S}/mailnews/extensions/enigmail:' Makefile.in
 		cd "${S}"
 	fi
@@ -165,6 +167,7 @@ src_configure() {
 
 	# Use enable features
 	mozconfig_use_enable lightning calendar
+	mozconfig_use_enable gconf
 
 	# Bug #72667
 	if use mozdom; then
