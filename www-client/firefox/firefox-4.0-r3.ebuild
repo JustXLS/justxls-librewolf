@@ -181,6 +181,7 @@ src_configure() {
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 
 	mozconfig_use_enable system-sqlite
+	mozconfig_use_enable gconf
 
 	# Finalize and report settings
 	mozconfig_final
