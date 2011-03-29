@@ -41,7 +41,7 @@ HOMEPAGE="http://www.seamonkey-project.org"
 
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa +chatzilla +composer +crypt ldap +mailclient +roaming +webm"
+IUSE="+alsa +chatzilla +composer +crypt gconf ldap +mailclient +roaming +webm"
 
 SRC_URI="${REL_URI}/source/${MY_P}.source.tar.bz2
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.bz2
@@ -70,7 +70,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nspr-4.8.7
 	>=media-libs/libpng-1.4.1[apng]
 	>=x11-libs/pango-1.14.0[X]
-
+	gconf? ( >=gnome-base/gconf-1.2.1:2 )
 	crypt? ( mailclient? ( >=app-crypt/gnupg-1.4 ) )
 	webm? ( media-libs/libvpx 
 		media-libs/alsa-lib )"
@@ -145,6 +145,7 @@ src_prepare() {
 	if has_version \>=media-libs/libpng-1.5.0 ; then
 		epatch "${FILESDIR}"/2.1/xulrunner-libpng15.diff
 	fi
+	epatch "${FILESDIR}"/2.1/${PN}-2.1b2-gconf-config-update.patch
 
 	if use crypt && use mailclient ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
@@ -165,15 +166,14 @@ src_prepare() {
 	sed -i -e s:MOZ_JAVAXPCOM\=1::g ${S}/mozilla/xulrunner/confvars.sh \
 		|| die "sed javaxpcom"
 
-	eautoreconf
-	cd "${S}"/mozilla || die
-	eautoreconf
-	cd "${S}"/mozilla/js/src || die
-
 	# Disable gnomevfs extension
 	sed -i -e "s:gnomevfs::" "${S}/"suite/confvars.sh \
 		|| die "Failed to remove gnomevfs extension"
 
+	eautoreconf
+	cd "${S}"/mozilla || die
+	eautoreconf
+	cd "${S}"/mozilla/js/src || die
 	eautoreconf
 }
 
@@ -211,6 +211,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 
+	mozconfig_use_enable gconf
 	mozconfig_use_enable ldap
 	mozconfig_use_enable ldap ldap-experimental
 	mozconfig_use_enable mailclient mailnews
