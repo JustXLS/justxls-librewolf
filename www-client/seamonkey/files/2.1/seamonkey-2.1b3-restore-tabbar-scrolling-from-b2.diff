@@ -1,0 +1,51 @@
+
+diff --git a/suite/browser/tabbrowser.xml b/suite/browser/tabbrowser.xml
+--- a/suite/browser/tabbrowser.xml
++++ b/suite/browser/tabbrowser.xml
+@@ -2995,17 +2995,17 @@
+           tab.style.minWidth = this.mPrefs.getIntPref("browser.tabs.tabMinWidth") + "px";
+           tab.style.maxWidth = this.mPrefs.getIntPref("browser.tabs.tabMaxWidth") + "px";
+           window.addEventListener("resize", this, false);
+         ]]>
+       </constructor>
+ 
+       <destructor>
+         <![CDATA[
+-          document.removeEventListener("resize", this, false);
++          window.removeEventListener("resize", this, false);
+         ]]>
+       </destructor>
+ 
+       <field name="mPrefs" readonly="true">
+         Components.classes["@mozilla.org/preferences-service;1"]
+                   .getService(Components.interfaces.nsIPrefBranch2);
+       </field>
+ 
+@@ -3118,16 +3118,23 @@
+       <handler event="TabSelect" action="this._handleTabSelect();"/>
+ 
+       <handler event="transitionend">
+         <![CDATA[
+           if (event.propertyName == "max-width")
+             this._handleNewTab(event.target);
+         ]]>
+       </handler>
++
++      <handler event="DOMMouseScroll" phase="capturing">
++        <![CDATA[
++          this.advanceSelectedTab(event.detail < 0 ? -1 : 1);
++          event.stopPropagation();
++        ]]>
++      </handler>
+     </handlers>
+   </binding>
+ 
+   <binding id="tabbrowser-alltabs-popup"
+            extends="chrome://global/content/bindings/popup.xml#popup">
+     <implementation implements="nsIDOMEventListener">
+       <method name="_tabOnTabClose">
+         <parameter name="aEvent"/>
+
+
+
+

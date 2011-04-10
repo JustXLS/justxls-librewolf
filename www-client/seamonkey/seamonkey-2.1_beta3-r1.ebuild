@@ -19,6 +19,8 @@ MY_PV="${MY_PV/_beta/b}"
 MY_PV="${MY_PV/_rc/rc}"
 MY_P="${PN}-${MY_PV}"
 
+[[ ${MY_PV} == 2.1b3 ]] && MY_PV="${MY_PV}-real"
+
 # release versions usually have language packs. So be careful with changing this.
 HAS_LANGS="true"
 if [[ ${PV} == *_pre* ]] ; then
@@ -144,10 +146,13 @@ src_prepare() {
 	fi
 	epatch "${FILESDIR}"/2.1/${PN}-2.1b2-gconf-config-update.patch
 
+	EPATCH_OPTS="-R" \
+	epatch "${FILESDIR}"/2.1/${PN}-2.1b3-restore-tabbar-scrolling-from-b2.diff
+
 	if use crypt && use mailclient ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
 		cd "${S}"/mailnews/extensions/enigmail || die
-		epatch "${FILESDIR}"/enigmail/enigmail-1.1.2-seamonkey-2.1b2-versionfix.patch
+		epatch "${FILESDIR}"/enigmail/enigmail-1.1.2-seamonkey-2.1b3-versionfix.patch
 		epatch "${FILESDIR}"/enigmail/enigmail-1.1.2-20110124-makefile.diff
 		eautomake
 		makemake2
