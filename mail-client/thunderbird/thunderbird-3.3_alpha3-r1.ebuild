@@ -118,6 +118,7 @@ src_prepare() {
 	epatch "${FILESDIR}/1001-xulrunner_fix_jemalloc_vs_aslr.patch"
 	epatch "${FILESDIR}/2000-thunderbird_gentoo_install_dirs.patch"
 	epatch "${FILESDIR}/thunderbird-3.3-gconf-config-update.patch"
+	epatch "${FILESDIR}/mozilla-2.0-gcc46.patch"
 
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
