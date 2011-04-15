@@ -47,7 +47,7 @@ IUSE="+alsa +chatzilla +composer +crypt gconf ldap +mailclient +roaming +webm"
 
 SRC_URI="${REL_URI}/source/${MY_P}.source.tar.bz2
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.bz2
-	crypt? ( mailclient? ( http://dev.gentoo.org/~polynomial-c/mozilla/enigmail-${EMVER}-20110124.tar.bz2 ) )"
+	crypt? ( mailclient? ( http://dev.gentoo.org/~polynomial-c/mozilla/enigmail-${EMVER}-20110410.tar.bz2 ) )"
 
 if ${HAS_LANGS} ; then
 	for X in ${LANGS} ; do
@@ -140,14 +140,12 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
-	epatch "${FILESDIR}"/2.1/${PN}-2.1b1-configure-fix.patch
-	if has_version \>=media-libs/libpng-1.5.0 ; then
-		epatch "${FILESDIR}"/2.1/xulrunner-libpng15.diff
-	fi
-	epatch "${FILESDIR}"/2.1/${PN}-2.1b2-gconf-config-update.patch
+	epatch "${FILESDIR}"/2.1/${PN}-2.1b1-configure-fix.patch \
+		"${FILESDIR}"/2.1/xulrunner-libpng15.patch \
+		"${FILESDIR}"/2.1/${PN}-2.1b2-gconf-config-update.patch
 
 	EPATCH_OPTS="-R" \
-	epatch "${FILESDIR}"/2.1/${PN}-2.1b3-restore-tabbar-scrolling-from-b2.diff
+	epatch "${FILESDIR}"/2.1/${PN}-2.1b3-restore-tabbar-scrolling-from-2.1b2.diff
 
 	if use crypt && use mailclient ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail

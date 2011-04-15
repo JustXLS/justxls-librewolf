@@ -1,3 +1,5 @@
+# This patch reverts the change from
+# https://bugzilla.mozilla.org/show_bug.cgi?id=643294
 
 diff --git a/suite/browser/tabbrowser.xml b/suite/browser/tabbrowser.xml
 --- a/suite/browser/tabbrowser.xml
