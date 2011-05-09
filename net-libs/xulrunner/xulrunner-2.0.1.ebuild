@@ -46,8 +46,8 @@ RDEPEND="
 
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
-	amd64? ( ${ASM_DEPEND} )
-	x86? ( ${ASM_DEPEND} ) "
+	webm? ( amd64? ( ${ASM_DEPEND} )
+		x86? ( ${ASM_DEPEND} ) )"
 
 if [[ ${PV} =~ alpha|beta ]]; then
 	# hg snapshot tarball
