@@ -28,6 +28,8 @@ REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 # More URIs appended below...
 SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
+ASM_DEPEND=">=dev-lang/yasm-1.1.0"
+
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.9
@@ -38,12 +40,14 @@ RDEPEND="
 	media-libs/libpng[apng]
 	system-sqlite? ( >=dev-db/sqlite-3.7.4[fts3,secure-delete,unlock-notify,debug=] )
 	webm? ( media-libs/libvpx
-		media-libs/alsa-lib )
+		media-libs/alsa-lib
+		media-libs/mesa )
 	!www-plugins/weave"
 
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
-	dev-lang/yasm"
+	amd64? ( ${ASM_DEPEND} )
+	x86? ( ${ASM_DEPEND} ) "
 
 if [[ ${PV} =~ alpha|beta ]]; then
 	# hg snapshot tarball
@@ -135,6 +139,9 @@ src_configure() {
 	if [[ $(gcc-major-version) -lt 4 ]]; then
 		append-flags -fno-stack-protector
 	fi
+
+	# Ensure we do not fail on i{3,5,7} processors that support -mavx
+	append-flags -mno-avx
 
 	####################################
 	#
