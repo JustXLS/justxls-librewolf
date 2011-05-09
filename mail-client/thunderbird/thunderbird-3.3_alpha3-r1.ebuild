@@ -190,6 +190,9 @@ src_configure() {
 		append-cxxflags -fno-stack-protector
 	fi
 
+       # Ensure we do not fail on i{3,5,7} processors that support -mavx
+       append-flags -mno-avx
+
 	CPPFLAGS="${CPPFLAGS}" \
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
 	econf || die
