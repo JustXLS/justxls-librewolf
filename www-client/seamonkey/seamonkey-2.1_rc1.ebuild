@@ -8,7 +8,7 @@ WANT_AUTOCONF="2.1"
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib fdo-mime autotools mozextension python
 
 PATCH="${PN}-2.1rc1-patches-01"
-EMVER="1.1.2"
+EMVER="1.2a1_pre"
 
 LANGS="be ca cs de en en-US es-AR es-ES fi fr it ja lt nb-NO nl pl pt-PT ru sk sv-SE"
 NOSHORTLANGS="en-US es-AR"
@@ -45,7 +45,7 @@ IUSE="+alsa +chatzilla +composer +crypt gconf ldap +mailclient +roaming +webm"
 
 SRC_URI="${REL_URI}/source/${MY_P}.source.tar.bz2
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
-	crypt? ( mailclient? ( http://dev.gentoo.org/~polynomial-c/mozilla/enigmail-${EMVER}-20110410.tar.bz2 ) )"
+	crypt? ( mailclient? ( http://dev.gentoo.org/~polynomial-c/mozilla/enigmail-${EMVER}-20110513.tar.xz ) )"
 
 if ${HAS_LANGS} ; then
 	for X in ${LANGS} ; do
@@ -142,7 +142,7 @@ src_prepare() {
 	if use crypt && use mailclient ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
 		cd "${S}"/mailnews/extensions/enigmail || die
-		epatch "${FILESDIR}"/enigmail/enigmail-1.1.2-seamonkey-2.1b3-versionfix.patch
+		epatch "${FILESDIR}"/enigmail/enigmail-1.1.2-seamonkey-2.1rc1-versionfix.patch
 		epatch "${FILESDIR}"/enigmail/enigmail-1.1.2-20110124-makefile.diff
 		eautomake
 		makemake2
