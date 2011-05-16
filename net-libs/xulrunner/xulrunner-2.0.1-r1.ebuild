@@ -14,7 +14,7 @@ FF_PV="${FF_PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
 FF_PV="${FF_PV/_rc/rc}" # Handle rc for SRC_URI
 CHANGESET="e56ecd8b3a68"
-PATCH="${PN}-2.0-patches-1.7"
+PATCH="${PN}-2.0-patches-1.8"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
@@ -38,6 +38,7 @@ RDEPEND="
 	gconf? ( >=gnome-base/gconf-1.2.1:2 )
 	x11-libs/pango[X]
 	media-libs/libpng[apng]
+	dev-libs/libffi
 	system-sqlite? ( >=dev-db/sqlite-3.7.4[fts3,secure-delete,unlock-notify,debug=] )
 	webm? ( media-libs/libvpx
 		media-libs/alsa-lib
@@ -130,6 +131,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate '' --enable-safe-browsing
 	mozconfig_annotate '' --with-system-png
+	mozconfig_annotate '' --enable-system-ffi
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_enable gconf
 
