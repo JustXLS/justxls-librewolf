@@ -72,7 +72,7 @@ src_prepare() {
 	epatch "${WORKDIR}"
 
 	#64bit big indian support
-	epatch "${FILESDIR}/mozilla-2.0_support_64bit_big_indian.patch"
+	epatch "${FILESDIR}/mozilla-2.0_support_64bit_big_endian.patch"
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
