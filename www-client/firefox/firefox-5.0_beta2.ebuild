@@ -7,14 +7,14 @@ WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-3 makeedit multilib pax-utils fdo-mime autotools mozextension versionator python
 
-MAJ_XUL_PV="2.0"
+MAJ_XUL_PV="5.0"
 MAJ_FF_PV="$(get_version_component_range 1-2)" # 3.5, 3.6, 4.0, etc.
 XUL_PV="${MAJ_XUL_PV}${PV/${MAJ_FF_PV}/}" # 1.9.3_alpha6, 1.9.2.3, etc.
 FF_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
 FF_PV="${FF_PV/_rc/rc}" # Handle rc for SRC_URI
 CHANGESET="e56ecd8b3a68"
-PATCH="${PN}-4.0-patches-1.0"
+PATCH="${PN}-5.0-patches-0.3"
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
@@ -25,6 +25,7 @@ LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="bindist +ipc system-sqlite +webm"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
+FTP_URI="ftp://ftp.mozilla.org/pub/firefox/releases/"
 # More URIs appended below...
 SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
@@ -49,10 +50,14 @@ DEPEND="${RDEPEND}
 		amd64? ( ${ASM_DEPEND} ) )"
 
 # No source releases for alpha|beta
-if [[ ${PV} =~ alpha|beta ]]; then
+if [[ ${PV} =~ alpha ]]; then
 	SRC_URI="${SRC_URI}
 		http://dev.gentoo.org/~anarchy/mozilla/firefox/firefox-${FF_PV}_${CHANGESET}.source.tar.bz2"
 	S="${WORKDIR}/mozilla-central"
+elif [[ ${PV} =~ beta ]]; then
+	SRC_URI="${SRC_URI}
+		${FTP_URI}/${FF_PV}/source/firefox-${FF_PV}.source.tar.bz2"
+	S="${WORKDIR}/mozilla-beta"
 else
 	SRC_URI="${SRC_URI}
 		${REL_URI}/${FF_PV}/source/firefox-${FF_PV}.source.tar.bz2"
@@ -139,6 +144,7 @@ src_prepare() {
 	epatch "${WORKDIR}"
 
 	epatch "${FILESDIR}"/fix-preferences-gentoo.patch
+	epatch "${FILESDIR}"/fix_omnijar_startupcache_breakage.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
@@ -177,6 +183,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-system-ffi
 	mozconfig_annotate '' --with-system-libxul
 	mozconfig_annotate '' --with-libxul-sdk="${EPREFIX}"/usr/$(get_libdir)/xulrunner-devel-${MAJ_XUL_PV}
+	# mozconfig_annotate '' --enable-chrome-format=jar
 
 	# Other ff-specific settings
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
@@ -247,6 +254,11 @@ src_install() {
 	fi
 
 	pax-mark m "${ED}"/${MOZILLA_FIVE_HOME}/firefox
+
+
+	# Must symlink xulrunner into firefox directory now
+	dosym ../xulrunner-"${MAJ_XUL_PV}" "${MOZILLA_FIVE_HOME}"/xulrunner \
+		|| die "failed to setup xulrunner"
 
 	# Plugins dir
 	dosym ../nsbrowser/plugins "${MOZILLA_FIVE_HOME}"/plugins \

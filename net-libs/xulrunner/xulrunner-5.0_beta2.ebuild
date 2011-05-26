@@ -8,13 +8,13 @@ WANT_AUTOCONF="2.1"
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib autotools python versionator pax-utils prefix
 
 MAJ_XUL_PV="$(get_version_component_range 1-2)" # from mozilla-* branch name
-MAJ_FF_PV="4.0"
+MAJ_FF_PV="5.0"
 FF_PV="${PV/${MAJ_XUL_PV}/${MAJ_FF_PV}}" # 3.7_alpha6, 3.6.3, etc.
 FF_PV="${FF_PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
 FF_PV="${FF_PV/_rc/rc}" # Handle rc for SRC_URI
 CHANGESET="e56ecd8b3a68"
-PATCH="${PN}-2.0-patches-1.8"
+PATCH="${PN}-5.0-patches-0.3"
 
 DESCRIPTION="Mozilla runtime package that can be used to bootstrap XUL+XPCOM applications"
 HOMEPAGE="http://developer.mozilla.org/en/docs/XULRunner"
@@ -25,6 +25,7 @@ LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="+crashreporter gconf +ipc system-sqlite +webm"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
+FTP_URI="ftp://ftp.mozilla.org/pub/firefox/releases/"
 # More URIs appended below...
 SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
@@ -50,11 +51,15 @@ DEPEND="${RDEPEND}
 	webm? ( amd64? ( ${ASM_DEPEND} )
 		x86? ( ${ASM_DEPEND} ) )"
 
-if [[ ${PV} =~ alpha|beta ]]; then
+if [[ ${PV} =~ alpha ]]; then
 	# hg snapshot tarball
 	SRC_URI="${SRC_URI}
 		http://dev.gentoo.org/~anarchy/mozilla/firefox/firefox-${FF_PV}_${CHANGESET}.source.tar.bz2"
 	S="${WORKDIR}/mozilla-central"
+elif [[ ${PV} =~ beta ]]; then
+	SRC_URI="${SRC_URI}
+		${FTP_URI}/${FF_PV}/source/firefox-${FF_PV}.source.tar.bz2"
+	S="${WORKDIR}/mozilla-beta"
 else
 	SRC_URI="${SRC_URI}
 		${REL_URI}/${FF_PV}/source/firefox-${FF_PV}.source.tar.bz2"
@@ -71,17 +76,11 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
-	#64bit big indian support
-	epatch "${FILESDIR}/mozilla-2.0_support_64bit_big_endian.patch"
-
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
 
 	eprefixify \
-		extensions/java/xpcom/interfaces/org/mozilla/xpcom/Mozilla.java \
 		xpcom/build/nsXPCOMPrivate.h \
-		xulrunner/installer/Makefile.in \
-		xulrunner/app/nsRegisterGREUnix.cpp
 
 	# fix double symbols due to double -ljemalloc
 	sed -i -e '/^LIBS += $(JEMALLOC_LIBS)/s/^/#/' \
@@ -135,6 +134,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-safe-browsing
 	mozconfig_annotate '' --with-system-png
 	mozconfig_annotate '' --enable-system-ffi
+	#mozconfig_annotate '' --enable-chrome-format=jar
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_enable gconf
 

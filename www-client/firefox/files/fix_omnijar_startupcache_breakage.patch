@@ -1,0 +1,26 @@
+# HG changeset patch
+# Parent 321c235ffaf41a77747672f46c43aa024490b8e4
+
+diff --git a/browser/installer/Makefile.in b/browser/installer/Makefile.in
+--- a/browser/installer/Makefile.in
++++ b/browser/installer/Makefile.in
+@@ -118,9 +118,8 @@
+ endif
+ 
+ ifneq (1_,$(if $(CROSS_COMPILE),1,0)_$(UNIVERSAL_BINARY))
+-ifdef RUN_TEST_PROGRAM
+-_ABS_RUN_TEST_PROGRAM = $(call core_abspath,$(RUN_TEST_PROGRAM))
+-endif
++ifndef RUN_TEST_PROGRAM
++_ABS_RUN_TEST_PROGRAM = /usr/lib64/xulrunner-devel-5.0
+ 
+ GENERATE_CACHE = \
+   $(_ABS_RUN_TEST_PROGRAM) $(_ABS_DIST)/bin/xpcshell$(BIN_SUFFIX) -g "$$PWD" -f $(topsrcdir)/browser/installer/precompile_cache.js -e 'populate_startupcache("omni.jar", "startupCache.zip");' && \
+@@ -130,6 +129,7 @@
+   find jsloader | xargs touch -t 201001010000 && \
+   $(ZIP) -r9mX omni.jar jsloader
+ endif
++endif
+ 
+ include $(topsrcdir)/toolkit/mozapps/installer/packager.mk
+ 
