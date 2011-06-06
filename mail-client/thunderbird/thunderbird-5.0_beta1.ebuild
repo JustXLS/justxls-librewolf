@@ -1,21 +1,15 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/mail-client/thunderbird/thunderbird-3.1.6.ebuild,v 1.1 2010/10/28 15:40:01 polynomial-c Exp $
+# $Header: $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozextension autotools pax-utils python
 
-# This list can be updated using get_langs.sh from the mozilla overlay
-#LANGS="af ar be bg bn-BD ca cs da de el en en-GB en-US es-AR es-ES et eu fi fr \
-#fy-NL ga-IE he hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR pt-PT ro ru si \
-#sk sl sq sv-SE tr uk zh-CN zh-TW"
-#NOSHORTLANGS="en-GB es-AR pt-BR zh-TW"
-
-MY_PV="${PV/_alpha/a}"
-MY_P="${P/_alpha/a}"
-EMVER="1.2a1"
+TB_PV="${PV/_beta/b}"
+TB_P="${PN}-${TB_PV}"
+EMVER="1.2a2"
 
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
@@ -24,28 +18,36 @@ KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd ~amd64-linu
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="bindist gconf +crashreporter +crypt +ipc +lightning mozdom"
-PATCH="${PN}-3.3-patches-0.3"
+PATCH="${PN}-5.0-patches-0.1"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases"
-SRC_URI="${REL_URI}/${MY_PV}/source/${MY_P}.source.tar.bz2
-	crypt? ( http://dev.gentoo.org/~anarchy/mozilla/firefox/enigmail-${EMVER}-20110316.tar.bz2 )
+SRC_URI="${REL_URI}/${TB_PV}/source/${TB_P}.source.tar.bz2
+	crypt? ( http://dev.gentoo.org/~anarchy/mozilla/firefox/enigmail-${EMVER}-20110606.tar.bz2 )
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
-#for X in ${LANGS} ; do
-#	if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
-#		SRC_URI="${SRC_URI}
-#			linguas_${X/-/_}? ( ${REL_URI}/${MY_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
-#	fi
-#	IUSE="${IUSE} linguas_${X/-/_}"
-#	# english is handled internally
-#	if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
-#		if [ "${X}" != "en-US" ]; then
-#			SRC_URI="${SRC_URI}
-#				linguas_${X%%-*}? ( ${REL_URI}/${MY_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
-#		fi
-#		IUSE="${IUSE} linguas_${X%%-*}"
-#	fi
-#done
+if ! [[ ${PV} =~ alpha|beta ]]; then
+	# This list can be updated using get_langs.sh from the mozilla overlay
+	LANGS="af ar be bg bn-BD ca cs da de el en en-GB en-US es-AR es-ES et eu fi fr \
+	fy-NL ga-IE he hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR pt-PT ro ru si \
+	sk sl sq sv-SE tr uk zh-CN zh-TW"
+	NOSHORTLANGS="en-GB es-AR pt-BR zh-TW"
+
+	for X in ${LANGS} ; do
+		if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
+			SRC_URI="${SRC_URI}
+				linguas_${X/-/_}? ( ${REL_URI}/${TB_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+		fi
+		IUSE="${IUSE} linguas_${X/-/_}"
+		# english is handled internally
+		if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
+			if [ "${X}" != "en-US" ]; then
+				SRC_URI="${SRC_URI}
+					linguas_${X%%-*}? ( ${REL_URI}/${TB_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+			fi
+			IUSE="${IUSE} linguas_${X%%-*}"
+		fi
+	done
+fi
 
 RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.9
@@ -66,29 +68,29 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 
 DEPEND="${RDEPEND}"
 
-S="${WORKDIR}"/comm-central
+S="${WORKDIR}"/comm-miramar
 
-#linguas() {
-#	local LANG SLANG
-#	for LANG in ${LINGUAS}; do
-#		if has ${LANG} en en_US; then
-#			has en ${linguas} || linguas="${linguas:+"${linguas} "}en"
-#			continue
-#		elif has ${LANG} ${LANGS//-/_}; then
-#			has ${LANG//_/-} ${linguas} || linguas="${linguas:+"${linguas} "}${LANG//_/-}"
-#			continue
-#		elif [[ " ${LANGS} " == *" ${LANG}-"* ]]; then
-#			for X in ${LANGS}; do
-#				if [[ "${X}" == "${LANG}-"* ]] && \
-#					[[ " ${NOSHORTLANGS} " != *" ${X} "* ]]; then
-#					has ${X} ${linguas} || linguas="${linguas:+"${linguas} "}${X}"
-#					continue 2
-#				fi
-#			done
-#		fi
-#		ewarn "Sorry, but ${PN} does not support the ${LANG} LINGUA"
-#	done
-#}
+linguas() {
+	local LANG SLANG
+	for LANG in ${LINGUAS}; do
+		if has ${LANG} en en_US; then
+			has en ${linguas} || linguas="${linguas:+"${linguas} "}en"
+			continue
+		elif has ${LANG} ${LANGS//-/_}; then
+			has ${LANG//_/-} ${linguas} || linguas="${linguas:+"${linguas} "}${LANG//_/-}"
+			continue
+		elif [[ " ${LANGS} " == *" ${LANG}-"* ]]; then
+			for X in ${LANGS}; do
+				if [[ "${X}" == "${LANG}-"* ]] && \
+					[[ " ${NOSHORTLANGS} " != *" ${X} "* ]]; then
+					has ${X} ${linguas} || linguas="${linguas:+"${linguas} "}${X}"
+					continue 2
+				fi
+			done
+		fi
+		ewarn "Sorry, but ${PN} does not support the ${LANG} LINGUA"
+	done
+}
 
 pkg_setup() {
 	moz_pkgsetup
@@ -104,14 +106,16 @@ pkg_setup() {
 src_unpack() {
 	unpack ${A}
 
-#	linguas
-#	for X in ${linguas}; do
-#		# FIXME: Add support for unpacking xpis to portage
-#		[[ ${X} != "en" ]] && xpi_unpack "${P}-${X}.xpi"
-#	done
-#	if [[ ${linguas} != "" && ${linguas} != "en" ]]; then
-#		einfo "Selected language packs (first will be default): ${linguas}"
-#	fi
+	if ! [[ ${PV} =~ alpha|beta ]]; then
+		linguas
+		for X in ${linguas}; do
+			# FIXME: Add support for unpacking xpis to portage
+			[[ ${X} != "en" ]] && xpi_unpack "${P}-${X}.xpi"
+		done
+		if [[ ${linguas} != "" && ${linguas} != "en" ]]; then
+			einfo "Selected language packs (first will be default): ${linguas}"
+		fi
+	fi
 }
 
 src_prepare() {
@@ -123,7 +127,6 @@ src_prepare() {
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
 		cd "${S}"/mailnews/extensions/enigmail || die
-		epatch "${FILESDIR}"/enigmail-1.1.2-20110124-locale-fixup.diff
 		./makemake -r 2&> /dev/null
 		sed -i -e 's:@srcdir@:${S}/mailnews/extensions/enigmail:' Makefile.in
 		cd "${S}"
@@ -244,10 +247,12 @@ src_install() {
 		unzip "${S}"/mozilla/dist/xpi-stage/lightning.xpi
 	fi
 
-#	linguas
-#	for X in ${linguas}; do
-#		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${P}-${X}"
-#	done
+	if ! [[ ${PV} =~ alpha|beta ]]; then
+		linguas
+		for X in ${linguas}; do
+			[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${P}-${X}"
+		done
+	fi
 
 	if ! use bindist; then
 		newicon "${S}"/other-licenses/branding/thunderbird/content/icon48.png thunderbird-icon.png
