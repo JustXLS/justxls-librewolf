@@ -197,5 +197,5 @@ src_install() {
 	dodir /etc/env.d
 	echo "LDPATH=${EPREFIX}/${MOZLIBDIR}" > "${ED}"/etc/env.d/08xulrunner || die "env.d failed"
 
-	pax-mark m "${ED}"/${MOZLIBDIR}/plugin-container
+	pax-mark m "${ED}"/${MOZLIBDIR}/{plugin-container,xpcshell}
 }

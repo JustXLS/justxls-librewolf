@@ -24,3 +24,4 @@ diff --git a/browser/installer/Makefile.in b/browser/installer/Makefile.in
  
  include $(topsrcdir)/toolkit/mozapps/installer/packager.mk
  
+
