@@ -41,7 +41,7 @@ HOMEPAGE="http://www.seamonkey-project.org"
 
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa +chatzilla +composer +crypt gconf +roaming +webm"
+IUSE="+alsa +chatzilla +crypt gconf +roaming +webm"
 
 SRC_URI="${REL_URI}/source/${MY_P}.source.tar.bz2
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
@@ -192,11 +192,11 @@ src_configure() {
 		MEXTENSIONS="${MEXTENSIONS},-sroaming"
 	fi
 
-	if ! use composer ; then
-		if ! use chatzilla ; then
-			mozconfig_annotate '-composer' --disable-composer
-		fi
-	fi
+	#if ! use composer ; then
+	#	if ! use chatzilla ; then
+	#		mozconfig_annotate '-composer' --disable-composer
+	#	fi
+	#fi
 
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 	mozconfig_annotate '' --enable-jsd
