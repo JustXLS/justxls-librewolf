@@ -7,19 +7,17 @@ WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib fdo-mime autotools mozextension python
 
-PATCH="${PN}-2.1b3-patches-01"
-EMVER="1.1.2"
+PATCH="${PN}-2.1rc1-patches-01"
+EMVER="1.2a2"
 
-LANGS="be cs de en en-US es-AR es-ES fr lt nl pl pt-PT ru sk"
-NOSHORTLANGS="en-US es-AR"
+LANGS="be ca cs de en en-GB en-US es-AR es-ES fi fr it ja lt nb-NO nl pl pt-PT ru sk sv-SE tr"
+NOSHORTLANGS="en-GB en-US es-AR"
 
 MY_PV="${PV/_pre*}"
 MY_PV="${MY_PV/_alpha/a}"
 MY_PV="${MY_PV/_beta/b}"
 MY_PV="${MY_PV/_rc/rc}"
 MY_P="${PN}-${MY_PV}"
-
-[[ ${MY_PV} == 2.1b3 ]] && MY_PV="${MY_PV}-real"
 
 # release versions usually have language packs. So be careful with changing this.
 HAS_LANGS="true"
@@ -43,24 +41,24 @@ HOMEPAGE="http://www.seamonkey-project.org"
 
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa +chatzilla +composer +crypt gconf ldap +mailclient +roaming +webm"
+IUSE="+alsa +chatzilla +composer +crypt gconf +roaming +webm"
 
 SRC_URI="${REL_URI}/source/${MY_P}.source.tar.bz2
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
-	crypt? ( mailclient? ( http://dev.gentoo.org/~polynomial-c/mozilla/enigmail-${EMVER}-20110410.tar.bz2 ) )"
+	crypt? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz )"
 
 if ${HAS_LANGS} ; then
 	for X in ${LANGS} ; do
 		if [ "${X}" != "en" ] ; then
 			SRC_URI="${SRC_URI}
-				linguas_${X/-/_}? ( ${REL_URI}/langpack/${MY_P}.${X}.langpack.xpi -> ${MY_P}-${X}.xpi )"
+				linguas_${X/-/_}? ( ${REL_URI/build?/build1}/langpack/${MY_P}.${X}.langpack.xpi -> ${MY_P}-${X}.xpi )"
 		fi
 		IUSE="${IUSE} linguas_${X/-/_}"
 		# english is handled internally
 		if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
 			#if [ "${X}" != "en-US" ]; then
 				SRC_URI="${SRC_URI}
-					linguas_${X%%-*}? ( ${REL_URI}/langpack/${MY_P}.${X}.langpack.xpi -> ${MY_P}-${X}.xpi )"
+					linguas_${X%%-*}? ( ${REL_URI/build?/build1}/langpack/${MY_P}.${X}.langpack.xpi -> ${MY_P}-${X}.xpi )"
 			#fi
 			IUSE="${IUSE} linguas_${X%%-*}"
 		fi
@@ -73,7 +71,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=media-libs/libpng-1.4.1[apng]
 	>=x11-libs/pango-1.14.0[X]
 	gconf? ( >=gnome-base/gconf-1.2.1:2 )
-	crypt? ( mailclient? ( >=app-crypt/gnupg-1.4 ) )
+	crypt? ( >=app-crypt/gnupg-1.4 )
 	webm? ( media-libs/libvpx
 		media-libs/alsa-lib )"
 
@@ -81,7 +79,7 @@ DEPEND="${RDEPEND}
 	dev-util/pkgconfig
 	dev-lang/yasm"
 
-S="${WORKDIR}/comm-central"
+S="${WORKDIR}/comm-2.0"
 
 linguas() {
 	local LANG SLANG
@@ -136,15 +134,15 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/patch"
 
-	epatch "${FILESDIR}"/2.1/${PN}-2.1b1-configure-fix.patch
+	#epatch "${FILESDIR}"/2.1/${PN}-2.1b1-configure-fix.patch
 
 	EPATCH_OPTS="-R" \
 	epatch "${FILESDIR}"/2.1/${PN}-2.1b3-restore-tabbar-scrolling-from-2.1b2.diff
 
-	if use crypt && use mailclient ; then
+	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
 		cd "${S}"/mailnews/extensions/enigmail || die
-		epatch "${FILESDIR}"/enigmail/enigmail-1.1.2-seamonkey-2.1b3-versionfix.patch
+		epatch "${FILESDIR}"/enigmail/enigmail-1.1.2-seamonkey-2.1rc1-versionfix.patch
 		epatch "${FILESDIR}"/enigmail/enigmail-1.1.2-20110124-makefile.diff
 		eautomake
 		makemake2
@@ -195,7 +193,7 @@ src_configure() {
 	fi
 
 	if ! use composer ; then
-		if ! use chatzilla && ! use mailclient ; then
+		if ! use chatzilla ; then
 			mozconfig_annotate '-composer' --disable-composer
 		fi
 	fi
@@ -206,11 +204,12 @@ src_configure() {
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 
 	mozconfig_use_enable gconf
-	mozconfig_use_enable ldap
-	mozconfig_use_enable ldap ldap-experimental
-	mozconfig_use_enable mailclient mailnews
+	#mozconfig_use_enable ldap
+	#mozconfig_use_enable ldap ldap-experimental
+	#mozconfig_use_enable mailclient mailnews
+	#mozconfig_annotate '' --enable-mailnews
 
-	if use mailclient && use crypt ; then
+	if use crypt ; then
 		mozconfig_annotate "mail crypt" --enable-chrome-format=jar
 	fi
 
@@ -245,7 +244,7 @@ src_compile() {
 	emake ${jobs} || die
 
 	# Only build enigmail extension if conditions are met.
-	if use crypt && use mailclient ; then
+	if use crypt ; then
 		emake -C "${S}"/mailnews/extensions/enigmail || die "make enigmail failed"
 		emake -j1 -C "${S}"/mailnews/extensions/enigmail xpi || die "make enigmail xpi failed"
 	fi
@@ -256,9 +255,9 @@ src_install() {
 	declare emid
 
 	emake DESTDIR="${D}" install || die "emake install failed"
-	cp -f "${FILESDIR}"/icon/seamonkey.desktop "${T}" || die
+	cp -f "${FILESDIR}"/icon/${PN}.desktop "${T}" || die
 
-	if use crypt && use mailclient ; then
+	if use crypt ; then
 		cd "${T}" || die
 		unzip "${S}"/mozilla/dist/bin/enigmail*.xpi install.rdf || die
 		emid=$(sed -n '/<em:id>/!d; s/.*\({.*}\).*/\1/; p; q' install.rdf)
@@ -268,12 +267,10 @@ src_install() {
 		unzip "${S}"/mozilla/dist/bin/enigmail*.xpi || die
 	fi
 
-	if use mailclient ; then
-		sed 's|^\(MimeType=.*\)$|\1text/x-vcard;text/directory;application/mbox;message/rfc822;x-scheme-handler/mailto;|' \
-			-i "${T}"/${PN}.desktop || die
-		sed 's|^\(Categories=.*\)$|\1Email;|' -i "${T}"/${PN}.desktop \
-			|| die
-	fi
+	sed 's|^\(MimeType=.*\)$|\1text/x-vcard;text/directory;application/mbox;message/rfc822;x-scheme-handler/mailto;|' \
+		-i "${T}"/${PN}.desktop || die
+	sed 's|^\(Categories=.*\)$|\1Email;|' -i "${T}"/${PN}.desktop \
+		|| die
 
 	if ${HAS_LANGS} ; then
 		linguas
@@ -288,9 +285,9 @@ src_install() {
 	fi
 
 	# Install icon and .desktop for menu entry
-	newicon "${S}"/suite/branding/nightly/content/icon64.png seamonkey.png \
+	newicon "${S}"/suite/branding/nightly/content/icon64.png ${PN}.png \
 		|| die
-	domenu "${T}"/seamonkey.desktop || die
+	domenu "${T}"/${PN}.desktop || die
 
 	# Add our default prefs
 	sed "s|SEAMONKEY_PVR|${PVR}|" "${FILESDIR}"/all-gentoo.js \

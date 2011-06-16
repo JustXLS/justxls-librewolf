@@ -10,8 +10,8 @@ inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib fdo-mi
 PATCH="${PN}-2.1rc1-patches-01"
 EMVER="1.2a1_pre"
 
-LANGS="be ca cs de en en-US es-AR es-ES fi fr it ja lt nb-NO nl pl pt-PT ru sk sv-SE"
-NOSHORTLANGS="en-US es-AR"
+LANGS="be ca cs de en en-GB en-US es-AR es-ES fi fr it ja lt nb-NO nl pl pt-PT ru sk sv-SE tr"
+NOSHORTLANGS="en-GB en-US es-AR"
 
 MY_PV="${PV/_pre*}"
 MY_PV="${MY_PV/_alpha/a}"
