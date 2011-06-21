@@ -69,7 +69,6 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.9
 	>=dev-libs/nspr-4.8.7
 	>=media-libs/libpng-1.4.1[apng]
-	>=x11-libs/pango-1.14.0[X]
 	gconf? ( >=gnome-base/gconf-1.2.1:2 )
 	crypt? ( mailclient? ( >=app-crypt/gnupg-1.4 ) )
 	webm? ( media-libs/libvpx

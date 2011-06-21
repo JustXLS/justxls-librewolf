@@ -37,7 +37,6 @@ RDEPEND="
 	>=dev-libs/nspr-4.8.7
 	>=dev-libs/glib-2.26
 	media-libs/libpng[apng]
-	x11-libs/pango[X]
 	dev-libs/libffi
 	system-sqlite? ( >=dev-db/sqlite-3.7.4[fts3,secure-delete,unlock-notify,debug=] )
 	~net-libs/xulrunner-${XUL_PV}[wifi=,libnotify=,system-sqlite=,webm=]

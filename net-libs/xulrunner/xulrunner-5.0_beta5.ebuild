@@ -37,7 +37,6 @@ RDEPEND="
 	>=dev-libs/nspr-4.8.7
 	>=dev-libs/glib-2.26
 	gconf? ( >=gnome-base/gconf-1.2.1:2 )
-	x11-libs/pango[X]
 	media-libs/libpng[apng]
 	dev-libs/libffi
 	system-sqlite? ( >=dev-db/sqlite-3.7.4[fts3,secure-delete,unlock-notify,debug=] )
