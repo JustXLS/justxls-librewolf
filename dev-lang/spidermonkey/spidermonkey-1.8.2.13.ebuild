@@ -6,7 +6,7 @@ EAPI="2"
 inherit eutils toolchain-funcs multilib python
 
 MY_PV="${PV}"
-MY_PV="${MY_PV/1.9.2/3.6}"
+MY_PV="${MY_PV/1.8.2/3.6}"
 DESCRIPTION="Stand-alone JavaScript C library"
 HOMEPAGE="http://www.mozilla.org/js/spidermonkey/"
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
