@@ -134,8 +134,6 @@ src_prepare() {
 	epatch "${WORKDIR}/patch"
 
 	#epatch "${FILESDIR}"/2.1/${PN}-2.1b1-configure-fix.patch
-
-	EPATCH_OPTS="-R" \
 	epatch "${FILESDIR}"/2.1/${PN}-2.1b3-restore-tabbar-scrolling-from-2.1b2.diff
 
 	if use crypt ; then
