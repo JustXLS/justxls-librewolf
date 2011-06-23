@@ -25,6 +25,7 @@ if [[ ${PV} == *_pre* ]] ; then
 	# pre-releases. No need for arch teams to change KEYWORDS here.
 
 	REL_URI="ftp://ftp.mozilla.org/pub/mozilla.org/${PN}/nightly/${MY_PV}-candidates/build${PV##*_pre}"
+	LANG_URI="${REL_URI}/langpack"
 	#KEYWORDS=""
 	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 	#HAS_LANGS="false"
@@ -32,6 +33,7 @@ else
 	# This is where arch teams should change the KEYWORDS.
 
 	REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases/${MY_PV}"
+	LANG_URI="${REL_URI}/langpack"
 	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 	[[ ${PV} == *alpha* ]] && HAS_LANGS="false"
 fi
@@ -51,14 +53,14 @@ if ${HAS_LANGS} ; then
 	for X in ${LANGS} ; do
 		if [ "${X}" != "en" ] ; then
 			SRC_URI="${SRC_URI}
-				linguas_${X/-/_}? ( ${REL_URI/build?/build1}/langpack/${MY_P}.${X}.langpack.xpi -> ${MY_P}-${X}.xpi )"
+				linguas_${X/-/_}? ( ${LANG_URI}/${MY_P}.${X}.langpack.xpi -> ${MY_P}-${X}.xpi )"
 		fi
 		IUSE="${IUSE} linguas_${X/-/_}"
 		# english is handled internally
 		if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
 			#if [ "${X}" != "en-US" ]; then
 				SRC_URI="${SRC_URI}
-					linguas_${X%%-*}? ( ${REL_URI/build?/build1}/langpack/${MY_P}.${X}.langpack.xpi -> ${MY_P}-${X}.xpi )"
+					linguas_${X%%-*}? ( ${LANG_URI}/${MY_P}.${X}.langpack.xpi -> ${MY_P}-${X}.xpi )"
 			#fi
 			IUSE="${IUSE} linguas_${X%%-*}"
 		fi
