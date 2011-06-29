@@ -8,7 +8,7 @@ WANT_AUTOCONF="2.1"
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib fdo-mime autotools mozextension python
 
 PATCH="${PN}-2.2b1-patches-01"
-EMVER="1.2a2"
+EMVER="1.2"
 
 LANGS="ca cs de en en-GB en-US es-AR es-ES fr it ja lt nl pl ru sk sv-SE"
 NOSHORTLANGS="en-GB en-US es-AR"
@@ -145,7 +145,7 @@ src_prepare() {
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
 		cd "${S}"/mailnews/extensions/enigmail || die
-		epatch "${FILESDIR}"/enigmail/enigmail-1.2a2-seamonkey-2.2b1-versionfix.patch
+		epatch "${FILESDIR}"/enigmail/enigmail-1.2-seamonkey-2.2-versionfix.patch
 		epatch "${FILESDIR}"/enigmail/enigmail-1.1.2-20110124-makefile.diff
 		eautomake
 		makemake2
