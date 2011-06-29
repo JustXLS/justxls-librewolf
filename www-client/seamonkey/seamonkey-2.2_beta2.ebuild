@@ -21,7 +21,6 @@ MY_P="${PN}-${MY_PV}"
 
 # release versions usually have language packs. So be careful with changing this.
 HAS_LANGS="true"
-LANG_URI="${REL_URI}/langpack"
 LANGPACK_PREFIX="${MY_P}."
 LANGPACK_SUFFIX=".langpack"
 if [[ ${PV} == *_pre* ]] ; then
@@ -38,6 +37,7 @@ else
 	# This is where arch teams should change the KEYWORDS.
 
 	REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases/${MY_PV}"
+	LANG_URI="${REL_URI}/langpack"
 	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 	[[ ${PV} == *alpha* ]] && HAS_LANGS="false"
 fi
