@@ -9,7 +9,7 @@ inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozext
 
 TB_PV="${PV/_beta/b}"
 TB_P="${PN}-${TB_PV}"
-EMVER="1.2a2"
+EMVER="1.2"
 
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
@@ -22,14 +22,15 @@ PATCH="${PN}-5.0-patches-0.1"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases"
 SRC_URI="${REL_URI}/${TB_PV}/source/${TB_P}.source.tar.bz2
-	crypt? ( http://dev.gentoo.org/~anarchy/mozilla/firefox/enigmail-${EMVER}-20110606.tar.bz2 )
+	crypt? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz )
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
 if ! [[ ${PV} =~ alpha|beta ]]; then
 	# This list can be updated using get_langs.sh from the mozilla overlay
-	LANGS="af ar be bg bn-BD ca cs da de el en en-GB en-US es-AR es-ES et eu fi fr \
-	fy-NL ga-IE he hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR pt-PT ro ru si \
-	sk sl sq sv-SE tr uk zh-CN zh-TW"
+	# Not supported yet bn-BD ro id zh-CN be af el
+	LANGS="ar bg ca cs da de en en-GB en-US es-AR es-ES et eu fi fr \
+	fy-NL ga-IE he hu is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR pt-PT ru si \
+	sk sl sq sv-SE tr uk zh-TW"
 	NOSHORTLANGS="en-GB es-AR pt-BR zh-TW"
 
 	for X in ${LANGS} ; do
