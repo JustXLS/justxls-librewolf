@@ -7,10 +7,10 @@ WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib fdo-mime autotools mozextension python
 
-PATCH="${PN}-2.1rc1-patches-01"
+PATCH="${PN}-2.2b1-patches-01"
 EMVER="1.2"
 
-LANGS="be ca cs de en en-GB en-US es-AR es-ES fi fr it ja lt nb-NO nl pl pt-PT ru sk sv-SE tr"
+LANGS="ca cs de en en-GB en-US es-AR es-ES fr it ja lt nl pl ru sk sv-SE"
 NOSHORTLANGS="en-GB en-US es-AR"
 
 MY_PV="${PV/_pre*}"
@@ -21,10 +21,15 @@ MY_P="${PN}-${MY_PV}"
 
 # release versions usually have language packs. So be careful with changing this.
 HAS_LANGS="true"
+LANGPACK_PREFIX="${MY_P}."
+LANGPACK_SUFFIX=".langpack"
 if [[ ${PV} == *_pre* ]] ; then
 	# pre-releases. No need for arch teams to change KEYWORDS here.
 
 	REL_URI="ftp://ftp.mozilla.org/pub/mozilla.org/${PN}/nightly/${MY_PV}-candidates/build${PV##*_pre}"
+	LANG_URI="${REL_URI}/linux-i686/xpi"
+	LANGPACK_PREFIX=""
+	LANGPACK_SUFFIX=""
 	#KEYWORDS=""
 	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 	#HAS_LANGS="false"
@@ -32,6 +37,7 @@ else
 	# This is where arch teams should change the KEYWORDS.
 
 	REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases/${MY_PV}"
+	LANG_URI="${REL_URI}/langpack"
 	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 	[[ ${PV} == *alpha* ]] && HAS_LANGS="false"
 fi
@@ -43,7 +49,7 @@ SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="+alsa +chatzilla +crypt gconf +roaming +webm"
 
-SRC_URI="${REL_URI}/source/${MY_P}.source.tar.bz2
+SRC_URI="${REL_URI}/source/${MY_P}.source.tar.bz2 -> ${P}.source.tar.bz2
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
 	crypt? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz )"
 
@@ -51,14 +57,14 @@ if ${HAS_LANGS} ; then
 	for X in ${LANGS} ; do
 		if [ "${X}" != "en" ] ; then
 			SRC_URI="${SRC_URI}
-				linguas_${X/-/_}? ( ${REL_URI/build?/build1}/langpack/${MY_P}.${X}.langpack.xpi -> ${MY_P}-${X}.xpi )"
+				linguas_${X/-/_}? ( ${LANG_URI}/${LANGPACK_PREFIX}${X}${LANGPACK_SUFFIX}.xpi -> ${P}-${X}.xpi )"
 		fi
 		IUSE="${IUSE} linguas_${X/-/_}"
 		# english is handled internally
 		if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
 			#if [ "${X}" != "en-US" ]; then
 				SRC_URI="${SRC_URI}
-					linguas_${X%%-*}? ( ${REL_URI/build?/build1}/langpack/${MY_P}.${X}.langpack.xpi -> ${MY_P}-${X}.xpi )"
+					linguas_${X%%-*}? ( ${LANG_URI}/${LANGPACK_PREFIX}${X}${LANGPACK_SUFFIX}.xpi -> ${P}-${X}.xpi )"
 			#fi
 			IUSE="${IUSE} linguas_${X%%-*}"
 		fi
@@ -78,7 +84,7 @@ DEPEND="${RDEPEND}
 	dev-util/pkgconfig
 	dev-lang/yasm"
 
-S="${WORKDIR}/comm-2.0"
+S="${WORKDIR}/comm-beta"
 
 linguas() {
 	local LANG SLANG
@@ -109,7 +115,7 @@ src_unpack() {
 		linguas
 		for X in ${linguas}; do
 			# FIXME: Add support for unpacking xpis to portage
-			[[ ${X} != "en" ]] && xpi_unpack "${MY_P}-${X}.xpi"
+			[[ ${X} != "en" ]] && xpi_unpack "${P}-${X}.xpi"
 		done
 		if [[ ${linguas} != "" && ${linguas} != "en" ]]; then
 			einfo "Selected language packs (first will be default): ${linguas}"
@@ -139,6 +145,7 @@ src_prepare() {
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
 		cd "${S}"/mailnews/extensions/enigmail || die
+		epatch "${FILESDIR}"/enigmail/enigmail-1.2-seamonkey-2.2-versionfix.patch
 		epatch "${FILESDIR}"/enigmail/enigmail-1.1.2-20110124-makefile.diff
 		eautomake
 		makemake2
@@ -271,7 +278,7 @@ src_install() {
 	if ${HAS_LANGS} ; then
 		linguas
 		for X in ${linguas}; do
-			[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${MY_P}-${X}"
+			[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${P}-${X}"
 		done
 	fi
 
