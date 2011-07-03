@@ -145,6 +145,9 @@ src_prepare() {
 
 	epatch "${FILESDIR}"/${PN}-2.1b3-restore-tabbar-scrolling-from-2.1b2.diff
 
+	# Allow user to apply any additional patches without modifing ebuild
+	epatch_user
+
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
 		cd "${S}"/mailnews/extensions/enigmail || die
