@@ -72,6 +72,8 @@ if ${HAS_LANGS} ; then
 	done
 fi
 
+ASM_DEPEND=">=dev-lang/yasm-1.1"
+
 RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.9
 	>=dev-libs/nspr-4.8.7
@@ -83,7 +85,8 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
-	dev-lang/yasm"
+	webm? ( amd64? ( ${ASM_DEPEND} )
+		x86? ( ${ASM_DEPEND} ) )"
 
 S="${WORKDIR}/comm-beta"
 
@@ -140,7 +143,7 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/patch"
 
-	epatch "${FILESDIR}"/2.1/${PN}-2.1b3-restore-tabbar-scrolling-from-2.1b2.diff
+	epatch "${FILESDIR}"/${PN}-2.1b3-restore-tabbar-scrolling-from-2.1b2.diff
 
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
@@ -153,7 +156,7 @@ src_prepare() {
 	fi
 
 	#Ensure we disable javaxpcom by default to prevent configure breakage
-	sed -i -e s:MOZ_JAVAXPCOM\=1::g ${S}/mozilla/xulrunner/confvars.sh \
+	sed -i -e s:MOZ_JAVAXPCOM\=1::g "${S}"/mozilla/xulrunner/confvars.sh \
 		|| die "sed javaxpcom"
 
 	# Disable gnomevfs extension
@@ -201,7 +204,7 @@ src_configure() {
 		mozconfig_annotate "mail crypt" --enable-chrome-format=jar
 	fi
 
-        mozconfig_annotate '' --with-system-png
+	mozconfig_annotate '' --with-system-png
 
 	# Finalize and report settings
 	mozconfig_final

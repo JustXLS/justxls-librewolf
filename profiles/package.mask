@@ -6,5 +6,5 @@
 #
 
 # These are experimental use with caution!!
->=www-client/seamonkey-2.1_alpha1
+>=www-client/seamonkey-2.2_beta1
 
