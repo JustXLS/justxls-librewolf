@@ -7,7 +7,7 @@ WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib fdo-mime autotools mozextension python
 
-PATCH="${PN}-2.1rc1-patches-01"
+PATCH="${PN}-2.1-patches-01"
 EMVER="1.2"
 
 LANGS="be ca cs de en en-GB en-US es-AR es-ES fi fr it ja lt nb-NO nl pl pt-PT ru sk sv-SE tr"
@@ -133,15 +133,13 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/patch"
 
-	#epatch "${FILESDIR}"/2.1/${PN}-2.1b1-configure-fix.patch
 	epatch "${FILESDIR}"/2.1/${PN}-2.1b3-restore-tabbar-scrolling-from-2.1b2.diff
 
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
 		cd "${S}"/mailnews/extensions/enigmail || die
-		epatch "${FILESDIR}"/enigmail/enigmail-1.1.2-20110124-makefile.diff
-		eautomake
-		makemake2
+		epatch "${FILESDIR}"/enigmail/enigmail-1.2-seamonkey-2.1-lowercaseequalsliteralfix.patch
+		./makemake -r 2&>/dev/null
 		sed -e 's:@srcdir@:${S}/mailnews/extensions/enigmail:' \
 			-i Makefile.in || die
 		cd "${S}"
@@ -188,31 +186,17 @@ src_configure() {
 		MEXTENSIONS="${MEXTENSIONS},-sroaming"
 	fi
 
-	#if ! use composer ; then
-	#	if ! use chatzilla ; then
-	#		mozconfig_annotate '-composer' --disable-composer
-	#	fi
-	#fi
-
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 	mozconfig_annotate '' --enable-jsd
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 
 	mozconfig_use_enable gconf
-	#mozconfig_use_enable ldap
-	#mozconfig_use_enable ldap ldap-experimental
-	#mozconfig_use_enable mailclient mailnews
-	#mozconfig_annotate '' --enable-mailnews
 
 	if use crypt ; then
 		mozconfig_annotate "mail crypt" --enable-chrome-format=jar
 	fi
 
-        # ZOMG! Mozilla guys wanna have APNG in libpng if building with
-        # system-libpng. Kids, leave your fingers from drugs that make you
-        # do such nasty "extensions"!!!
-        # See https://bugs.gentoo.org/183370 for details.
         mozconfig_annotate '' --with-system-png
 
 	# Finalize and report settings
@@ -236,8 +220,7 @@ src_configure() {
 
 src_compile() {
 	# Should the build use multiprocessing? Not enabled by default, as it tends to break.
-	[ "${WANT_MP}" = "true" ] && jobs=${MAKEOPTS} || jobs="-j1"
-	emake ${jobs} || die
+	emake || die
 
 	# Only build enigmail extension if conditions are met.
 	if use crypt ; then
