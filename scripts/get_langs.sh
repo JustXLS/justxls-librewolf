@@ -24,5 +24,5 @@ else
   echo 'Unknown product, dying...'
   exit 1
 fi
-LANGS=$(echo ${INBUILT_LANGS} ${XPI_LANGS} | tr " " "\n" | sort -d | uniq)
-echo ${LANGS}
+LANGS=$(echo ${INBUILT_LANGS} ${XPI_LANGS} | tr " " "\n" | sort -d | uniq | tr "\n" " ")
+echo "LANGS=(${LANGS})"
