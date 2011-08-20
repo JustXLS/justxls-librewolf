@@ -1,6 +1,6 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Header: /var/cvsroot/gentoo-x86/mail-client/thunderbird/thunderbird-5.0.ebuild,v 1.4 2011/07/31 14:58:39 anarchy Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
@@ -9,7 +9,7 @@ inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozext
 
 TB_PV="${PV/_beta/b}"
 TB_P="${PN}-${TB_PV}"
-EMVER="1.2"
+EMVER="1.3"
 
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
@@ -27,9 +27,9 @@ SRC_URI="${REL_URI}/${TB_PV}/source/${TB_P}.source.tar.bz2
 
 if ! [[ ${PV} =~ alpha|beta ]]; then
 	# This list can be updated using get_langs.sh from the mozilla overlay
-	# Not supported yet bn-BD ro id zh-CN be af el
-	LANGS="ar bg ca cs da de en en-GB en-US es-AR es-ES et eu fi fr \
-	fy-NL ga-IE he hu is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR pt-PT ru si \
+	# Not supported yet bn-BD ro id zh-CN be af el pa-IN bg
+	LANGS="ar ca cs da de en en-GB en-US es-AR es-ES et eu fi fr \
+	fy-NL ga-IE he hu is it ja ko lt nb-NO nl nn-NO pl pt-BR pt-PT ru si \
 	sk sl sq sv-SE tr uk zh-TW"
 	NOSHORTLANGS="en-GB es-AR pt-BR zh-TW"
 
@@ -57,6 +57,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	media-libs/libpng[apng]
 	!x11-plugins/lightning
 	!x11-plugins/enigmail
+	system-sqlite? ( >=dev-db/sqlite-3.7.5[fts3,secure-delete,unlock-notify,debug=] )
 	crypt?  ( || (
 		( >=app-crypt/gnupg-2.0
 			|| (
@@ -69,7 +70,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 
 DEPEND="${RDEPEND}"
 
-S="${WORKDIR}"/comm-miramar
+S="${WORKDIR}"/comm-release
 
 linguas() {
 	local LANG SLANG
@@ -125,6 +126,8 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
 
+	epatch "${FILESDIR}"/fix-thunderbird-calender-support.patch
+
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
 		cd "${S}"/mailnews/extensions/enigmail || die
@@ -132,6 +135,13 @@ src_prepare() {
 		sed -i -e 's:@srcdir@:${S}/mailnews/extensions/enigmail:' Makefile.in
 		cd "${S}"
 	fi
+
+	#Fix compilation with curl-7.21.7 bug 376027
+	sed -e '/#include <curl\/types.h>/d'  \
+		-i "${S}"/mozilla/toolkit/crashreporter/google-breakpad/src/common/linux/http_upload.cc \
+		-i "${S}"/mozilla/toolkit/crashreporter/google-breakpad/src/common/linux/libcurl_wrapper.cc \
+		-i "${S}"/mozilla/config/system-headers \
+		-i "${S}"/mozilla/js/src/config/system-headers || die "Sed failed"
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
@@ -161,7 +171,7 @@ src_configure() {
 	use alpha && append-ldflags "-Wl,--no-relax"
 
 	if use crypt ; then
-		# omni.jar breaks enigmail 
+		# omni.jar breaks enigmail
 		mozconfig_annotate '' --enable-chrome-format=jar
 	fi
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
@@ -194,7 +204,7 @@ src_configure() {
 		append-cxxflags -fno-stack-protector
 	fi
 
-       # Ensure we do not fail on i{3,5,7} processors that support -mavx
+	# Ensure we do not fail on i{3,5,7} processors that support -mavx
 	if use amd64 || use x86; then
 		append-flags -mno-avx
 	fi
