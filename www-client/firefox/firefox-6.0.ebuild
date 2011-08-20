@@ -260,6 +260,8 @@ src_configure() {
 
 src_compile() {
 	if use pgo; then
+		addpredict /root
+		addpredict /etc/gconf
 		CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
 		MOZ_MAKE_FLAGS="${MAKEOPTS}" \
 		Xemake -f client.mk profiledbuild || die "Xemake failed"
