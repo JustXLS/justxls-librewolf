@@ -202,11 +202,10 @@ src_configure() {
 
 	if [[ $(gcc-major-version) -lt 4 ]]; then
 		append-cxxflags -fno-stack-protector
-	fi
-
-	# Ensure we do not fail on i{3,5,7} processors that support -mavx
-	if use amd64 || use x86; then
-		append-flags -mno-avx
+	elif [[ $(gcc-major-version) -gt 4 || $(gcc-minor-version) -gt 3 ]]; then
+		if use amd64 || use x86; then
+			append-flags -mno-avx
+		fi
 	fi
 
 	CPPFLAGS="${CPPFLAGS}" \

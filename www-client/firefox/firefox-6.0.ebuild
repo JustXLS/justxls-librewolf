@@ -251,11 +251,11 @@ src_configure() {
 
 	if [[ $(gcc-major-version) -lt 4 ]]; then
 		append-cxxflags -fno-stack-protector
-	fi
-
-	if use amd64 || use x86; then
-		append-flags -mno-avx
-	fi
+	elif [[ $(gcc-major-version) -gt 4 || $(gcc-minor-version) -gt 3 ]]; then
+		if use amd64 || use x86; then
+			append-flags -mno-avx
+		fi
+ 	fi
 }
 
 src_compile() {
