@@ -21,7 +21,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~amd64 ~ppc ~x86 ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="bindist +methodjit +ipc pgo system-sqlite +webm"
+IUSE="bindist +crashreporter +methodjit +ipc pgo system-sqlite +webm"
 
 REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 FTP_URI="ftp://ftp.mozilla.org/pub/firefox/releases/"
@@ -41,7 +41,8 @@ RDEPEND="
 	dev-libs/libffi
 	system-sqlite? ( >=dev-db/sqlite-3.7.4[fts3,secure-delete,unlock-notify,debug=] )
 	webm? ( media-libs/libvpx
-		media-libs/alsa-lib )"
+		media-libs/alsa-lib )
+	crashreporter? ( net-misc/curl )"
 # We don't use PYTHON_DEPEND/PYTHON_USE_WITH for some silly reason
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
