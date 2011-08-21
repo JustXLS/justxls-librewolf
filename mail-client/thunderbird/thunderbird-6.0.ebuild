@@ -20,8 +20,8 @@ LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="bindist gconf +crashreporter +crypt +ipc +lightning mozdom"
 PATCH="${PN}-5.0-patches-0.1"
 
-REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases"
-SRC_URI="${REL_URI}/${TB_PV}/source/${TB_P}.source.tar.bz2
+FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
+SRC_URI="${FTP_URI}/${TB_PV}/source/${TB_P}.source.tar.bz2
 	crypt? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz )
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
 
@@ -36,14 +36,14 @@ if ! [[ ${PV} =~ alpha|beta ]]; then
 	for X in ${LANGS} ; do
 		if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
 			SRC_URI="${SRC_URI}
-				linguas_${X/-/_}? ( ${REL_URI}/${TB_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+				linguas_${X/-/_}? ( ${FTP_URI}/${TB_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
 		fi
 		IUSE="${IUSE} linguas_${X/-/_}"
 		# english is handled internally
 		if [ "${#X}" == 5 ] && ! has ${X} ${NOSHORTLANGS}; then
 			if [ "${X}" != "en-US" ]; then
 				SRC_URI="${SRC_URI}
-					linguas_${X%%-*}? ( ${REL_URI}/${TB_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+					linguas_${X%%-*}? ( ${FTP_URI}/${TB_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
 			fi
 			IUSE="${IUSE} linguas_${X%%-*}"
 		fi
@@ -51,8 +51,8 @@ if ! [[ ${PV} =~ alpha|beta ]]; then
 fi
 
 RDEPEND=">=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.9
-	>=dev-libs/nspr-4.8.7
+	>=dev-libs/nss-3.12.10
+	>=dev-libs/nspr-4.8.8
 	gconf? ( >=gnome-base/gconf-1.2.1:2 )
 	media-libs/libpng[apng]
 	!x11-plugins/lightning

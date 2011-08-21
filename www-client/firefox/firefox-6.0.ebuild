@@ -23,7 +23,6 @@ SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="bindist +crashreporter +methodjit +ipc pgo system-sqlite +webm"
 
-REL_URI="http://releases.mozilla.org/pub/mozilla.org/firefox/releases"
 FTP_URI="ftp://ftp.mozilla.org/pub/firefox/releases/"
 # More URIs appended below...
 SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.bz2"
@@ -33,8 +32,8 @@ ASM_DEPEND=">=dev-lang/yasm-1.1"
 # Mesa 7.10 needed for WebGL + bugfixes
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.9
-	>=dev-libs/nspr-4.8.7
+	>=dev-libs/nss-3.12.10
+	>=dev-libs/nspr-4.8.8
 	>=dev-libs/glib-2.26
 	>=media-libs/mesa-7.10
 	media-libs/libpng[apng]
@@ -63,7 +62,7 @@ elif [[ ${PV} =~ beta ]]; then
 	S="${WORKDIR}/mozilla-beta"
 else
 	SRC_URI="${SRC_URI}
-		${REL_URI}/${FF_PV}/source/firefox-${FF_PV}.source.tar.bz2"
+		${FTP_URI}/${FF_PV}/source/firefox-${FF_PV}.source.tar.bz2"
 	S="${WORKDIR}/mozilla-release"
 fi
 
@@ -80,14 +79,14 @@ if ! [[ ${PV} =~ alpha|beta ]]; then
 		# en and en_US are handled internally
 		if [[ ${X} != en ]] && [[ ${X} != en-US ]]; then
 			SRC_URI="${SRC_URI}
-				linguas_${X/-/_}? ( ${REL_URI}/${FF_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+				linguas_${X/-/_}? ( ${FTP_URI}/${FF_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
 		fi
 		IUSE="${IUSE} linguas_${X/-/_}"
 		# Install all the specific locale xpis if there's no generic locale xpi
 		# Example: there's no pt.xpi, so install all pt-*.xpi
 		if ! has ${X%%-*} "${LANGS[@]}"; then
 			SRC_URI="${SRC_URI}
-				linguas_${X%%-*}? ( ${REL_URI}/${FF_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+				linguas_${X%%-*}? ( ${FTP_URI}/${FF_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
 			IUSE="${IUSE} linguas_${X%%-*}"
 		fi
 	done
