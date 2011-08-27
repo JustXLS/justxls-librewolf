@@ -1,6 +1,6 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/nspr/nspr-4.8.4-r1.ebuild,v 1.3 2010/07/21 23:18:27 anarchy Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/nspr/nspr-4.8.8.ebuild,v 1.1 2011/05/13 21:13:30 anarchy Exp $
 
 EAPI=3
 
@@ -10,7 +10,7 @@ MIN_PV="$(get_version_component_range 2)"
 
 DESCRIPTION="Netscape Portable Runtime"
 HOMEPAGE="http://www.mozilla.org/projects/nspr/"
-SRC_URI="http://dev.gentoo.org/~anarchy/dist/${P}.tar.bz2"
+SRC_URI="ftp://ftp.mozilla.org/pub/mozilla.org/nspr/releases/v${PV}/src/${P}.tar.gz"
 
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 SLOT="0"
@@ -27,6 +27,7 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-4.7.1-solaris.patch
 	epatch "${FILESDIR}"/${PN}-4.7.4-solaris.patch
 	epatch "${FILESDIR}"/${PN}-4.8.3-aix-gcc.patch
+	# Patch needs updating
 	#epatch "${FILESDIR}"/${PN}-4.8.3-aix-soname.patch
 	epatch "${FILESDIR}"/${PN}-4.8.4-darwin-install_name.patch
 	# make sure it won't find Perl out of Prefix
@@ -42,9 +43,9 @@ src_configure() {
 
 	echo > "${T}"/test.c
 	$(tc-getCC) -c "${T}"/test.c -o "${T}"/test.o
-	case $(file "${T}"/test.o) in
-		*64-bit*|*ppc64*|*x86_64*) myconf="${myconf} --enable-64bit";;
-		*32-bit*|*ppc*|*i386*|*"RISC System/6000"*) ;;
+	case $(scanelf -BF'%M' "${T}"/test.o)$(scanmacho -BF'%M' "${T}"/test.o) in
+		ELFCLASS64*|POWERPC64*|X86_64*) myconf="${myconf} --enable-64bit";;
+		ELFCLASS32*|POWERPC*|I386*|ARM*) ;;
 		*) die "Failed to detect whether your arch is 64bits or 32bits, disable distcc if you're using it, please";;
 	esac
 
@@ -70,7 +71,7 @@ src_install () {
 	cd "${ED}"/usr/$(get_libdir)
 	for file in *.a; do
 		einfo "removing static libraries as upstream has requested!"
-		rm -f ${file} || die "failed to remove staic libraries."
+		rm -f ${file} || die "failed to remove static libraries."
 	done
 
 	local n=
