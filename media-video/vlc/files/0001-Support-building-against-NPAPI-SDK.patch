@@ -1,0 +1,39 @@
+From 8d7943b1b19870b1aaa5d3058d79273661bbc25a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Micha=C5=82=20G=C3=B3rny?= <mgorny@gentoo.org>
+Date: Mon, 5 Sep 2011 10:43:39 +0200
+Subject: [PATCH] Support building against NPAPI-SDK.
+
+---
+ configure.ac |   13 ++++++++++---
+ 1 files changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 86a7eac..de86fca 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -4555,12 +4555,19 @@ then
+       found=1
+     else
+       if test -n "$PKG_CONFIG"; then
+-        for i in "${with_mozilla_pkg}" libxul {seamonkey,iceape,xulrunner,firefox,iceweasel,mozilla}-plugin; do
++        for i in "${with_mozilla_pkg}" npapi-sdk {seamonkey,iceape,xulrunner,firefox,iceweasel,mozilla}-plugin libxul; do
+           if test -n "$i"
+           then
+             echo "Trying to find $i package" >&AS_MESSAGE_LOG_FD
+-            AC_MSG_CHECKING([for $i >= 1.9.2])
+-            if $PKG_CONFIG --exists --print-errors "$i >= 1.9.2" 2>&AS_MESSAGE_LOG_FD
++            
++            AS_IF([test $i = npapi-sdk], [
++              moz_ver=0.27
++            ], [
++              moz_ver=1.9.2
++            ])
++            
++            AC_MSG_CHECKING([for $i >= $moz_ver])
++            if $PKG_CONFIG --exists --print-errors "$i >= $moz_ver" 2>&AS_MESSAGE_LOG_FD
+             then
+               echo "Using $i pkg-config package." >&AS_MESSAGE_LOG_FD
+               echo "Using $i package." >&AS_MESSAGE_FD
+-- 
+1.7.6.1
+
