@@ -21,7 +21,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~amd64 ~ppc ~x86 ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="bindist +crashreporter +methodjit +ipc pgo system-sqlite +webm"
+IUSE="bindist +crashreporter +ipc pgo system-sqlite +webm"
 
 FTP_URI="ftp://ftp.mozilla.org/pub/firefox/releases/"
 # More URIs appended below...
@@ -142,12 +142,6 @@ pkg_setup() {
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
 
-	if ! use methodjit; then
-		einfo
-		ewarn "You are disabling the method-based JIT in JägerMonkey."
-		ewarn "This will greatly slowdown JavaScript in ${PN}!"
-	fi
-
 	if use pgo; then
 		einfo
 		ewarn "You will do a double build for profile guided optimization."
@@ -239,7 +233,6 @@ src_configure() {
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 
 	mozconfig_use_enable system-sqlite
-	mozconfig_use_enable methodjit
 
 	# Allow for a proper pgo build
 	if use pgo; then
@@ -282,10 +275,16 @@ src_compile() {
 src_install() {
 	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 
+	# Allow hardened users to have the benefits of methodjit
+	pax-mark m ${S}/dist/bin/xpcshell
+
 	# MOZ_BUILD_ROOT, and hence OBJ_DIR change depending on arch, compiler, pgo, etc.
 	local obj_dir="$(echo */config.log)"
 	obj_dir="${obj_dir%/*}"
 	cd "${S}/${obj_dir}"
+
+	# Pax mark xpcshell for hardened support, only used for startupcache creation.
+	pax-mark m "${S}/${obj_dir}"/dist/bin/xpcshell
 
 	# Add our default prefs for firefox + xulrunner
 	cp "${FILESDIR}"/gentoo-default-prefs.js \
@@ -333,6 +332,7 @@ src_install() {
 		echo "StartupNotify=true" >> "${ED}/usr/share/applications/${PN}.desktop"
 	fi
 
+	# Required in order to use plugins and even run firefox on hardened.
 	pax-mark m "${ED}"/${MOZILLA_FIVE_HOME}/firefox-bin
 	pax-mark m "${ED}"/${MOZILLA_FIVE_HOME}/plugin-container
 
