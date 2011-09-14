@@ -275,9 +275,6 @@ src_compile() {
 src_install() {
 	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 
-	# Allow hardened users to have the benefits of methodjit
-	pax-mark m ${S}/dist/bin/xpcshell
-
 	# MOZ_BUILD_ROOT, and hence OBJ_DIR change depending on arch, compiler, pgo, etc.
 	local obj_dir="$(echo */config.log)"
 	obj_dir="${obj_dir%/*}"
