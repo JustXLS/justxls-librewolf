@@ -5,7 +5,7 @@
 EAPI="3"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib mozextension autotools pax-utils python
+inherit flag-o-matic toolchain-funcs mozconfig-3 makeedit multilib mozextension autotools pax-utils python check-reqs
 
 TB_PV="${PV/_beta/b}"
 TB_P="${PN}-${TB_PV}"
@@ -103,6 +103,11 @@ pkg_setup() {
 		elog "a legal problem with Mozilla Foundation"
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
+
+	# Ensure we have enough disk space to compile
+	CHECKREQS_DISK_BUILD="4G"
+	check-reqs_pkg_setup
+	
 }
 
 src_unpack() {
