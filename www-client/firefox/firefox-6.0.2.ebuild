@@ -231,6 +231,7 @@ src_configure() {
 
 	# Other ff-specific settings
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
+	mozconfig_annotate '' --target="${CTARGET:-${CHOST}}"
 
 	mozconfig_use_enable system-sqlite
 
