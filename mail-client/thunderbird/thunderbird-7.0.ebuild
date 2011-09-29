@@ -9,7 +9,7 @@ inherit flag-o-matic toolchain-funcs mozconfig-3 makeedit multilib mozextension 
 
 TB_PV="${PV/_beta/b}"
 TB_P="${PN}-${TB_PV}"
-EMVER="1.3"
+EMVER="1.3.2"
 
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
@@ -127,11 +127,10 @@ src_unpack() {
 
 src_prepare() {
 	# Apply our patches
+	EPATCH_EXCLUDE="2001_fix_system_hunspell_dict_detection.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
-
-	epatch "${FILESDIR}"/fix-thunderbird-calender-support.patch
 
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
