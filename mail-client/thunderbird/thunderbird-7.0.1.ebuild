@@ -18,7 +18,7 @@ KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd ~amd64-linu
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="bindist gconf +crashreporter +crypt +ipc +lightning mozdom"
-PATCH="${PN}-5.0-patches-0.1"
+PATCH="${PN}-7.0-patches-0.1"
 
 FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
 SRC_URI="${FTP_URI}/${TB_PV}/source/${TB_P}.source.tar.bz2
@@ -127,10 +127,11 @@ src_unpack() {
 
 src_prepare() {
 	# Apply our patches
-	EPATCH_EXCLUDE="2001_fix_system_hunspell_dict_detection.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}"
+
+	epatch "${FILESDIR}/Copy_xpcshell_only_if_tests_are_enabled.patch"
 
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
