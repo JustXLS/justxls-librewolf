@@ -1,16 +1,16 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.4.1.ebuild,v 1.1 2011/09/30 21:33:19 polynomial-c Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib fdo-mime autotools mozextension python
 
-PATCH="${PN}-2.2b1-patches-01"
-EMVER="1.2"
+PATCH="${PN}-2.4-patches-01"
+EMVER="1.3.2"
 
-LANGS="ca cs de en en-GB en-US es-AR es-ES fi fr hu it ja lt nl pl pt-PT ru sk sv-SE tr"
+LANGS="be ca cs de en en-GB en-US es-AR es-ES fi fr gl hu it ja lt nb-NO nl pl pt-PT ru sk sv-SE tr zh-CN"
 NOSHORTLANGS="en-GB en-US es-AR"
 
 MY_PV="${PV/_pre*}"
@@ -32,14 +32,15 @@ if [[ ${PV} == *_pre* ]] ; then
 	LANGPACK_PREFIX=""
 	LANGPACK_SUFFIX=""
 	#KEYWORDS=""
-	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ppc ~ppc64 ~x86"
 	#HAS_LANGS="false"
 else
 	# This is where arch teams should change the KEYWORDS.
 
-	REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases/${MY_PV}"
+	#REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases/${MY_PV}"
+	REL_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/${MY_PV}"
 	LANG_URI="${REL_URI}/langpack"
-	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ppc ~ppc64 ~x86"
 	[[ ${PV} == *alpha* ]] && HAS_LANGS="false"
 fi
 
@@ -48,7 +49,7 @@ HOMEPAGE="http://www.seamonkey-project.org"
 
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa +chatzilla +crypt gconf +roaming +webm"
+IUSE="+alsa +chatzilla +crypt +ipc +methodjit +roaming system-sqlite +webm"
 
 SRC_URI="${REL_URI}/source/${MY_P}.source.tar.bz2 -> ${P}.source.tar.bz2
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
@@ -74,11 +75,18 @@ fi
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
+# Mesa 7.10 needed for WebGL + bugfixes
 RDEPEND=">=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.9
-	>=dev-libs/nspr-4.8.7
+	>=dev-libs/nss-3.12.10
+	>=dev-libs/nspr-4.8.8
+	>=dev-libs/glib-2.26
+	>=media-libs/mesa-7.10
 	>=media-libs/libpng-1.4.1[apng]
-	gconf? ( >=gnome-base/gconf-1.2.1:2 )
+	>=x11-libs/cairo-1.10
+	>=x11-libs/pango-1.14.0
+	>=x11-libs/gtk+-2.14
+	virtual/libffi
+	system-sqlite? ( >=dev-db/sqlite-3.7.5[fts3,secure-delete,unlock-notify,debug=] )
 	crypt? ( >=app-crypt/gnupg-1.4 )
 	webm? ( media-libs/libvpx
 		media-libs/alsa-lib )"
@@ -88,7 +96,11 @@ DEPEND="${RDEPEND}
 	webm? ( amd64? ( ${ASM_DEPEND} )
 		x86? ( ${ASM_DEPEND} ) )"
 
-S="${WORKDIR}/comm-beta"
+if [[ ${PV} == *beta* ]] ; then
+	S="${WORKDIR}/comm-beta"
+else
+	S="${WORKDIR}/comm-release"
+fi
 
 linguas() {
 	local LANG SLANG
@@ -135,15 +147,36 @@ pkg_setup() {
 	fi
 
 	moz_pkgsetup
+
+	if ! use methodjit ; then
+		einfo
+		ewarn "You are disabling the method-based JIT in JägerMonkey."
+		ewarn "This will greatly slowdown JavaScript in ${PN}!"
+	fi
 }
 
 src_prepare() {
 	# Apply our patches
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
-	epatch "${WORKDIR}/patch"
+	epatch "${WORKDIR}/_seamonkey"
 
-	epatch "${FILESDIR}"/${PN}-2.1b3-restore-tabbar-scrolling-from-2.1b2.diff
+	# browser patches go here
+	pushd "${S}"/mozilla &>/dev/null || die
+	EPATCH_EXCLUDE="5006_use_system_libffi.patch" \
+	EPATCH_SUFFIX="patch" \
+	EPATCH_FORCE="yes" \
+	epatch "${WORKDIR}/_mozilla"
+	popd &>/dev/null || die
+
+	# mailnews patches go here
+	#pushd "${S}"/mailnews &>/dev/null || die
+	#EPATCH_SUFFIX="patch" \
+	#EPATCH_FORCE="yes" \
+	#epatch "${WORKDIR}/_mailnews"
+	#popd &>/dev/null || die
+
+	epatch "${FILESDIR}"/${PN}-2.3.1-scrollbar-mouse-interaction-improvement.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
@@ -151,7 +184,6 @@ src_prepare() {
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
 		cd "${S}"/mailnews/extensions/enigmail || die
-		epatch "${FILESDIR}"/enigmail/enigmail-1.2-seamonkey-2.2-versionfix.patch
 		./makemake -r 2&>/dev/null
 		sed -e 's:@srcdir@:${S}/mailnews/extensions/enigmail:' \
 			-i Makefile.in || die
@@ -197,11 +229,13 @@ src_configure() {
 	fi
 
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
+	mozconfig_annotate '' --disable-gconf
 	mozconfig_annotate '' --enable-jsd
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 
-	mozconfig_use_enable gconf
+	mozconfig_use_enable system-sqlite
+	mozconfig_use_enable methodjit
 
 	if use crypt ; then
 		mozconfig_annotate "mail crypt" --enable-chrome-format=jar
@@ -214,6 +248,10 @@ src_configure() {
 
 	if [[ $(gcc-major-version) -lt 4 ]]; then
 		append-cxxflags -fno-stack-protector
+	elif [[ $(gcc-major-version) -gt 4 || $(gcc-minor-version) -gt 3 ]]; then
+		if use amd64 || use x86; then
+			append-flags -mno-avx
+		fi
 	fi
 
 	####################################
@@ -229,7 +267,6 @@ src_configure() {
 }
 
 src_compile() {
-	# Should the build use multiprocessing? Not enabled by default, as it tends to break.
 	emake || die
 
 	# Only build enigmail extension if conditions are met.

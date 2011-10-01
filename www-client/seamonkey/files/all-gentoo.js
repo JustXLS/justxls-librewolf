@@ -13,4 +13,3 @@ pref("browser.backspace_action",           0);
 pref("accessibility.typeaheadfind",        true);
 pref("browser.EULA.override",              true);
 pref("intl.locale.matchOS",                true);
-pref("general.useragent.locale", "chrome://global/locale/intl.properties");
