@@ -7,7 +7,7 @@ WANT_AUTOCONF="2.1"
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib fdo-mime autotools mozextension python
 
-PATCH="${PN}-2.4-patches-01"
+PATCH="${PN}-2.4.1-patches-01"
 EMVER="1.3.2"
 
 LANGS="be ca cs de en en-GB en-US es-AR es-ES fi fr gl hu it ja lt nb-NO nl pl pt-PT ru sk sv-SE tr zh-CN"
