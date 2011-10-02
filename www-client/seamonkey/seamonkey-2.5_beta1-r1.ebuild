@@ -171,18 +171,20 @@ src_prepare() {
 			5009_provide_ns_app_pre_defaults_dir.patch
 			5011_build_fix_for_ENABLE_YARR_JIT-0.patch
 			5012_workaround_recent_arm_gnu_ld_bug.patch
-			5014_allow_to_build_yuv_convert_arm.patch" \
+			5014_allow_to_build_yuv_convert_arm.patch
+			5017_enable_system_ffi.patch
+			5018_enable_system_ffi_part2.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/_mozilla"
 	popd &>/dev/null || die
 
 	# mailnews patches go here
-	#pushd "${S}"/mailnews &>/dev/null || die
-	#EPATCH_SUFFIX="patch" \
-	#EPATCH_FORCE="yes" \
-	#epatch "${WORKDIR}/_mailnews"
-	#popd &>/dev/null || die
+	pushd "${S}"/mailnews &>/dev/null || die
+	EPATCH_SUFFIX="patch" \
+	EPATCH_FORCE="yes" \
+	epatch "${WORKDIR}/_mailnews"
+	popd &>/dev/null || die
 
 	epatch "${FILESDIR}"/${PN}-2.3.1-scrollbar-mouse-interaction-improvement.patch
 
@@ -230,10 +232,10 @@ src_configure() {
 	use alpha && append-ldflags "-Wl,--no-relax"
 
 	if ! use chatzilla ; then
-		MEXTENSIONS="${MEXTENSIONS},-irc"
+		MEXTENSIONS+=",-irc"
 	fi
 	if ! use roaming ; then
-		MEXTENSIONS="${MEXTENSIONS},-sroaming"
+		MEXTENSIONS+=",-sroaming"
 	fi
 
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
@@ -241,6 +243,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-jsd
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
+	mozconfig_annotate '' --enable-system-ffi
 
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_enable methodjit
