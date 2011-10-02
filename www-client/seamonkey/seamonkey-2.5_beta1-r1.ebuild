@@ -163,7 +163,15 @@ src_prepare() {
 
 	# browser patches go here
 	pushd "${S}"/mozilla &>/dev/null || die
-	EPATCH_EXCLUDE="5006_use_system_libffi.patch" \
+	EPATCH_EXCLUDE="5005_do_not_call_openunshareddatabse.patch
+			5006_use_system_libffi.patch
+			5006_initialize_ns_xp_come_library_file_from_ns.patch
+			5007_allow_to_pass_an_application_directory.patch
+			5008_always_load_gre_defaults_pref.patch
+			5009_provide_ns_app_pre_defaults_dir.patch
+			5011_build_fix_for_ENABLE_YARR_JIT-0.patch
+			5012_workaround_recent_arm_gnu_ld_bug.patch
+			5014_allow_to_build_yuv_convert_arm.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/_mozilla"
