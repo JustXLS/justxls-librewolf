@@ -60,7 +60,7 @@ IUSE="a52 aac aalib alsa altivec atmo avahi bidi cdda cddb dbus dc1394
 	vorbis win32codecs wma-fixed +X x264 +xcb xml xosd xv zvbi"
 
 RDEPEND="
-		sys-libs/zlib
+		|| ( >=sys-libs/zlib-1.2.5.1-r2[minizip] <sys-libs/zlib-1.2.5.1-r1 )
 		>=media-libs/libdvbpsi-0.1.6
 		a52? ( >=media-libs/a52dec-0.7.4-r3 )
 		aalib? ( media-libs/aalib x11-libs/libX11 )
