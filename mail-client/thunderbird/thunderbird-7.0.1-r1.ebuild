@@ -239,8 +239,21 @@ src_compile() {
 
 src_install() {
 	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+	declare emid
 
 	emake DESTDIR="${D}" install || die "emake install failed"
+
+	if ! use bindist; then
+		newicon "${S}"/other-licenses/branding/thunderbird/content/icon48.png thunderbird-icon.png
+		domenu "${FILESDIR}"/icon/${PN}.desktop
+	else
+		newicon "${S}"/mail/branding/unofficial/content/icon48.png thunderbird-icon-unbranded.png
+		newmenu "${FILESDIR}"/icon/${PN}-unbranded.desktop \
+			${PN}.desktop
+
+		sed -i -e "s:Mozilla\ Thunderbird:Lanikai:g" \
+			"${ED}"/usr/share/applications/${PN}.desktop
+	fi
 
 	if use crypt ; then
 		cd "${T}" || die
@@ -253,22 +266,26 @@ src_install() {
 	fi
 
 	if use lightning ; then
-		declare emid emd1 emid2
-
 		emid="{a62ef8ec-5fdc-40c2-873c-223b8a6925cc}"
 		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid}
 		cd "${ED}"${MOZILLA_FIVE_HOME}/extensions/${emid}
 		unzip "${S}"/mozilla/dist/xpi-stage/gdata-provider.xpi
 
-		emid1="calendar-timezones@mozilla.org"
-		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid1}
-		cd "${ED}"${MOZILLA_FIVE_HOME}/extensions/${emid1}
+		emid="calendar-timezones@mozilla.org"
+		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid}
+		cd "${ED}"${MOZILLA_FIVE_HOME}/extensions/${emid}
 		unzip "${S}"/mozilla/dist/xpi-stage/calendar-timezones.xpi
 
-		emid2="{e2fda1a4-762b-4020-b5ad-a41df1933103}"
-		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid2}
-		cd "${ED}"${MOZILLA_FIVE_HOME}/extensions/${emid2}
+		emid="{e2fda1a4-762b-4020-b5ad-a41df1933103}"
+		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid}
+		cd "${ED}"${MOZILLA_FIVE_HOME}/extensions/${emid}
 		unzip "${S}"/mozilla/dist/xpi-stage/lightning.xpi
+
+		# Fix mimetype so it shows up as a calendar application in GNOME 3
+		# This requires that the .desktop file was already installed earlier
+		sed -e "s:^\(MimeType=\):\1text/calendar;:" \
+			-e "s:^\(Categories=\):\1Calendar;:" \
+			-i "${ED}"/usr/share/applications/${PN}.desktop
 	fi
 
 	if ! [[ ${PV} =~ alpha|beta ]]; then
@@ -276,19 +293,6 @@ src_install() {
 		for X in ${linguas}; do
 			[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${P}-${X}"
 		done
-	fi
-
-	if ! use bindist; then
-		newicon "${S}"/other-licenses/branding/thunderbird/content/icon48.png thunderbird-icon.png
-		domenu "${FILESDIR}"/icon/${PN}.desktop
-	else
-		newicon "${S}"/mail/branding/unofficial/content/icon48.png thunderbird-icon-unbranded.png
-		newmenu "${FILESDIR}"/icon/${PN}-unbranded.desktop \
-			${PN}.desktop
-
-		sed -i -e "s:Mozilla\ Thunderbird:Lanikai:g" \
-			"${D}"/usr/share/applications/${PN}.desktop
-
 	fi
 
 	pax-mark m "${ED}"/${MOZILLA_FIVE_HOME}/thunderbird-bin
