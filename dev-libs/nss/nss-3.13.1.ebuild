@@ -44,7 +44,6 @@ src_prepare() {
 	sed -i -e "/^PREFIX =/s:= /usr:= ${EPREFIX}/usr:" \
 		"${S}"/mozilla/security/nss/config/Makefile
 
-	epatch "${FILESDIR}"/${PN}-3.12.4-solaris-gcc.patch  # breaks non-gnu tools
 	# dirty hack
 	cd "${S}"/mozilla/security/nss
 	sed -i -e "/CRYPTOLIB/s:\$(SOFTOKEN_LIB_DIR):../freebl/\$(OBJDIR):" \
