@@ -9,7 +9,7 @@ inherit flag-o-matic toolchain-funcs mozconfig-3 makeedit multilib mozextension 
 
 TB_PV="${PV/_beta/b}"
 TB_P="${PN}-${TB_PV}"
-EMVER="1.3.2"
+EMVER="1.3.3"
 
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
@@ -18,8 +18,8 @@ KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd ~amd64-linu
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="bindist gconf +crashreporter +crypt +ipc +lightning mozdom"
-PATCH="${PN}-7.0-patches-0.4"
-PATCHFF="firefox-7.0-patches-0.5"
+PATCH="${PN}-${PV}-patches-0.1"
+PATCHFF="firefox-${PV}-patches-0.2"
 
 FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
 SRC_URI="${FTP_URI}/${TB_PV}/source/${TB_P}.source.tar.bz2
@@ -29,11 +29,11 @@ SRC_URI="${FTP_URI}/${TB_PV}/source/${TB_P}.source.tar.bz2
 
 if ! [[ ${PV} =~ alpha|beta ]]; then
 	# This list can be updated using get_langs.sh from the mozilla overlay
-	# Not supported yet bn-BD ro id zh-CN be af el pa-IN bg
+	# Not supported yet bn-BD ro id be af el pa-IN bg
 	LANGS="ar ca cs da de en en-GB en-US es-AR es-ES et eu fi fr \
 	fy-NL ga-IE he hu is it ja ko lt nb-NO nl nn-NO pl pt-BR pt-PT ru si \
-	sk sl sq sv-SE tr uk zh-TW"
-	NOSHORTLANGS="en-GB es-AR pt-BR zh-TW"
+	sk sl sq sv-SE tr uk zh-TW zh-CN"
+	NOSHORTLANGS="en-GB es-AR pt-BR zh-TW zh-CN"
 
 	for X in ${LANGS} ; do
 		if [ "${X}" != "en" ] && [ "${X}" != "en-US" ]; then
