@@ -17,7 +17,7 @@ HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="bindist gconf +crashreporter +crypt +ipc +lightning mozdom"
+IUSE="bindist gconf +crashreporter +crypt +ipc +lightning mozdom +webm"
 PATCH="${PN}-${PV}-patches-0.1"
 PATCHFF="firefox-${PV}-patches-0.2"
 
@@ -57,6 +57,8 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nspr-4.8.8
 	gconf? ( >=gnome-base/gconf-1.2.1:2 )
 	media-libs/libpng[apng]
+	webm? ( media-libs/libvpx
+		media-libs/alsa-lib )
 	virtual/libffi
 	!x11-plugins/lightning
 	!x11-plugins/enigmail
