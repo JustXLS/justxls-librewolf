@@ -145,6 +145,8 @@ src_prepare() {
 
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
+		# Ensure enigmail can find its scripts for gpg
+		epatch "${FILESDIR}"/enigmail-1.3.3-bug373733.patch
 		cd "${S}"/mailnews/extensions/enigmail || die
 		./makemake -r 2&> /dev/null
 		sed -i -e 's:@srcdir@:${S}/mailnews/extensions/enigmail:' Makefile.in
