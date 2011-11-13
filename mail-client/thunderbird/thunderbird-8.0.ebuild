@@ -102,7 +102,11 @@ linguas() {
 pkg_setup() {
 	moz_pkgsetup
 
-	if ! use bindist; then
+	if ! use crypt ; then
+		export MOZILLA_DIR="${S}/mozilla"
+	fi
+
+	if ! use bindist ; then
 		elog "You are enabling official branding. You may not redistribute this build"
 		elog "to any users on your network or the internet. Doing so puts yourself into"
 		elog "a legal problem with Mozilla Foundation"
