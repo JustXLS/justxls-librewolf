@@ -48,14 +48,6 @@ src_prepare() {
 }
 
 src_configure() {
-	local myopts
-
-	if use debug ; then
-		myopts="--enable-debug \
-			--enable-debugger-info-modules \
-			--enable-debug-symbols"
-	fi
-
 	cd "${BUILDDIR}"
 
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" PYTHON="$(PYTHON)" \
@@ -65,6 +57,7 @@ src_configure() {
 		--enable-readline \
 		--enable-threadsafe \
 		--with-system-nspr \
+		$(use enable debug) \
 		$(use_enable static-libs static) \
 		$(use_enable test tests)
 }
