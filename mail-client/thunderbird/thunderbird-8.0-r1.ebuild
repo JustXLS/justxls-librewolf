@@ -308,6 +308,6 @@ src_install() {
 pkg_postinst() {
 	elog
 	elog "If you are experience problems with plugins please issue the"
-	elog "following command : rm \${HOME}/.thunderbird/*/extensions.sqlite,"
+	elog "following command : rm \${HOME}/.thunderbird/*/extensions.sqlite ,"
 	elog "then restart thunderbird"
 }
