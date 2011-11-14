@@ -3,7 +3,7 @@
 # $Header: /var/cvsroot/gentoo-x86/dev-lang/spidermonkey/spidermonkey-1.8.5.ebuild,v 1.2 2011/07/03 05:36:21 nirbheek Exp $
 
 EAPI="3"
-inherit eutils toolchain-funcs multilib python versionator
+inherit eutils toolchain-funcs multilib python versionator pax-utils
 
 MY_PN="js"
 TARBALL_PV="$(replace_all_version_separators '' $(get_version_component_range 1-3))"
@@ -83,6 +83,7 @@ src_install() {
 	cd "${BUILDDIR}"
 	emake DESTDIR="${D}" install || die
 	dobin shell/js ||die 
+	pax-mark m "${ED}/usr/bin/js"
 	dodoc ../../README || die
 	dohtml README.html || die
 
