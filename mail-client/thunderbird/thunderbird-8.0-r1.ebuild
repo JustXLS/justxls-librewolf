@@ -53,6 +53,7 @@ fi
 RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.10
 	>=dev-libs/nspr-4.8.8
+	crashreporter? ( net-misc/curl )
 	gconf? ( >=gnome-base/gconf-1.2.1:2 )
 	media-libs/libpng[apng]
 	webm? ( media-libs/libvpx
@@ -105,15 +106,14 @@ linguas() {
 pkg_setup() {
 	moz_pkgsetup
 
-	if ! use crypt ; then
-		export MOZILLA_DIR="${S}/mozilla"
-	fi
+	export MOZILLA_DIR="${S}/mozilla"
 
 	if ! use bindist ; then
 		elog "You are enabling official branding. You may not redistribute this build"
 		elog "to any users on your network or the internet. Doing so puts yourself into"
 		elog "a legal problem with Mozilla Foundation"
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
+		elog
 	fi
 
 	# Ensure we have enough disk space to compile
@@ -189,10 +189,6 @@ src_configure() {
 	# It doesn't compile on alpha without this LDFLAGS
 	use alpha && append-ldflags "-Wl,--no-relax"
 
-	if use crypt ; then
-		# omni.jar breaks enigmail
-		mozconfig_annotate '' --enable-chrome-format=jar
-	fi
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 	mozconfig_annotate '' --with-default-mozilla-five-home="${EPREFIX}${MOZILLA_FIVE_HOME}"
 	mozconfig_annotate '' --with-user-appdir=.thunderbird
@@ -307,4 +303,11 @@ src_install() {
 	cp "${FILESDIR}"/thunderbird-gentoo-default-prefs-1.js \
 		"${ED}/${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js" || \
 		die "failed to cp thunderbird-gentoo-default-prefs.js"
+}
+
+pkg_postinst() {
+	elog
+	elog "If you are experience problems with plugins please issue the"
+	elog "following command : rm \${HOME}/.thunderbird/*/extensions.sqlite,"
+	elog "then restart thunderbird"
 }
