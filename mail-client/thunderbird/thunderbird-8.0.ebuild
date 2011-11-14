@@ -58,7 +58,6 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	webm? ( media-libs/libvpx
 		media-libs/alsa-lib )
 	virtual/libffi
-	!x11-plugins/lightning
 	!x11-plugins/enigmail
 	system-sqlite? ( >=dev-db/sqlite-3.7.5[fts3,secure-delete,unlock-notify,debug=] )
 	crypt?  ( || (
