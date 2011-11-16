@@ -37,14 +37,14 @@ if ! [[ ${PV} =~ alpha|beta ]]; then
 		# en and en_US are handled internally
 		if [[ ${X} != en ]] && [[ ${X} != en-US ]]; then
 			SRC_URI="${SRC_URI}
-				linguas_${X/-/_}? ( ${FTP_URI}/${MY_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+				linguas_${X/-/_}? ( ${FTP_URI}/${TB_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
 		fi
 		IUSE="${IUSE} linguas_${X/-/_}"
 		# Install all the specific locale xpis if there's no generic locale xpi
 		# Example: there's no pt.xpi, so install all pt-*.xpi
 		if ! has ${X%%-*} "${LANGS[@]}"; then
 			SRC_URI="${SRC_URI}
-				linguas_${X%%-*}? ( ${FTP_URI}/${MY_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+				linguas_${X%%-*}? ( ${FTP_URI}/${TB_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
 			IUSE="${IUSE} linguas_${X%%-*}"
 		fi
 	done
@@ -172,11 +172,6 @@ src_prepare() {
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
 
-	eautoreconf
-
-	cd mozilla
-	eautoreconf
-	cd js/src
 	eautoreconf
 }
 
