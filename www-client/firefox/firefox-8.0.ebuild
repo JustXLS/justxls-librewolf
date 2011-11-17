@@ -198,9 +198,6 @@ src_prepare() {
 		-i "${S}"/js/src/config/system-headers || die "Sed failed"
 
 	eautoreconf
-
-	cd js/src
-	eautoreconf
 }
 
 src_configure() {
