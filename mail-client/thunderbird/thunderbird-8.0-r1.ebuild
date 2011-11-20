@@ -245,6 +245,9 @@ src_install() {
 	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 	declare emid
 
+	# Pax mark xpcshell for hardened support, only used for startupcache creation.
+	pax-mark m "${S}"/mozilla/dist/bin/xpcshell
+
 	emake DESTDIR="${D}" install || die "emake install failed"
 
 	if ! use bindist; then
