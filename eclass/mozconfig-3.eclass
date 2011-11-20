@@ -38,7 +38,7 @@ mozconfig_config() {
 
 	mozconfig_use_enable alsa ogg
 	mozconfig_use_enable alsa wave
-	if has crashreporter ${IUSE} ; then
+	if has +crashreporter ${IUSE} ; then
 		mozconfig_use_enable crashreporter
 	fi
 	mozconfig_use_enable dbus

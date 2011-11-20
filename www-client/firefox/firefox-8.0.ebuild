@@ -147,6 +147,15 @@ pkg_setup() {
 		ewarn "You will do a double build for profile guided optimization."
 		ewarn "This will result in your build taking at least twice as long as before."
 	fi
+
+	# Ensure we have enough disk space to compile
+	if use pgo ; then
+		CHECKREQS_DISK_BUILD="8G"
+		check-reqs_pkg_setup
+	else
+		CHECKREQS_DISK_BUILD="4G"
+		check-reqs_pkg_setup
+	fi
 }
 
 src_unpack() {
@@ -328,11 +337,10 @@ src_install() {
 	fi
 
 	# Required in order to use plugins and even run firefox on hardened.
-	pax-mark m "${ED}"/${MOZILLA_FIVE_HOME}/{firefox,firefox-bin,plugin-container}
+	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{firefox,firefox-bin,plugin-container}
 
 	# Plugins dir
-	dosym ../nsbrowser/plugins "${MOZILLA_FIVE_HOME}"/plugins \
-		|| die "failed to symlink"
+	share_plugins_dir
 
 	# very ugly hack to make firefox not sigbus on sparc
 	# FIXME: is this still needed??
