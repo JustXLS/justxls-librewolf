@@ -279,19 +279,3 @@ mozconfig_final() {
 	sed -i '/^ac_add_options --enable-extensions/d' .mozconfig
 	echo "ac_add_options --enable-extensions=${exts// /,}" >> .mozconfig
 }
-
-# ${MOZILLA_FIVE_HOME} must be defined in src_install to support
-share_plugins_dir() {
-	if [[ ${PN} == seamonkey ]] ; then
-		rm -rf "${D}"${MOZILLA_FIVE_HOME}/plugins \
-			|| die "failed to remove existing plugins dir"
-	fi
-
-	if [[ ${PN} == *-bin ]] ; then
-		PLUGIN_BASE_PATH="/usr/$(get_libdir)"
-	else
-		PLUGIN_BASE_PATH=".."
-	fi
-
-	dosym "${PLUGIN_BASE_PATH}/nsbrowser/plugins" "${MOZILLA_FIVE_HOME}/plugins"
-}

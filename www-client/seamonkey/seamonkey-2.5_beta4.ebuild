@@ -5,7 +5,7 @@
 EAPI="3"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib fdo-mime autotools mozextension python
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 makeedit multilib fdo-mime autotools mozextension python nsplugins
 
 PATCH="${PN}-2.4.1-patches-01"
 EMVER="1.3.3"

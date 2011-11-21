@@ -5,7 +5,7 @@
 EAPI="3"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs mozconfig-3 makeedit multilib mozextension autotools pax-utils python check-reqs
+inherit flag-o-matic toolchain-funcs mozconfig-3 makeedit multilib mozextension autotools pax-utils python check-reqs nsplugins
 
 TB_PV="${PV/_beta/b}"
 TB_P="${PN}-${TB_PV}"
