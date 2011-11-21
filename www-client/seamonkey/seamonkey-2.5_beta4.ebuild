@@ -209,10 +209,6 @@ src_prepare() {
 		|| die "Failed to remove gnomevfs extension"
 
 	eautoreconf
-	cd "${S}"/mozilla || die
-	eautoreconf
-	cd "${S}"/mozilla/js/src || die
-	eautoreconf
 }
 
 src_configure() {
@@ -332,8 +328,7 @@ src_install() {
 			|| die
 
 	# Plugins dir
-	rm -rf "${D}"${MOZILLA_FIVE_HOME}/plugins || die "failed to remove existing plugins dir"
-	dosym ../nsbrowser/plugins "${MOZILLA_FIVE_HOME}"/plugins || die
+	share_plugins_dir
 
 	doman "${S}"/suite/app/${PN}.1 || die
 }
