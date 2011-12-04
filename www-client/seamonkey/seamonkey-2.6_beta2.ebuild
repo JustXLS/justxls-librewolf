@@ -8,7 +8,7 @@ WANT_AUTOCONF="2.1"
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension versionator python nsplugins
 
 PATCH="${PN}-2.5-patches-01"
-EMVER="1.3.3"
+EMVER="1.3.4"
 
 MY_PV="${PV/_pre*}"
 MY_PV="${MY_PV/_alpha/a}"
