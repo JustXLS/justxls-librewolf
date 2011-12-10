@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-video/vlc/vlc-1.1.11.ebuild,v 1.5 2011/08/27 17:38:21 armin76 Exp $
+# $Header: /var/cvsroot/gentoo-x86/media-video/vlc/vlc-1.1.12-r1.ebuild,v 1.1 2011/12/09 19:58:47 aballier Exp $
 
 EAPI="3"
 
@@ -24,7 +24,7 @@ MY_PV="${MY_PV/-beta/-test}"
 MY_P="${PN}-${MY_PV}"
 VLC_SNAPSHOT_TIME="0013"
 
-PATCHLEVEL="99"
+PATCHLEVEL="102"
 DESCRIPTION="VLC media player - Video player and streamer"
 HOMEPAGE="http://www.videolan.org/vlc/"
 if [ "${PV%9999}" != "${PV}" ] ; then # Live ebuild
@@ -56,7 +56,7 @@ IUSE="a52 aac aalib alsa altivec atmo avahi bidi cdda cddb dbus dc1394
 	modplug mp3 mpeg mtp musepack ncurses nsplugin ogg opengl optimisememory oss
 	png projectm pulseaudio pvr +qt4 remoteosd rtsp run-as-root samba
 	schroedinger sdl sdl-image shine shout skins speex sqlite sse stream
-	svg svga taglib theora truetype twolame udev upnp v4l v4l2 vaapi vcdx vlm
+	svg svga taglib theora truetype twolame udev upnp v4l vaapi vcdx vlm
 	vorbis win32codecs wma-fixed +X x264 +xcb xml xosd xv zvbi"
 
 RDEPEND="
@@ -91,7 +91,7 @@ RDEPEND="
 		kate? ( >=media-libs/libkate-0.1.1 )
 		libass? ( >=media-libs/libass-0.9.6 media-libs/fontconfig )
 		libcaca? ( >=media-libs/libcaca-0.99_beta14 )
-		libnotify? ( x11-libs/libnotify )
+		libnotify? ( x11-libs/libnotify x11-libs/gtk+:2 )
 		libproxy? ( net-libs/libproxy )
 		libtiger? ( media-libs/libtiger )
 		lirc? ( app-misc/lirc )
@@ -105,7 +105,7 @@ RDEPEND="
 		musepack? ( >=media-sound/musepack-tools-444 )
 		ncurses? ( sys-libs/ncurses )
 		nsplugin? ( || ( net-misc/npapi-sdk >=net-libs/xulrunner-1.9.2 )
-			x11-libs/libXpm x11-libs/libXt x11-libs/libxcb x11-libs/xcb-util )
+				x11-libs/libXpm x11-libs/libXt x11-libs/libxcb x11-libs/xcb-util )
 		ogg? ( media-libs/libogg )
 		opengl? ( virtual/opengl || ( >=x11-libs/libX11-1.3.99.901 <x11-libs/libX11-1.3.99.901[xcb] ) )
 		png? ( media-libs/libpng sys-libs/zlib )
@@ -130,12 +130,15 @@ RDEPEND="
 		svga? ( media-libs/svgalib )
 		taglib? ( >=media-libs/taglib-1.5 sys-libs/zlib )
 		theora? ( >=media-libs/libtheora-1.0_beta3 )
-		truetype? ( media-libs/freetype media-fonts/dejavu )
+		truetype? ( media-libs/freetype virtual/ttf-fonts
+			!fontconfig? ( media-fonts/dejavu ) )
 		twolame? ( media-sound/twolame )
 		udev? ( >=sys-fs/udev-142 )
 		upnp? ( net-libs/libupnp )
-		v4l2? ( libv4l2? ( media-libs/libv4l ) )
-		v4l? ( libv4l? ( media-libs/libv4l ) )
+		v4l? (
+			libv4l2? ( media-libs/libv4l )
+			libv4l? ( media-libs/libv4l )
+			)
 		vaapi? ( x11-libs/libva virtual/ffmpeg )
 		vcdx? ( >=dev-libs/libcdio-0.78.2 >=media-video/vcdimager-0.7.22 )
 		vorbis? ( media-libs/libvorbis )
@@ -144,7 +147,7 @@ RDEPEND="
 		x264? ( >=media-libs/x264-0.0.20090923 )
 		xcb? ( x11-libs/libxcb x11-libs/xcb-util )
 		xml? ( dev-libs/libxml2 )
-		xosd? ( x11-libs/xosd )
+		xosd? ( x11-libs/xosd x11-libs/libX11 )
 		zvbi? ( >=media-libs/zvbi-0.2.25 )
 		"
 
@@ -153,8 +156,7 @@ DEPEND="${RDEPEND}
 	alsa? ( >=media-sound/alsa-headers-1.0.23 )
 	dvb? ( sys-kernel/linux-headers )
 	kde? ( >=kde-base/kdelibs-4 )
-	v4l? ( sys-kernel/linux-headers )
-	v4l2? ( >=sys-kernel/linux-headers-2.6.25 )
+	v4l? ( >=sys-kernel/linux-headers-2.6.25 )
 	xcb? ( x11-proto/xproto )
 	dev-util/pkgconfig"
 
@@ -188,12 +190,13 @@ pkg_setup() {
 	has_version '<media-sound/pulseaudio-0.9.22' && vlc_use_force pulseaudio X
 	vlc_use_force sdl X
 	vlc_use_force aalib X
+	vlc_use_force xosd X
 
 	# Useflags that will be automagically discarded if deps are not met
 	vlc_use_needs bidi truetype
 	vlc_use_needs cddb cdda
 	vlc_use_needs fontconfig truetype
-	vlc_use_needs libv4l2 v4l2
+	vlc_use_needs libv4l2 v4l
 	vlc_use_needs libv4l v4l
 	vlc_use_needs libtiger kate
 	vlc_use_needs xv xcb
@@ -285,7 +288,7 @@ src_configure() {
 		$(use_enable mtp) \
 		$(use_enable musepack mpc) \
 		$(use_enable ncurses) \
-		$(use_enable nsplugin mozilla) --with-mozilla-pkg=libxul \
+		$(use_enable nsplugin mozilla) \
 		$(use_enable ogg) \
 		$(use_enable opengl glx) $(use_enable opengl) \
 		$(use_enable optimisememory optimize-memory) \
@@ -318,8 +321,8 @@ src_configure() {
 		$(use_enable twolame) \
 		$(use_enable udev) \
 		$(use_enable upnp) \
-		$(use_enable v4l) \
-		$(use_enable v4l2) \
+		--disable-v4l \
+		$(use_enable v4l v4l2) \
 		$(use_enable vcdx) \
 		$(use_enable vaapi libva) \
 		$(use_enable vlm) \
@@ -346,6 +349,7 @@ src_configure() {
 		$(vlc_use_enable_force nsplugin xcb) \
 		$(has_version '<media-sound/pulseaudio-0.9.22' && use pulseaudio && echo '--with-x') \
 		$(use sdl && echo '--with-x') \
+		$(use xosd && echo '--with-x') \
 		$(use aalib && echo '--with-x')
 }
 
