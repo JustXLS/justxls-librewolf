@@ -291,7 +291,7 @@ src_install() {
 	pax-mark m "${S}/${obj_dir}"/dist/bin/xpcshell
 
 	# Add our default prefs for firefox + xulrunner
-	cp "${FILESDIR}"/gentoo-default-prefs.js \
+	cp "${FILESDIR}"/gentoo-default-prefs.js-1 \
 		"${S}/${obj_dir}/dist/bin/defaults/pref/all-gentoo.js" || die
 
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \

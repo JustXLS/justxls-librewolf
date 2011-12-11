@@ -12,3 +12,4 @@ pref("browser.shell.checkDefaultBrowser",  false);
 pref("browser.EULA.override",              true); 
 pref("general.useragent.vendor", "Gentoo");
 pref("intl.locale.matchOS", true);
+pref("extensions.autoDisableScopes", 0);
