@@ -9,7 +9,7 @@ inherit flag-o-matic toolchain-funcs mozconfig-3 makeedit multilib mozextension 
 
 TB_PV="${PV/_beta/b}"
 TB_P="${PN}-${TB_PV}"
-EMVER="1.3.3"
+EMVER="1.3.4"
 
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
@@ -305,7 +305,7 @@ src_install() {
 	pax-mark m "${ED}"/${MOZILLA_FIVE_HOME}/thunderbird-bin
 
 	# Enable very specific settings for thunderbird-3
-	cp "${FILESDIR}"/thunderbird-gentoo-default-prefs-1.js \
+	cp "${FILESDIR}"/thunderbird-gentoo-default-prefs-1.js-1 \
 		"${ED}/${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js" || \
 		die "failed to cp thunderbird-gentoo-default-prefs.js"
 
