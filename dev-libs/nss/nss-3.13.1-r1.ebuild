@@ -24,6 +24,7 @@ src_prepare() {
 	# Custom changes for gentoo
 	epatch "${FILESDIR}/${PN}-3.12.5-gentoo-fixups.diff"
 	epatch "${FILESDIR}/${PN}-3.12.6-gentoo-fixup-warnings.patch"
+	epatch "${FILESDIR}/nss-3.13.1-pkcs11n-header-fix.patch"
 
 	cd "${S}"/mozilla/security/coreconf
 	# hack nspr paths
