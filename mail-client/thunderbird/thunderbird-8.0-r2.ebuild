@@ -18,7 +18,7 @@ KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="bindist gconf +crashreporter +crypt +ipc +lightning mozdom +webm"
-PATCH="${PN}-${PV}-patches-0.1"
+PATCH="${PN}-${PV}-patches-0.2"
 PATCHFF="firefox-${PV}-patches-0.2"
 
 FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
