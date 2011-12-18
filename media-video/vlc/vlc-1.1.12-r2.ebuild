@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-video/vlc/vlc-1.1.12-r1.ebuild,v 1.1 2011/12/09 19:58:47 aballier Exp $
+# $Header: $
 
 EAPI="3"
 
@@ -24,7 +24,7 @@ MY_PV="${MY_PV/-beta/-test}"
 MY_P="${PN}-${MY_PV}"
 VLC_SNAPSHOT_TIME="0013"
 
-PATCHLEVEL="102"
+PATCHLEVEL="103"
 DESCRIPTION="VLC media player - Video player and streamer"
 HOMEPAGE="http://www.videolan.org/vlc/"
 if [ "${PV%9999}" != "${PV}" ] ; then # Live ebuild
@@ -110,8 +110,7 @@ RDEPEND="
 		opengl? ( virtual/opengl || ( >=x11-libs/libX11-1.3.99.901 <x11-libs/libX11-1.3.99.901[xcb] ) )
 		png? ( media-libs/libpng sys-libs/zlib )
 		projectm? ( media-libs/libprojectm )
-		pulseaudio? ( || ( >=media-sound/pulseaudio-0.9.22
-			( >=media-sound/pulseaudio-0.9.11 x11-libs/libX11 ) ) )
+		pulseaudio? ( >=media-sound/pulseaudio-0.9.22 )
 		qt4? ( x11-libs/qt-gui:4 x11-libs/qt-core:4 x11-libs/libX11 )
 		remoteosd? ( >=dev-libs/libgcrypt-1.2.0 )
 		samba? ( || ( >=net-fs/samba-3.4.6[smbclient] <net-fs/samba-3.4 ) )
