@@ -74,6 +74,7 @@ src_compile() {
 	export NSS_ENABLE_ECC=1
 	export XCFLAGS="${CFLAGS}"
 	export FREEBL_NO_DEPEND=1
+	export ASFLAGS=""
 
 	cd "${S}"/mozilla/security/coreconf
 	emake -j1 CC="$(tc-getCC)" || die "coreconf make failed"
