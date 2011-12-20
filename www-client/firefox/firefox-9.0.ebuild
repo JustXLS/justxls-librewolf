@@ -32,13 +32,13 @@ ASM_DEPEND=">=dev-lang/yasm-1.1"
 # Mesa 7.10 needed for WebGL + bugfixes
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.10
+	>=dev-libs/nss-3.13.1
 	>=dev-libs/nspr-4.8.8
 	>=dev-libs/glib-2.26:2
 	>=media-libs/mesa-7.10
 	media-libs/libpng[apng]
 	virtual/libffi
-	system-sqlite? ( >=dev-db/sqlite-3.7.4[fts3,secure-delete,unlock-notify,debug=] )
+	system-sqlite? ( >=dev-db/sqlite-3.7.7.1[fts3,secure-delete,unlock-notify,debug=] )
 	webm? ( media-libs/libvpx
 		media-libs/alsa-lib )
 	crashreporter? ( net-misc/curl )"
