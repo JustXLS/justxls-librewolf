@@ -13,7 +13,7 @@ FF_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
 FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
 FF_PV="${FF_PV/_rc/rc}" # Handle rc for SRC_URI
 CHANGESET="e56ecd8b3a68"
-PATCH="${PN}-8.0-patches-0.2"
+PATCH="${PN}-9.0-patches-0.3"
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
