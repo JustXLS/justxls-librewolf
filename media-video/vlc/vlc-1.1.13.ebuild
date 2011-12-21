@@ -1,15 +1,13 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Header: /var/cvsroot/gentoo-x86/media-video/vlc/vlc-1.1.13.ebuild,v 1.1 2011/12/21 12:18:47 aballier Exp $
 
 EAPI="3"
 
 SCM=""
 if [ "${PV%9999}" != "${PV}" ] ; then
-	SCM=git
+	SCM=git-2
 	EGIT_BOOTSTRAP="bootstrap"
-	EGIT_BRANCH=master
-	EGIT_PROJECT=${P}
 	if [ "${PV%.9999}" != "${PV}" ] ; then
 		EGIT_REPO_URI="git://git.videolan.org/vlc/vlc-${PV%.9999}.git"
 	else
@@ -24,7 +22,7 @@ MY_PV="${MY_PV/-beta/-test}"
 MY_P="${PN}-${MY_PV}"
 VLC_SNAPSHOT_TIME="0013"
 
-PATCHLEVEL="103"
+PATCHLEVEL="104"
 DESCRIPTION="VLC media player - Video player and streamer"
 HOMEPAGE="http://www.videolan.org/vlc/"
 if [ "${PV%9999}" != "${PV}" ] ; then # Live ebuild
@@ -186,10 +184,9 @@ pkg_setup() {
 	vlc_use_force vlm stream
 	vlc_use_force vaapi ffmpeg
 	vlc_use_force nsplugin xcb
-	has_version '<media-sound/pulseaudio-0.9.22' && vlc_use_force pulseaudio X
+	vlc_use_force xosd X
 	vlc_use_force sdl X
 	vlc_use_force aalib X
-	vlc_use_force xosd X
 
 	# Useflags that will be automagically discarded if deps are not met
 	vlc_use_needs bidi truetype
@@ -211,14 +208,11 @@ pkg_setup() {
 src_unpack() {
 	unpack ${A}
 	if [ "${PV%9999}" != "${PV}" ] ; then
-		git_src_unpack
+		git-2_src_unpack
 	fi
 }
 
 src_prepare() {
-	if [ "${PV%9999}" != "${PV}" ] ; then
-		git_src_prepare
-	fi
 	# Make it build with libtool 1.5
 	rm -f m4/lt* m4/libtool.m4
 
@@ -287,7 +281,7 @@ src_configure() {
 		$(use_enable mtp) \
 		$(use_enable musepack mpc) \
 		$(use_enable ncurses) \
-		$(use_enable nsplugin mozilla) \
+		$(use_enable nsplugin mozilla) --with-mozilla-pkg=libxul \
 		$(use_enable ogg) \
 		$(use_enable opengl glx) $(use_enable opengl) \
 		$(use_enable optimisememory optimize-memory) \
@@ -346,7 +340,6 @@ src_configure() {
 		$(vlc_use_enable_force gnutls libgcrypt) \
 		$(vlc_use_enable_force vaapi avcodec) \
 		$(vlc_use_enable_force nsplugin xcb) \
-		$(has_version '<media-sound/pulseaudio-0.9.22' && use pulseaudio && echo '--with-x') \
 		$(use sdl && echo '--with-x') \
 		$(use xosd && echo '--with-x') \
 		$(use aalib && echo '--with-x')
