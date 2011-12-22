@@ -6,7 +6,7 @@ EAPI="3"
 VIRTUALX_REQUIRED="pgo"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension versionator python virtualx nsplugins
+inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension versionator python virtualx nsplugins
 
 MAJ_FF_PV="$(get_version_component_range 1-2)" # 3.5, 3.6, 4.0, etc.
 FF_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
@@ -149,13 +149,12 @@ pkg_setup() {
 	fi
 
 	# Ensure we have enough disk space to compile
-	if use pgo ; then
+	if use pgo || use debug || use test ; then
 		CHECKREQS_DISK_BUILD="8G"
-		check-reqs_pkg_setup
 	else
 		CHECKREQS_DISK_BUILD="4G"
-		check-reqs_pkg_setup
 	fi
+	check-reqs_pkg_setup
 }
 
 src_unpack() {
