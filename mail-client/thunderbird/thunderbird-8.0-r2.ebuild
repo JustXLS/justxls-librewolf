@@ -5,11 +5,22 @@
 EAPI="3"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs mozconfig-3 makeedit multilib mozextension autotools pax-utils python check-reqs nsplugins
+# This list can be updated using scripts/get_langs.sh from the mozilla overlay
+LANGS=(ar be bg bn-BD br ca cs da de el en en-GB en-US es-AR es-ES et eu fi
+fr fy-NL ga-IE gd gl he hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR
+pt-PT rm ro ru si sk sl sq sv-SE ta-LK tr uk vi zh-CN zh-TW)
 
-TB_PV="${PV/_beta/b}"
-TB_P="${PN}-${TB_PV}"
+# Convert the ebuild version to the upstream mozilla version, used by mozlinguas
+MOZ_PV="${PV/_beta/b}"
+MOZ_P="${PN}-${MOZ_PV}"
+
+# Enigmail version
 EMVER="1.3.4"
+# Upstream ftp release URI that's used by mozlinguas.eclass
+# We don't use the http mirror because it deletes old tarballs.
+FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
+
+inherit flag-o-matic toolchain-funcs mozconfig-3 makeedit multilib autotools pax-utils python check-reqs nsplugins mozlinguas
 
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
@@ -18,37 +29,15 @@ KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="bindist gconf +crashreporter +crypt +ipc +lightning mozdom +webm"
+
 PATCH="${PN}-9.0-patches-0.1"
 PATCHFF="firefox-${PV}-patches-0.2"
 
-FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
-SRC_URI="${FTP_URI}/${TB_PV}/source/${TB_P}.source.tar.bz2
+SRC_URI="${SRC_URI}
+	${FTP_URI}/${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
 	crypt? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz )
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.xz
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz"
-
-if ! [[ ${PV} =~ alpha|beta ]]; then
-	# This list can be updated using scripts/get_langs.sh from the mozilla overlay
-	LANGS=(ar be bg bn-BD br ca cs da de el en en-GB en-US es-AR es-ES et eu fi
-	fr fy-NL ga-IE gd gl he hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR
-	pt-PT rm ro ru si sk sl sq sv-SE ta-LK tr uk vi zh-CN zh-TW)
-
-	for X in "${LANGS[@]}" ; do
-		# en and en_US are handled internally
-		if [[ ${X} != en ]] && [[ ${X} != en-US ]]; then
-			SRC_URI="${SRC_URI}
-				linguas_${X/-/_}? ( ${FTP_URI}/${TB_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
-		fi
-		IUSE="${IUSE} linguas_${X/-/_}"
-		# Install all the specific locale xpis if there's no generic locale xpi
-		# Example: there's no pt.xpi, so install all pt-*.xpi
-		if ! has ${X%%-*} "${LANGS[@]}"; then
-			SRC_URI="${SRC_URI}
-				linguas_${X%%-*}? ( ${FTP_URI}/${TB_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
-			IUSE="${IUSE} linguas_${X%%-*}"
-		fi
-	done
-fi
 
 RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.12.10
@@ -75,34 +64,6 @@ DEPEND="${RDEPEND}"
 
 S="${WORKDIR}"/comm-release
 
-# TODO: Move all the linguas crap to an eclass
-linguas() {
-	# Generate the list of language packs called "linguas"
-	# This list is used to install the xpi language packs
-	local LINGUA
-	for LINGUA in ${LINGUAS}; do
-		if has ${LINGUA} en en_US; then
-			# For mozilla products, en and en_US are handled internally
-			continue
-		# If this language is supported by ${P},
-		elif has ${LINGUA} "${LANGS[@]//-/_}"; then
-			# Add the language to linguas, if it isn't already there
-			has ${LINGUA//_/-} "${linguas[@]}" || linguas+=(${LINGUA//_/-})
-			continue
-		# For each short LINGUA that isn't in LANGS,
-		# add *all* long LANGS to the linguas list
-		elif ! has ${LINGUA%%-*} "${LANGS[@]}"; then
-			for LANG in "${LANGS[@]}"; do
-				if [[ ${LANG} == ${LINGUA}-* ]]; then
-					has ${LANG} "${linguas[@]}" || linguas+=(${LANG})
-					continue 2
-				fi
-			done
-		fi
-		ewarn "Sorry, but ${P} does not support the ${LINGUA} locale"
-	done
-}
-
 pkg_setup() {
 	moz_pkgsetup
 
@@ -124,12 +85,8 @@ pkg_setup() {
 src_unpack() {
 	unpack ${A}
 
-	if ! [[ ${PV} =~ alpha|beta ]]; then
-		linguas
-		for X in "${linguas[@]}"; do
-			xpi_unpack "${P}-${X}.xpi"
-		done
-	fi
+	# Unpack language packs
+	mozlinguas_src_unpack
 }
 
 src_prepare() {
@@ -250,6 +207,9 @@ src_install() {
 
 	emake DESTDIR="${D}" install || die "emake install failed"
 
+	# Install language packs
+	mozlinguas_src_install
+
 	if ! use bindist; then
 		newicon "${S}"/other-licenses/branding/thunderbird/content/icon48.png thunderbird-icon.png
 		domenu "${FILESDIR}"/icon/${PN}.desktop
@@ -293,13 +253,6 @@ src_install() {
 		sed -e "s:^\(MimeType=\):\1text/calendar;:" \
 			-e "s:^\(Categories=\):\1Calendar;:" \
 			-i "${ED}"/usr/share/applications/${PN}.desktop
-	fi
-
-	if ! [[ ${PV} =~ alpha|beta ]]; then
-		linguas
-		for X in "${linguas[@]}"; do
-			xpi_install "${WORKDIR}/${P}-${X}"
-		done
 	fi
 
 	pax-mark m "${ED}"/${MOZILLA_FIVE_HOME}/thunderbird-bin
