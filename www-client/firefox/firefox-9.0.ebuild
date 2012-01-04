@@ -1,44 +1,31 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-6.0.ebuild,v 1.2 2011/08/23 19:35:58 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-9.0.ebuild,v 1.3 2011/12/26 11:13:31 armin76 Exp $
 
 EAPI="3"
 VIRTUALX_REQUIRED="pgo"
 WANT_AUTOCONF="2.1"
 
-# This list can be updated with scripts/get_langs.sh from the mozilla overlay
-LANGS=(af ak ar ast be bg bn-BD bn-IN br bs ca cs cy da de el en en-GB en-US
-en-ZA eo es-AR es-CL es-ES es-MX et eu fa fi fr fy-NL ga-IE gd gl gu-IN he
-hi-IN hr hu hy-AM id is it ja kk kn ko ku lg lt lv mai mk ml mr nb-NO nl
-nn-NO nso or pa-IN pl pt-BR pt-PT rm ro ru si sk sl son sq sr sv-SE ta ta-LK
-te th tr uk vi zh-CN zh-TW zu)
+inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension versionator python virtualx nsplugins
 
-# Convert the ebuild version to the upstream mozilla version, used by mozlinguas
-MOZ_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
-MOZ_PV="${MOZ_PV/_beta/b}" # Handle beta for SRC_URI
-MOZ_PV="${MOZ_PV/_rc/rc}" # Handle rc for SRC_URI
-
-# Changeset for alpha snapshot
+MAJ_FF_PV="$(get_version_component_range 1-2)" # 3.5, 3.6, 4.0, etc.
+FF_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
+FF_PV="${FF_PV/_beta/b}" # Handle beta for SRC_URI
+FF_PV="${FF_PV/_rc/rc}" # Handle rc for SRC_URI
 CHANGESET="e56ecd8b3a68"
-# Patch version
 PATCH="${PN}-9.0-patches-0.5"
-# Upstream ftp release URI that's used by mozlinguas.eclass
-# We don't use the http mirror because it deletes old tarballs.
-FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
-
-inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-3 multilib pax-utils fdo-mime autotools python virtualx nsplugins mozlinguas
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
 
-KEYWORDS="~amd64 ~arm ~ppc ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~x86 ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="bindist +crashreporter +ipc pgo system-sqlite +webm"
 
+FTP_URI="ftp://ftp.mozilla.org/pub/firefox/releases/"
 # More URIs appended below...
-SRC_URI="${SRC_URI}
-	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.xz"
+SRC_URI="http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.xz"
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
@@ -67,19 +54,73 @@ DEPEND="${RDEPEND}
 # No source releases for alpha|beta
 if [[ ${PV} =~ alpha ]]; then
 	SRC_URI="${SRC_URI}
-		http://dev.gentoo.org/~anarchy/mozilla/firefox/firefox-${MOZ_PV}_${CHANGESET}.source.tar.bz2"
+		http://dev.gentoo.org/~anarchy/mozilla/firefox/firefox-${FF_PV}_${CHANGESET}.source.tar.bz2"
 	S="${WORKDIR}/mozilla-central"
 elif [[ ${PV} =~ beta ]]; then
 	SRC_URI="${SRC_URI}
-		${FTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.bz2"
+		${FTP_URI}/${FF_PV}/source/firefox-${FF_PV}.source.tar.bz2"
 	S="${WORKDIR}/mozilla-beta"
 else
 	SRC_URI="${SRC_URI}
-		${FTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.bz2"
+		${FTP_URI}/${FF_PV}/source/firefox-${FF_PV}.source.tar.bz2"
 	S="${WORKDIR}/mozilla-release"
 fi
 
+# No language packs for alphas
+if ! [[ ${PV} =~ alpha|beta ]]; then
+	# This list can be updated with scripts/get_langs.sh from mozilla overlay
+	LANGS=(af ak ar ast be bg bn-BD bn-IN br bs ca cs cy da de el en en-GB en-US
+	en-ZA eo es-AR es-CL es-ES es-MX et eu fa fi fr fy-NL ga-IE gd gl gu-IN he
+	hi-IN hr hu hy-AM id is it ja kk kn ko ku lg lt lv mai mk ml mr nb-NO nl
+	nn-NO nso or pa-IN pl pt-BR pt-PT rm ro ru si sk sl son sq sr sv-SE ta ta-LK
+	te th tr uk vi zh-CN zh-TW zu)
+
+	for X in "${LANGS[@]}" ; do
+		# en and en_US are handled internally
+		if [[ ${X} != en ]] && [[ ${X} != en-US ]]; then
+			SRC_URI="${SRC_URI}
+				linguas_${X/-/_}? ( ${FTP_URI}/${FF_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+		fi
+		IUSE="${IUSE} linguas_${X/-/_}"
+		# Install all the specific locale xpis if there's no generic locale xpi
+		# Example: there's no pt.xpi, so install all pt-*.xpi
+		if ! has ${X%%-*} "${LANGS[@]}"; then
+			SRC_URI="${SRC_URI}
+				linguas_${X%%-*}? ( ${FTP_URI}/${FF_PV}/linux-i686/xpi/${X}.xpi -> ${P}-${X}.xpi )"
+			IUSE="${IUSE} linguas_${X%%-*}"
+		fi
+	done
+fi
+
 QA_PRESTRIPPED="usr/$(get_libdir)/${PN}/firefox"
+
+# TODO: Move all the linguas crap to an eclass
+linguas() {
+	# Generate the list of language packs called "linguas"
+	# This list is used to install the xpi language packs
+	local LINGUA
+	for LINGUA in ${LINGUAS}; do
+		if has ${LINGUA} en en_US; then
+			# For mozilla products, en and en_US are handled internally
+			continue
+		# If this language is supported by ${P},
+		elif has ${LINGUA} "${LANGS[@]//-/_}"; then
+			# Add the language to linguas, if it isn't already there
+			has ${LINGUA//_/-} "${linguas[@]}" || linguas+=(${LINGUA//_/-})
+			continue
+		# For each short LINGUA that isn't in LANGS,
+		# add *all* long LANGS to the linguas list
+		elif ! has ${LINGUA%%-*} "${LANGS[@]}"; then
+			for LANG in "${LANGS[@]}"; do
+				if [[ ${LANG} == ${LINGUA}-* ]]; then
+					has ${LANG} "${linguas[@]}" || linguas+=(${LANG})
+					continue 2
+				fi
+			done
+		fi
+		ewarn "Sorry, but ${P} does not support the ${LINGUA} locale"
+	done
+}
 
 pkg_setup() {
 	moz_pkgsetup
@@ -92,7 +133,6 @@ pkg_setup() {
 		SESSION_MANAGER \
 		XDG_SESSION_COOKIE \
 		XAUTHORITY
-	gnome2_environment_reset
 
 	if ! use bindist; then
 		einfo
@@ -120,8 +160,11 @@ pkg_setup() {
 src_unpack() {
 	unpack ${A}
 
-	# Unpack language packs
-	mozlinguas_src_unpack
+	linguas
+	for X in "${linguas[@]}"; do
+		# FIXME: Add support for unpacking xpis to portage
+		xpi_unpack "${P}-${X}.xpi"
+	done
 }
 
 src_prepare() {
@@ -253,8 +296,10 @@ src_install() {
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
 	emake DESTDIR="${D}" install || die "emake install failed"
 
-	# Install language packs
-	mozlinguas_src_install
+	linguas
+	for X in "${linguas[@]}"; do
+		xpi_install "${WORKDIR}/${P}-${X}"
+	done
 
 	local size sizes icon_path icon name
 	if use bindist; then
