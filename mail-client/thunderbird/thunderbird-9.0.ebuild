@@ -30,8 +30,8 @@ SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="bindist gconf +crashreporter +crypt +ipc +lightning mozdom +webm"
 
-PATCH="${PN}-9.0-patches-0.1"
-PATCHFF="firefox-${PV}-patches-0.2"
+PATCH="thunderbird-${PV}-patches-0.1"
+PATCHFF="firefox-${PV}-patches-0.5"
 
 SRC_URI="${SRC_URI}
 	${FTP_URI}/${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
