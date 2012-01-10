@@ -30,6 +30,7 @@ src_prepare() {
 	# Patch needs updating
 	#epatch "${FILESDIR}"/${PN}-4.8.3-aix-soname.patch
 	epatch "${FILESDIR}"/${PN}-4.8.4-darwin-install_name.patch
+	epatch "${FILESDIR}"/${PN}-4.8.9-link-flags.patch
 	# make sure it won't find Perl out of Prefix
 	sed -i -e "s/perl5//g" mozilla/nsprpub/configure || die
 
