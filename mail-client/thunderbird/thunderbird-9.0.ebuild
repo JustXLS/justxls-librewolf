@@ -40,16 +40,20 @@ SRC_URI="${SRC_URI}
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz"
 
 RDEPEND=">=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.12.10
+	>=dev-libs/nss-3.13.1
 	>=dev-libs/nspr-4.8.8
+	>=dev-libs/glib-2.26
 	crashreporter? ( net-misc/curl )
 	gconf? ( >=gnome-base/gconf-1.2.1:2 )
 	media-libs/libpng[apng]
+	>=x11-libs/cairo-1.10
+	>=x11-libs/pango-1.14.0
+	>=x11-libs/gtk+-2.14
 	webm? ( media-libs/libvpx
 		media-libs/alsa-lib )
 	virtual/libffi
 	!x11-plugins/enigmail
-	system-sqlite? ( >=dev-db/sqlite-3.7.5[fts3,secure-delete,unlock-notify,debug=] )
+	system-sqlite? ( >=dev-db/sqlite-3.7.7.1[fts3,secure-delete,unlock-notify,debug=] )
 	crypt?  ( || (
 		( >=app-crypt/gnupg-2.0
 			|| (
