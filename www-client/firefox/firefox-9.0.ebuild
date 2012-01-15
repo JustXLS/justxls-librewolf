@@ -106,6 +106,14 @@ pkg_setup() {
 		einfo
 		ewarn "You will do a double build for profile guided optimization."
 		ewarn "This will result in your build taking at least twice as long as before."
+
+		addpredict /root
+		addpredict /etc/gconf
+		# Firefox tries to dri stuff when it's run, see bug 380283
+		shopt -s nullglob
+		local cards=$(echo -n /dev/{dri,ati}/card* /dev/nvidiactl* | sed 's/ /:/g')
+		shopt -u nullglob
+		test -n "${cards}" && addpredict "${cards}"
 	fi
 
 	# Ensure we have enough disk space to compile
@@ -216,14 +224,6 @@ src_configure() {
 
 src_compile() {
 	if use pgo; then
-		addpredict /root
-		addpredict /etc/gconf
-		# Firefox tries to dri stuff when it's run, see bug 380283
-		shopt -s nullglob
-		local cards=$(echo -n /dev/{dri,ati}/card* /dev/nvidiactl* | sed 's/ /:/g')
-		shopt -u nullglob
-		test -n "${cards}" && addpredict "${cards}"
-
 		CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
 		MOZ_MAKE_FLAGS="${MAKEOPTS}" \
 		Xemake -f client.mk profiledbuild || die "Xemake failed"
