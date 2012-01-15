@@ -1,0 +1,19 @@
+#!/bin/bash
+#
+# This file is only intended to generate a shared db for nss
+# in the users home dir. This will be the first step in creating
+# a database that can be shared amongs applications using the sql
+# backend.
+
+PASSWD_FILE="$PWD/nssdb_passwd"
+
+mkdir -p $HOME/.pki/nssdb 
+
+certutil -N -f ${PASSWD_FILE} -d sql:.pki/nssdb
+
+for x in `ls /etc/ssl/certs | grep pem`; do
+	certutil -f ${PASSWD_FILE} -d sql:.pki/nssdb -A -t "CT,c,c" -n $x -i /etc/ssl/certs/$x
+done
+
+echo "Please also ensure you add 'export NSS_DEFAULT_DB_TYPE=\"sql\"' via $HOME/.bashrc"
+echo "To see a list of all certificate you may run, 'certutil -L -d $HOME/.pki/nssdb,'"
