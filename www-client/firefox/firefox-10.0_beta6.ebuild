@@ -7,11 +7,7 @@ VIRTUALX_REQUIRED="pgo"
 WANT_AUTOCONF="2.1"
 
 # This list can be updated with scripts/get_langs.sh from the mozilla overlay
-LANGS=(af ak ar ast be bg bn-BD bn-IN br bs ca cs cy da de el en en-GB en-US
-en-ZA eo es-AR es-CL es-ES es-MX et eu fa fi fr fy-NL ga-IE gd gl gu-IN he
-hi-IN hr hu hy-AM id is it ja kk kn ko ku lg lt lv mai mk ml mr nb-NO nl
-nn-NO nso or pa-IN pl pt-BR pt-PT rm ro ru si sk sl son sq sr sv-SE ta ta-LK
-te th tr uk vi zh-CN zh-TW zu)
+LANGS=()
 
 # Convert the ebuild version to the upstream mozilla version, used by mozlinguas
 MOZ_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
@@ -52,7 +48,7 @@ RDEPEND="
 	media-libs/libpng[apng]
 	virtual/libffi
 	system-sqlite? ( >=dev-db/sqlite-3.7.7.1[fts3,secure-delete,unlock-notify,debug=] )
-	webm? ( media-libs/libvpx
+	webm? ( >=media-libs/libvpx-0.9.7
 		media-libs/alsa-lib )
 	crashreporter? ( net-misc/curl )"
 # We don't use PYTHON_DEPEND/PYTHON_USE_WITH for some silly reason
@@ -106,14 +102,6 @@ pkg_setup() {
 		einfo
 		ewarn "You will do a double build for profile guided optimization."
 		ewarn "This will result in your build taking at least twice as long as before."
-
-		addpredict /root
-		addpredict /etc/gconf
-		# Firefox tries to dri stuff when it's run, see bug 380283
-		shopt -s nullglob
-		local cards=$(echo -n /dev/{dri,ati}/card* /dev/nvidiactl* | sed 's/ /:/g')
-		shopt -u nullglob
-		test -n "${cards}" && addpredict "${cards}"
 	fi
 
 	# Ensure we have enough disk space to compile
@@ -134,9 +122,9 @@ src_unpack() {
 
 src_prepare() {
 	# Apply our patches
-	EPATCH_SUFFIX="patch" \
-	EPATCH_FORCE="yes" \
-	epatch "${WORKDIR}/firefox"
+	#EPATCH_SUFFIX="patch" \
+	#EPATCH_FORCE="yes" \
+	#epatch "${WORKDIR}/firefox"
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
@@ -224,6 +212,14 @@ src_configure() {
 
 src_compile() {
 	if use pgo; then
+		addpredict /root
+		addpredict /etc/gconf
+		# Firefox tries to dri stuff when it's run, see bug 380283
+		shopt -s nullglob
+		local cards=$(echo -n /dev/{dri,ati}/card* /dev/nvidiactl* | sed 's/ /:/g')
+		shopt -u nullglob
+		test -n "${cards}" && addpredict "${cards}"
+
 		CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
 		MOZ_MAKE_FLAGS="${MAKEOPTS}" \
 		Xemake -f client.mk profiledbuild || die "Xemake failed"
