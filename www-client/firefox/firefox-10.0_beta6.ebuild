@@ -214,11 +214,23 @@ src_compile() {
 	if use pgo; then
 		addpredict /root
 		addpredict /etc/gconf
-		# Firefox tries to dri stuff when it's run, see bug 380283
+
+		# Firefox tries to use dri stuff when it's run, see bug 380283
 		shopt -s nullglob
-		local cards=$(echo -n /dev/{dri,ati}/card* /dev/nvidiactl* | sed 's/ /:/g')
+		cards=$(echo -n /dev/dri/card* | sed 's/ /:/g')
+		if test -n "${cards}"; then
+			# FOSS drivers are fine
+			addpredict "${cards}"
+		else
+			cards=$(echo -n /dev/ati/card* /dev/nvidiactl* | sed 's/ /:/g')
+			if test -n "${cards}"; then
+				# Binary drivers seem to cause access violations anyway, so
+				# let's use indirect rendering so that the device files aren't
+				# touched at all. See bug 394715.
+				export LIBGL_ALWAYS_INDIRECT=1
+			fi
+		fi
 		shopt -u nullglob
-		test -n "${cards}" && addpredict "${cards}"
 
 		CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
 		MOZ_MAKE_FLAGS="${MAKEOPTS}" \
