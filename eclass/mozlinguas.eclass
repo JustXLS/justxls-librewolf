@@ -65,6 +65,7 @@ if ! [[ ${PV} =~ alpha|beta ]]; then
 fi
 
 linguas() {
+	[[ ${PV} =~ alpha|beta ]] && return
 	# Generate the list of language packs called "linguas"
 	# This list is used to unpack and install the xpi language packs
 	local LINGUA
