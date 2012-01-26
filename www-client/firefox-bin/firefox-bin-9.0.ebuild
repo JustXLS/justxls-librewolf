@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/www-client/firefox-bin/firefox-bin-8.0.ebuild,v 1.5 2011/12/08 14:47:02 phajdan.jr Exp $
 
@@ -21,7 +21,7 @@ MOZ_P="${MOZ_PN}-${MOZ_PV}"
 # We don't use the http mirror because it deletes old tarballs.
 FTP_URI="ftp://ftp.mozilla.org/pub/mozilla.org/${MOZ_PN}/releases/"
 
-inherit eutils mozilla-launcher multilib pax-utils fdo-mime gnome2-utils mozlinguas
+inherit eutils multilib pax-utils fdo-mime gnome2-utils mozlinguas
 
 DESCRIPTION="Firefox Web Browser"
 SRC_URI="${SRC_URI}
@@ -124,6 +124,5 @@ pkg_postinst() {
 }
 
 pkg_postrm() {
-	update_mozilla_launcher_symlinks
 	gnome2_icon_cache_update
 }

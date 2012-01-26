@@ -4,7 +4,7 @@
 
 EAPI="4"
 
-inherit eutils mozilla-launcher multilib mozextension pax-utils nsplugins fdo-mime gnome2-utils
+inherit eutils multilib mozextension pax-utils nsplugins fdo-mime gnome2-utils
 
 LANGS=(be ca cs de en-GB en-US es-AR es-ES fi fr gl hu it
 ja lt nb-NO nl pl pt-PT ru sk sv-SE tr zh-CN)

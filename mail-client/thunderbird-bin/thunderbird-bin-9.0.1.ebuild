@@ -82,8 +82,7 @@ EOF
 		"${D}/${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js" || \
 		die "failed to cp thunderbird-gentoo-default-prefs.js"
 
-	ln -sfn "/usr/$(get_libdir)/nsbrowser/plugins" \
-			"${D}${MOZILLA_FIVE_HOME}/plugins" || die
+	share_plugins_dir
 
 	pax-mark m "${ED}"/${MOZILLA_FIVE_HOME}/{thunderbird-bin,thunderbird,plugin-container}
 }
