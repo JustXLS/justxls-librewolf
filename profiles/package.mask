@@ -7,6 +7,3 @@
 
 # These are experimental use with caution!!
 =www-client/seamonkey-2.6_beta*
-
-# Experimental, no idea about patches, only unmask after asking Anarchy
-=www-client/firefox-10.0_beta*
