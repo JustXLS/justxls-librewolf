@@ -215,6 +215,8 @@ src_compile() {
 	if use pgo; then
 		addpredict /root
 		addpredict /etc/gconf
+		# Reset and cleanup environment variables used by GNOME/XDG
+		gnome2_environment_reset
 
 		# Firefox tries to use dri stuff when it's run, see bug 380283
 		shopt -s nullglob

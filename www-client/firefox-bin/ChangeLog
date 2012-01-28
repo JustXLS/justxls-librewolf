@@ -1,8 +1,0 @@
-# ChangeLog for www-client/firefox-bin
-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: $
-
-  26 Jan 2012; Nirbheek Chauhan <nirbheek@gentoo.org> firefox-bin-9.0.ebuild:
-  Why the heck were we still calling update_mozilla_launcher_symlinks in
-  pkg_postrm? Nuke it from orbit. Bug 390807
-
