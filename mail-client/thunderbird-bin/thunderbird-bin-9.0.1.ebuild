@@ -38,6 +38,7 @@ RDEPEND="x11-libs/libXrender
 	x11-libs/libXt
 	x11-libs/libXmu
 	>=x11-libs/gtk+-2.2:2
+	>=media-libs/alsa-lib-1.0.16
 	crashreporter? ( net-misc/curl ) "
 
 S="${WORKDIR}/${MOZ_PN}"

@@ -39,6 +39,8 @@ SRC_URI="${SRC_URI}
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.xz
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz"
 
+ASM_DEPEND=">=dev-lang/yasm-1.1"
+
 RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.13.1
 	>=dev-libs/nspr-4.8.8
@@ -64,7 +66,10 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 		=app-crypt/gnupg-1.4*
 	) )"
 
-DEPEND="${RDEPEND}"
+DEPEND="${RDEPEND}
+	dev-util/pkgconfig
+	webm? ( x86? ( ${ASM_DEPEND} )
+		amd64? ( ${ASM_DEPEND} ) )"
 
 S="${WORKDIR}"/comm-release
 
