@@ -32,7 +32,7 @@ else
 	#REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases/${MY_PV}"
 	REL_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/${MY_PV}"
 	LANG_URI="${REL_URI}/langpack"
-	KEYWORDS="~alpha amd64 ~arm ~ppc x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~ppc ~x86"
 fi
 
 DESCRIPTION="Seamonkey Web Browser"
