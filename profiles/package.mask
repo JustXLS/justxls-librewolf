@@ -6,4 +6,4 @@
 #
 
 # These are experimental use with caution!!
-=www-client/seamonkey-2.6_beta*
+=www-client/seamonkey-2.7_beta*
