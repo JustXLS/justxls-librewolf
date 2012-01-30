@@ -17,7 +17,7 @@ MOZ_PV="${MOZ_PV/_rc/rc}" # Handle rc for SRC_URI
 # Changeset for alpha snapshot
 CHANGESET="e56ecd8b3a68"
 # Patch version
-PATCH="${PN}-10.0-patches-0.2"
+PATCH="${PN}-10.0-patches-0.3"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
@@ -122,7 +122,6 @@ src_unpack() {
 src_prepare() {
 	# Apply our patches
 	EPATCH_SUFFIX="patch" \
-	EPATCH_EXCLUDE="2001-gentoo_no_app_updates.patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
 
