@@ -112,13 +112,6 @@ src_prepare() {
 	epatch "${WORKDIR}/firefox"
 	popd &>/dev/null || die
 
-	if use lightning ; then
-		einfo "Fix lightning version to match upstream release"
-		einfo
-		sed -i -e 's:1.0b8pre:1.0:' "${S}"/calendar/sunbird/config/version.txt \
-			|| die "Failed to correct lightning version"
-	fi
-
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
 		cd "${S}"/mailnews/extensions/enigmail || die
