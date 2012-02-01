@@ -5,65 +5,49 @@
 EAPI="3"
 WANT_AUTOCONF="2.1"
 
-inherit flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension versionator python nsplugins
+# This list can be updated with scripts/get_langs.sh from the mozilla overlay
+LANGS=(be ca cs de en-GB en-US es-AR es-ES fi fr gl hu it
+ja lt nb-NO nl pl pt-PT ru sk sv-SE tr zh-CN)
+
+MOZ_PV="${PV/_pre*}"
+MOZ_PV="${MOZ_PV/_alpha/a}"
+MOZ_PV="${MOZ_PV/_beta/b}"
+MOZ_PV="${MOZ_PV/_rc/rc}"
+MOZ_P="${PN}-${MOZ_PV}"
+
+if [[ ${PV} == *_pre* ]] ; then
+	FTP_URI="ftp://ftp.mozilla.org/pub/mozilla.org/${PN}/nightly/${MOZ_PV}-candidates/build${PV##*_pre}"
+	# And the langpack stuff stays at eclass defaults
+else
+	FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/${MOZ_PV}"
+	LANGPACK_PREFIX="${MOZ_PV}/langpack/${MOZ_P}."
+	LANGPACK_SUFFIX=".langpack.xpi"
+fi
+
+inherit flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension python nsplugins mozlinguas
 
 PATCH="${PN}-2.7-patches-02"
 EMVER="1.3.5"
 
-MY_PV="${PV/_pre*}"
-MY_PV="${MY_PV/_alpha/a}"
-MY_PV="${MY_PV/_beta/b}"
-MY_PV="${MY_PV/_rc/rc}"
-MY_P="${PN}-${MY_PV}"
+DESCRIPTION="Seamonkey Web Browser"
+HOMEPAGE="http://www.seamonkey-project.org"
 
-LANGPACK_PREFIX="${MY_P}."
-LANGPACK_SUFFIX=".langpack"
 if [[ ${PV} == *_pre* ]] ; then
 	# pre-releases. No need for arch teams to change KEYWORDS here.
-
-	REL_URI="ftp://ftp.mozilla.org/pub/mozilla.org/${PN}/nightly/${MY_PV}-candidates/build${PV##*_pre}"
-	LANG_URI="${REL_URI}/linux-i686/xpi"
-	LANGPACK_PREFIX=""
-	LANGPACK_SUFFIX=""
 	KEYWORDS=""
 else
 	# This is where arch teams should change the KEYWORDS.
-
-	#REL_URI="http://releases.mozilla.org/pub/mozilla.org/${PN}/releases/${MY_PV}"
-	REL_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/${MY_PV}"
-	LANG_URI="${REL_URI}/langpack"
 	KEYWORDS="~alpha ~amd64 ~arm ~ppc ~x86"
 fi
-
-DESCRIPTION="Seamonkey Web Browser"
-HOMEPAGE="http://www.seamonkey-project.org"
 
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="+alsa +chatzilla +crypt +ipc +methodjit +roaming system-sqlite +webm"
 
-SRC_URI="${REL_URI}/source/${MY_P}.source.tar.bz2 -> ${P}.source.tar.bz2
+SRC_URI="${SRC_URI}
+	${FTP_URI}/source/${MOZ_P}.source.tar.bz2 -> ${P}.source.tar.bz2
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
 	crypt? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz )"
-
-LANGS=(be ca cs de en en-GB en-US es-AR es-ES fi fr gl hu it ja lt
-	nb-NO nl pl pt-PT ru sk sv-SE tr zh-CN)
-
-for X in "${LANGS[@]}" ; do
-	# en is handled internally
-	if [[ ${X} != en ]] ; then
-		SRC_URI+="
-			linguas_${X/-/_}? ( ${LANG_URI}/${LANGPACK_PREFIX}${X}${LANGPACK_SUFFIX}.xpi -> ${P}-${X}.xpi )"
-	fi
-	IUSE+=" linguas_${X/-/_}"
-	# Install all the specific locale xpis if there's no generic locale xpi
-	# Example: there's no pt.xpi, so install all pt-*.xpi
-	if ! has ${X%%-*} "${LANGS[@]}"; then
-		SRC_URI+="
-			linguas_${X%%-*}? ( ${LANG_URI}/${LANGPACK_PREFIX}${X}${LANGPACK_SUFFIX}.xpi -> ${P}-${X}.xpi )"
-		IUSE+=" linguas_${X%%-*}"
-	fi
-done
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
@@ -94,42 +78,11 @@ else
 	S="${WORKDIR}/comm-release"
 fi
 
-# TODO: Move all the linguas crap to an eclass
-linguas() {
-	# Generate the list of language packs called "linguas"
-	# This list is used to install the xpi language packs
-	local LINGUA
-	for LINGUA in ${LINGUAS}; do
-		if has ${LINGUA} en ; then
-			# For mozilla products, en and en_US are handled internally
-			continue
-		# If this language is supported by ${P},
-		elif has ${LINGUA} "${LANGS[@]//-/_}"; then
-			# Add the language to linguas, if it isn't already there
-			has ${LINGUA//_/-} "${linguas[@]}" || linguas+=(${LINGUA//_/-})
-			continue
-		# For each short LINGUA that isn't in LANGS,
-		# add *all* long LANGS to the linguas list
-		elif ! has ${LINGUA%%-*} "${LANGS[@]}"; then
-			for LANG in "${LANGS[@]}"; do
-				if [[ ${LANG} == ${LINGUA}-* ]]; then
-					has ${LANG} "${linguas[@]}" || linguas+=(${LANG})
-					continue 2
-				fi
-			done
-		fi
-		ewarn "Sorry, but ${P} does not support the ${LINGUA} locale"
-	done
-}
-
 src_unpack() {
 	unpack ${A}
 
-	linguas
-	for X in "${linguas[@]}"; do
-		# FIXME: Add support for unpacking xpis to portage
-		xpi_unpack "${P}-${X}.xpi"
-	done
+	# Unpack language packs
+	mozlinguas_src_unpack
 }
 
 pkg_setup() {
@@ -287,10 +240,8 @@ src_install() {
 	sed 's|^\(Categories=.*\)$|\1Email;|' -i "${T}"/${PN}.desktop \
 		|| die
 
-	linguas
-	for X in ${linguas}; do
-		[[ ${X} != "en" ]] && xpi_install "${WORKDIR}"/"${P}-${X}"
-	done
+	# Install language packs
+	mozlinguas_src_install
 
 	# Add StartupNotify=true bug 290401
 	if use startup-notification ; then

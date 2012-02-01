@@ -28,11 +28,6 @@ esac
 # mozilla overlay.
 : ${LANGS:=""}
 
-# @ECLASS-VARIABLE: FTP_URI
-# @DEFAULT-UNSET
-# @DESCRIPTION: The ftp URI prefix for the release tarballs and language packs.
-: ${FTP_URI:=""}
-
 # @ECLASS-VARIABLE: MOZ_PV
 # @DESCRIPTION: Ebuild package version converted to equivalent upstream version.
 # Defaults to ${PV}, and should be overridden for alphas, betas, and RCs
@@ -48,6 +43,21 @@ esac
 # Defaults to ${MOZ_PN}-${MOZ_PV}
 : ${MOZ_P:="${MOZ_PN}-${MOZ_PV}"}
 
+# @ECLASS-VARIABLE: FTP_URI
+# @DEFAULT-UNSET
+# @DESCRIPTION: The ftp URI prefix for the release tarballs and language packs.
+: ${FTP_URI:=""}
+
+# @ECLASS-VARIABLE: LANGPACK_PREFIX
+# @DESCRIPTION: The relative path till the lang code in the langpack file URI.
+# Defaults to ${MOZ_PV}/linux-i686/xpi/
+: ${LANGPACK_PREFIX:="${MOZ_PV}/linux-i686/xpi/"}
+
+# @ECLASS-VARIABLE: LANGPACK_SUFFIX
+# @DESCRIPTION: The suffix after the lang code in the langpack file URI.
+# Defaults to '.xpi'
+: ${LANGPACK_SUFFIX:=".xpi"}
+
 # Add linguas_* to IUSE according to available language packs
 # No language packs for alphas and betas
 if ! [[ ${PV} =~ alpha|beta ]]; then
@@ -57,7 +67,8 @@ if ! [[ ${PV} =~ alpha|beta ]]; then
 			continue
 		fi
 		SRC_URI="${SRC_URI}
-			linguas_${X/-/_}? ( ${FTP_URI}/${MOZ_PV}/linux-i686/xpi/${X}.xpi -> ${MOZ_P}-${X}.xpi )"
+			linguas_${X/-/_}?
+				( ${FTP_URI}/${LANGPACK_PREFIX}${X}${LANGPACK_SUFFIX} -> ${MOZ_P}-${X}.xpi )"
 		IUSE="${IUSE} linguas_${X/-/_}"
 		# We used to do some magic if specific/generic locales were missing, but
 		# we stopped doing that due to bug 325195.
