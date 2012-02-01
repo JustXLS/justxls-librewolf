@@ -6,16 +6,17 @@ EAPI="3"
 WANT_AUTOCONF="2.1"
 
 # This list can be updated using scripts/get_langs.sh from the mozilla overlay
+# Add 'ast sr' soon as mirrors finish syncing.
 LANGS=(ar be bg bn-BD br ca cs da de el en en-GB en-US es-AR es-ES et eu fi
-fr fy-NL ga-IE gd gl he hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR
-pt-PT rm ro ru si sk sl sq sv-SE ta-LK tr uk vi zh-CN zh-TW)
+fr fy-NL ga-IE gd gl he hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR pt-PT
+rm ro ru si sk sl sq sv-SE ta-LK tr uk vi zh-CN zh-TW )
 
 # Convert the ebuild version to the upstream mozilla version, used by mozlinguas
 MOZ_PV="${PV/_beta/b}"
 MOZ_P="${PN}-${MOZ_PV}"
 
 # Enigmail version
-EMVER="1.3.4"
+EMVER="1.3.5"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
@@ -30,8 +31,8 @@ SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="bindist gconf +crashreporter +crypt +ipc +lightning mozdom +webm"
 
-PATCH="thunderbird-${PV}-patches-0.1"
-PATCHFF="firefox-${PV}-patches-0.5"
+PATCH="thunderbird-9.0-patches-0.1"
+PATCHFF="firefox-${PV}-patches-0.4"
 
 SRC_URI="${SRC_URI}
 	${FTP_URI}/${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
@@ -120,8 +121,6 @@ src_prepare() {
 
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
-		# Ensure enigmail can find its scripts for gpg
-		epatch "${FILESDIR}"/enigmail-1.3.3-bug373733.patch
 		cd "${S}"/mailnews/extensions/enigmail || die
 		./makemake -r 2&> /dev/null
 		sed -i -e 's:@srcdir@:${S}/mailnews/extensions/enigmail:' Makefile.in
