@@ -7,11 +7,11 @@ VIRTUALX_REQUIRED="pgo"
 WANT_AUTOCONF="2.1"
 
 # This list can be updated with scripts/get_langs.sh from the mozilla overlay
-LANGS=(af ak ar as ast be bg bn-BD bn-IN br bs ca cs csb cy da de el en en-GB 
-en-US en-ZA eo es-AR es-CL es-ES es-MX et eu fa fi fr fy-NL ga-IE gd gl gu-IN 
-he hi-IN hr hu hy-AM id is it ja kk kn ko ku lg lt lv mai mk ml mr nb-NO nl 
-nn-NO nso or pa-IN pl pt-BR pt-PT rm ro ru si sk sl son sq sr sv-SE ta ta-LK 
-te th tr uk vi zh-CN zh-TW zu )
+MOZ_LANGS=(af ak ar as ast be bg bn-BD bn-IN br bs ca cs csb cy da de el en
+en-GB en-US en-ZA eo es-AR es-CL es-ES es-MX et eu fa fi fr fy-NL ga-IE gd gl
+gu-IN he hi-IN hr hu hy-AM id is it ja kk kn ko ku lg lt lv mai mk ml mr nb-NO
+nl nn-NO nso or pa-IN pl pt-BR pt-PT rm ro ru si sk sl son sq sr sv-SE ta ta-LK
+te th tr uk vi zh-CN zh-TW zu)
 
 # Convert the ebuild version to the upstream mozilla version, used by mozlinguas
 MOZ_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
@@ -24,7 +24,7 @@ CHANGESET="e56ecd8b3a68"
 PATCH="${PN}-10.0-patches-0.4"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
-FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
+MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
 
 inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-3 multilib pax-utils fdo-mime autotools python virtualx nsplugins mozlinguas
 
@@ -71,11 +71,11 @@ if [[ ${PV} =~ alpha ]]; then
 	S="${WORKDIR}/mozilla-central"
 elif [[ ${PV} =~ beta ]]; then
 	SRC_URI="${SRC_URI}
-		${FTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.bz2"
+		${MOZ_FTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.bz2"
 	S="${WORKDIR}/mozilla-beta"
 else
 	SRC_URI="${SRC_URI}
-		${FTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.bz2"
+		${MOZ_FTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.bz2"
 	S="${WORKDIR}/mozilla-release"
 fi
 

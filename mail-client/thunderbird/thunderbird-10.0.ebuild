@@ -7,9 +7,9 @@ WANT_AUTOCONF="2.1"
 
 # This list can be updated using scripts/get_langs.sh from the mozilla overlay
 # Add 'ast sr' soon as mirrors finish syncing.
-LANGS=(ar be bg bn-BD br ca cs da de el en en-GB en-US es-AR es-ES et eu fi
+MOZ_LANGS=(ar be bg bn-BD br ca cs da de el en en-GB en-US es-AR es-ES et eu fi
 fr fy-NL ga-IE gd gl he hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR pt-PT
-rm ro ru si sk sl sq sv-SE ta-LK tr uk vi zh-CN zh-TW )
+rm ro ru si sk sl sq sv-SE ta-LK tr uk vi zh-CN zh-TW)
 
 # Convert the ebuild version to the upstream mozilla version, used by mozlinguas
 MOZ_PV="${PV/_beta/b}"
@@ -19,7 +19,7 @@ MOZ_P="${PN}-${MOZ_PV}"
 EMVER="1.3.5"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
-FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
+MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
 
 inherit flag-o-matic toolchain-funcs mozconfig-3 makeedit multilib autotools pax-utils python check-reqs nsplugins mozlinguas
 
@@ -35,7 +35,7 @@ PATCH="thunderbird-9.0-patches-0.1"
 PATCHFF="firefox-${PV}-patches-0.4"
 
 SRC_URI="${SRC_URI}
-	${FTP_URI}/${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
+	${MOZ_FTP_URI}/${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
 	crypt? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz )
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.xz
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz"

@@ -6,8 +6,8 @@ EAPI="3"
 WANT_AUTOCONF="2.1"
 
 # This list can be updated with scripts/get_langs.sh from the mozilla overlay
-LANGS=(be ca cs de en-GB en-US es-AR es-ES fi fr gl hu it
-ja lt nb-NO nl pl pt-PT ru sk sv-SE tr zh-CN)
+MOZ_LANGS=(be ca cs de en-GB en-US es-AR es-ES fi fr gl hu it ja lt nb-NO nl pl
+pt-PT ru sk sv-SE tr zh-CN)
 
 MOZ_PV="${PV/_pre*}"
 MOZ_PV="${MOZ_PV/_alpha/a}"
@@ -16,12 +16,12 @@ MOZ_PV="${MOZ_PV/_rc/rc}"
 MOZ_P="${PN}-${MOZ_PV}"
 
 if [[ ${PV} == *_pre* ]] ; then
-	FTP_URI="ftp://ftp.mozilla.org/pub/mozilla.org/${PN}/nightly/${MOZ_PV}-candidates/build${PV##*_pre}"
+	MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/mozilla.org/${PN}/nightly/${MOZ_PV}-candidates/build${PV##*_pre}"
 	# And the langpack stuff stays at eclass defaults
 else
-	FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/${MOZ_PV}"
-	LANGPACK_PREFIX="${MOZ_PV}/langpack/${MOZ_P}."
-	LANGPACK_SUFFIX=".langpack.xpi"
+	MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/${MOZ_PV}"
+	MOZ_LANGPACK_PREFIX="${MOZ_PV}/langpack/${MOZ_P}."
+	MOZ_LANGPACK_SUFFIX=".langpack.xpi"
 fi
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension python nsplugins mozlinguas
@@ -45,7 +45,7 @@ LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="+alsa +chatzilla +crypt +ipc +methodjit +roaming system-sqlite +webm"
 
 SRC_URI="${SRC_URI}
-	${FTP_URI}/source/${MOZ_P}.source.tar.bz2 -> ${P}.source.tar.bz2
+	${MOZ_FTP_URI}/source/${MOZ_P}.source.tar.bz2 -> ${P}.source.tar.bz2
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
 	crypt? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz )"
 

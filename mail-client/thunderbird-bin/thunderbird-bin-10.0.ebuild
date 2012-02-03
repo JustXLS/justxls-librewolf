@@ -5,9 +5,9 @@
 EAPI="3"
 
 # Can be updated using scripts/get_langs.sh from mozilla overlay
-LANGS=(ar ast be bg bn-BD br ca cs da de el en en-GB en-US es-AR es-ES et eu fi
-fr fy-NL ga-IE gd gl he hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR pt-PT
-rm ro ru si sk sl sq sr sv-SE ta-LK tr uk vi zh-CN zh-TW)
+MOZ_LANGS=(ar ast be bg bn-BD br ca cs da de el en en-GB en-US es-AR es-ES et eu
+fi fr fy-NL ga-IE gd gl he hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR
+pt-PT rm ro ru si sk sl sq sr sv-SE ta-LK tr uk vi zh-CN zh-TW)
 
 # Convert the ebuild version to the upstream mozilla version, used by
 MOZ_PN="${PN/-bin}"
@@ -17,18 +17,18 @@ MOZ_P="${MOZ_PN}-${MOZ_PV}"
 
 # Upstream fail...
 MY_TEN_PV="10.0-real"
-LANGPACK_PREFIX="${MY_TEN_PV}/linux-i686/xpi/"
+MOZ_LANGPACK_PREFIX="${MY_TEN_PV}/linux-i686/xpi/"
 
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
-FTP_URI="ftp://ftp.mozilla.org/pub/mozilla.org/${MOZ_PN}/releases/"
+MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/mozilla.org/${MOZ_PN}/releases/"
 
 inherit eutils multilib pax-utils fdo-mime gnome2-utils mozlinguas
 
 DESCRIPTION="Thunderbird Mail Client"
 SRC_URI="${SRC_URI}
-	amd64? ( ${FTP_URI}/${MY_TEN_PV}/linux-x86_64/en-US/${MOZ_P}.tar.bz2 -> ${PN}_x86_64-${PV}.tar.bz2 )
-	x86? ( ${FTP_URI}/${MY_TEN_PV}/linux-i686/en-US/${MOZ_P}.tar.bz2 -> ${PN}_i686-${PV}.tar.bz2 )"
+	amd64? ( ${MOZ_FTP_URI}/${MY_TEN_PV}/linux-x86_64/en-US/${MOZ_P}.tar.bz2 -> ${PN}_x86_64-${PV}.tar.bz2 )
+	x86? ( ${MOZ_FTP_URI}/${MY_TEN_PV}/linux-i686/en-US/${MOZ_P}.tar.bz2 -> ${PN}_i686-${PV}.tar.bz2 )"
 HOMEPAGE="http://www.mozilla.com/thunderbird"
 RESTRICT="strip"
 
