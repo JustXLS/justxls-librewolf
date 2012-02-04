@@ -25,4 +25,4 @@ else
   exit 1
 fi
 LANGS=$(echo ${INBUILT_LANGS} ${XPI_LANGS} | tr " " "\n" | sort -d | uniq | tr "\n" " ")
-echo "LANGS=(${LANGS})"
+echo "MOZ_LANGS=(${LANGS})"
