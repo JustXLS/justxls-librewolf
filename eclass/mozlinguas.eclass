@@ -85,10 +85,13 @@ if ! [[ ${PV} =~ alpha|beta ]]; then
 fi
 unset x
 
+# @FUNCTION: mozlinguas_export
+# @INTERNAL
+# @DESCRIPTION:
+# Generate the list of language packs called "mozlinguas"
+# This list is used to unpack and install the xpi language packs
 mozlinguas_export() {
 	[[ ${PV} =~ alpha|beta ]] && return
-	# Generate the list of language packs called "mozlinguas"
-	# This list is used to unpack and install the xpi language packs
 	local lingua
 	mozlinguas=()
 	for lingua in ${LINGUAS}; do
