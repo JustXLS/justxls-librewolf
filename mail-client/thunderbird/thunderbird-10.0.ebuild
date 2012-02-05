@@ -15,6 +15,10 @@ rm ro ru si sk sl sq sv-SE ta-LK tr uk vi zh-CN zh-TW)
 MOZ_PV="${PV/_beta/b}"
 MOZ_P="${PN}-${MOZ_PV}"
 
+# Upstream fail...
+MY_TEN_PV="10.0-real"
+MOZ_LANGPACK_PREFIX="${MY_TEN_PV}/linux-i686/xpi/"
+
 # Enigmail version
 EMVER="1.3.5"
 # Upstream ftp release URI that's used by mozlinguas.eclass
@@ -35,7 +39,7 @@ PATCH="thunderbird-9.0-patches-0.1"
 PATCHFF="firefox-${PV}-patches-0.4"
 
 SRC_URI="${SRC_URI}
-	${MOZ_FTP_URI}/${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
+	${MOZ_FTP_URI}/${MY_TEN_PV}/source/${MOZ_P}.source.tar.bz2
 	crypt? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz )
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.xz
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz"
@@ -52,7 +56,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=x11-libs/cairo-1.10
 	>=x11-libs/pango-1.14.0
 	>=x11-libs/gtk+-2.14
-	webm? ( media-libs/libvpx
+	webm? ( >=media-libs/libvpx-0.9.7
 		media-libs/alsa-lib )
 	virtual/libffi
 	!x11-plugins/enigmail
