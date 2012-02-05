@@ -6,10 +6,9 @@ EAPI="3"
 WANT_AUTOCONF="2.1"
 
 # This list can be updated using scripts/get_langs.sh from the mozilla overlay
-# Add 'ast sr' soon as mirrors finish syncing.
-MOZ_LANGS=(ar be bg bn-BD br ca cs da de el en en-GB en-US es-AR es-ES et eu fi
+MOZ_LANGS=(ar ast be bg bn-BD br ca cs da de el en en-GB en-US es-AR es-ES et eu fi
 fr fy-NL ga-IE gd gl he hu id is it ja ko lt nb-NO nl nn-NO pa-IN pl pt-BR pt-PT
-rm ro ru si sk sl sq sv-SE ta-LK tr uk vi zh-CN zh-TW)
+rm ro ru si sk sl sq sr sv-SE ta-LK tr uk vi zh-CN zh-TW)
 
 # Convert the ebuild version to the upstream mozilla version, used by mozlinguas
 MOZ_PV="${PV/_beta/b}"
