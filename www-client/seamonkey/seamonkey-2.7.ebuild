@@ -1,13 +1,12 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.6.1.ebuild,v 1.4 2012/01/12 15:30:12 phajdan.jr Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.7.ebuild,v 1.2 2012/02/07 21:59:39 polynomial-c Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
 
 # This list can be updated with scripts/get_langs.sh from the mozilla overlay
-MOZ_LANGS=(be ca cs de en-GB en-US es-AR es-ES fi fr gl hu it ja lt nb-NO nl pl
-pt-PT ru sk sv-SE tr zh-CN)
+MOZ_LANGS=(be ca cs de en en-GB en-US es-AR es-ES fi fr gl hu it ja lt nb-NO nl pl pt-PT ru sk sv-SE tr zh-CN)
 
 MOZ_PV="${PV/_pre*}"
 MOZ_PV="${MOZ_PV/_alpha/a}"
@@ -17,10 +16,11 @@ MOZ_P="${PN}-${MOZ_PV}"
 
 if [[ ${PV} == *_pre* ]] ; then
 	MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/mozilla.org/${PN}/nightly/${MOZ_PV}-candidates/build${PV##*_pre}"
+	MOZ_LANGPACK_PREFIX="linux-i686/xpi/"
 	# And the langpack stuff stays at eclass defaults
 else
 	MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/${MOZ_PV}"
-	MOZ_LANGPACK_PREFIX="${MOZ_PV}/langpack/${MOZ_P}."
+	MOZ_LANGPACK_PREFIX="langpack/${MOZ_P}."
 	MOZ_LANGPACK_SUFFIX=".langpack.xpi"
 fi
 
@@ -34,17 +34,19 @@ HOMEPAGE="http://www.seamonkey-project.org"
 
 if [[ ${PV} == *_pre* ]] ; then
 	# pre-releases. No need for arch teams to change KEYWORDS here.
+
 	KEYWORDS=""
 else
 	# This is where arch teams should change the KEYWORDS.
+
 	KEYWORDS="~alpha ~amd64 ~arm ~ppc ~x86"
 fi
 
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa +chatzilla +crypt +ipc +methodjit +roaming system-sqlite +webm"
+IUSE="+alsa +chatzilla +crypt +ipc +roaming system-sqlite +webm"
 
-SRC_URI="${SRC_URI}
+SRC_URI+="${SRC_URI}
 	${MOZ_FTP_URI}/source/${MOZ_P}.source.tar.bz2 -> ${P}.source.tar.bz2
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
 	crypt? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz )"
@@ -54,7 +56,7 @@ ASM_DEPEND=">=dev-lang/yasm-1.1"
 # Mesa 7.10 needed for WebGL + bugfixes
 RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.13.1
-	>=dev-libs/nspr-4.8.8
+	>=dev-libs/nspr-4.8.9
 	>=dev-libs/glib-2.26
 	>=media-libs/mesa-7.10
 	>=media-libs/libpng-1.4.1[apng]
@@ -64,7 +66,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	virtual/libffi
 	system-sqlite? ( >=dev-db/sqlite-3.7.7.1[fts3,secure-delete,unlock-notify,debug=] )
 	crypt? ( >=app-crypt/gnupg-1.4 )
-	webm? ( media-libs/libvpx
+	webm? ( >=media-libs/libvpx-0.9.7
 		media-libs/alsa-lib )"
 
 DEPEND="${RDEPEND}
@@ -93,12 +95,6 @@ pkg_setup() {
 	fi
 
 	moz_pkgsetup
-
-	if ! use methodjit ; then
-		einfo
-		ewarn "You are disabling the method-based JIT in JägerMonkey."
-		ewarn "This will greatly slowdown JavaScript in ${PN}!"
-	fi
 }
 
 src_prepare() {
@@ -160,7 +156,9 @@ src_configure() {
 	# It doesn't compile on alpha without this LDFLAGS
 	use alpha && append-ldflags "-Wl,--no-relax"
 
-	if ! use chatzilla ; then
+	if use chatzilla ; then
+		MEXTENSIONS+=",irc"
+	else
 		MEXTENSIONS+=",-irc"
 	fi
 	if ! use roaming ; then
@@ -173,25 +171,19 @@ src_configure() {
 	mozconfig_annotate '' --enable-canvas
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 	mozconfig_annotate '' --enable-system-ffi
-
+	mozconfig_annotate '' --with-system-png
 	mozconfig_annotate '' --target="${CTARGET:-${CHOST}}"
 
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_enable methodjit
 
-	if use crypt ; then
-		mozconfig_annotate "mail crypt" --enable-chrome-format=jar
-	fi
-
-	mozconfig_annotate '' --with-system-png
-
 	# Finalize and report settings
 	mozconfig_final
 
-	if [[ $(gcc-major-version) -lt 4 ]]; then
+	if [[ $(gcc-major-version) -lt 4 ]] ; then
 		append-cxxflags -fno-stack-protector
-	elif [[ $(gcc-major-version) -gt 4 || $(gcc-minor-version) -gt 3 ]]; then
-		if use amd64 || use x86; then
+	elif [[ $(gcc-major-version) -gt 4 || $(gcc-minor-version) -gt 3 ]] ; then
+		if use amd64 || use x86 ; then
 			append-flags -mno-avx
 		fi
 	fi
@@ -221,6 +213,8 @@ src_compile() {
 src_install() {
 	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 	declare emid
+
+	pax-mark m "${S}"/dist/bin/xpcshell
 
 	emake DESTDIR="${D}" install || die "emake install failed"
 	cp -f "${FILESDIR}"/icon/${PN}.desktop "${T}" || die
@@ -254,9 +248,12 @@ src_install() {
 	domenu "${T}"/${PN}.desktop || die
 
 	# Add our default prefs
-	sed "s|SEAMONKEY_PVR|${PVR}|" "${FILESDIR}"/all-gentoo.js \
+	sed "s|SEAMONKEY_PVR|${PVR}|" "${FILESDIR}"/all-gentoo-1.js \
 		> "${D}"${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js \
 			|| die
+
+	# Required in order to use plugins and even run firefox on hardened.
+	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{seamonkey,seamonkey-bin,plugin-container}
 
 	# Handle plugins dir through nsplugins.eclass
 	share_plugins_dir
