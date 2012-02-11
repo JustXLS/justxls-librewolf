@@ -32,7 +32,7 @@ HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="bindist gconf +crashreporter +crypt +ipc +lightning mozdom +webm"
+IUSE="bindist gconf +crashreporter +crypt +ipc +lightning +minimal mozdom +webm"
 
 PATCH="thunderbird-9.0-patches-0.1"
 PATCHFF="firefox-${PV}-patches-0.5"
@@ -267,6 +267,11 @@ src_install() {
 		die "failed to cp thunderbird-gentoo-default-prefs.js"
 
 	share_plugins_dir
+
+	if use minimal; then
+		rm -rf "${ED}"/usr/include "${ED}${MOZILLA_FIVE_HOME}"/{idl,include,lib,sdk} || \
+			die "Failed to remove sdk and headers"
+	fi
 }
 
 pkg_postinst() {
