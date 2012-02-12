@@ -196,7 +196,7 @@ src_compile() {
 	if use crypt ; then
 		cd "${S}"/mailnews/extensions/enigmail || die
 		./makemake -r 2&> /dev/null
-		cd ${S}/tbird/mailnews/extensions/enigmail
+		cd "${S}"/tbird/mailnews/extensions/enigmail
 		emake || die "make enigmail failed"
 		emake xpi || die "make enigmail xpi failed"
 	fi
