@@ -34,8 +34,8 @@ SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="bindist gconf +crashreporter +crypt +ipc +lightning +minimal mozdom +webm"
 
-PATCH="thunderbird-9.0-patches-0.1"
-PATCHFF="firefox-${PV}-patches-0.5"
+PATCH="thunderbird-10.0-patches-0.1"
+PATCHFF="firefox-10.0-patches-0.5"
 
 SRC_URI="${SRC_URI}
 	${MOZ_FTP_URI}/${MY_TEN_PV}/source/${MOZ_P}.source.tar.bz2
@@ -117,9 +117,6 @@ src_prepare() {
 
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
-		cd "${S}"/mailnews/extensions/enigmail || die
-		./makemake -r 2&> /dev/null
-		sed -i -e 's:@srcdir@:${S}/mailnews/extensions/enigmail:' Makefile.in
 		cd "${S}"
 	fi
 
@@ -152,11 +149,14 @@ src_configure() {
 	# It doesn't compile on alpha without this LDFLAGS
 	use alpha && append-ldflags "-Wl,--no-relax"
 
+	mozconfig_annotate '' --prefix="${EPREFIX}"/usr
+	mozconfig_annotate '' --libdir="${EPREFIX}"/usr/$(get_libdir)
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 	mozconfig_annotate '' --with-default-mozilla-five-home="${EPREFIX}${MOZILLA_FIVE_HOME}"
 	mozconfig_annotate '' --with-user-appdir=.thunderbird
 	mozconfig_annotate '' --with-system-png
 	mozconfig_annotate '' --enable-system-ffi
+	mozconfig_annotate '' --target="${CTARGET:-${CHOST}}"
 
 	# Use enable features
 	mozconfig_use_enable lightning calendar
@@ -166,6 +166,9 @@ src_configure() {
 	if use mozdom; then
 		MEXTENSIONS="${MEXTENSIONS},inspector"
 	fi
+
+	# Use an objdir to keep things organized.
+	echo "mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/tbird" >> "${S}"/.mozconfig
 
 	# Finalize and report settings
 	mozconfig_final
@@ -186,28 +189,35 @@ src_configure() {
 			append-flags -mno-avx
 		fi
 	fi
-
-	CPPFLAGS="${CPPFLAGS}" \
-	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
-	econf || die
 }
 
 src_compile() {
-	emake || die
+	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
+	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
+	emake -f client.mk || die
 
 	# Only build enigmail extension if crypt enabled.
 	if use crypt ; then
-		emake -C "${S}"/mailnews/extensions/enigmail || die "make enigmail failed"
-		emake -C "${S}"/mailnews/extensions/enigmail xpi || die "make enigmail xpi failed"
+		cd "${S}"/mailnews/extensions/enigmail || die
+		./makemake -r 2&> /dev/null
+		cd ${S}/tbird/mailnews/extensions/enigmail
+		emake || die "make enigmail failed"
+		emake xpi || die "make enigmail xpi failed"
 	fi
 }
 
 src_install() {
 	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 	declare emid
+	local obj_dir="tbird"
+	cd "${S}/${obj_dir}"
+
+	# Copy our preference before omnijar is created.
+	cp "${FILESDIR}"/thunderbird-gentoo-default-prefs-1.js-1 \
+		"${S}/${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" || die
 
 	# Pax mark xpcshell for hardened support, only used for startupcache creation.
-	pax-mark m "${S}"/mozilla/dist/bin/xpcshell
+	pax-mark m "${S}"/${obj_dir}/mozilla/dist/bin/xpcshell
 
 	emake DESTDIR="${D}" install || die "emake install failed"
 
@@ -228,29 +238,29 @@ src_install() {
 
 	if use crypt ; then
 		cd "${T}" || die
-		unzip "${S}"/mozilla/dist/bin/enigmail*.xpi install.rdf || die
+		unzip "${S}"/${obj_dir}/mozilla/dist/bin/enigmail*.xpi install.rdf || die
 		emid=$(sed -n '/<em:id>/!d; s/.*\({.*}\).*/\1/; p; q' install.rdf)
 
 		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid} || die
 		cd "${D}"${MOZILLA_FIVE_HOME}/extensions/${emid} || die
-		unzip "${S}"/mozilla/dist/bin/enigmail*.xpi || die
+		unzip "${S}"/${obj_dir}/mozilla/dist/bin/enigmail*.xpi || die
 	fi
 
 	if use lightning ; then
 		emid="{a62ef8ec-5fdc-40c2-873c-223b8a6925cc}"
 		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid}
 		cd "${ED}"${MOZILLA_FIVE_HOME}/extensions/${emid}
-		unzip "${S}"/mozilla/dist/xpi-stage/gdata-provider.xpi
+		unzip "${S}"/${obj_dir}/mozilla/dist/xpi-stage/gdata-provider.xpi
 
 		emid="calendar-timezones@mozilla.org"
 		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid}
 		cd "${ED}"${MOZILLA_FIVE_HOME}/extensions/${emid}
-		unzip "${S}"/mozilla/dist/xpi-stage/calendar-timezones.xpi
+		unzip "${S}"/${obj_dir}/mozilla/dist/xpi-stage/calendar-timezones.xpi
 
 		emid="{e2fda1a4-762b-4020-b5ad-a41df1933103}"
 		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid}
 		cd "${ED}"${MOZILLA_FIVE_HOME}/extensions/${emid}
-		unzip "${S}"/mozilla/dist/xpi-stage/lightning.xpi
+		unzip "${S}"/${obj_dir}/mozilla/dist/xpi-stage/lightning.xpi
 
 		# Fix mimetype so it shows up as a calendar application in GNOME 3
 		# This requires that the .desktop file was already installed earlier
@@ -260,11 +270,6 @@ src_install() {
 	fi
 
 	pax-mark m "${ED}"/${MOZILLA_FIVE_HOME}/thunderbird-bin
-
-	# Enable very specific settings for thunderbird-3
-	cp "${FILESDIR}"/thunderbird-gentoo-default-prefs-1.js-1 \
-		"${ED}/${MOZILLA_FIVE_HOME}/defaults/pref/all-gentoo.js" || \
-		die "failed to cp thunderbird-gentoo-default-prefs.js"
 
 	share_plugins_dir
 
