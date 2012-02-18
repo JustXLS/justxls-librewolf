@@ -20,7 +20,7 @@
 # a database that can be shared amongs applications using the sql
 # backend.
 
-PASSWD_FILE="$PWD/nssdb_passwd"
+PASSWD_FILE="$(pwd)/nssdb_passwd"
 
 mkdir -p $HOME/.pki/nssdb 
 
