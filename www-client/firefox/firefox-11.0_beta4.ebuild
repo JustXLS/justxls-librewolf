@@ -21,7 +21,7 @@ MOZ_PV="${MOZ_PV/_rc/rc}" # Handle rc for SRC_URI
 # Changeset for alpha snapshot
 CHANGESET="e56ecd8b3a68"
 # Patch version
-PATCH="${PN}-10.0-patches-0.5"
+PATCH="${PN}-11.0-patches-0.1"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
@@ -38,6 +38,7 @@ IUSE="bindist +crashreporter +ipc +minimal pgo selinux system-sqlite +webm"
 
 # More URIs appended below...
 SRC_URI="${SRC_URI}
+	${MOZ_FTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.bz2
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.xz"
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
@@ -45,14 +46,14 @@ ASM_DEPEND=">=dev-lang/yasm-1.1"
 # Mesa 7.10 needed for WebGL + bugfixes
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.13.1
-	>=dev-libs/nspr-4.8.8
+	>=dev-libs/nss-3.13.2
+	>=dev-libs/nspr-4.9
 	>=dev-libs/glib-2.26:2
 	>=media-libs/mesa-7.10
 	media-libs/libpng[apng]
 	virtual/libffi
 	system-sqlite? ( >=dev-db/sqlite-3.7.7.1[fts3,secure-delete,threadsafe,unlock-notify,debug=] )
-	webm? ( >=media-libs/libvpx-0.9.7
+	webm? ( >=media-libs/libvpx-1.0.0
 		media-libs/alsa-lib )
 	crashreporter? ( net-misc/curl )
 	selinux? ( sec-policy/selinux-mozilla )"
@@ -71,12 +72,8 @@ if [[ ${PV} =~ alpha ]]; then
 		http://dev.gentoo.org/~anarchy/mozilla/firefox/firefox-${MOZ_PV}_${CHANGESET}.source.tar.bz2"
 	S="${WORKDIR}/mozilla-central"
 elif [[ ${PV} =~ beta ]]; then
-	SRC_URI="${SRC_URI}
-		${MOZ_FTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.bz2"
 	S="${WORKDIR}/mozilla-beta"
 else
-	SRC_URI="${SRC_URI}
-		${MOZ_FTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.bz2"
 	S="${WORKDIR}/mozilla-release"
 fi
 

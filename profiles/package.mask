@@ -7,6 +7,3 @@
 
 # These are experimental use with caution!!
 =www-client/seamonkey-2.7*
-
-# Only avaliable for testing and staging changes!!!
-=media-libs/libvpx-1.0.0

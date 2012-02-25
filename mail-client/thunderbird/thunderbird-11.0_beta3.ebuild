@@ -31,7 +31,7 @@ LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="bindist gconf +crashreporter +crypt +ipc +lightning +minimal mozdom +webm"
 
 PATCH="thunderbird-10.0-patches-0.1"
-PATCHFF="firefox-10.0-patches-0.5"
+PATCHFF="firefox-11.0-patches-0.1"
 
 SRC_URI="${SRC_URI}
 	${MOZ_FTP_URI}${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
@@ -42,8 +42,8 @@ SRC_URI="${SRC_URI}
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 RDEPEND=">=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.13.1
-	>=dev-libs/nspr-4.8.8
+	>=dev-libs/nss-3.13.2
+	>=dev-libs/nspr-4.9
 	>=dev-libs/glib-2.26
 	crashreporter? ( net-misc/curl )
 	gconf? ( >=gnome-base/gconf-1.2.1:2 )
@@ -51,7 +51,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=x11-libs/cairo-1.10
 	>=x11-libs/pango-1.14.0
 	>=x11-libs/gtk+-2.14
-	webm? ( >=media-libs/libvpx-0.9.7
+	webm? ( >=media-libs/libvpx-1.0.0
 		media-libs/alsa-lib )
 	virtual/libffi
 	!x11-plugins/enigmail
@@ -71,7 +71,11 @@ DEPEND="${RDEPEND}
 	webm? ( x86? ( ${ASM_DEPEND} )
 		amd64? ( ${ASM_DEPEND} ) )"
 
-S="${WORKDIR}"/comm-release
+if [[ ${PV} =~ beta ]]; then
+	S="${WORKDIR}/comm-beta"
+else
+	S="${WORKDIR}/comm-release"
+fi
 
 pkg_setup() {
 	moz_pkgsetup
@@ -113,6 +117,8 @@ src_prepare() {
 
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
+		sed -i -e "s:11.0pre:11.*:g" \
+			"${S}"/mailnews/extensions/enigmail/package/install.rdf || die "Sed failed"
 		cd "${S}"
 	fi
 
@@ -127,6 +133,9 @@ src_prepare() {
 	epatch_user
 
 	eautoreconf
+	# Ensure we run eautoreconf in mozilla to regenerate configure
+	cd "${S}"/mozilla
+	eautoconf
 }
 
 src_configure() {
