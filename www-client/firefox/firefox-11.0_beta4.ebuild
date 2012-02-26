@@ -38,7 +38,6 @@ IUSE="bindist +crashreporter +ipc +minimal pgo selinux system-sqlite +webm"
 
 # More URIs appended below...
 SRC_URI="${SRC_URI}
-	${MOZ_FTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.bz2
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.xz"
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
@@ -73,8 +72,12 @@ if [[ ${PV} =~ alpha ]]; then
 	S="${WORKDIR}/mozilla-central"
 elif [[ ${PV} =~ beta ]]; then
 	S="${WORKDIR}/mozilla-beta"
+       SRC_URI="${SRC_URI}
+               ${MOZ_FTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.bz2"
 else
 	S="${WORKDIR}/mozilla-release"
+       SRC_URI="${SRC_URI}
+               ${MOZ_FTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.bz2"
 fi
 
 QA_PRESTRIPPED="usr/$(get_libdir)/${PN}/firefox"
