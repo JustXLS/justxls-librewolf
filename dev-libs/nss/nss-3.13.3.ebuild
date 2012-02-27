@@ -11,7 +11,7 @@ RTM_NAME="NSS_${PV//./_}_RTM"
 DESCRIPTION="Mozilla's Network Security Services library that implements PKI support"
 HOMEPAGE="http://www.mozilla.org/projects/security/pki/nss/"
 SRC_URI="ftp://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/${RTM_NAME}/src/${P}.tar.gz
-	http://dev.gentoo.org/~anarchy/patches/nss-3.13.2-add_cacert_ca_certs-ported.patch"
+	http://dev.gentoo.org/~anarchy/patches/nss-3.13.3-add_spi+cacerts_ca_certs.patch"
 
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 SLOT="0"
@@ -27,7 +27,7 @@ src_prepare() {
 	# Custom changes for gentoo
 	epatch "${FILESDIR}/${PN}-3.12.5-gentoo-fixups.diff"
 	epatch "${FILESDIR}/${PN}-3.12.6-gentoo-fixup-warnings.patch"
-	epatch "${DISTDIR}/nss-3.13.2-add_cacert_ca_certs-ported.patch"
+	epatch "${DISTDIR}/nss-3.13.3-add_spi+cacerts_ca_certs.patch"
 
 	cd "${S}"/mozilla/security/coreconf || die
 	# hack nspr paths
