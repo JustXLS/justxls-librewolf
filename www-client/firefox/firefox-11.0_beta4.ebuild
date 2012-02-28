@@ -273,11 +273,11 @@ src_install() {
 	local size sizes icon_path icon name
 	if use bindist; then
 		sizes="16 32 48"
-		icon_path="${S}/browser/branding/unofficial"
+		icon_path="${S}/browser/branding/aurora"
 		# Firefox's new rapid release cycle means no more codenames
 		# Let's just stick with this one...
-		icon="tumucumaque"
-		name="Tumucumaque"
+		icon="aurora"
+		name="Aurora"
 	else
 		sizes="16 22 24 32 256"
 		icon_path="${S}/browser/branding/official"
