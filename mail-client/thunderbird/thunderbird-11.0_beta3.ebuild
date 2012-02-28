@@ -237,7 +237,7 @@ src_install() {
 		newmenu "${FILESDIR}"/icon/${PN}-unbranded.desktop \
 			${PN}.desktop
 
-		sed -i -e "s:Mozilla\ Thunderbird:Lanikai:g" \
+		sed -i -e "s:Mozilla\ Thunderbird:EarlyBird:g" \
 			"${ED}"/usr/share/applications/${PN}.desktop
 	fi
 
