@@ -34,7 +34,7 @@ mozconfig_config() {
 
 	if has bindist ${IUSE}; then
 		mozconfig_use_enable !bindist official-branding
-		if [[ ${PN} == firefox ]] ; then
+		if [[ ${PN} == firefox ]] && use bindist ; then
 			mozconfig_annotate '' --with-branding=browser/branding/aurora
 		fi
 	fi
