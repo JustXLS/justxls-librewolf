@@ -47,7 +47,7 @@ mozconfig_config() {
 	mozconfig_use_enable dbus
 	mozconfig_use_enable debug
 	mozconfig_use_enable debug tests
-	mozconfig_use_enable debug debugger-info-modeules
+	mozconfig_use_enable debug debugger-info-modules
 	if has +ipc ${IUSE}; then
 		mozconfig_use_enable ipc
 	fi
