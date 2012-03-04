@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey-bin/seamonkey-bin-2.6.1.ebuild,v 1.4 2012/01/26 15:30:23 nirbheek Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey-bin/seamonkey-bin-2.7.2.ebuild,v 1.5 2012/02/27 06:47:51 jdhore Exp $
 
 EAPI="4"
 
@@ -26,7 +26,7 @@ SRC_URI="${SRC_URI}
 	amd64? ( ${MOZ_FTP_URI}/${MOZ_PV}/contrib/${MOZ_P}.en-US.linux-x86_64.tar.bz2 -> ${PN}_x86_64-${PV}.tar.bz2 )
 	x86? ( ${MOZ_FTP_URI}/${MOZ_PV}/linux-i686/en-US/${MOZ_P}.tar.bz2 -> ${PN}_i686-${PV}.tar.bz2 )"
 HOMEPAGE="http://www.seamonkey-project.org/"
-RESTRICT="strip"
+RESTRICT="strip mirror binchecks"
 QA_EXECSTACK="opt/seamonkey/*"
 
 KEYWORDS="-* ~amd64 ~x86"
@@ -37,11 +37,11 @@ IUSE="startup-notification"
 DEPEND="app-arch/unzip"
 RDEPEND="dev-libs/dbus-glib
 	>=media-libs/alsa-lib-1.0.16
+	virtual/freedesktop-icon-theme
 	>=x11-libs/gtk+-2.10:2
 	x11-libs/libXrender
 	x11-libs/libXt
-	x11-libs/libXmu
-	!<www-client/seamonkey-bin-2"
+	x11-libs/libXmu"
 
 S="${WORKDIR}/${MOZ_PN}"
 
@@ -87,7 +87,7 @@ EOF
 	share_plugins_dir
 
 	# Required in order to use plugins and even run seamonkey on hardened.
-	pax-mark m "${ED}"/${MOZILLA_FIVE_HOME}/{seamonkey,seamonkey-bin,plugin-container}
+	pax-mark mr "${ED}"/${MOZILLA_FIVE_HOME}/{seamonkey,seamonkey-bin,plugin-container}
 }
 
 pkg_preinst() {
