@@ -23,6 +23,10 @@ RDEPEND=">=dev-libs/nspr-${NSPR_VER}
 	>=dev-db/sqlite-3.5
 	sys-libs/zlib"
 
+src_setup() {
+	export LC_ALL="C"
+}
+
 src_prepare() {
 	# Custom changes for gentoo
 	epatch "${FILESDIR}/${PN}-3.12.5-gentoo-fixups.diff"
