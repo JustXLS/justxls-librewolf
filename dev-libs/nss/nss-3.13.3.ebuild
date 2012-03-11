@@ -29,7 +29,7 @@ src_setup() {
 
 src_prepare() {
 	# Custom changes for gentoo
-	epatch "${FILESDIR}/${PN}-3.12.5-gentoo-fixups.diff"
+	epatch "${FILESDIR}/${PN}-3.13-gentoo-fixup.patch"
 	epatch "${FILESDIR}/${PN}-3.12.6-gentoo-fixup-warnings.patch"
 	epatch "${DISTDIR}/nss-3.13.3-add_spi+cacerts_ca_certs.patch"
 
