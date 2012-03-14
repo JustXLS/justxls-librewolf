@@ -15,7 +15,7 @@ MOZ_PV="${PV/_beta/b}"
 MOZ_P="${PN}-${MOZ_PV}"
 
 # Enigmail version
-EMVER="1.3.5"
+EMVER="1.4"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
@@ -42,7 +42,7 @@ SRC_URI="${SRC_URI}
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 RDEPEND=">=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.13.2
+	>=dev-libs/nss-3.13.3
 	>=dev-libs/nspr-4.9
 	>=dev-libs/glib-2.26
 	crashreporter? ( net-misc/curl )
@@ -118,8 +118,6 @@ src_prepare() {
 
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
-		sed -i -e "s:11.0pre:11.*:g" \
-			"${S}"/mailnews/extensions/enigmail/package/install.rdf || die "Sed failed"
 		cd "${S}"
 	fi
 
