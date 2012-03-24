@@ -36,7 +36,7 @@ LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="bindist gconf +crashreporter +crypt +ipc +lightning +minimal mozdom +webm"
 
 PATCH="thunderbird-10.0-patches-0.1"
-PATCHFF="firefox-11.0-patches-0.2"
+PATCHFF="firefox-11.0-patches-0.3"
 
 SRC_URI="${SRC_URI}
 	${MOZ_FTP_URI}${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
