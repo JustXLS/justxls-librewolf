@@ -24,10 +24,10 @@ PASSWD_FILE="$(pwd)/nssdb_passwd"
 
 mkdir -p $HOME/.pki/nssdb 
 
-certutil -N -f ${PASSWD_FILE} -d sql:.pki/nssdb
+certutil -N -f ${PASSWD_FILE} -d sql:${HOME}/.pki/nssdb
 
 for x in `ls /etc/ssl/certs | grep pem`; do
-	certutil -f ${PASSWD_FILE} -d sql:.pki/nssdb -A -t "CT,c,c" -n $x -i /etc/ssl/certs/$x
+	certutil -f ${PASSWD_FILE} -d sql:${HOME}/.pki/nssdb -A -t "CT,c,c" -n $x -i /etc/ssl/certs/$x
 done
 
 echo "Please also ensure you add 'export NSS_DEFAULT_DB_TYPE=\"sql\"' via $HOME/.bashrc"
