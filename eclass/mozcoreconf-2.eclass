@@ -76,6 +76,12 @@ moz_pkgsetup() {
 	export ALDFLAGS=${LDFLAGS}
 
 	python_set_active_version 2
+
+	if [[ $(gcc-major-version) -eq 3 ]]; then
+		ewarn "Unsupported compiler detected, DO NOT file bugs for"
+		ewarn "outdated compilers. Bugs opened with gcc-3 will be closed"
+		ewarn "invalid."
+	fi
 }
 
 mozconfig_init() {
@@ -135,6 +141,8 @@ mozconfig_init() {
 			mozconfig_annotate "from CFLAGS" --enable-optimize=-O0
 		elif [[ ${ARCH} == ppc ]] && has_version '>=sys-libs/glibc-2.8'; then
 			mozconfig_annotate "more than -O1 segfaults on ppc with glibc-2.8" --enable-optimize=-O1
+		elif is-flag -O3; then
+			mozconfig_annotate "from CFLAGS" --enable-optimize=-O3
 		elif is-flag -O1; then
 			mozconfig_annotate "from CFLAGS" --enable-optimize=-O1
 		elif is-flag -Os; then
@@ -170,35 +178,7 @@ mozconfig_init() {
 	ppc64)
 		append-flags -fPIC -mminimal-toc
 		;;
-
-	ppc)
-		# Fix to avoid gcc-3.3.x micompilation issues.
-		if [[ $(gcc-major-version).$(gcc-minor-version) == 3.3 ]]; then
-			append-flags -fno-strict-aliasing
-		fi
-		;;
-
-	x86)
-		if [[ $(gcc-major-version) -eq 3 ]]; then
-			# gcc-3 prior to 3.2.3 doesn't work well for pentium4
-			# see bug 25332
-			if [[ $(gcc-minor-version) -lt 2 ||
-				( $(gcc-minor-version) -eq 2 && $(gcc-micro-version) -lt 3 ) ]]
-			then
-				replace-flags -march=pentium4 -march=pentium3
-				filter-flags -msse2
-			fi
-		fi
-		;;
 	esac
-
-	if [[ $(gcc-major-version) -eq 3 ]]; then
-		# Enable us to use flash, etc plugins compiled with gcc-2.95.3
-		mozconfig_annotate "building with >=gcc-3" --enable-old-abi-compat-wrappers
-
-		# Needed to build without warnings on gcc-3
-		CXXFLAGS="${CXXFLAGS} -Wno-deprecated"
-	fi
 
 	# Go a little faster; use less RAM
 	append-flags "$MAKEEDIT_FLAGS"
