@@ -137,6 +137,17 @@ src_unpack() {
 
 src_prepare() {
 	# Apply our patches
+	EPATCH_EXCLUDE="5004_use_yarr_instead_of_pcre_on_unsupported_platforms.patch \
+		5005_require_libvpx-1.0.0.patch \
+		5008_block_opengl_1_drivers_explicitly.patch \
+		5011_block_nouveau_3d_driver.patch \
+		5012_allow_nouveau_driver_with_mesa_8.0.1.patch \
+		5013_define_G_VARIANT_TYPE_STRING_ARRAY_for_older_glib.patch \
+		5014_revert_621446.patch \
+		6000_dont_require_16_bytes_alignment_for_VMFrame_on_sparc.patch \
+		6003_avoid_invalid_conversions.patch \
+		6004_fix_alsa_webm_support.patch \
+		6005_only_build_sps_on_supported_platforms.patch"
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
@@ -201,6 +212,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-safe-browsing
 	mozconfig_annotate '' --with-system-png
 	mozconfig_annotate '' --enable-system-ffi
+	mozconfig_annotate 'Missing fetures' --disable-system-cairo
 
 	# Other ff-specific settings
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
