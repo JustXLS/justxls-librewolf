@@ -74,7 +74,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 DEPEND="${RDEPEND}
 	dev-util/pkgconfig
 	webm? ( x86? ( ${ASM_DEPEND} )
-		amd64? ( ${ASM_DEPEND} ) 
+		amd64? ( ${ASM_DEPEND} )
 		virtual/opengl )"
 
 if [[ ${MOZ_ESR} == 1 ]]; then
