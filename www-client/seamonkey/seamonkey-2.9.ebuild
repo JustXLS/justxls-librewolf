@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.7.1.ebuild,v 1.1 2012/02/13 13:55:14 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.9.ebuild,v 1.1 2012/04/24 23:24:38 polynomial-c Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
@@ -27,9 +27,9 @@ fi
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension python nsplugins mozlinguas
 
-PATCHFF="firefox-10.0-patches-0.5"
+PATCHFF="firefox-12.0-patches-0.1"
 PATCH="${PN}-2.7-patches-03"
-EMVER="1.3.5"
+EMVER="1.4.1"
 
 DESCRIPTION="Seamonkey Web Browser"
 HOMEPAGE="http://www.seamonkey-project.org"
@@ -37,7 +37,7 @@ HOMEPAGE="http://www.seamonkey-project.org"
 if [[ ${PV} == *_pre* ]] ; then
 	# pre-releases. No need for arch teams to change KEYWORDS here.
 
-	KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86"
+	KEYWORDS=""
 else
 	# This is where arch teams should change the KEYWORDS.
 
@@ -51,15 +51,15 @@ IUSE="+alsa +chatzilla +crypt +ipc +roaming system-sqlite +webm"
 SRC_URI+="${SRC_URI}
 	${MOZ_FTP_URI}/source/${MOZ_P}.source.tar.bz2 -> ${P}.source.tar.bz2
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz
-	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.xz
+	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
 	crypt? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz )"
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 # Mesa 7.10 needed for WebGL + bugfixes
 RDEPEND=">=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.13.1
-	>=dev-libs/nspr-4.8.9
+	>=dev-libs/nss-3.13.2
+	>=dev-libs/nspr-4.9
 	>=dev-libs/glib-2.26
 	>=media-libs/mesa-7.10
 	>=media-libs/libpng-1.4.1[apng]
@@ -69,7 +69,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	virtual/libffi
 	system-sqlite? ( >=dev-db/sqlite-3.7.7.1[fts3,secure-delete,unlock-notify,debug=] )
 	crypt? ( >=app-crypt/gnupg-1.4 )
-	webm? ( >=media-libs/libvpx-0.9.7
+	webm? ( >=media-libs/libvpx-1.0.0
 		media-libs/alsa-lib )"
 
 DEPEND="${RDEPEND}
@@ -114,12 +114,15 @@ src_prepare() {
 	epatch "${WORKDIR}/firefox"
 	popd &>/dev/null || die
 
+	epatch "${FILESDIR}"/${PN}-2.9-revert-system-cairo-breakage.patch.bz2
+
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
 
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
-		cd "${S}"
+		#cd "${S}"/mailnews/extensions/enigmail || die
+		#cd "${S}"
 	fi
 
 	#Ensure we disable javaxpcom by default to prevent configure breakage
@@ -131,6 +134,8 @@ src_prepare() {
 		|| die "Failed to remove gnomevfs extension"
 
 	eautoreconf
+	cd "${S}"/mozilla
+	eautoconf
 }
 
 src_configure() {
