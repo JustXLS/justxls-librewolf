@@ -34,15 +34,15 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-4.8.9-link-flags.patch
 
 	# We must run eautoconf to regenerate configure
-	cd ${S}/mozilla/nsprpub
+	cd "${S}"/mozilla/nsprpub
 	eautoconf
 
 	# make sure it won't find Perl out of Prefix
-	sed -i -e "s/perl5//g" ${S}/mozilla/nsprpub/configure || die
+	sed -i -e "s/perl5//g" "${S}"/mozilla/nsprpub/configure || die
 
 	# Respect LDFLAGS
 	sed -i -e 's/\$(MKSHLIB) \$(OBJS)/\$(MKSHLIB) \$(LDFLAGS) \$(OBJS)/g' \
-		${S}/mozilla/nsprpub/config/rules.mk || die
+		"${S}"/mozilla/nsprpub/config/rules.mk || die
 }
 
 src_configure() {
