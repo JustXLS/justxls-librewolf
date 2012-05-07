@@ -64,6 +64,27 @@ src_configure() {
 
 src_compile() {
 	cd "${BUILDDIR}"
+	if tc-is-cross-compiler; then
+		make CFLAGS="" CXXFLAGS="" \
+			CC=$(tc-getBUILD_CC) CXX=$(tc-getBUILD_CXX) \
+			jscpucfg host_jsoplengen host_jskwgen || die
+		make CFLAGS="" CXXFLAGS="" \
+			CC=$(tc-getBUILD_CC) CXX=$(tc-getBUILD_CXX) \
+			-C config nsinstall || die
+		mv {,native-}jscpucfg
+		mv {,native-}host_jskwgen
+		mv {,native-}host_jsoplengen
+		mv config/{,native-}nsinstall
+		sed -e 's@./jscpucfg@./native-jscpucfg@' \
+			-e 's@./host_jskwgen@./native-host_jskwgen@' \
+			-e 's@./host_jsoplengen@./native-host_jsoplengen@' \
+			-i Makefile
+		sed -e 's@/nsinstall@/native-nsinstall@' -i config/config.mk
+		rm config/host_nsinstall.o \
+			config/host_pathsub.o \
+			host_jskwgen.o \
+			host_jsoplengen.o
+	fi
 	emake || die
 }
 
