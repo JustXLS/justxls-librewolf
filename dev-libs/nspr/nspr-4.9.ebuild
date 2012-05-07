@@ -66,6 +66,13 @@ src_configure() {
 
 src_compile() {
 	cd "${S}"/build
+	if tc-is-cross-compiler; then
+		emake CC="$(tc-getBUILD_CC)" CXX="$(tc-getBUILD_CXX)" \
+			-C config nsinstall || die "failed to build"
+		mv config/{,native-}nsinstall
+		sed -s 's#/nsinstall$#/native-nsinstall#' -i config/autoconf.mk
+		rm config/nsinstall.o
+	fi
 	emake CC="$(tc-getCC)" CXX="$(tc-getCXX)" || die "failed to build"
 }
 
