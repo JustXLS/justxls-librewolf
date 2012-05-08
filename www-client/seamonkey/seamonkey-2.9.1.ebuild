@@ -27,7 +27,7 @@ fi
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension python nsplugins mozlinguas
 
-PATCHFF="firefox-12.0-patches-0.1"
+PATCHFF="firefox-12.0-patches-0.2"
 PATCH="${PN}-2.7-patches-03"
 EMVER="1.4.1"
 
