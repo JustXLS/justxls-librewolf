@@ -67,13 +67,13 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=x11-libs/pango-1.14.0
 	>=x11-libs/gtk+-2.14
 	virtual/libffi
-	system-sqlite? ( >=dev-db/sqlite-3.7.7.1[fts3,secure-delete,unlock-notify,debug=] )
+	system-sqlite? ( >=dev-db/sqlite-3.7.10[fts3,secure-delete,threadsafe,unlock-notify,debug=] )
 	crypt? ( >=app-crypt/gnupg-1.4 )
 	webm? ( >=media-libs/libvpx-1.0.0
 		media-libs/alsa-lib )"
 
 DEPEND="${RDEPEND}
-	dev-util/pkgconfig
+	virtual/pkgconfig
 	webm? ( amd64? ( ${ASM_DEPEND} )
 		x86? ( ${ASM_DEPEND} ) )"
 

@@ -47,7 +47,7 @@ RDEPEND="media-libs/fontconfig
 		x11-libs/xcb-util
 	)"
 DEPEND="${RDEPEND}
-	dev-util/pkgconfig
+	virtual/pkgconfig
 	>=sys-devel/libtool-2
 	doc? (
 		>=dev-util/gtk-doc-1.6
