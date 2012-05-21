@@ -288,9 +288,14 @@ src_install() {
 	fi
 
 	if use jit ; then
-		pax-mark m "${ED}"/${MOZILLA_FIVE_HOME}/{thunderbird-bin,plugin-container}
+		pax-mark m "${ED}"/${MOZILLA_FIVE_HOME}/{thunderbird-bin}
 	fi
 
+	# Plugin-container needs to be pax-marked for hardened to ensure plugins such as flash
+	# continue to work as expected.
+	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/plugin-container
+
+	# Plugins dir
 	share_plugins_dir
 
 	if use minimal; then
