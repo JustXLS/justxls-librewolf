@@ -9,7 +9,7 @@ fi
 INBUILT_LANGS="en en-US"
 PRODUCT="${1}"
 VER="${2}"
-MOZ_URI="http://releases.mozilla.org/pub/mozilla.org/${PRODUCT}/releases/${VER}"
+MOZ_URI="ftp://ftp.mozilla.org/pub/mozilla.org/${PRODUCT}/releases/${VER}"
 if [[ "${PRODUCT}" =~ (firefox|thunderbird|icecat) ]]; then
   if [[ "${PRODUCT}" =~ icecat ]]; then
     LANG_URI="http://gnuzilla.gnu.org/download/langpacks/${VER}"
