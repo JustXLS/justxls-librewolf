@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.9.ebuild,v 1.1 2012/04/24 23:24:38 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.9.1.ebuild,v 1.5 2012/05/08 13:08:49 polynomial-c Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
@@ -46,12 +46,13 @@ fi
 
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="+alsa +chatzilla +crypt +ipc +roaming system-sqlite +webm"
+IUSE="+alsa +chatzilla +crypt +ipc +jit +roaming system-sqlite +webm"
 
 SRC_URI+="${SRC_URI}
 	${MOZ_FTP_URI}/source/${MOZ_P}.source.tar.bz2 -> ${P}.source.tar.bz2
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
+	http://dev.gentoo.org/~polynomial-c/mozilla/${PN}-2.9-revert-system-cairo-breakage.patch.bz2
 	crypt? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz )"
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
@@ -114,7 +115,7 @@ src_prepare() {
 	epatch "${WORKDIR}/firefox"
 	popd &>/dev/null || die
 
-	epatch "${FILESDIR}"/${PN}-2.9-revert-system-cairo-breakage.patch.bz2
+	epatch "${DISTDIR}"/${PN}-2.9-revert-system-cairo-breakage.patch.bz2
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
@@ -175,7 +176,9 @@ src_configure() {
 	mozconfig_annotate '' --target="${CTARGET:-${CHOST}}"
 
 	mozconfig_use_enable system-sqlite
-	mozconfig_use_enable methodjit
+	# Both methodjit and tracejit conflict with PaX
+	mozconfig_use_enable jit methodjit
+	mozconfig_use_enable jit tracejit
 
 	# Use an objdir to keep things organized.
 	echo "mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/seamonk" \
@@ -222,7 +225,11 @@ src_install() {
 		"${S}/${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
 
-	pax-mark m "${S}"/dist/bin/xpcshell
+	# Without methodjit and tracejit there's no conflict with PaX
+	if use jit ; then
+		# Pax mark xpcshell for hardened support, only used for startupcache creation.
+		pax-mark m "${S}"/dist/bin/xpcshell
+	fi
 
 	emake DESTDIR="${D}" install || die "emake install failed"
 	cp -f "${FILESDIR}"/icon/${PN}.desktop "${T}" || die
@@ -257,8 +264,15 @@ src_install() {
 		|| die
 	domenu "${T}"/${PN}.desktop || die
 
-	# Required in order to use plugins and even run seamonkey on hardened.
-	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{seamonkey,seamonkey-bin,plugin-container}
+	# Without methodjit and tracejit there's no conflict with PaX
+	if use jit ; then
+		# Required in order to use plugins and even run firefox on hardened.
+		pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{seamonkey,seamonkey-bin}
+	fi
+
+	# Plugin-container needs to be pax-marked for hardened to ensure plugins such as flash
+	# continue to work as expected.
+	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/plugin-container
 
 	# Handle plugins dir through nsplugins.eclass
 	share_plugins_dir
