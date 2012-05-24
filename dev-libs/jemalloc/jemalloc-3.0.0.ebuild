@@ -1,10 +1,10 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI=4
 
-inherit autotools
+inherit autotools eutils
 
 DESCRIPTION="Jemalloc is a general-purpose scalable concurrent allocator"
 HOMEPAGE="http://www.canonware.com/jemalloc/"
@@ -21,9 +21,9 @@ RDEPEND=""
 
 src_prepare() {
 	epatch \
-		"${FILESDIR}/${PN}-strip-optimization.patch" \
-		"${FILESDIR}/${PN}-2.2.1-no-pprof.patch" \
-		"${FILESDIR}/${PN}-2.2.5_fix_html_install.patch" \
+		"${FILESDIR}/${P}-strip-optimization.patch" \
+		"${FILESDIR}/${P}-no-pprof.patch" \
+		"${FILESDIR}/${P}_fix_html_install.patch" \
 
 	eautoreconf
 }
