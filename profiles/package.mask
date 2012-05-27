@@ -7,3 +7,6 @@
 
 # These are experimental use with caution!!
 =www-client/seamonkey-2.7*
+
+# Mask nightlies
+=www-client/firefox-14*
