@@ -209,6 +209,7 @@ src_configure() {
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 	mozconfig_annotate '' --target="${CTARGET:-${CHOST}}"
 
+	mozconfig_use_enable gstreamer
 	mozconfig_use_enable system-sqlite
 	# Both methodjit and tracejit conflict with PaX
 	mozconfig_use_enable jit methodjit
