@@ -36,7 +36,7 @@ LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 IUSE="bindist gconf +crashreporter +crypt +ipc +jit +lightning +minimal mozdom +webm"
 
 PATCH="thunderbird-12.0-patches-0.1"
-PATCHFF="firefox-12.0-patches-0.4"
+PATCHFF="firefox-12.0-patches-0.5"
 
 SRC_URI="${SRC_URI}
 	${MOZ_FTP_URI}${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
@@ -175,7 +175,6 @@ src_configure() {
 	mozconfig_annotate '' --with-system-png
 	mozconfig_annotate '' --enable-system-ffi
 	mozconfig_annotate '' --target="${CTARGET:-${CHOST}}"
-	mozconfig_annotate 'Missing features' --disable-system-cairo
 
 	# Use enable features
 	mozconfig_use_enable lightning calendar

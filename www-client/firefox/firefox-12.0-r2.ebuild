@@ -27,7 +27,7 @@ fi
 # Changeset for alpha snapshot
 CHANGESET="e56ecd8b3a68"
 # Patch version
-PATCH="${PN}-12.0-patches-0.4"
+PATCH="${PN}-12.0-patches-0.5"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
@@ -201,7 +201,6 @@ src_configure() {
 	mozconfig_annotate '' --enable-safe-browsing
 	mozconfig_annotate '' --with-system-png
 	mozconfig_annotate '' --enable-system-ffi
-	mozconfig_annotate 'Missing features' --disable-system-cairo
 
 	# Other ff-specific settings
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
