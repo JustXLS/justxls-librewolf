@@ -143,6 +143,8 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
 
+	epatch "${FILESDIR}"/${P}-gst-*.patch
+
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
 
@@ -174,7 +176,7 @@ src_prepare() {
 		-i "${S}"/toolkit/crashreporter/google-breakpad/src/common/linux/libcurl_wrapper.cc \
 		-i "${S}"/config/system-headers \
 		-i "${S}"/js/src/config/system-headers || die "Sed failed"
-	
+
 	eautoreconf
 }
 
