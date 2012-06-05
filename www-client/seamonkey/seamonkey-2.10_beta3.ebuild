@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.9.1.ebuild,v 1.5 2012/05/08 13:08:49 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.9.1-r2.ebuild,v 1.1 2012/05/29 08:16:03 polynomial-c Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
@@ -27,9 +27,9 @@ fi
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension python nsplugins mozlinguas
 
-PATCHFF="firefox-12.0-patches-0.2"
+PATCHFF="firefox-13.0-patches-0.1"
 PATCH="${PN}-2.7-patches-03"
-EMVER="1.4.1"
+EMVER="1.4.2"
 
 DESCRIPTION="Seamonkey Web Browser"
 HOMEPAGE="http://www.seamonkey-project.org"
@@ -37,7 +37,7 @@ HOMEPAGE="http://www.seamonkey-project.org"
 if [[ ${PV} == *_pre* ]] ; then
 	# pre-releases. No need for arch teams to change KEYWORDS here.
 
-	KEYWORDS=""
+	KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86"
 else
 	# This is where arch teams should change the KEYWORDS.
 
@@ -115,7 +115,12 @@ src_prepare() {
 	epatch "${WORKDIR}/firefox"
 	popd &>/dev/null || die
 
-	epatch "${DISTDIR}"/${PN}-2.9-revert-system-cairo-breakage.patch.bz2
+	# Shell scripts sometimes contain DOS line endings; bug 391889
+	grep -rlZ --include="*.sh" $'\r$' . |
+	while read -r -d $'\0' file ; do
+		einfo edos2unix "${file}"
+		edos2unix "${file}" || die
+	done
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
