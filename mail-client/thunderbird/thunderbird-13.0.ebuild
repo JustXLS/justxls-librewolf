@@ -47,8 +47,8 @@ SRC_URI="${SRC_URI}
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 RDEPEND=">=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.13.3
-	>=dev-libs/nspr-4.9
+	>=dev-libs/nss-3.13.5
+	>=dev-libs/nspr-4.9.1
 	>=dev-libs/glib-2.26
 	crashreporter? ( net-misc/curl )
 	gconf? ( >=gnome-base/gconf-1.2.1:2 )
