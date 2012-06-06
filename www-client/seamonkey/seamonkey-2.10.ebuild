@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.9.1-r2.ebuild,v 1.1 2012/05/29 08:16:03 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.10.ebuild,v 1.1 2012/06/06 07:41:36 polynomial-c Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
@@ -75,7 +75,8 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 DEPEND="${RDEPEND}
 	virtual/pkgconfig
 	webm? ( amd64? ( ${ASM_DEPEND} )
-		x86? ( ${ASM_DEPEND} ) )"
+		x86? ( ${ASM_DEPEND} )
+		virtual/opengl )"
 
 if [[ ${PV} == *beta* ]] ; then
 	S="${WORKDIR}/comm-beta"
@@ -130,13 +131,28 @@ src_prepare() {
 		#cd "${S}"
 	fi
 
-	#Ensure we disable javaxpcom by default to prevent configure breakage
-	sed -i -e s:MOZ_JAVAXPCOM\=1::g "${S}"/mozilla/xulrunner/confvars.sh \
-		|| die "sed javaxpcom"
+	local ms="${S}/mozilla"
+
+	# Enable gnomebreakpad
+	if use debug ; then
+		sed -i -e "s:GNOME_DISABLE_CRASH_DIALOG=1:GNOME_DISABLE_CRASH_DIALOG=0:g" \
+			"${ms}"/build/unix/run-mozilla.sh || die "sed failed!"
+	fi
 
 	# Disable gnomevfs extension
-	sed -i -e "s:gnomevfs::" "${S}/"suite/confvars.sh \
+	sed -i -e "s:gnomevfs::" "${S}"/suite/confvars.sh \
+		-e "s:gnomevfs::" "${ms}"/browser/confvars.sh \
+		-e "s:gnomevfs::" "${ms}"/xulrunner/confvars.sh \
 		|| die "Failed to remove gnomevfs extension"
+
+	# Ensure that are plugins dir is enabled as default
+	sed -i -e "s:/usr/lib/mozilla/plugins:/usr/$(get_libdir)/nsbrowser/plugins:" \
+		"${ms}"/xpcom/io/nsAppFileLocationProvider.cpp || die "sed failed to replace plugin path!"
+
+	# Don't exit with error when some libs are missing which we have in
+	# system.
+	sed '/^MOZ_PKG_FATAL_WARNINGS/s@= 1@= 0@' \
+		-i "${S}"/suite/installer/Makefile.in || die
 
 	eautoreconf
 	cd "${S}"/mozilla
@@ -144,8 +160,8 @@ src_prepare() {
 }
 
 src_configure() {
-	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
-	MEXTENSIONS=""
+	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+	MEXTENSIONS="default"
 
 	####################################
 	#
@@ -178,6 +194,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-system-ffi
 	mozconfig_annotate '' --with-system-png
 	mozconfig_annotate '' --target="${CTARGET:-${CHOST}}"
+	mozconfig_annotate '' --enable-safe-browsing
 
 	mozconfig_use_enable system-sqlite
 	# Both methodjit and tracejit conflict with PaX
@@ -219,9 +236,8 @@ src_compile() {
 }
 
 src_install() {
-	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
-	declare emid
-	local obj_dir="seamonk"
+	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+	local emid obj_dir="seamonk"
 	cd "${S}/${obj_dir}"
 
 	# Copy our preference before omnijar is created.
@@ -235,6 +251,7 @@ src_install() {
 		pax-mark m "${S}"/dist/bin/xpcshell
 	fi
 
+	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
 	emake DESTDIR="${D}" install || die "emake install failed"
 	cp -f "${FILESDIR}"/icon/${PN}.desktop "${T}" || die
 
@@ -285,7 +302,7 @@ src_install() {
 }
 
 pkg_preinst() {
-	declare MOZILLA_FIVE_HOME="${ROOT}/usr/$(get_libdir)/${PN}"
+	MOZILLA_FIVE_HOME="${ROOT}/usr/$(get_libdir)/${PN}"
 
 	if [ -d ${MOZILLA_FIVE_HOME}/plugins ] ; then
 		rm ${MOZILLA_FIVE_HOME}/plugins -rf
@@ -293,7 +310,7 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
-	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 
 	# Update mimedb for the new .desktop file
 	fdo-mime_desktop_database_update
