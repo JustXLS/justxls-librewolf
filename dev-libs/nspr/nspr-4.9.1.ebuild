@@ -24,7 +24,6 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-4.6.1-config-1.patch
 	epatch "${FILESDIR}"/${PN}-4.6.1-lang.patch
 	epatch "${FILESDIR}"/${PN}-4.7.0-prtime.patch
-	epatch "${FILESDIR}"/${PN}-4.9-pkgconfig-gentoo.patch
 	epatch "${FILESDIR}"/${PN}-4.7.1-solaris.patch
 	epatch "${FILESDIR}"/${PN}-4.7.4-solaris.patch
 	epatch "${FILESDIR}"/${PN}-4.8.3-aix-gcc.patch
