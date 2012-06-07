@@ -128,6 +128,11 @@ src_prepare() {
 		cd "${S}"
 	fi
 
+	# Disable gnomevfs extension
+	sed -i -e "s:gnomevfs::" "${S}/"mozilla/browser/confvars.sh \
+		-e "s:gnomevfs::" "${S}/"mozilla/xulrunner/confvars.sh \
+		|| die "Failed to remove gnomevfs extension"
+
 	#Fix compilation with curl-7.21.7 bug 376027
 	sed -e '/#include <curl\/types.h>/d'  \
 		-i "${S}"/mozilla/toolkit/crashreporter/google-breakpad/src/common/linux/http_upload.cc \
