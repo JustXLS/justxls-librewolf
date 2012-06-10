@@ -62,7 +62,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nspr-4.9.1
 	>=dev-libs/glib-2.26
 	>=media-libs/mesa-7.10
-	>=media-libs/libpng-1.4.1[apng]
+	>=media-libs/libpng-1.5.9[apng]
 	>=x11-libs/cairo-1.10
 	>=x11-libs/pango-1.14.0
 	>=x11-libs/gtk+-2.14
