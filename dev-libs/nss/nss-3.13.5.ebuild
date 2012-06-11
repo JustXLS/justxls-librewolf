@@ -19,7 +19,9 @@ SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
 IUSE="utils"
 
-DEPEND="virtual/pkgconfig"
+DEPEND="virtual/pkgconfig
+	>=dev-libs/nspr-${NSPR_VER}"
+
 RDEPEND=">=dev-libs/nspr-${NSPR_VER}
 	>=dev-db/sqlite-3.5
 	sys-libs/zlib"
