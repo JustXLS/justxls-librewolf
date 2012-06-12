@@ -55,7 +55,7 @@ RDEPEND="
 	>=dev-libs/nspr-4.9.1
 	>=dev-libs/glib-2.26:2
 	>=media-libs/mesa-7.10
-	media-libs/libpng[apng]
+	>=media-libs/libpng-1.5.9[apng]
 	virtual/libffi
 	system-sqlite? ( >=dev-db/sqlite-3.7.7.1[fts3,secure-delete,threadsafe,unlock-notify,debug=] )
 	webm? ( >=media-libs/libvpx-1.0.0

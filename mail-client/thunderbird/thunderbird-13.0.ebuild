@@ -52,7 +52,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/glib-2.26
 	crashreporter? ( net-misc/curl )
 	gconf? ( >=gnome-base/gconf-1.2.1:2 )
-	media-libs/libpng[apng]
+	>=media-libs/libpng-1.5.9[apng]
 	>=x11-libs/cairo-1.10
 	>=x11-libs/pango-1.14.0
 	>=x11-libs/gtk+-2.14
