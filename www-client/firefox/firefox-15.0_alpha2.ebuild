@@ -25,7 +25,7 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-14.0-patches-0.1"
+PATCH="${PN}-15.0-patches-0.1"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
@@ -58,7 +58,7 @@ RDEPEND="
 	gstreamer? (
 		>=media-libs/gstreamer-0.10.33:0.10
 		>=media-libs/gst-plugins-base-0.10.33:0.10 )
-	system-sqlite? ( >=dev-db/sqlite-3.7.11[fts3,secure-delete,threadsafe,unlock-notify,debug=] )
+	system-sqlite? ( >=dev-db/sqlite-3.7.12.1[fts3,secure-delete,threadsafe,unlock-notify,debug=] )
 	webm? ( >=media-libs/libvpx-1.0.0
 		media-libs/alsa-lib )
 	crashreporter? ( net-misc/curl )
@@ -75,7 +75,7 @@ DEPEND="${RDEPEND}
 
 # No source releases for alpha|beta
 if [[ ${PV} =~ alpha ]]; then
-	CHANGESET="7f3c5dd8e78f"
+	CHANGESET="8a3042764de7"
 	SRC_URI="${SRC_URI}
 		http://dev.gentoo.org/~nirbheek/mozilla/firefox/firefox-${MOZ_PV}_${CHANGESET}.source.tar.bz2"
 	S="${WORKDIR}/mozilla-aurora-${CHANGESET}"
@@ -143,7 +143,7 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
 
-	epatch "${FILESDIR}"/${P}-gst-*.patch
+	epatch "${FILESDIR}"/${PN}*-gst-*.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
@@ -205,6 +205,7 @@ src_configure() {
 	mozconfig_annotate '' --enable-safe-browsing
 	mozconfig_annotate '' --with-system-png
 	mozconfig_annotate '' --enable-system-ffi
+	# TODO: --enable-system-pixman
 	mozconfig_annotate 'Missing features' --disable-system-cairo
 
 	# Other ff-specific settings
