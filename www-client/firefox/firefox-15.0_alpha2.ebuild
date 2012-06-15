@@ -218,12 +218,6 @@ src_configure() {
 	mozconfig_use_enable jit methodjit
 	mozconfig_use_enable jit tracejit
 
-	# system-libvpx option no longer takes a path, uses pkg-config instead
-	# Override eclass annotation here
-	if use webm; then
-		mozconfig_annotate '+webm' --with-system-libvpx
-	fi
-
 	# Allow for a proper pgo build
 	if use pgo; then
 		echo "mk_add_options PROFILE_GEN_SCRIPT='\$(PYTHON) \$(OBJDIR)/_profile/pgo/profileserver.py'" >> "${S}"/.mozconfig
