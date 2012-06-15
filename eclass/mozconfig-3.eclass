@@ -69,10 +69,10 @@ mozconfig_config() {
 			mozconfig_annotate '+webm -alsa' --enable-ogg
 			mozconfig_annotate '+webm -alsa' --enable-wave
 			mozconfig_annotate '+webm' --enable-webm
-			mozconfig_annotate '+webm' --with-system-libvpx="${EPREFIX}"/usr
+			mozconfig_annotate '+webm' --with-system-libvpx
 		else
 			mozconfig_use_enable webm
-			mozconfig_annotate '+webm' --with-system-libvpx="${EPREFIX}"/usr
+			mozconfig_annotate '+webm' --with-system-libvpx
 		fi
 	else
 		mozconfig_annotate '' --disable-webm

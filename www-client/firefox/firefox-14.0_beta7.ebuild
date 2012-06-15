@@ -25,7 +25,7 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-14.0-patches-0.2"
+PATCH="${PN}-14.0-patches-0.3"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
@@ -177,6 +177,11 @@ src_prepare() {
 		-i "${S}"/config/system-headers \
 		-i "${S}"/js/src/config/system-headers || die "Sed failed"
 
+	# Don't exit with error when some libs are missing which we have in
+	# system.
+	sed '/^MOZ_PKG_FATAL_WARNINGS/s@= 1@= 0@' \
+		-i "${S}"/browser/installer/Makefile.in || die
+
 	eautoreconf
 }
 
@@ -205,7 +210,6 @@ src_configure() {
 	mozconfig_annotate '' --enable-safe-browsing
 	mozconfig_annotate '' --with-system-png
 	mozconfig_annotate '' --enable-system-ffi
-	mozconfig_annotate 'Missing features' --disable-system-cairo
 
 	# Other ff-specific settings
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
@@ -216,12 +220,6 @@ src_configure() {
 	# Both methodjit and tracejit conflict with PaX
 	mozconfig_use_enable jit methodjit
 	mozconfig_use_enable jit tracejit
-
-	# system-libvpx option no longer takes a path, uses pkg-config instead
-	# Override eclass annotation here
-	if use webm; then
-		mozconfig_annotate '+webm' --with-system-libvpx
-	fi
 
 	# Allow for a proper pgo build
 	if use pgo; then
