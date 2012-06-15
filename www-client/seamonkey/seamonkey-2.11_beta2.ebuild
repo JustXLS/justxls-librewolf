@@ -70,9 +70,10 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	system-sqlite? ( >=dev-db/sqlite-3.7.10[fts3,secure-delete,threadsafe,unlock-notify,debug=] )
 	crypt? ( >=app-crypt/gnupg-1.4 )
 	webm? ( >=media-libs/libvpx-1.0.0
-		media-libs/alsa-lib )"
+		kernel_linux? ( media-libs/alsa-lib ) )"
 
 DEPEND="${RDEPEND}
+	!elibc_glibc? ( dev-libs/libexecinfo )
 	virtual/pkgconfig
 	webm? ( amd64? ( ${ASM_DEPEND} )
 		x86? ( ${ASM_DEPEND} )

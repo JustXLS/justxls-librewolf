@@ -60,11 +60,12 @@ RDEPEND="
 		>=media-libs/gst-plugins-base-0.10.33:0.10 )
 	system-sqlite? ( >=dev-db/sqlite-3.7.11[fts3,secure-delete,threadsafe,unlock-notify,debug=] )
 	webm? ( >=media-libs/libvpx-1.0.0
-		media-libs/alsa-lib )
+		kernel_linux? ( media-libs/alsa-lib ) )
 	crashreporter? ( net-misc/curl )
 	selinux? ( sec-policy/selinux-mozilla )"
 # We don't use PYTHON_DEPEND/PYTHON_USE_WITH for some silly reason
 DEPEND="${RDEPEND}
+	!elibc_glibc? ( dev-libs/libexecinfo )
 	virtual/pkgconfig
 	pgo? (
 		=dev-lang/python-2*[sqlite]
