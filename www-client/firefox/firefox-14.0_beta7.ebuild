@@ -42,7 +42,7 @@ IUSE="bindist +crashreporter gstreamer +ipc +jit +minimal pgo selinux system-sql
 
 # More URIs appended below...
 SRC_URI="${SRC_URI}
-	http://dev.gentoo.org/~nirbheek/mozilla/patchsets/${PATCH}.tar.xz"
+	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.xz"
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
