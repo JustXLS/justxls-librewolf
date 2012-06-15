@@ -172,11 +172,6 @@ src_configure() {
 	mozconfig_init
 	mozconfig_config
 
-	# current mozconfig-3 eclass submits an argument to
-	# --with-system-libvpx which fails.
-	sed '/with-system-libvpx/d' -i "${S}"/.mozconfig || die
-	mozconfig_annotate '+webm' --with-system-libvpx
-
 	# It doesn't compile on alpha without this LDFLAGS
 	use alpha && append-ldflags "-Wl,--no-relax"
 
