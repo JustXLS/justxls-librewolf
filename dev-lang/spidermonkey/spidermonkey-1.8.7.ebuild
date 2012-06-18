@@ -43,7 +43,8 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/spidermonkey"
 
-	epatch ${FILESDIR}/${PN}-1.8.7-filter_desc.patch
+	epatch "${FILESDIR}"/${PN}-1.8.5-fix-install-symlinks.patch
+	epatch "${FILESDIR}"/${PN}-1.8.7-filter_desc.patch
 
 	epatch_user
 
@@ -115,6 +116,11 @@ src_install() {
 	fi
 	dodoc ../../README || die
 	dohtml README.html || die
+	# install header files needed but not part of build system
+	insinto /usr/include/js || die
+	doins ../public/*.h || die
+	insinto /usr/include/js/mozilla || die
+	doins ${S}/mfbt/*.h || die
 
 	if ! use static-libs; then
 		# We can't actually disable building of static libraries
