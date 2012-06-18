@@ -43,6 +43,8 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/spidermonkey"
 
+	epatch ${FILESDIR}/${PN}-1.8.7-filter_desc.patch
+
 	epatch_user
 
 	if [[ ${CHOST} == *-freebsd* ]]; then
