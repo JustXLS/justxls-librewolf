@@ -5,11 +5,5 @@
 # NOTE: Please add your entry at the top!
 #
 
-# These are experimental use with caution!!
-=www-client/seamonkey-2.7*
-
 # Mask nightlies
 =www-client/firefox-15*
-
-# Work in Progress
-#=dev-lang/spidermonkey-1.8.7
