@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/nspr/nspr-4.8.8.ebuild,v 1.1 2011/05/13 21:13:30 anarchy Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/nspr/nspr-4.9.1-r1.ebuild,v 1.1 2012/06/22 02:57:33 anarchy Exp $
 
 EAPI=3
 WANT_AUTOCONF="2.1"
