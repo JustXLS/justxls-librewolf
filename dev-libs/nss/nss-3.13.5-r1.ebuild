@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/nss/nss-3.13.1-r1.ebuild,v 1.2 2012/01/10 10:21:27 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/nss/nss-3.13.5.ebuild,v 1.4 2012/06/19 05:06:28 nativemad Exp $
 
 EAPI=3
 inherit eutils flag-o-matic multilib toolchain-funcs
@@ -16,7 +16,7 @@ SRC_URI="ftp://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/${RTM_NAME}
 
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
 IUSE="utils"
 
 DEPEND="virtual/pkgconfig
@@ -36,6 +36,7 @@ src_prepare() {
 	epatch "${FILESDIR}/${PN}-3.12.6-gentoo-fixup-warnings.patch"
 	epatch "${DISTDIR}/${PN}-3.13.3-add_spi+cacerts_ca_certs.patch"
 	epatch "${DISTDIR}/${PN}-3.13.3_pem.support"
+	epatch "${FILESDIR}/${PN}-3.13.5-x32.patch"
 
 	cd "${S}"/mozilla/security/coreconf || die
 	# hack nspr paths
@@ -72,6 +73,7 @@ src_compile() {
 	echo > "${T}"/test.c || die
 	$(tc-getCC) ${CFLAGS} -c "${T}"/test.c -o "${T}"/test.o || die
 	case $(file "${T}"/test.o) in
+	*32-bit*x86-64*) export USE_x32=1;;
 	*64-bit*|*ppc64*|*x86_64*) export USE_64=1;;
 	*32-bit*|*ppc*|*i386*) ;;
 	*) die "Failed to detect whether your arch is 64bits or 32bits, disable distcc if you're using it, please";;
@@ -208,3 +210,4 @@ pkg_postinst() {
 pkg_postrm() {
 	cleanup_chk "${EROOT}"/usr/$(get_libdir)
 }
+
