@@ -65,4 +65,43 @@ diff -urN a/mozilla/nsprpub/pr/include/md/_linux.cfg b/mozilla/nsprpub/pr/includ
  #elif defined(__mc68000__)
  
  #undef  IS_LITTLE_ENDIAN
+diff -urN a/mozilla/nsprpub/pr/include/md/_linux.h b/mozilla/nsprpub/pr/include/md/_linux.h
+--- a/mozilla/nsprpub/pr/include/md/_linux.h	2012-06-20 12:02:07.401308346 +0000
++++ b/mozilla/nsprpub/pr/include/md/_linux.h	2012-06-20 12:31:44.113394683 +0000
+@@ -27,7 +27,7 @@
+ #define _PR_SI_ARCHITECTURE "alpha"
+ #elif defined(__ia64__)
+ #define _PR_SI_ARCHITECTURE "ia64"
+-#elif defined(__x86_64__)
++#elif defined(__x86_64__) && !defined(__ILP32__)
+ #define _PR_SI_ARCHITECTURE "x86-64"
+ #elif defined(__mc68000__)
+ #define _PR_SI_ARCHITECTURE "m68k"
+@@ -35,7 +35,7 @@
+ #define _PR_SI_ARCHITECTURE "sparc64"
+ #elif defined(__sparc__)
+ #define _PR_SI_ARCHITECTURE "sparc"
+-#elif defined(__i386__)
++#elif defined(__i386__) || (defined(__x86_64__) && defined(__ILP32__))
+ #define _PR_SI_ARCHITECTURE "x86"
+ #elif defined(__mips__)
+ #define _PR_SI_ARCHITECTURE "mips"
+@@ -78,7 +78,7 @@
+ #define _PR_HAVE_SOCKADDR_LEN
+ #endif
+ 
+-#if defined(__i386__)
++#if defined(__i386__) || (defined(__x86_64__) && defined(__ILP32__))
+ #define _PR_HAVE_ATOMIC_OPS
+ #define _MD_INIT_ATOMIC()
+ extern PRInt32 _PR_x86_AtomicIncrement(PRInt32 *val);
+@@ -104,7 +104,7 @@
+ #define _MD_ATOMIC_SET                _PR_ia64_AtomicSet
+ #endif
+ 
+-#if defined(__x86_64__)
++#if defined(__x86_64__) && !defined(__ILP32__)
+ #define _PR_HAVE_ATOMIC_OPS
+ #define _MD_INIT_ATOMIC()
+ extern PRInt32 _PR_x86_64_AtomicIncrement(PRInt32 *val);
 

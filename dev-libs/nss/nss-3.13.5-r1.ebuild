@@ -210,4 +210,3 @@ pkg_postinst() {
 pkg_postrm() {
 	cleanup_chk "${EROOT}"/usr/$(get_libdir)
 }
-
