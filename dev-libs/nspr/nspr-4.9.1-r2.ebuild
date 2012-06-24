@@ -31,7 +31,7 @@ src_prepare() {
 	#epatch "${FILESDIR}"/${PN}-4.8.3-aix-soname.patch
 	epatch "${FILESDIR}"/${PN}-4.8.4-darwin-install_name.patch
 	epatch "${FILESDIR}"/${PN}-4.8.9-link-flags.patch
-	epatch "${FILESDIR}"/${PN}-4.9.1-x32.patch
+	epatch "${FILESDIR}"/${PN}-4.9.1-x32_v0.1.patch
 
 	# We must run eautoconf to regenerate configure
 	cd "${S}"/mozilla/nsprpub
