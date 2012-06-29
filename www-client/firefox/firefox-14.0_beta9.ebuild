@@ -144,7 +144,7 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
 
-	epatch "${FILESDIR}"/${P}-gst-*.patch
+	epatch "${FILESDIR}"/${PN}-14.0_beta7-gst-*.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
