@@ -33,7 +33,7 @@ HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="bindist gconf +crypt +ipc +lightning +minimal mozdom +webm"
+IUSE="bindist gconf +crypt +ipc +lightning +minimal mozdom +webm selinux"
 
 PATCH="thunderbird-10.0-patches-0.1"
 PATCHFF="firefox-10.0-patches-0.9"
@@ -60,6 +60,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	virtual/libffi
 	!x11-plugins/enigmail
 	system-sqlite? ( >=dev-db/sqlite-3.7.7.1[fts3,secure-delete,unlock-notify,debug=] )
+	selinux? ( sec-policy/selinux-thunderbird )
 	crypt?  ( || (
 		( >=app-crypt/gnupg-2.0
 			|| (
