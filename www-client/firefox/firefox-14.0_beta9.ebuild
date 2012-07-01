@@ -38,7 +38,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="bindist +crashreporter gstreamer +ipc +jit +minimal pgo selinux system-sqlite +webm"
+IUSE="bindist gstreamer +ipc +jit +minimal pgo selinux system-sqlite +webm"
 
 # More URIs appended below...
 SRC_URI="${SRC_URI}
@@ -61,7 +61,6 @@ RDEPEND="
 	system-sqlite? ( >=dev-db/sqlite-3.7.11[fts3,secure-delete,threadsafe,unlock-notify,debug=] )
 	webm? ( >=media-libs/libvpx-1.0.0
 		kernel_linux? ( media-libs/alsa-lib ) )
-	crashreporter? ( net-misc/curl )
 	selinux? ( sec-policy/selinux-mozilla )"
 # We don't use PYTHON_DEPEND/PYTHON_USE_WITH for some silly reason
 DEPEND="${RDEPEND}

@@ -33,7 +33,7 @@ HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
-IUSE="bindist gconf +crashreporter +crypt +ipc +lightning +minimal mozdom +webm"
+IUSE="bindist gconf +crypt +ipc +lightning +minimal mozdom +webm"
 
 PATCH="thunderbird-10.0-patches-0.1"
 PATCHFF="firefox-10.0-patches-0.9"
@@ -50,7 +50,6 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.13.1
 	>=dev-libs/nspr-4.8.8
 	>=dev-libs/glib-2.26
-	crashreporter? ( net-misc/curl )
 	gconf? ( >=gnome-base/gconf-1.2.1:2 )
 	>=media-libs/libpng-1.5.9[apng]
 	>=x11-libs/cairo-1.10
