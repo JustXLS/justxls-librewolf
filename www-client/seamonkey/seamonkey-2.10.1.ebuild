@@ -45,7 +45,7 @@ else
 fi
 
 SLOT="0"
-LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
+LICENSE="|| ( MPL-2.0 GPL-2 LGPL-2.1 )"
 IUSE="+alsa +chatzilla +crypt +ipc +jit +roaming system-sqlite +webm"
 
 SRC_URI+="${SRC_URI}
