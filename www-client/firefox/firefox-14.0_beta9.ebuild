@@ -37,7 +37,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 
 KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
 SLOT="0"
-LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
+LICENSE="|| ( MPL-2.0 GPL-2 LGPL-2.1 )"
 IUSE="bindist gstreamer +ipc +jit +minimal pgo selinux system-sqlite +webm"
 
 # More URIs appended below...
