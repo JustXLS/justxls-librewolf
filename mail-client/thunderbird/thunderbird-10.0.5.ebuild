@@ -32,7 +32,7 @@ HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 
 KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
-LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
+LICENSE="MPL-1.1 GPL-2 LGPL-2.1"
 IUSE="bindist gconf +crypt +ipc +lightning +minimal mozdom +webm selinux"
 
 PATCH="thunderbird-10.0-patches-0.1"
