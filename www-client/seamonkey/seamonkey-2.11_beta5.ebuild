@@ -16,7 +16,7 @@ MOZ_PV="${MOZ_PV/_rc/rc}"
 MOZ_P="${PN}-${MOZ_PV}"
 
 if [[ ${PV} == *_pre* ]] ; then
-	MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/nightly/${MOZ_PV}-candidates/build${PV##*_pre}"
+	MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/candidates/${MOZ_PV}-candidates/build${PV##*_pre}"
 	MOZ_LANGPACK_PREFIX="linux-i686/xpi/"
 	# And the langpack stuff stays at eclass defaults
 else
@@ -27,7 +27,7 @@ fi
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension python nsplugins mozlinguas
 
-PATCHFF="firefox-14.0-patches-0.3"
+PATCHFF="firefox-14.0-patches-0.4"
 PATCH="${PN}-2.7-patches-03"
 EMVER="1.4.2"
 
