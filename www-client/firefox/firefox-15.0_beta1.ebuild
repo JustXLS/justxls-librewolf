@@ -9,10 +9,10 @@ MOZ_ESR=""
 
 # This list can be updated with scripts/get_langs.sh from the mozilla overlay
 MOZ_LANGS=(af ak ar as ast be bg bn-BD bn-IN br bs ca cs csb cy da de el en
-en-GB en-US en-ZA eo es-AR es-CL es-ES es-MX et eu fa fi fr fy-NL ga-IE gd gl
-gu-IN he hi-IN hr hu hy-AM id is it ja kk kn ko ku lg lt lv mai mk ml mr nb-NO
-nl nn-NO nso or pa-IN pl pt-BR pt-PT rm ro ru si sk sl son sq sr sv-SE ta ta-LK
-te th tr uk vi zh-CN zh-TW zu)
+en-GB en-US en-ZA eo es-AR es-CL es-ES es-MX et eu fa ff fi fr fy-NL ga-IE gd gl
+gu-IN he hi-IN hr hu hy-AM id is it ja kk km kn ko ku lg lij lt lv mai mk ml mn
+mr nb-NO nl nn-NO nso or pa-IN pl pt-BR pt-PT rm ro ru si sk sl son sq sr sv-SE
+sw ta ta-LK te th tr uk vi zh-CN zh-TW zu )
 
 # Convert the ebuild version to the upstream mozilla version, used by mozlinguas
 MOZ_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
@@ -25,7 +25,7 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-15.0-patches-0.1"
+PATCH="${PN}-15.0-patches-0.2"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
@@ -142,7 +142,10 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
 
-	epatch "${FILESDIR}"/${PN}*-gst-*.patch
+	# Allow AAC and H.264 files to be played using <audio> and <video>
+	epatch "${FILESDIR}"/${PN}*-gst*.patch
+	# Don't error out if there's no *.pyc files to clean
+	epatch "${FILESDIR}"/${PN}-15.0_beta1-fix-packager-xargs-rm.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
@@ -176,6 +179,11 @@ src_prepare() {
 		-i "${S}"/config/system-headers \
 		-i "${S}"/js/src/config/system-headers || die "Sed failed"
 
+	# Don't exit with error when some libs are missing which we have in
+	# system.
+	sed '/^MOZ_PKG_FATAL_WARNINGS/s@= 1@= 0@' \
+		-i "${S}"/browser/installer/Makefile.in || die
+
 	eautoreconf
 }
 
@@ -204,8 +212,6 @@ src_configure() {
 	mozconfig_annotate '' --enable-safe-browsing
 	mozconfig_annotate '' --with-system-png
 	mozconfig_annotate '' --enable-system-ffi
-	# TODO: --enable-system-pixman
-	mozconfig_annotate 'Missing features' --disable-system-cairo
 
 	# Other ff-specific settings
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}

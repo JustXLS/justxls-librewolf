@@ -6,4 +6,4 @@
 #
 
 # Mask nightlies
-=www-client/firefox-15*
+=www-client/firefox-16.0_alpha*
