@@ -12,6 +12,7 @@ IUSE="+alsa +dbus debug libnotify startup-notification system-sqlite wifi"
 # XXX: GConf is used for setting the default browser
 #      revisit to make it optional with GNOME 3
 # pango[X] is needed for pangoxft.h
+# freedesktop-icon-theme is needed for bug 341697
 RDEPEND="app-arch/zip
 	app-arch/unzip
 	>=app-text/hunspell-1.2
@@ -23,6 +24,7 @@ RDEPEND="app-arch/zip
 	>=x11-libs/pango-1.10.1[X]
 	virtual/jpeg
 	alsa? ( media-libs/alsa-lib )
+	virtual/freedesktop-icon-theme
 	dbus? ( >=dev-libs/dbus-glib-0.72 )
 	libnotify? ( >=x11-libs/libnotify-0.4 )
 	startup-notification? ( >=x11-libs/startup-notification-0.8 )
