@@ -31,7 +31,7 @@ src_prepare() {
 	#epatch "${FILESDIR}"/${PN}-4.8.3-aix-soname.patch
 	epatch "${FILESDIR}"/${PN}-4.8.4-darwin-install_name.patch
 	epatch "${FILESDIR}"/${PN}-4.8.9-link-flags.patch
-	epatch "${FILESDIR}"/${PN}-4.9.1-x32_v0.1.patch
+	epatch "${FILESDIR}"/${PN}-4.9.1-x32_v0.2.patch
 
 	# We must run eautoconf to regenerate configure
 	cd "${S}"/mozilla/nsprpub
@@ -50,12 +50,12 @@ src_configure() {
 
 	echo > "${T}"/test.c
 	$(tc-getCC) -c "${T}"/test.c -o "${T}"/test.o
-	case $(scanelf -BF'%M' "${T}"/test.o)$(scanmacho -BF'%M' "${T}"/test.o) in
-		ELFCLASS64*|POWERPC64*|X86_64*) myconf="${myconf} --enable-64bit";;
-		ELFCLASS32*|POWERPC*|I386*|ARM*) ;;
+	case $(file "${T}"/test.o) in
+		*32-bit*x86-64*) myconf="${myconf} --enable-64bit";;
+		*64-bit*|*ppc64*|*x86_64*) myconf="${myconf} --enable-64bit";;
+		*32-bit*|*ppc*|*i386*) ;;
 		*) die "Failed to detect whether your arch is 64bits or 32bits, disable distcc if you're using it, please";;
 	esac
-
 	myconf="${myconf} --libdir=${EPREFIX}/usr/$(get_libdir)"
 
 	LC_ALL="C" ECONF_SOURCE="../mozilla/nsprpub" econf \
