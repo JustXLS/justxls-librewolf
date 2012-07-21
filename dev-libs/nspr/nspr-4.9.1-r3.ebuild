@@ -51,8 +51,7 @@ src_configure() {
 	echo > "${T}"/test.c
 	$(tc-getCC) -c "${T}"/test.c -o "${T}"/test.o
 	case $(file "${T}"/test.o) in
-		*32-bit*x86-64*) myconf="${myconf} --enable-64bit";;
-		*64-bit*|*ppc64*|*x86_64*) myconf="${myconf} --enable-64bit";;
+		*32-bit*x86-64*|*64-bit*|*ppc64*|*x86_64*) myconf="${myconf} --enable-64bit";;
 		*32-bit*|*ppc*|*i386*) ;;
 		*) die "Failed to detect whether your arch is 64bits or 32bits, disable distcc if you're using it, please";;
 	esac
