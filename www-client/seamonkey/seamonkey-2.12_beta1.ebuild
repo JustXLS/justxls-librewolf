@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.10.ebuild,v 1.2 2012/06/06 12:56:49 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.11.ebuild,v 1.4 2012/07/18 13:32:41 polynomial-c Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
@@ -46,7 +46,7 @@ fi
 
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="+alsa +chatzilla +crypt +ipc +jit +roaming system-sqlite +webm"
+IUSE="+alsa +chatzilla +crypt gstreamer +ipc +jit +roaming system-sqlite +webm"
 
 SRC_URI+="${SRC_URI}
 	${MOZ_FTP_URI}/source/${MOZ_P}.source.tar.bz2 -> ${P}.source.tar.bz2
@@ -67,10 +67,16 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=x11-libs/pango-1.14.0
 	>=x11-libs/gtk+-2.14
 	virtual/libffi
+	gstreamer? (
+		>=media-libs/gstreamer-0.10.33:0.10
+		>=media-libs/gst-plugins-base-0.10.33:0.10
+	)
 	system-sqlite? ( >=dev-db/sqlite-3.7.10[fts3,secure-delete,threadsafe,unlock-notify,debug=] )
 	crypt? ( >=app-crypt/gnupg-1.4 )
-	webm? ( >=media-libs/libvpx-1.0.0
-		kernel_linux? ( media-libs/alsa-lib ) )"
+	webm? (
+		>=media-libs/libvpx-1.0.0
+		kernel_linux? ( media-libs/alsa-lib )
+	)"
 
 DEPEND="${RDEPEND}
 	!elibc_glibc? ( dev-libs/libexecinfo )
@@ -114,6 +120,7 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
+	epatch "${FILESDIR}"/firefox-15.0-fix-gstreamer-html5-crash.patch
 	popd &>/dev/null || die
 
 	# Shell scripts sometimes contain DOS line endings; bug 391889
@@ -154,6 +161,9 @@ src_prepare() {
 	# system.
 	sed '/^MOZ_PKG_FATAL_WARNINGS/s@= 1@= 0@' \
 		-i "${S}"/suite/installer/Makefile.in || die
+	# Don't error out when there's no files to be removed:
+	sed 's@\(xargs rm\)$@\1 -f@' \
+		-i "${S}"/mozilla/toolkit/mozapps/installer/packager.mk || die
 
 	eautoreconf
 	cd "${S}"/mozilla
@@ -197,6 +207,7 @@ src_configure() {
 	mozconfig_annotate '' --target="${CTARGET:-${CHOST}}"
 	mozconfig_annotate '' --enable-safe-browsing
 
+	mozconfig_use_enable gstreamer
 	mozconfig_use_enable system-sqlite
 	# Both methodjit and tracejit conflict with PaX
 	mozconfig_use_enable jit methodjit
