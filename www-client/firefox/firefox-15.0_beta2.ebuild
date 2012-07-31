@@ -186,7 +186,7 @@ src_prepare() {
 
 	# Don't error out when there's no files to be removed:
 	sed 's@\(xargs rm\)$@\1 -f@' \
-		-i "${S}"/mozilla/toolkit/mozapps/installer/packager.mk || die
+		-i "${S}"/toolkit/mozapps/installer/packager.mk || die
 
 	eautoreconf
 }
