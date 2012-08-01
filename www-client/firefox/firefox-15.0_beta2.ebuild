@@ -144,8 +144,6 @@ src_prepare() {
 
 	# Allow AAC and H.264 files to be played using <audio> and <video>
 	epatch "${FILESDIR}"/${PN}*-gst*.patch
-	# Don't error out if there's no *.pyc files to clean
-	epatch "${FILESDIR}"/${PN}-15.0_beta1-fix-packager-xargs-rm.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
