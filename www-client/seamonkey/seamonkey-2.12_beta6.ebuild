@@ -29,7 +29,7 @@ inherit flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-m
 
 PATCHFF="firefox-15.0-patches-0.2"
 PATCH="${PN}-2.7-patches-03"
-EMVER="1.4.3"
+EMVER="1.4.4"
 
 DESCRIPTION="Seamonkey Web Browser"
 HOMEPAGE="http://www.seamonkey-project.org"
