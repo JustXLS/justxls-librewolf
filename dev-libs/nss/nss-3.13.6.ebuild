@@ -5,7 +5,7 @@
 EAPI=3
 inherit eutils flag-o-matic multilib toolchain-funcs
 
-NSPR_VER="4.9.1"
+NSPR_VER="4.9.2"
 RTM_NAME="NSS_${PV//./_}_RTM"
 
 DESCRIPTION="Mozilla's Network Security Services library that implements PKI support"

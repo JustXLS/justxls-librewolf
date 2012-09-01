@@ -49,8 +49,8 @@ SRC_URI="${SRC_URI}
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 RDEPEND=">=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.13.5
-	>=dev-libs/nspr-4.9.1
+	>=dev-libs/nss-3.13.6
+	>=dev-libs/nspr-4.9.2
 	>=dev-libs/glib-2.26
 	gconf? ( >=gnome-base/gconf-1.2.1:2 )
 	>=media-libs/libpng-1.5.9[apng]
