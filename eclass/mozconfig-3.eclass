@@ -91,6 +91,7 @@ mozconfig_config() {
 	mozconfig_annotate '' --disable-gnomevfs
 	mozconfig_annotate '' --disable-gnomeui
 	mozconfig_annotate '' --enable-gio
+	mozconfig_annotate '' --disable-crashreporter
 	if [[ ${PN} != thunderbird ]] ; then
 		mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks
 		mozconfig_annotate '' --enable-oji --enable-mathml
