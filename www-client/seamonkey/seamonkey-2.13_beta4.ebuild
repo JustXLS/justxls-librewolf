@@ -27,7 +27,7 @@ fi
 
 inherit flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension python nsplugins mozlinguas
 
-PATCHFF="firefox-15.0-patches-0.2"
+PATCHFF="firefox-16.0-patches-0.3"
 PATCH="${PN}-2.7-patches-03"
 EMVER="1.4.4"
 
@@ -50,7 +50,7 @@ IUSE="+alsa +chatzilla +crypt gstreamer +ipc +jit +roaming system-sqlite +webm"
 
 SRC_URI+="${SRC_URI}
 	${MOZ_FTP_URI}/source/${MOZ_P}.source.tar.bz2 -> ${P}.source.tar.bz2
-	http://dev.gentoo.org/~nirbheek/mozilla/patchsets/${PATCHFF}.tar.xz
+	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
 	crypt? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz )"
 
@@ -120,7 +120,6 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
-	epatch "${FILESDIR}"/firefox-15.0-fix-gstreamer-html5-crash.patch
 	popd &>/dev/null || die
 
 	# Shell scripts sometimes contain DOS line endings; bug 391889
