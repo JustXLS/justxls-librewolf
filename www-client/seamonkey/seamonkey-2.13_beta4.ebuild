@@ -134,6 +134,7 @@ src_prepare() {
 
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
+		epatch "${FILESDIR}"/enigmail-1.4.4-seamonkey-2.13.patch
 		#cd "${S}"/mailnews/extensions/enigmail || die
 		#cd "${S}"
 	fi
