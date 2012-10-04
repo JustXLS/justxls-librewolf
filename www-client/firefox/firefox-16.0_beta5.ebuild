@@ -203,6 +203,9 @@ src_configure() {
 	# It doesn't compile on alpha without this LDFLAGS
 	use alpha && append-ldflags "-Wl,--no-relax"
 
+	# We must force enable jemalloc 3 threw .mozconfig
+	echo "export MOZ_JEMALLOC=1" >> ${S}/.mozconfig
+
 	mozconfig_annotate '' --prefix="${EPREFIX}"/usr
 	mozconfig_annotate '' --libdir="${EPREFIX}"/usr/$(get_libdir)
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
@@ -216,6 +219,7 @@ src_configure() {
 	# Other ff-specific settings
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 	mozconfig_annotate '' --target="${CTARGET:-${CHOST}}"
+	mozconfig_annotate '' --build="${CTARGET:-${CHOST}}"
 
 	mozconfig_use_enable gstreamer
 	mozconfig_use_enable system-sqlite

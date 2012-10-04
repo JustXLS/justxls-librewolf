@@ -181,6 +181,9 @@ src_configure() {
 	# It doesn't compile on alpha without this LDFLAGS
 	use alpha && append-ldflags "-Wl,--no-relax"
 
+	# We must force enable jemalloc 3 threw .mozconfig
+	echo "export MOZ_JEMALLOC=1" >> ${S}/.mozconfig
+
 	mozconfig_annotate '' --prefix="${EPREFIX}"/usr
 	mozconfig_annotate '' --libdir="${EPREFIX}"/usr/$(get_libdir)
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
@@ -189,6 +192,7 @@ src_configure() {
 	mozconfig_annotate '' --with-system-png
 	mozconfig_annotate '' --enable-system-ffi
 	mozconfig_annotate '' --target="${CTARGET:-${CHOST}}"
+	mozconfig_annotate '' --build="${CTARGET:-${CHOST}}"
 
 	# Use enable features
 	mozconfig_use_enable lightning calendar
