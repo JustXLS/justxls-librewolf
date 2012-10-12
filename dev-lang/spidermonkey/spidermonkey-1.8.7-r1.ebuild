@@ -19,7 +19,7 @@ SRC_URI="http://people.mozilla.com/~dmandelin/${TARBALL_P}.tar.gz
 LICENSE="NPL-1.1"
 SLOT="0/mozjs187"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~mips ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
-IUSE="debug jit static-libs test"
+IUSE="debug jit minimal static-libs test"
 
 S="${WORKDIR}/${MY_P}"
 BUILDDIR="${S}/js/src"
@@ -114,9 +114,11 @@ src_test() {
 src_install() {
 	cd "${BUILDDIR}" || die
 	emake DESTDIR="${D}" install
-	dobin shell/js
-	if use jit; then
-		pax-mark m "${ED}/usr/bin/js"
+	if ! use minimal; then
+		dobin shell/js
+		if use jit; then
+			pax-mark m "${ED}/usr/bin/js"
+		fi
 	fi
 	dodoc ../../README
 	dohtml README.html
