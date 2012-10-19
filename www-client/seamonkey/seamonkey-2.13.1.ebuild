@@ -29,7 +29,7 @@ inherit flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-m
 
 PATCHFF="firefox-16.0-patches-0.3"
 PATCH="${PN}-2.7-patches-03"
-EMVER="1.4.4"
+EMVER="1.4.5"
 
 DESCRIPTION="Seamonkey Web Browser"
 HOMEPAGE="http://www.seamonkey-project.org"
@@ -134,7 +134,6 @@ src_prepare() {
 
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
-		epatch "${FILESDIR}"/enigmail-1.4.4-seamonkey-2.13.patch
 		#cd "${S}"/mailnews/extensions/enigmail || die
 		#cd "${S}"
 	fi
