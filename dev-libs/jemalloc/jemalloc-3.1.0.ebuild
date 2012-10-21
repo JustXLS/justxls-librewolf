@@ -21,9 +21,9 @@ RDEPEND=""
 
 src_prepare() {
 	epatch \
-		"${FILESDIR}/${P}-strip-optimization.patch" \
-		"${FILESDIR}/${P}-no-pprof.patch" \
-		"${FILESDIR}/${P}_fix_html_install.patch" \
+		"${FILESDIR}/${PN}-3.0.0-strip-optimization.patch" \
+		"${FILESDIR}/${PN}-3.0.0-no-pprof.patch" \
+		"${FILESDIR}/${PN}-3.0.0_fix_html_install.patch" \
 
 	eautoreconf
 }
