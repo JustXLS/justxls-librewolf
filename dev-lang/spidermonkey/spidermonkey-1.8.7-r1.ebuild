@@ -44,6 +44,7 @@ src_prepare() {
 
 	epatch "${FILESDIR}"/${PN}-1.8.5-fix-install-symlinks.patch
 	epatch "${FILESDIR}"/${PN}-1.8.7-filter_desc.patch
+	epatch "${FILESDIR}"/${PN}-1.8.7-freebsd-pthreads.patch
 	epatch "${FILESDIR}"/${PN}-1.8.7-x32.patch
 
 	epatch_user
