@@ -34,7 +34,7 @@ HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist gconf +crypt +ipc +jit +lightning +minimal mozdom +webm selinux"
+IUSE="bindist gconf +crypt +ipc +jit ldap +lightning +minimal mozdom +webm selinux"
 
 PATCH="thunderbird-13.0-patches-0.1"
 PATCHFF="firefox-16.0-patches-0.4"
@@ -195,6 +195,7 @@ src_configure() {
 	# Use enable features
 	mozconfig_use_enable lightning calendar
 	mozconfig_use_enable gconf
+	mozconfig_use_enable ldap
 	# Both methodjit and tracejit conflict with PaX
 	mozconfig_use_enable jit methodjit
 	mozconfig_use_enable jit tracejit
