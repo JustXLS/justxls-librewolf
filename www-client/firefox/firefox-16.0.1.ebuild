@@ -54,7 +54,7 @@ RDEPEND="
 	>=dev-libs/nspr-4.9.2
 	>=dev-libs/glib-2.26:2
 	>=media-libs/mesa-7.10
-	>=media-libs/libpng-1.5.9[apng]
+	>=media-libs/libpng-1.5.11[apng]
 	virtual/libffi
 	gstreamer? (
 		>=media-libs/gstreamer-0.10.33:0.10
