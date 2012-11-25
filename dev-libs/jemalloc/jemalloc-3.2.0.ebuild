@@ -30,7 +30,6 @@ src_prepare() {
 
 src_configure() {
 	econf \
-		--with-jemalloc-prefix=j \
 		$(use_enable debug) \
 		$(use_enable stats)
 }
