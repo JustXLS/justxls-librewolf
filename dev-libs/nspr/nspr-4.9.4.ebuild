@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/nspr/nspr-4.9.1-r1.ebuild,v 1.1 2012/06/22 02:57:33 anarchy Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/nspr/nspr-4.9.2-r1.ebuild,v 1.1 2012/11/20 01:46:46 blueness Exp $
 
 EAPI=3
 WANT_AUTOCONF="2.1"
@@ -31,7 +31,6 @@ src_prepare() {
 	#epatch "${FILESDIR}"/${PN}-4.8.3-aix-soname.patch
 	epatch "${FILESDIR}"/${PN}-4.8.4-darwin-install_name.patch
 	epatch "${FILESDIR}"/${PN}-4.8.9-link-flags.patch
-	epatch "${FILESDIR}"/${PN}-4.9.1-x32_v0.2.patch
 
 	# We must run eautoconf to regenerate configure
 	cd "${S}"/mozilla/nsprpub
@@ -65,14 +64,18 @@ src_configure() {
 
 src_compile() {
 	cd "${S}"/build
-	if tc-is-cross-compiler; then
-		emake CC="$(tc-getBUILD_CC)" CXX="$(tc-getBUILD_CXX)" \
-			-C config nsinstall || die "failed to build"
-		mv config/{,native-}nsinstall
-		sed -s 's#/nsinstall$#/native-nsinstall#' -i config/autoconf.mk
-		rm config/nsinstall.o
-	fi
-	emake CC="$(tc-getCC)" CXX="$(tc-getCXX)" || die "failed to build"
+        if tc-is-cross-compiler; then
+                $(tc-getBUILD_CC) $BUILD_CFLAGS -DXP_UNIX ../mozilla/nsprpub/config/nsinstall.c \
+                        -o config/native-nsinstall || die "failed to build nsinstall"
+                $(tc-getBUILD_CC) $BUILD_CFLAGS -DXP_UNIX ../mozilla/nsprpub/config/now.c \
+                        -o config/native-now || die "failed to build now"
+                sed -s 's#/nsinstall$#/native-nsinstall#' -i config/autoconf.mk
+                for d in pr/src lib/libc/src lib/ds; do
+                        sed -s 's#/now$#/native-now#' -i ${d}/Makefile
+                done
+        fi
+	emake CC="$(tc-getCC)" CXX="$(tc-getCXX)" \
+		AR="$(tc-getAR)" RANLIB="$(tc-getRANLIB)" || die "failed to build"
 }
 
 src_install () {
