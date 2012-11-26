@@ -37,7 +37,7 @@ LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="bindist gconf +crypt +ipc +jit ldap +lightning +minimal mozdom +webm selinux"
 
 PATCH="thunderbird-17.0-patches-01"
-PATCHFF="firefox-17.0-patches-0.1"
+PATCHFF="firefox-17.0-patches-0.2"
 
 SRC_URI="${SRC_URI}
 	${MOZ_FTP_URI}${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
