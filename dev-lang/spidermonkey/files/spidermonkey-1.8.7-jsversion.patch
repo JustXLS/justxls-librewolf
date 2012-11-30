@@ -1,0 +1,11 @@
+--- a/js/src/dist/include/jsversion.h	2012-04-06 17:24:51.000000000 -0400
++++ b/js/src/dist/include/jsversion.h	2012-10-12 16:52:50.000000000 -0400
+@@ -41,7 +41,7 @@
+  * JS configuration macros.
+  */
+ #ifndef JS_VERSION
+-#define JS_VERSION 185
++#define JS_VERSION 187
+ #endif
+ 
+ /*

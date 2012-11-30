@@ -228,6 +228,11 @@ src_configure() {
 	mozconfig_use_enable jit methodjit
 	mozconfig_use_enable jit tracejit
 
+	# Disable webrtc for arches that it doesn't support, bug 444780
+	if use ppc || use ppc64 ; then
+		mozconfig_annotate '' --disable-webrtc
+	fi
+
 	# Allow for a proper pgo build
 	if use pgo; then
 		echo "mk_add_options PROFILE_GEN_SCRIPT='\$(PYTHON) \$(OBJDIR)/_profile/pgo/profileserver.py'" >> "${S}"/.mozconfig
@@ -246,6 +251,9 @@ src_configure() {
 }
 
 src_compile() {
+	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+	export LDFLAGS="${LDFLAGS} -Wl,-rpath=${MOZILLA_FIVE_HOME}"
+
 	if use pgo; then
 		addpredict /root
 		addpredict /etc/gconf
