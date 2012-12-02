@@ -193,25 +193,27 @@ mozconfig_init() {
 		--with-system-jpeg \
 		--with-system-zlib \
 		--enable-pango \
-		--enable-svg \
+		if [[ ${PN} == firefox || thunderbird ]] && [[ ${PV} < 17.0 ]] || [[ ${P} < seamonkey-2.14 ]]; then
+			--enable-svg \
+		fi
 		--enable-system-cairo
-		# Requires libpng with apng support
-		#--with-system-png \
 
 	mozconfig_annotate disable_update_strip \
 		--disable-installer \
 		--disable-pedantic \
 		--disable-updater \
 		--disable-strip \
-		--disable-strip-libs \
+		if [[ ${PN} == firefox || thunderbird ]] && [[ ${PV} < 17.0 ]] || [[ ${P} < seamonkey-2.14 ]]; then
+			--disable-strip-libs \
+		fi
 		--disable-install-strip
-
-
 
 	if [[ ${PN} != seamonkey ]]; then
 		mozconfig_annotate basic_profile \
-			--enable-single-profile \
-			--disable-profilesharing \
+			if [[ ${PN} == firefox || thunderbird ]] && [[ ${PV} < 17.0 ]] || [[ ${P} < seamonkey-2.14 ]]; then
+				--enable-single-profile \
+				--disable-profilesharing \
+			fi
 			--disable-profilelocking
 	fi
 

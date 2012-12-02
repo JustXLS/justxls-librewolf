@@ -41,28 +41,39 @@ mozconfig_config() {
 		fi
 	fi
 
-	mozconfig_use_enable alsa ogg
-	mozconfig_use_enable alsa wave
+	if [[ ${PN} == firefox || thunderbird ]] && [[ ${PV} < 17.0 ]] || [[ ${P} < seamonkey-2.14 ]]; then
+		mozconfig_use_enable alsa ogg
+		mozconfig_use_enable alsa wave
+		mozconfig_use_enable libnotify
+		mozconfig_use_enable debug debugger-info-modules
+		if has +ipc ${IUSE}; then
+			mozconfig_use_enable ipc
+		fi
+		if [[ ${PN} != thunderbird ]] ; then
+			mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks
+			mozconfig_annotate '' --enable-oji --enable-mathml
+			mozconfig_annotate 'broken' --disable-mochitest
+		fi
+		if use system-sqlite; then
+			mozconfig_annotate '' --with-sqlite-prefix="${EPREFIX}"/usr
+		fi
+		if use amd64 || use x86 || use arm || use sparc; then
+			mozconfig_annotate '' --enable-tracejit
+		fi
+	fi
+
 	mozconfig_use_enable dbus
 	mozconfig_use_enable debug
 	mozconfig_use_enable debug tests
-	mozconfig_use_enable debug debugger-info-modules
-	if has +ipc ${IUSE}; then
-		mozconfig_use_enable ipc
-	fi
-	mozconfig_use_enable libnotify
 	mozconfig_use_enable startup-notification
 	mozconfig_use_enable system-sqlite
-	if use system-sqlite; then
-		mozconfig_annotate '' --with-sqlite-prefix="${EPREFIX}"/usr
-	fi
 	mozconfig_use_enable wifi necko-wifi
 
-	if [[ ${PN} == xulrunner ]] ; then
-		mozconfig_annotate 'mozjs' --enable-shared-js
-	fi
-
-	if has +webm ${IUSE} && use webm; then
+	if [[ ${PN} == firefox || thunderbird ]] && [[ ${PV} >= 17.0 ]] || [[ ${P} >= seamonkey-2.14 ]]; then
+		mozconfig_annotate 'required' --enable-ogg
+		mozconfig_annotate 'required' --enable-wave
+		mozconfig_annotate 'required' --with-system-libvpx
+	elif has +webm ${IUSE} && use webm; then
 		if ! use alsa; then
 			echo "Enabling alsa support due to webm request"
 			mozconfig_annotate '+webm -alsa' --enable-ogg
@@ -78,13 +89,11 @@ mozconfig_config() {
 		mozconfig_annotate '' --disable-system-libvpx
 	fi
 
-	if use amd64 || use x86 || use arm || use sparc; then
-		mozconfig_annotate '' --enable-tracejit
-	fi
-
 	# Disable webrtc for arches that it doesn't support, bug 444780
-	if use ppc || use ppc64 || arm; then
-		mozconfig_annotate '' --disable-webrtc
+	if [[ ${PN} == firefox || thunderbird ]] && [[ ${PV} >= 17.0 ]] || [[ ${P} >= seamonkey-2.14 ]]; then
+		if use ppc || use ppc64 || arm; then
+			mozconfig_annotate '' --disable-webrtc
+		fi
 	fi
 
 	# These are enabled by default in all mozilla applications
@@ -97,9 +106,4 @@ mozconfig_config() {
 	mozconfig_annotate '' --disable-gnomeui
 	mozconfig_annotate '' --enable-gio
 	mozconfig_annotate '' --disable-crashreporter
-	if [[ ${PN} != thunderbird ]] ; then
-		mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks
-		mozconfig_annotate '' --enable-oji --enable-mathml
-		mozconfig_annotate 'broken' --disable-mochitest
-	fi
 }
