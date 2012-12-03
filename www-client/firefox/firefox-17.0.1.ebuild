@@ -73,7 +73,7 @@ DEPEND="${RDEPEND}
 	amd64? ( ${ASM_DEPEND}
 		virtual/opengl )
 	x86? ( ${ASM_DEPEND}
-		virtual/opengl)"
+		virtual/opengl )"
 
 # No source releases for alpha|beta
 if [[ ${PV} =~ alpha ]]; then
