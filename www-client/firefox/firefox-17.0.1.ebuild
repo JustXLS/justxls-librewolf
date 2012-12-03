@@ -56,9 +56,7 @@ RDEPEND="
 	>=media-libs/mesa-7.10
 	>=media-libs/libpng-1.5.11[apng]
 	virtual/libffi
-	gstreamer? (
-		>=media-libs/gstreamer-0.10.33:0.10
-		>=media-libs/gst-plugins-base-0.10.33:0.10 )
+	gstreamer? ( media-plugins/gst-plugins-meta:0.10[ffmpeg] )
 	system-sqlite? ( >=dev-db/sqlite-3.7.13[fts3,secure-delete,threadsafe,unlock-notify,debug=] )
 	>=media-libs/libvpx-1.0.0
 	elibc_glibc? ( media-libs/alsa-lib )
