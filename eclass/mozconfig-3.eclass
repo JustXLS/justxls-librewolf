@@ -41,7 +41,7 @@ mozconfig_config() {
 		fi
 	fi
 
-	if [[ ${PN} == firefox || thunderbird ]] && [[ ${PV} < 17.0 ]] || [[ ${P} < seamonkey-2.14 ]]; then
+	if ! $(mozversion_is_new_enough) ; then
 		mozconfig_use_enable alsa ogg
 		mozconfig_use_enable alsa wave
 		mozconfig_use_enable libnotify
@@ -69,7 +69,7 @@ mozconfig_config() {
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_enable wifi necko-wifi
 
-	if [[ ${PN} == firefox || thunderbird ]] && [[ ${PV} >= 17.0 ]] || [[ ${P} >= seamonkey-2.14 ]]; then
+	if $(mozversion_is_new_enough) ; then
 		mozconfig_annotate 'required' --enable-ogg
 		mozconfig_annotate 'required' --enable-wave
 		mozconfig_annotate 'required' --with-system-libvpx
@@ -90,7 +90,7 @@ mozconfig_config() {
 	fi
 
 	# Disable webrtc for arches that it doesn't support, bug 444780
-	if [[ ${PN} == firefox || thunderbird ]] && [[ ${PV} >= 17.0 ]] || [[ ${P} >= seamonkey-2.14 ]]; then
+	if $(mozversion_is_new_enough) ; then
 		if use ppc || use ppc64 || arm; then
 			mozconfig_annotate '' --disable-webrtc
 		fi

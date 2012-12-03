@@ -5,7 +5,7 @@
 # mozcoreconf.eclass : core options for mozilla
 # inherit mozconfig-2 if you need USE flags
 
-inherit multilib flag-o-matic python
+inherit multilib flag-o-matic python versionator
 
 IUSE="${IUSE} custom-cflags custom-optimization"
 
@@ -59,6 +59,23 @@ mozconfig_use_with() {
 mozconfig_use_extension() {
 	declare minus=$(use $1 || echo -)
 	mozconfig_annotate "${minus:-+}$1" --enable-extensions=${minus}${2}
+}
+
+mozversion_is_new_enough() {
+	case ${PN} in
+		firefox|thunderbird)
+			if [[ $(get_version_component_range 1) -ge 17 ]] ; then
+				return 0
+			fi
+		;;
+		seamonkey)
+			if [[ $(get_version_component_range 1) -eq 2 ]] && [[ $(get_version_component_range 2) -ge 14 ]] ; then
+				return 0
+			fi
+		;;
+	esac
+
+	return 1
 }
 
 moz_pkgsetup() {
@@ -193,28 +210,29 @@ mozconfig_init() {
 		--with-system-jpeg \
 		--with-system-zlib \
 		--enable-pango \
-		if [[ ${PN} == firefox || thunderbird ]] && [[ ${PV} < 17.0 ]] || [[ ${P} < seamonkey-2.14 ]]; then
-			--enable-svg \
-		fi
 		--enable-system-cairo
+		if ! $(mozversion_is_new_enough) ; then
+			mozconfig annotate system-libs --enable-svg
+		fi
 
 	mozconfig_annotate disable_update_strip \
 		--disable-installer \
 		--disable-pedantic \
 		--disable-updater \
 		--disable-strip \
-		if [[ ${PN} == firefox || thunderbird ]] && [[ ${PV} < 17.0 ]] || [[ ${P} < seamonkey-2.14 ]]; then
-			--disable-strip-libs \
-		fi
 		--disable-install-strip
+		if ! $(mozversion_is_new_enough) ; then
+			mozconfig_annotate disable_update_strip --disable-strip-libs
+		fi
 
 	if [[ ${PN} != seamonkey ]]; then
 		mozconfig_annotate basic_profile \
-			if [[ ${PN} == firefox || thunderbird ]] && [[ ${PV} < 17.0 ]] || [[ ${P} < seamonkey-2.14 ]]; then
-				--enable-single-profile \
-				--disable-profilesharing \
-			fi
 			--disable-profilelocking
+			if ! $(mozversion_is_new_enough) ; then
+				mozconfig_annotate basic_profile \
+					--enable-single-profile \
+					--disable-profilesharing
+			fi
 	fi
 
 	# Here is a strange one...
@@ -261,3 +279,4 @@ mozconfig_final() {
 	sed -i '/^ac_add_options --enable-extensions/d' .mozconfig
 	echo "ac_add_options --enable-extensions=${exts// /,}" >> .mozconfig
 }
+
