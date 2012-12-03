@@ -91,7 +91,7 @@ mozconfig_config() {
 
 	# Disable webrtc for arches that it doesn't support, bug 444780
 	if $(mozversion_is_new_enough) ; then
-		if use ppc || use ppc64 || arm; then
+		if ! use x86 && ! use amd64 ; then
 			mozconfig_annotate '' --disable-webrtc
 		fi
 	fi
