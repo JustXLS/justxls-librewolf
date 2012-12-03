@@ -70,8 +70,10 @@ DEPEND="${RDEPEND}
 	pgo? (
 		=dev-lang/python-2*[sqlite]
 		>=sys-devel/gcc-4.5 )
-	x86? || amd64? ( ${ASM_DEPEND} )
-		virtual/opengl )"
+	amd64? ( ${ASM_DEPEND}
+		virtual/opengl )
+	x86? ( ${ASM_DEPEND}
+		virtual/opengl)"
 
 # No source releases for alpha|beta
 if [[ ${PV} =~ alpha ]]; then
