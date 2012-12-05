@@ -7,6 +7,3 @@
 
 # Mask nightlies
 =www-client/firefox-16.0_alpha*
-
-# Doesn't install cleanly
-=www-client/seamonkey-2.12*
