@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-lang/spidermonkey/spidermonkey-1.8.5-r1.ebuild,v 1.10 2012/10/04 17:13:22 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-lang/spidermonkey/spidermonkey-1.8.7-r1.ebuild,v 1.1 2012/10/23 19:07:07 axs Exp $
 
 EAPI="5"
 WANT_AUTOCONF="2.1"
@@ -38,6 +38,7 @@ pkg_setup(){
 }
 
 src_prepare() {
+	# Apply patches that are required for misc archs
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/spidermonkey"
@@ -46,6 +47,8 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-1.8.7-filter_desc.patch
 	epatch "${FILESDIR}"/${PN}-1.8.7-freebsd-pthreads.patch
 	epatch "${FILESDIR}"/${PN}-1.8.7-x32.patch
+	# https://bugs.gentoo.org/show_bug.cgi?id=439260
+	epatch "${FILESDIR}"/${P}-symbol-versions.patch
 
 	epatch_user
 
