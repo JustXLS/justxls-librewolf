@@ -34,7 +34,7 @@ HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist gconf +crypt +ipc ldap +lightning +minimal mozdom selinux"
+IUSE="bindist gconf +crypt +jit +ipc ldap +lightning +minimal mozdom selinux"
 
 PATCH="thunderbird-17.0-patches-01"
 PATCHFF="firefox-17.0-patches-0.3"
@@ -199,6 +199,9 @@ src_configure() {
 	mozconfig_use_enable lightning calendar
 	mozconfig_use_enable gconf
 	mozconfig_use_enable ldap
+	# Features know to cause problems with hardened.
+	mozconfig_use_enable jit methodjit
+	mozconfig_use_enable jit tracejit
 
 	# Bug #72667
 	if use mozdom; then
