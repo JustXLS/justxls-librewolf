@@ -7,9 +7,9 @@ WANT_AUTOCONF="2.1"
 MOZ_ESR=""
 
 # This list can be updated using scripts/get_langs.sh from the mozilla overlay
-MOZ_LANGS=(ar ast be bg bn-BD br ca cs da de el en en-GB en-US es-AR 
-es-ES et eu fi fr fy-NL ga-IE gd gl he hr hu hy-AM id is it ja ko lt nb-NO 
-nl nn-NO pa-IN pl pt-BR pt-PT rm ro ru si sk sl sq sr sv-SE ta-LK tr uk vi 
+MOZ_LANGS=(ar ast be bg bn-BD br ca cs da de el en en-GB en-US es-AR
+es-ES et eu fi fr fy-NL ga-IE gd gl he hr hu hy-AM id is it ja ko lt nb-NO
+nl nn-NO pa-IN pl pt-BR pt-PT rm ro ru si sk sl sq sr sv-SE ta-LK tr uk vi
 zh-CN zh-TW )
 
 # Convert the ebuild version to the upstream mozilla version, used by mozlinguas
@@ -37,7 +37,7 @@ LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="bindist gconf +crypt +ipc ldap +lightning +minimal mozdom selinux"
 
 PATCH="thunderbird-17.0-patches-01"
-PATCHFF="firefox-17.0-patches-0.2"
+PATCHFF="firefox-17.0-patches-0.3"
 
 SRC_URI="${SRC_URI}
 	${MOZ_FTP_URI}${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
