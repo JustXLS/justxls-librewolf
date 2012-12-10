@@ -47,7 +47,7 @@ fi
 
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="+alsa +chatzilla +crypt gstreamer +ipc +mailclient +roaming system-sqlite"
+IUSE="+chatzilla +crypt gstreamer +mailclient +roaming system-sqlite"
 
 SRC_URI+="${SRC_URI}
 	${MOZ_FTP_URI}/source/${MY_MOZ_P}.source.tar.bz2 -> ${P}.source.tar.bz2
@@ -69,13 +69,10 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=x11-libs/pango-1.14.0
 	>=x11-libs/gtk+-2.14
 	virtual/libffi
-	gstreamer? (
-		>=media-libs/gstreamer-0.10.33:0.10
-		>=media-libs/gst-plugins-base-0.10.33:0.10
-	)
+	gstreamer? ( media-plugins/gst-plugins-meta:0.10[ffmpeg] )
 	system-sqlite? ( >=dev-db/sqlite-3.7.13[fts3,secure-delete,threadsafe,unlock-notify,debug=] )
 	mailclient? ( crypt? ( >=app-crypt/gnupg-1.4 ) )
-	elibc_glib? ( media-libs/alsa-lib )
+	kernel_linux? ( media-libs/alsa-lib )
 	selinux? ( sec-policy/selinux-mozilla )"
 
 DEPEND="${RDEPEND}
