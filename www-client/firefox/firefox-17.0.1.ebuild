@@ -38,7 +38,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist gstreamer +ipc +jit +minimal pgo selinux system-sqlite"
+IUSE="bindist gstreamer +ipc +minimal pgo selinux system-sqlite"
 
 # More URIs appended below...
 SRC_URI="${SRC_URI}
@@ -221,9 +221,6 @@ src_configure() {
 
 	mozconfig_use_enable gstreamer
 	mozconfig_use_enable system-sqlite
-	# Both methodjit and tracejit conflict with PaX
-	mozconfig_use_enable jit methodjit
-	mozconfig_use_enable jit tracejit
 
 	# Allow for a proper pgo build
 	if use pgo; then

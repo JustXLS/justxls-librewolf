@@ -216,13 +216,14 @@ mozconfig_init() {
 		fi
 
 	mozconfig_annotate disable_update_strip \
-		--disable-installer \
 		--disable-pedantic \
 		--disable-updater \
 		--disable-strip \
 		--disable-install-strip
 		if ! $(mozversion_is_new_enough) ; then
-			mozconfig_annotate disable_update_strip --disable-strip-libs
+			mozconfig_annotate disable_update_strip \
+				--disable-installer \
+				--disable-strip-libs
 		fi
 
 	if [[ ${PN} != seamonkey ]]; then

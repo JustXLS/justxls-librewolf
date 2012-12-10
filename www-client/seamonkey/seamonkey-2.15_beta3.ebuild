@@ -47,7 +47,7 @@ fi
 
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="+alsa +chatzilla +crypt gstreamer +ipc +jit +mailclient +roaming system-sqlite +webm"
+IUSE="+alsa +chatzilla +crypt gstreamer +ipc +mailclient +roaming system-sqlite +webm"
 
 SRC_URI+="${SRC_URI}
 	${MOZ_FTP_URI}/source/${MY_MOZ_P}.source.tar.bz2 -> ${P}.source.tar.bz2
@@ -228,9 +228,6 @@ src_configure() {
 	mozconfig_use_enable gstreamer
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_enable mailclient mailnews
-	# Both methodjit and tracejit conflict with PaX
-	mozconfig_use_enable jit methodjit
-	mozconfig_use_enable jit tracejit
 
 	# Use an objdir to keep things organized.
 	echo "mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/seamonk" \
