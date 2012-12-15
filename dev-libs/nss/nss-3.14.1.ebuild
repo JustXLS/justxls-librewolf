@@ -14,7 +14,7 @@ SRC_URI="ftp://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/${RTM_NAME}
 	http://dev.gentoo.org/~anarchy/patches/${PN}-3.14.1-add_spi+cacerts_ca_certs.patch
 	http://dev.gentoo.org/~anarchy/patches/${PN}-3.13.3_pem.support"
 
-LICENSE="|| ( MPL-1.1 GPL-2 LGPL-2.1 )"
+LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
 IUSE="utils"

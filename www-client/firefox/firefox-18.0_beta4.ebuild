@@ -152,11 +152,6 @@ src_prepare() {
 			"${S}"/build/unix/run-mozilla.sh || die "sed failed!"
 	fi
 
-	# Disable gnomevfs extension
-	sed -i -e "s:gnomevfs::" "${S}/"browser/confvars.sh \
-		-e "s:gnomevfs::" "${S}/"xulrunner/confvars.sh \
-		|| die "Failed to remove gnomevfs extension"
-
 	# Ensure that are plugins dir is enabled as default
 	sed -i -e "s:/usr/lib/mozilla/plugins:/usr/$(get_libdir)/nsbrowser/plugins:" \
 		"${S}"/xpcom/io/nsAppFileLocationProvider.cpp || die "sed failed to replace plugin path!"
@@ -167,13 +162,6 @@ src_prepare() {
 		-i "${S}"/js/src/config/rules.mk \
 		-i "${S}"/nsprpub/configure{.in,} \
 		|| die
-
-	#Fix compilation with curl-7.21.7 bug 376027
-	sed -e '/#include <curl\/types.h>/d'  \
-		-i "${S}"/toolkit/crashreporter/google-breakpad/src/common/linux/http_upload.cc \
-		-i "${S}"/toolkit/crashreporter/google-breakpad/src/common/linux/libcurl_wrapper.cc \
-		-i "${S}"/config/system-headers \
-		-i "${S}"/js/src/config/system-headers || die "Sed failed"
 
 	# Don't exit with error when some libs are missing which we have in
 	# system.
@@ -294,6 +282,11 @@ src_install() {
 	# Add our default prefs for firefox
 	cp "${FILESDIR}"/gentoo-default-prefs.js-1 \
 		"${S}/${obj_dir}/dist/bin/defaults/preferences/all-gentoo.js" || die
+
+	if ! use libnotify; then
+		echo "pref(\"browser.download.manager.showAlertOnComplet\", false);" \
+			>> "${S}/${obj_dir}/dist/bin/defaults/preferences/all-gentoo.js"
+	fi
 
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
 	emake DESTDIR="${D}" install || die "emake install failed"
