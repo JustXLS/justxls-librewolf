@@ -1,6 +1,6 @@
 diff -urN a/mozilla/security/nss/config/Makefile b/mozilla/security/nss/config/Makefile
 --- a/mozilla/security/nss/config/Makefile	1969-12-31 18:00:00.000000000 -0600
-+++ b/mozilla/security/nss/config/Makefile	2009-09-14 21:45:45.619639265 -0500
++++ b/mozilla/security/nss/config/Makefile	2012-12-15 07:27:20.650148987 -0600
 @@ -0,0 +1,40 @@
 +CORE_DEPTH = ../..
 +DEPTH      = ../..
@@ -44,7 +44,7 @@ diff -urN a/mozilla/security/nss/config/Makefile b/mozilla/security/nss/config/M
 +
 diff -urN a/mozilla/security/nss/config/nss-config.in b/mozilla/security/nss/config/nss-config.in
 --- a/mozilla/security/nss/config/nss-config.in	1969-12-31 18:00:00.000000000 -0600
-+++ b/mozilla/security/nss/config/nss-config.in	2009-09-14 21:47:45.190638078 -0500
++++ b/mozilla/security/nss/config/nss-config.in	2012-12-15 07:27:20.651148959 -0600
 @@ -0,0 +1,145 @@
 +#!/bin/sh
 +
@@ -193,7 +193,7 @@ diff -urN a/mozilla/security/nss/config/nss-config.in b/mozilla/security/nss/con
 +
 diff -urN a/mozilla/security/nss/config/nss.pc.in b/mozilla/security/nss/config/nss.pc.in
 --- a/mozilla/security/nss/config/nss.pc.in	1969-12-31 18:00:00.000000000 -0600
-+++ b/mozilla/security/nss/config/nss.pc.in	2009-09-14 21:45:45.653637310 -0500
++++ b/mozilla/security/nss/config/nss.pc.in	2012-12-15 07:27:20.651148959 -0600
 @@ -0,0 +1,12 @@
 +prefix=@prefix@
 +exec_prefix=@exec_prefix@
@@ -208,9 +208,9 @@ diff -urN a/mozilla/security/nss/config/nss.pc.in b/mozilla/security/nss/config/
 +Cflags: -I${includedir}
 +
 diff -urN a/mozilla/security/nss/Makefile b/mozilla/security/nss/Makefile
---- a/mozilla/security/nss/Makefile	2008-12-02 17:24:39.000000000 -0600
-+++ b/mozilla/security/nss/Makefile	2009-09-14 21:45:45.678657145 -0500
-@@ -78,7 +78,7 @@
+--- a/mozilla/security/nss/Makefile	2012-11-13 19:14:07.000000000 -0600
++++ b/mozilla/security/nss/Makefile	2012-12-15 07:27:57.235162137 -0600
+@@ -44,7 +44,7 @@
  # (7) Execute "local" rules. (OPTIONAL).                              #
  #######################################################################
  
@@ -219,27 +219,25 @@ diff -urN a/mozilla/security/nss/Makefile b/mozilla/security/nss/Makefile
  
  nss_clean_all: clobber_coreconf clobber_nspr clobber_dbm clobber
  
-@@ -140,12 +140,6 @@
+@@ -106,12 +106,6 @@
  	--with-dist-prefix='$(NSPR_PREFIX)' \
  	--with-dist-includedir='$(NSPR_PREFIX)/include'
  
 -build_nspr: $(NSPR_CONFIG_STATUS)
--	cd $(CORE_DEPTH)/../nsprpub/$(OBJDIR_NAME) ; $(MAKE)
+-	$(MAKE) -C $(CORE_DEPTH)/../nsprpub/$(OBJDIR_NAME)
 -
 -clobber_nspr: $(NSPR_CONFIG_STATUS)
--	cd $(CORE_DEPTH)/../nsprpub/$(OBJDIR_NAME) ; $(MAKE) clobber
+-	$(MAKE) -C $(CORE_DEPTH)/../nsprpub/$(OBJDIR_NAME) clobber
 -
  build_dbm:
- ifndef NSS_DISABLE_DBM
- 	cd $(CORE_DEPTH)/dbm ; $(MAKE) export libs
+ ifdef NSS_DISABLE_DBM
+ 	@echo "skipping the build of DBM"
 diff -urN a/mozilla/security/nss/manifest.mn b/mozilla/security/nss/manifest.mn
---- a/mozilla/security/nss/manifest.mn	2008-04-04 15:36:59.000000000 -0500
-+++ b/mozilla/security/nss/manifest.mn	2009-09-14 21:45:45.703656167 -0500
-@@ -42,6 +42,6 @@
+--- a/mozilla/security/nss/manifest.mn	2012-03-20 09:46:49.000000000 -0500
++++ b/mozilla/security/nss/manifest.mn	2012-12-15 07:27:20.652148933 -0600
+@@ -10,6 +10,6 @@
  
  RELEASE = nss
  
 -DIRS = lib cmd
 +DIRS = lib cmd config
- 
- 
