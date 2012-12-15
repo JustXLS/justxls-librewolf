@@ -284,7 +284,7 @@ src_install() {
 		"${S}/${obj_dir}/dist/bin/defaults/preferences/all-gentoo.js" || die
 
 	if ! use libnotify; then
-		echo "pref(\"browser.download.manager.showAlertOnComplet\", false);" \
+		echo "pref(\"browser.download.manager.showAlertOnComplete\", false);" \
 			>> "${S}/${obj_dir}/dist/bin/defaults/preferences/all-gentoo.js"
 	fi
 
