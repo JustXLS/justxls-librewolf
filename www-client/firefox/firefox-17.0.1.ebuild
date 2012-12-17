@@ -295,6 +295,14 @@ src_install() {
 	cp "${FILESDIR}"/gentoo-default-prefs.js-1 \
 		"${S}/${obj_dir}/dist/bin/defaults/preferences/all-gentoo.js" || die
 
+	if ! use libnotify; then
+		echo "pref(\"browser.download.manager.showAlertOnComplete\", false);" \
+			>> "${S}/${obj_dir}/dist/bin/defaults/preferences/all-gentoo.js" || die
+	fi
+
+	echo "pref("extensions.autoDisableScopes", 3);" >> \
+		"${S}/${obj_dir}/dist/bin/defaults/preferences/all-gentoo.js" || die
+
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
 	emake DESTDIR="${D}" install || die "emake install failed"
 

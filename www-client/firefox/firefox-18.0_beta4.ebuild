@@ -288,6 +288,9 @@ src_install() {
 			>> "${S}/${obj_dir}/dist/bin/defaults/preferences/all-gentoo.js"
 	fi
 
+	echo "pref("extensions.autoDisableScopes", 3);" >> \
+		"${S}/${obj_dir}/dist/bin/defaults/preferences/all-gentoo.js" || die
+
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
 	emake DESTDIR="${D}" install || die "emake install failed"
 
