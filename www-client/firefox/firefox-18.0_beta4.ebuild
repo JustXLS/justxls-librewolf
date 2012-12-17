@@ -50,8 +50,8 @@ ASM_DEPEND=">=dev-lang/yasm-1.1"
 # Mesa 7.10 needed for WebGL + bugfixes
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.14
-	>=dev-libs/nspr-4.9.3
+	>=dev-libs/nss-3.14.1
+	>=dev-libs/nspr-4.9.4
 	>=dev-libs/glib-2.26:2
 	>=media-libs/mesa-7.10
 	>=media-libs/libpng-1.5.11[apng]
