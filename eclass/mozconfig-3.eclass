@@ -90,7 +90,7 @@ mozconfig_config() {
 	fi
 
 	# Disable webrtc for arches that it doesn't support, bug 444780
-	if $(mozversion_is_new_enough) ; then
+	if [[ ${PN} != seamonkey ]] && $(mozversion_is_new_enough) ; then
 		if ! use x86 && ! use amd64 ; then
 			mozconfig_annotate '' --disable-webrtc
 		fi
