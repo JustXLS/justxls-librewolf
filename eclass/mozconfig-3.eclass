@@ -89,13 +89,6 @@ mozconfig_config() {
 		mozconfig_annotate '' --disable-system-libvpx
 	fi
 
-	# Disable webrtc for arches that it doesn't support, bug 444780
-	if [[ ${PN} != seamonkey ]] && $(mozversion_is_new_enough) ; then
-		if ! use x86 && ! use amd64 ; then
-			mozconfig_annotate '' --disable-webrtc
-		fi
-	fi
-
 	# These are enabled by default in all mozilla applications
 	mozconfig_annotate '' --with-system-nspr --with-nspr-prefix="${EPREFIX}"/usr
 	mozconfig_annotate '' --with-system-nss --with-nss-prefix="${EPREFIX}"/usr
