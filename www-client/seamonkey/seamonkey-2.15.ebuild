@@ -30,7 +30,7 @@ inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-
 
 PATCHFF="firefox-18.0-patches-0.5"
 PATCH="${PN}-2.14-patches-01"
-EMVER="1.4.6"
+EMVER="1.5.0"
 
 DESCRIPTION="Seamonkey Web Browser"
 HOMEPAGE="http://www.seamonkey-project.org"
@@ -38,7 +38,7 @@ HOMEPAGE="http://www.seamonkey-project.org"
 if [[ ${PV} == *_pre* ]] ; then
 	# pre-releases. No need for arch teams to change KEYWORDS here.
 
-	KEYWORDS=""
+	KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86"
 else
 	# This is where arch teams should change the KEYWORDS.
 
@@ -47,19 +47,19 @@ fi
 
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="+chatzilla +crypt gstreamer +mailclient +roaming system-sqlite"
+IUSE="+chatzilla +crypt gstreamer +ipc +roaming system-sqlite"
 
 SRC_URI+="${SRC_URI}
 	${MOZ_FTP_URI}/source/${MY_MOZ_P}.source.tar.bz2 -> ${P}.source.tar.bz2
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
-	mailclient? ( crypt? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz ) )"
+	crypt? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz )"
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 # Mesa 7.10 needed for WebGL + bugfixes
 RDEPEND=">=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.14.1
+	>=dev-libs/nss-3.14.1_pre
 	>=dev-libs/nspr-4.9.4
 	>=dev-libs/glib-2.26:2
 	>=media-libs/mesa-7.10
@@ -69,9 +69,12 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=x11-libs/pango-1.14.0
 	>=x11-libs/gtk+-2.14
 	virtual/libffi
-	gstreamer? ( media-plugins/gst-plugins-meta:0.10[ffmpeg] )
+	gstreamer? (
+		>=media-libs/gstreamer-0.10.33:0.10
+		>=media-libs/gst-plugins-base-0.10.33:0.10
+	)
 	system-sqlite? ( >=dev-db/sqlite-3.7.13[fts3,secure-delete,threadsafe,unlock-notify,debug=] )
-	mailclient? ( crypt? ( >=app-crypt/gnupg-1.4 ) )
+	crypt? ( >=app-crypt/gnupg-1.4 )
 	kernel_linux? ( media-libs/alsa-lib )
 	selinux? ( sec-policy/selinux-mozilla )"
 
@@ -139,7 +142,7 @@ src_prepare() {
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
 
-	if use crypt && use mailclient ; then
+	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
 		#cd "${S}"/mailnews/extensions/enigmail || die
 		#cd "${S}"
@@ -201,10 +204,6 @@ src_configure() {
 		MEXTENSIONS+=",-sroaming"
 	fi
 
-	if ! use mailclient ; then
-		mozconfig_annotate '-mailclient' --disable-composer
-	fi
-
 	# We must force enable jemalloc 3 threw .mozconfig
 	echo "export MOZ_JEMALLOC=1" >> ${S}/.mozconfig
 
@@ -223,7 +222,6 @@ src_configure() {
 
 	mozconfig_use_enable gstreamer
 	mozconfig_use_enable system-sqlite
-	mozconfig_use_enable mailclient mailnews
 
 	# Use an objdir to keep things organized.
 	echo "mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/seamonk" \
@@ -250,7 +248,7 @@ src_compile() {
 	emake -f client.mk || die
 
 	# Only build enigmail extension if conditions are met.
-	if use crypt && use mailclient ; then
+	if use crypt ; then
 		cd "${S}"/mailnews/extensions/enigmail || die
 		./makemake -r 2&> /dev/null
 		cd "${S}"/seamonk/mailnews/extensions/enigmail
@@ -269,6 +267,10 @@ src_install() {
 		"${S}/${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
 
+	echo 'pref("extensions.autoDisableScopes", 3);' >> \
+		"${S}/${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
+		|| die
+
 	# Without methodjit and tracejit there's no conflict with PaX
 	if use jit ; then
 		# Pax mark xpcshell for hardened support, only used for startupcache creation.
@@ -279,7 +281,7 @@ src_install() {
 	emake DESTDIR="${D}" install || die "emake install failed"
 	cp -f "${FILESDIR}"/icon/${PN}.desktop "${T}" || die
 
-	if use crypt && use mailclient ; then
+	if use crypt ; then
 		cd "${T}" || die
 		unzip "${S}"/${obj_dir}/mozilla/dist/bin/enigmail*.xpi install.rdf || die
 		emid=$(sed -n '/<em:id>/!d; s/.*\({.*}\).*/\1/; p; q' install.rdf)
@@ -291,12 +293,10 @@ src_install() {
 		cd "${S}" || die
 	fi
 
-	if use mailclient ; then
-		sed 's|^\(MimeType=.*\)$|\1text/x-vcard;text/directory;application/mbox;message/rfc822;x-scheme-handler/mailto;|' \
-			-i "${T}"/${PN}.desktop || die
-		sed 's|^\(Categories=.*\)$|\1Email;|' -i "${T}"/${PN}.desktop \
-			|| die
-	fi
+	sed 's|^\(MimeType=.*\)$|\1text/x-vcard;text/directory;application/mbox;message/rfc822;x-scheme-handler/mailto;|' \
+		-i "${T}"/${PN}.desktop || die
+	sed 's|^\(Categories=.*\)$|\1Email;|' -i "${T}"/${PN}.desktop \
+		|| die
 
 	# Install language packs
 	mozlinguas_src_install
