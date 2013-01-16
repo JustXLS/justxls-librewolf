@@ -273,7 +273,7 @@ src_install() {
 		"${S}/${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
 
-	echo 'pref("extensions.autoDisableScopes", 0);' >> \
+	echo 'pref("extensions.autoDisableScopes", 3);' >> \
 		"${S}/${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
 
