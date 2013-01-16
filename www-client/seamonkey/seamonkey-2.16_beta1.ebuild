@@ -28,7 +28,7 @@ fi
 
 inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
 
-PATCHFF="firefox-18.0-patches-0.7"
+PATCHFF="firefox-19.0-patches-0.1"
 PATCH="${PN}-2.14-patches-01"
 EMVER="1.5.0"
 
@@ -42,7 +42,7 @@ if [[ ${PV} == *_pre* ]] ; then
 else
 	# This is where arch teams should change the KEYWORDS.
 
-	KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86"
 fi
 
 SLOT="0"
@@ -219,6 +219,8 @@ src_configure() {
 	mozconfig_annotate '' --target="${CTARGET:-${CHOST}}"
 	mozconfig_annotate '' --enable-safe-browsing
 	mozconfig_annotate '' --build="${CTARGET:-${CHOST}}"
+	mozconfig_annotate '' --enable-jemalloc
+	mozconfig_annotate '' --enable-replace-malloc
 
 	mozconfig_use_enable gstreamer
 	mozconfig_use_enable system-sqlite
@@ -271,7 +273,7 @@ src_install() {
 		"${S}/${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
 
-	echo 'pref("extensions.autoDisableScopes", 3);' >> \
+	echo 'pref("extensions.autoDisableScopes", 0);' >> \
 		"${S}/${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
 
