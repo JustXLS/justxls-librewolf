@@ -28,7 +28,7 @@ fi
 
 inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension python nsplugins mozlinguas
 
-PATCHFF="firefox-18.0-patches-0.5"
+PATCHFF="firefox-18.0-patches-0.6"
 PATCH="${PN}-2.14-patches-01"
 EMVER="1.5.0"
 
