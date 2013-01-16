@@ -37,7 +37,7 @@ LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="bindist gconf +crypt +jit +ipc ldap +lightning +minimal mozdom selinux system-jpeg"
 
 PATCH="thunderbird-17.0-patches-01"
-PATCHFF="firefox-18.0-patches-0.6"
+PATCHFF="firefox-18.0-patches-0.7"
 
 SRC_URI="${SRC_URI}
 	${MOZ_FTP_URI}${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
