@@ -75,7 +75,6 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	) )"
 
 DEPEND="${RDEPEND}
-	dev-python/pysqlite
 	!elibc_glibc? ( dev-libs/libexecinfo )
 	virtual/pkgconfig
 	amd64? ( ${ASM_DEPEND}

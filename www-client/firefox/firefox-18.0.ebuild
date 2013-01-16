@@ -63,10 +63,8 @@ RDEPEND="
 	selinux? ( sec-policy/selinux-mozilla )"
 # We don't use PYTHON_DEPEND/PYTHON_USE_WITH for some silly reason
 DEPEND="${RDEPEND}
-	dev-python/pysqlite
 	virtual/pkgconfig
 	pgo? (
-		=dev-lang/python-2*[sqlite]
 		>=sys-devel/gcc-4.5 )
 	amd64? ( ${ASM_DEPEND}
 		virtual/opengl )

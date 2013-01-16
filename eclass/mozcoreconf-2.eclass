@@ -16,7 +16,7 @@ RDEPEND="x11-libs/libXrender
 
 DEPEND="${RDEPEND}
 	virtual/pkgconfig
-	=dev-lang/python-2*[threads]"
+	=dev-lang/python-2.7*[threads,sqlite]"
 
 # mozconfig_annotate: add an annotated line to .mozconfig
 #
