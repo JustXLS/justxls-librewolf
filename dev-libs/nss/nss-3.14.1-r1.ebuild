@@ -32,7 +32,7 @@ src_setup() {
 
 src_prepare() {
 	# Custom changes for gentoo
-	epatch "${FILESDIR}/${PN}-3.14.1-gentoo-fixups.patch"
+	epatch "${FILESDIR}/${PN}-3.14.1-gentoo-fixups-r1.patch"
 	epatch "${FILESDIR}/${PN}-3.12.6-gentoo-fixup-warnings.patch"
 	epatch "${DISTDIR}/${PN}-3.14.1-add_spi+cacerts_ca_certs.patch"
 	epatch "${DISTDIR}/${PN}-3.13.3_pem.support"

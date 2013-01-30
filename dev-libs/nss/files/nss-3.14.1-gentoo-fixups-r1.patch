@@ -175,7 +175,7 @@ diff -urN a/mozilla/security/nss/config/nss-config.in b/mozilla/security/nss/con
 +fi
 +
 +if test "$echo_libs" = "yes"; then
-+      libdirs="-Wl,-R$libdir -L$libdir"
++      libdirs=""
 +      if test -n "$lib_ssl"; then
 +	libdirs="$libdirs -lssl${major_version}"
 +      fi
@@ -204,7 +204,7 @@ diff -urN a/mozilla/security/nss/config/nss.pc.in b/mozilla/security/nss/config/
 +Description: Network Security Services
 +Version: @NSS_MAJOR_VERSION@.@NSS_MINOR_VERSION@.@NSS_PATCH_VERSION@
 +Requires: nspr >= 4.8
-+Libs: -L${libdir} -lssl3 -lsmime3 -lnssutil3 -lnss3
++Libs: -lssl3 -lsmime3 -lnss3 -lnssutil3
 +Cflags: -I${includedir}
 +
 diff -urN a/mozilla/security/nss/Makefile b/mozilla/security/nss/Makefile
