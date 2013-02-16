@@ -1,11 +1,11 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/nss/nss-3.14.1.ebuild,v 1.9 2013/01/21 18:39:38 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/nss/nss-3.14.2.ebuild,v 1.1 2013/02/15 13:30:12 polynomial-c Exp $
 
 EAPI=3
 inherit eutils flag-o-matic multilib toolchain-funcs
 
-NSPR_VER="4.9.2"
+NSPR_VER="4.9.5"
 RTM_NAME="NSS_${PV//./_}_RTM"
 
 DESCRIPTION="Mozilla's Network Security Services library that implements PKI support"
@@ -16,7 +16,7 @@ SRC_URI="ftp://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/${RTM_NAME}
 
 LICENSE="|| ( MPL-2.0 GPL-2 LGPL-2.1 )"
 SLOT="0"
-KEYWORDS="~alpha amd64 ~arm hppa ~ia64 ~mips ppc ppc64 sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
 IUSE="utils"
 
 DEPEND="virtual/pkgconfig
@@ -36,7 +36,9 @@ src_prepare() {
 	epatch "${FILESDIR}/${PN}-3.12.6-gentoo-fixup-warnings.patch"
 	epatch "${DISTDIR}/${PN}-3.14.1-add_spi+cacerts_ca_certs.patch"
 	epatch "${DISTDIR}/${PN}-3.13.3_pem.support"
-	epatch "${FILESDIR}/${PN}-3.13.5-x32.patch"
+	epatch "${FILESDIR}/${PN}-3.14.2-x32.patch"
+	epatch "${FILESDIR}/${PN}-3.14.2-sqlite.patch"
+	epatch "${FILESDIR}/${PN}-3.14.3_sync_with_upstream_softokn_changes.patch"
 
 	cd "${S}"/mozilla/security/coreconf || die
 	# hack nspr paths
@@ -57,7 +59,7 @@ src_prepare() {
 	sed -i -e "/^PREFIX =/s:= /usr:= ${EPREFIX}/usr:" \
 		"${S}"/mozilla/security/nss/config/Makefile || die
 
-	epatch "${FILESDIR}/nss-3.13.1-solaris-gcc.patch"
+	epatch "${FILESDIR}/nss-3.14.2-solaris-gcc.patch"
 
 	# use host shlibsign if need be #436216
 	if tc-is-cross-compiler ; then
