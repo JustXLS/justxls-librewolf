@@ -28,7 +28,7 @@ fi
 
 inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
 
-PATCHFF="firefox-19.0-patches-0.1"
+PATCHFF="firefox-19.0-patches-0.3"
 PATCH="${PN}-2.14-patches-01"
 EMVER="1.5.0"
 
@@ -67,14 +67,14 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=media-libs/libvpx-1.0.0
 	>=x11-libs/cairo-1.10
 	>=x11-libs/pango-1.14.0
-	>=x11-libs/gtk+-2.14
+	>=x11-libs/gtk+-2.14:2
 	virtual/libffi
 	gstreamer? (
 		>=media-libs/gstreamer-0.10.33:0.10
 		>=media-libs/gst-plugins-base-0.10.33:0.10
 	)
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
-	system-sqlite? ( >=dev-db/sqlite-3.7.13[fts3,secure-delete,threadsafe,unlock-notify,debug=] )
+	system-sqlite? ( >=dev-db/sqlite-3.7.14.1[fts3,secure-delete,threadsafe,unlock-notify,debug=] )
 	crypt? ( >=app-crypt/gnupg-1.4 )
 	kernel_linux? ( media-libs/alsa-lib )
 	selinux? ( sec-policy/selinux-mozilla )"
