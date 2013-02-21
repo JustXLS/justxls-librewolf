@@ -42,7 +42,7 @@ if [[ ${PV} == *_pre* ]] ; then
 else
 	# This is where arch teams should change the KEYWORDS.
 
-	KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86"
+	KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
 fi
 
 SLOT="0"
@@ -126,8 +126,7 @@ src_prepare() {
 
 	# browser patches go here
 	pushd "${S}"/mozilla &>/dev/null || die
-	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch
-			8002_revert_bug_677092.patch" \
+	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
