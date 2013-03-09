@@ -17,7 +17,6 @@ RDEPEND="app-arch/zip
 	app-arch/unzip
 	>=app-text/hunspell-1.2
 	dev-libs/expat
-	>=dev-libs/libIDL-0.8.0
 	>=dev-libs/libevent-1.4.7
 	>=x11-libs/cairo-1.8[X]
 	>=x11-libs/gtk+-2.8.6:2
