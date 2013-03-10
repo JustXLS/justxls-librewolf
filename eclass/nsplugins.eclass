@@ -1,6 +1,6 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/nsplugins.eclass,v 1.27 2011/11/21 16:31:49 anarchy Exp $
+# $Header: $
 #
 # @ECLASS: nsplugins.eclass
 # @MAINTAINER:

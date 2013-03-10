@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mozlinguas.eclass,v 1.3 2012/02/07 15:19:22 polynomial-c Exp $
+# $Header: $
 
 # @ECLASS: mozlinguas.eclass
 # @MAINTAINER:

@@ -43,7 +43,6 @@ mozconfig_config() {
 	if ! $(mozversion_is_new_enough) ; then
 		mozconfig_use_enable alsa ogg
 		mozconfig_use_enable alsa wave
-		mozconfig_use_enable libnotify
 		mozconfig_use_enable debug debugger-info-modules
 		if has +ipc ${IUSE}; then
 			mozconfig_use_enable ipc
@@ -61,6 +60,7 @@ mozconfig_config() {
 		fi
 	fi
 
+	mozconfig_use_enable libnotify
 	mozconfig_use_enable dbus
 	mozconfig_use_enable debug
 	mozconfig_use_enable debug tests
