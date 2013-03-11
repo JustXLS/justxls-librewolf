@@ -20,7 +20,6 @@ IUSE="debug"
 
 src_prepare() {
 	mkdir build inst
-	epatch "${FILESDIR}"/${PN}-4.6.1-config-1.patch
 	epatch "${FILESDIR}"/${PN}-4.6.1-lang.patch
 	epatch "${FILESDIR}"/${PN}-4.7.0-prtime.patch
 	epatch "${FILESDIR}"/${PN}-4.7.1-solaris.patch
