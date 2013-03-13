@@ -30,7 +30,7 @@ inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-
 
 PATCHFF="firefox-19.0-patches-0.3"
 PATCH="${PN}-2.14-patches-01"
-EMVER="1.5.0"
+EMVER="1.5.1"
 
 DESCRIPTION="Seamonkey Web Browser"
 HOMEPAGE="http://www.seamonkey-project.org"
