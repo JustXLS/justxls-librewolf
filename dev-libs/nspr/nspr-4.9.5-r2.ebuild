@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/nspr/nspr-4.9.5.ebuild,v 1.1 2013/02/15 13:29:14 polynomial-c Exp $
+# $Header: $
 
 EAPI=3
 WANT_AUTOCONF="2.1"
@@ -25,8 +25,6 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-4.7.1-solaris.patch
 	epatch "${FILESDIR}"/${PN}-4.7.4-solaris.patch
 	epatch "${FILESDIR}"/${PN}-4.8.3-aix-gcc.patch
-	# Patch needs updating
-	#epatch "${FILESDIR}"/${PN}-4.8.3-aix-soname.patch
 	epatch "${FILESDIR}"/${PN}-4.8.4-darwin-install_name.patch
 	epatch "${FILESDIR}"/${PN}-4.8.9-link-flags.patch
 	# We do not need to pass -L$libdir via nspr-config --libs
@@ -88,18 +86,6 @@ src_install() {
 	cd "${ED}"/usr/$(get_libdir)
 	einfo "removing static libraries as upstream has requested!"
 	rm -f *.a || die "failed to remove static libraries."
-
-	local n=
-	# aix-soname.patch does this already
-	[[ ${CHOST} == *-aix* ]] ||
-	for file in *$(get_libname); do
-		n=${file%$(get_libname)}$(get_libname ${MINOR_VERSION})
-		mv ${file} ${n} || die "failed to mv files around"
-		ln -s ${n} ${file} || die "failed to symlink files."
-		if [[ ${CHOST} == *-darwin* ]]; then
-			install_name_tool -id "${EPREFIX}/usr/$(get_libdir)/${n}" ${n} || die
-		fi
-	done
 
 	# install nspr-config
 	dobin "${S}"/build/config/nspr-config || die "failed to install nspr-config"
