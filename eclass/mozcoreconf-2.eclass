@@ -94,6 +94,10 @@ moz_pkgsetup() {
 	export USE_PTHREADS=1
 	export ALDFLAGS=${LDFLAGS}
 
+	# nested configure scripts in mozilla products generate unrecognized options
+	# false positives when toplevel configure passes downwards.
+	export QA_CONFIGURE_OPTIONS=".*"
+
 	if [[ $(gcc-major-version) -eq 3 ]]; then
 		ewarn "Unsupported compiler detected, DO NOT file bugs for"
 		ewarn "outdated compilers. Bugs opened with gcc-3 will be closed"
