@@ -74,7 +74,10 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 		>=media-libs/gst-plugins-base-0.10.33:0.10
 	)
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
-	system-sqlite? ( >=dev-db/sqlite-3.7.14.1[fts3,secure-delete,threadsafe,unlock-notify,debug=] )
+	system-sqlite? ( || (
+		>=dev-db/sqlite-3.7.16:3[secure-delete,debug=]
+		<dev-db/sqlite-3.7.16:3[fts3,secure-delete,threadsafe,unlock-notify,debug=]
+	) )
 	crypt? ( >=app-crypt/gnupg-1.4 )
 	kernel_linux? ( media-libs/alsa-lib )
 	selinux? ( sec-policy/selinux-mozilla )"

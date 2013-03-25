@@ -63,7 +63,10 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	virtual/libffi
 	!x11-plugins/enigmail
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
-	system-sqlite? ( >=dev-db/sqlite-3.7.13[fts3,secure-delete,threadsafe,unlock-notify,debug=] )
+	system-sqlite? ( || (
+		>=dev-db/sqlite-3.7.16:3[secure-delete,debug=]
+		<dev-db/sqlite-3.7.16:3[fts3,secure-delete,threadsafe,unlock-notify,debug=]
+	) )
 	selinux? ( sec-policy/selinux-thunderbird )
 	crypt?  ( || (
 		( >=app-crypt/gnupg-2.0

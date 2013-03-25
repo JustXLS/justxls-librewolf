@@ -57,7 +57,10 @@ RDEPEND="
 	>=media-libs/libpng-1.5.11[apng]
 	virtual/libffi
 	gstreamer? ( media-plugins/gst-plugins-meta:0.10[ffmpeg] )
-	system-sqlite? ( >=dev-db/sqlite-3.7.13[fts3,secure-delete,threadsafe,unlock-notify,debug=] )
+	system-sqlite? ( || (
+		>=dev-db/sqlite-3.7.16:3[secure-delete,debug=]
+		<dev-db/sqlite-3.7.16:3[fts3,secure-delete,threadsafe,unlock-notify,debug=]
+	) )
 	>=media-libs/libvpx-1.0.0
 	kernel_linux? ( media-libs/alsa-lib )
 	selinux? ( sec-policy/selinux-mozilla )"
