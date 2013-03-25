@@ -209,7 +209,7 @@ mozconfig_init() {
 		--enable-pango \
 		--enable-system-cairo
 		if ! $(mozversion_is_new_enough) ; then
-			mozconfig annotate system-libs --enable-svg
+			mozconfig_annotate system-libs --enable-svg
 		fi
 
 	mozconfig_annotate disable_update_strip \
