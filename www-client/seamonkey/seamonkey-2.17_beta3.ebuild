@@ -284,7 +284,7 @@ src_install() {
 	# Without methodjit and tracejit there's no conflict with PaX
 	if use jit ; then
 		# Pax mark xpcshell for hardened support, only used for startupcache creation.
-		pax-mark m "${S}"/dist/bin/xpcshell
+		pax-mark m "${S}/${obj_dir}/mozilla/dist/bin/xpcshell"
 	fi
 
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
