@@ -1,30 +1,26 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-lang/spidermonkey/spidermonkey-1.8.7-r3.ebuild,v 1.3 2013/01/06 18:17:18 armin76 Exp $
+# $Header: $
 
 EAPI="5"
 WANT_AUTOCONF="2.1"
 inherit autotools eutils toolchain-funcs multilib python versionator pax-utils
 
-MY_PN="js"
-TARBALL_PV="$(replace_all_version_separators '' $(get_version_component_range 1-3))"
-MY_P="${MY_PN}-${PV}"
-TARBALL_P="${MY_PN}${TARBALL_PV}-1.0.0"
-SPIDERPV="${PV}-patches-0.1"
+MY_PN="mozjs"
+MY_P="${MY_PN}${PV}"
 DESCRIPTION="Stand-alone JavaScript C library"
 HOMEPAGE="http://www.mozilla.org/js/spidermonkey/"
-SRC_URI="http://dev.gentoo.org/~anarchy/dist/${TARBALL_P}.tar.xz"
-#	http://dev.gentoo.org/~anarchy/mozilla/patchsets/spidermonkey-${SPIDERPV}.tar.xz"
+SRC_URI="http://ftp.mozilla.org/pub/mozilla.org/js/${MY_PN}${PV}.tar.gz"
 
 LICENSE="NPL-1.1"
-SLOT="0/mozjs188"
+SLOT="0/mozjs17.0.0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa -ia64 ~mips ~ppc ~ppc64 ~sh ~sparc ~x86 ~x86-fbsd"
 IUSE="debug jit minimal static-libs test"
 
 S="${WORKDIR}/${MY_P}"
 BUILDDIR="${S}/js/src"
 
-RDEPEND=">=dev-libs/nspr-4.7.0
+RDEPEND=">=dev-libs/nspr-4.9.4
 	virtual/libffi"
 DEPEND="${RDEPEND}
 	app-arch/zip
@@ -40,23 +36,12 @@ pkg_setup(){
 }
 
 src_prepare() {
-	# Apply patches that are required for misc archs
-#	EPATCH_SUFFIX="patch" \
-#	EPATCH_FORCE="yes" \
-#	epatch "${WORKDIR}/spidermonkey"
-
-	epatch "${FILESDIR}"/${P}-filter_desc.patch
-	epatch "${FILESDIR}"/${P}-symbol-versions.patch
-
 	epatch_user
 
 	if [[ ${CHOST} == *-freebsd* ]]; then
 		# Don't try to be smart, this does not work in cross-compile anyway
 		ln -sfn "${BUILDDIR}/config/Linux_All.mk" "${S}/config/$(uname -s)$(uname -r).mk" || die
 	fi
-
-	cd "${BUILDDIR}" || die
-	eautoconf
 }
 
 src_configure() {
@@ -116,18 +101,14 @@ src_test() {
 src_install() {
 	cd "${BUILDDIR}" || die
 	emake DESTDIR="${D}" install
+
 	if ! use minimal; then
-		dobin shell/js
 		if use jit; then
-			pax-mark m "${ED}/usr/bin/js"
+			pax-mark m "${ED}/usr/bin/js1*"
 		fi
+	else
+		rm -f "${ED}/usr/bin/js1*"
 	fi
-	dohtml README.html
-	# install header files needed but not part of build system
-	insinto /usr/include/js
-	doins ../public/*.h
-	insinto /usr/include/js/mozilla
-	doins "${S}"/mfbt/*.h
 
 	if ! use static-libs; then
 		# We can't actually disable building of static libraries
