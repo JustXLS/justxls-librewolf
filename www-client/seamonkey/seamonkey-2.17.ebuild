@@ -129,8 +129,7 @@ src_prepare() {
 
 	# browser patches go here
 	pushd "${S}"/mozilla &>/dev/null || die
-	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch
-			8001_allow_webrtc_to_build_on_more_archs.patch" \
+	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
