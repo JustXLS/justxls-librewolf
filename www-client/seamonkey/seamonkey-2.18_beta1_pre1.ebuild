@@ -28,7 +28,7 @@ fi
 
 inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
 
-PATCHFF="firefox-20.0-patches-0.2"
+PATCHFF="firefox-21_pre-patches-01"
 PATCH="${PN}-2.14-patches-01"
 EMVER="1.5.1"
 
@@ -42,7 +42,8 @@ if [[ ${PV} == *_pre* ]] ; then
 else
 	# This is where arch teams should change the KEYWORDS.
 
-	KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
+	#KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
+	KEYWORDS=""
 fi
 
 SLOT="0"
@@ -51,7 +52,7 @@ IUSE="+chatzilla +crypt gstreamer +ipc +jit +roaming system-jpeg system-sqlite"
 
 SRC_URI+="${SRC_URI}
 	${MOZ_FTP_URI}/source/${MY_MOZ_P}.source.tar.bz2 -> ${P}.source.tar.bz2
-	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz
+	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCHFF}.tar.xz
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
 	crypt? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz )"
 
