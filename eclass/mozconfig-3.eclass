@@ -64,6 +64,9 @@ mozconfig_config() {
 	mozconfig_use_enable dbus
 	mozconfig_use_enable debug
 	mozconfig_use_enable debug tests
+	if ! use debug ; then
+		mozconfig_annotate 'disabled by Gentoo' --disable-debug-symbols
+	fi
 	mozconfig_use_enable startup-notification
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_enable wifi necko-wifi
