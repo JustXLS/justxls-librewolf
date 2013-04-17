@@ -64,7 +64,9 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	!x11-plugins/enigmail
 	system-sqlite? ( || (
 		>=dev-db/sqlite-3.7.16:3[secure-delete,debug=]
-		<dev-db/sqlite-3.7.16:3[fts3,secure-delete,threadsafe,unlock-notify,debug=]
+		=dev-db/sqlite-3.7.15*[fts3,secure-delete,threadsafe,unlock-notify,debug=]
+		=dev-db/sqlite-3.7.14*[fts3,secure-delete,threadsafe,unlock-notify,debug=]
+		=dev-db/sqlite-3.7.13*[fts3,secure-delete,threadsafe,unlock-notify,debug=]
 	) )
 	selinux? ( sec-policy/selinux-thunderbird )
 	crypt?  ( || (
