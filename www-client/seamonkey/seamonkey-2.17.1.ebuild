@@ -76,7 +76,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-sqlite? ( || (
 		>=dev-db/sqlite-3.7.16:3[secure-delete,debug=]
-		<dev-db/sqlite-3.7.16:3[fts3,secure-delete,threadsafe,unlock-notify,debug=]
+		~dev-db/sqlite-3.7.15.2[fts3,secure-delete,threadsafe,unlock-notify,debug=]
 	) )
 	crypt? ( >=app-crypt/gnupg-1.4 )
 	kernel_linux? ( media-libs/alsa-lib )
