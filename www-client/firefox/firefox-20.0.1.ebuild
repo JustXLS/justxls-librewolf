@@ -38,7 +38,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist gstreamer +jit +minimal pgo selinux system-jpeg system-sqlite"
+IUSE="bindist gstreamer +jit +minimal pgo selinux system-cairo system-jpeg system-sqlite"
 
 # More URIs appended below...
 SRC_URI="${SRC_URI}
@@ -57,6 +57,7 @@ RDEPEND="
 	>=media-libs/libpng-1.5.13[apng]
 	virtual/libffi
 	gstreamer? ( media-plugins/gst-plugins-meta:0.10[ffmpeg] )
+	system-cairo? ( >=x11-libs/cairo-1.8[X] )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-sqlite? ( || (
 		>=dev-db/sqlite-3.7.16:3[secure-delete,debug=]
@@ -140,6 +141,10 @@ src_unpack() {
 }
 
 src_prepare() {
+	# Discard system cairo patch if support is not requested
+	if ! use system-cairo ; then
+		export EPATCH_EXCLUDE="6009_fix_system_cairo_support.patch"
+	fi
 	# Apply our patches
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
@@ -218,6 +223,7 @@ src_configure() {
 	mozconfig_use_enable jit methodjit
 	mozconfig_use_enable jit tracejit
 	mozconfig_use_enable jit ion
+	mozconfig_use_enable system-cairo 
 
 	# Allow for a proper pgo build
 	if use pgo; then
