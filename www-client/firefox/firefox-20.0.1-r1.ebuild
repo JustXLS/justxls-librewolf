@@ -25,7 +25,7 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-20.0-patches-0.2"
+PATCH="${PN}-20.0-patches-0.3"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
@@ -279,6 +279,7 @@ src_compile() {
 
 src_install() {
 	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+	DICTPATH="\"${EPREFIX}/usr/share/myspell\""
 
 	# MOZ_BUILD_ROOT, and hence OBJ_DIR change depending on arch, compiler, pgo, etc.
 	local obj_dir="$(echo */config.log)"
@@ -291,6 +292,10 @@ src_install() {
 	# Add our default prefs for firefox
 	cp "${FILESDIR}"/gentoo-default-prefs.js-1 \
 		"${S}/${obj_dir}/dist/bin/defaults/pref/all-gentoo.js" || die
+
+	# Set default path to search for dictionaries.
+	echo "pref(\"spellchecker.dictionary_path\", ${DICTPATH});" \
+		>> "${S}/${obj_dir}/dist/bin/defaults/pref/all-gentoo.js"
 
 	if ! use libnotify; then
 		echo "pref(\"browser.download.manager.showAlertOnComplete\", false);" \
