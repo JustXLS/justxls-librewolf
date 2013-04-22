@@ -72,7 +72,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 		>=media-libs/gstreamer-0.10.33:0.10
 		>=media-libs/gst-plugins-base-0.10.33:0.10
 	)
-	system_cairo? ( >=x11-libs/cairo-1.10 )
+	system-cairo? ( >=x11-libs/cairo-1.10 )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-sqlite? ( || (
 		>=dev-db/sqlite-3.7.16:3[secure-delete,debug=]
