@@ -28,7 +28,7 @@ fi
 
 inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
 
-PATCHFF="firefox-20.0-patches-0.2"
+PATCHFF="firefox-20.0-patches-0.3"
 PATCH="${PN}-2.14-patches-01"
 EMVER="1.5.1"
 
@@ -47,7 +47,7 @@ fi
 
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="+chatzilla +crypt gstreamer +ipc +jit +roaming system-jpeg system-sqlite"
+IUSE="+chatzilla +crypt gstreamer +ipc +jit +roaming system-cairo system-jpeg system-sqlite"
 
 SRC_URI+="${SRC_URI}
 	${MOZ_FTP_URI}/source/${MY_MOZ_P}.source.tar.bz2 -> ${P}.source.tar.bz2
@@ -65,7 +65,6 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=media-libs/mesa-7.10
 	>=media-libs/libpng-1.5.13[apng]
 	>=media-libs/libvpx-1.0.0
-	>=x11-libs/cairo-1.10
 	>=x11-libs/pango-1.14.0
 	>=x11-libs/gtk+-2.14:2
 	virtual/libffi
@@ -73,6 +72,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 		>=media-libs/gstreamer-0.10.33:0.10
 		>=media-libs/gst-plugins-base-0.10.33:0.10
 	)
+	system_cairo? ( >=x11-libs/cairo-1.10 )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-sqlite? ( || (
 		>=dev-db/sqlite-3.7.16:3[secure-delete,debug=]
@@ -129,7 +129,8 @@ src_prepare() {
 
 	# browser patches go here
 	pushd "${S}"/mozilla &>/dev/null || die
-	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch" \
+	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch
+			$(use system_cairo || echo "6009_fix_system_cairo_support.patch")" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
@@ -231,6 +232,8 @@ src_configure() {
 	# Feature is know to cause problems on hardened
 	mozconfig_use_enable jit methodjit
 	mozconfig_use_enable jit tracejit
+	mozconfig_use_enable jit ion
+	mozconfig_use_enable system-cairo
 
 	# Use an objdir to keep things organized.
 	echo "mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/seamonk" \
@@ -268,6 +271,8 @@ src_compile() {
 
 src_install() {
 	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+	DICTPATH="\"${EPREFIX}/usr/share/myspell\""
+
 	local emid obj_dir="seamonk"
 	cd "${S}/${obj_dir}"
 
@@ -278,6 +283,11 @@ src_install() {
 
 	echo 'pref("extensions.autoDisableScopes", 3);' >> \
 		"${S}/${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
+		|| die
+
+	# Set default path to search for dictionaries.
+	echo "pref(\"spellchecker.dictionary_path\", ${DICTPATH});" \
+		>> "${S}/${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
 
 	# Without methodjit and tracejit there's no conflict with PaX
