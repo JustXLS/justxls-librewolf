@@ -295,11 +295,11 @@ src_install() {
 
 	# Set default path to search for dictionaries.
 	echo "pref(\"spellchecker.dictionary_path\", ${DICTPATH});" \
-		>> "${S}/${obj_dir}/dist/bin/defaults/pref/all-gentoo.js"
+		>> "${S}/${obj_dir}/dist/bin/defaults/pref/all-gentoo.js" || die
 
 	if ! use libnotify; then
 		echo "pref(\"browser.download.manager.showAlertOnComplete\", false);" \
-			>> "${S}/${obj_dir}/dist/bin/defaults/pref/all-gentoo.js"
+			>> "${S}/${obj_dir}/dist/bin/defaults/pref/all-gentoo.js" || die
 	fi
 
 	echo "pref("extensions.autoDisableScopes", 3);" >> \

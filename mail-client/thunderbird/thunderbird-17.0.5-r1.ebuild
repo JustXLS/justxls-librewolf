@@ -1,10 +1,10 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/mail-client/thunderbird/thunderbird-12.0.1-r1.ebuild,v 1.3 2012/05/24 22:06:14 floppym Exp $
+# $Header: /var/cvsroot/gentoo-x86/mail-client/thunderbird/thunderbird-17.0.4.ebuild,v 1.1 2013/03/08 21:16:53 axs Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
-MOZ_ESR=""
+MOZ_ESR="1"
 
 # This list can be updated using scripts/get_langs.sh from the mozilla overlay
 MOZ_LANGS=(ar ast be bg bn-BD br ca cs da de el en en-GB en-US es-AR
@@ -21,7 +21,7 @@ fi
 MOZ_P="${PN}-${MOZ_PV}"
 
 # Enigmail version
-EMVER="1.5.0"
+EMVER="1.5.1"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
@@ -34,10 +34,10 @@ HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist gconf +crypt +jit +ipc ldap +lightning +minimal mozdom selinux system-jpeg"
+IUSE="bindist gconf +crypt +jit +ipc ldap +lightning +minimal mozdom selinux"
 
 PATCH="thunderbird-17.0-patches-01"
-PATCHFF="firefox-19.0-patches-0.3"
+PATCHFF="firefox-17.0-patches-0.6"
 
 SRC_URI="${SRC_URI}
 	${MOZ_FTP_URI}${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
@@ -50,8 +50,8 @@ SRC_URI="${SRC_URI}
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 RDEPEND=">=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.13.6
-	>=dev-libs/nspr-4.9.2
+	>=dev-libs/nss-3.14.1
+	>=dev-libs/nspr-4.9.4
 	>=dev-libs/glib-2.26
 	gconf? ( >=gnome-base/gconf-1.2.1:2 )
 	>=media-libs/libpng-1.5.11[apng]
@@ -62,10 +62,11 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=media-libs/libvpx-1.0.0
 	virtual/libffi
 	!x11-plugins/enigmail
-	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-sqlite? ( || (
 		>=dev-db/sqlite-3.7.16:3[secure-delete,debug=]
-		~dev-db/sqlite-3.7.15.2[fts3,secure-delete,threadsafe,unlock-notify,debug=]
+		=dev-db/sqlite-3.7.15*[fts3,secure-delete,threadsafe,unlock-notify,debug=]
+		=dev-db/sqlite-3.7.14*[fts3,secure-delete,threadsafe,unlock-notify,debug=]
+		=dev-db/sqlite-3.7.13*[fts3,secure-delete,threadsafe,unlock-notify,debug=]
 	) )
 	selinux? ( sec-policy/selinux-thunderbird )
 	crypt?  ( || (
@@ -202,7 +203,6 @@ src_configure() {
 	mozconfig_use_enable lightning calendar
 	mozconfig_use_enable gconf
 	mozconfig_use_enable ldap
-	mozconfig_use_with system-jpeg
 	# Features know to cause problems with hardened.
 	mozconfig_use_enable jit methodjit
 	mozconfig_use_enable jit tracejit
@@ -253,6 +253,8 @@ src_compile() {
 
 src_install() {
 	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+	DICTPATH="\"${EPREFIX}/usr/share/myspell\""
+
 	declare emid
 	local obj_dir="tbird"
 	cd "${S}/${obj_dir}"
@@ -260,6 +262,10 @@ src_install() {
 	# Copy our preference before omnijar is created.
 	cp "${FILESDIR}"/thunderbird-gentoo-default-prefs-1.js-1 \
 		"${S}/${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" || die
+
+	# Set default path to search for dictionaries.
+	echo "pref(\"spellchecker.dictionary_path\", ${DICTPATH});" \
+		>> "${S}/${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" || die
 
 	# Without methodjit and tracejit there's no conflict with PaX
 	if use jit; then
