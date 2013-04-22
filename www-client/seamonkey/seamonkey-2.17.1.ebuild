@@ -130,7 +130,7 @@ src_prepare() {
 	# browser patches go here
 	pushd "${S}"/mozilla &>/dev/null || die
 	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch
-			$(use system_cairo || echo "6009_fix_system_cairo_support.patch")" \
+			$(use system-cairo || echo "6009_fix_system_cairo_support.patch")" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
