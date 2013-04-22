@@ -51,13 +51,13 @@ ASM_DEPEND=">=dev-lang/yasm-1.1"
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.14.3
-	>=dev-libs/nspr-4.9.5
+	>=dev-libs/nspr-4.9.6
 	>=dev-libs/glib-2.26:2
 	>=media-libs/mesa-7.10
 	>=media-libs/libpng-1.5.13[apng]
 	virtual/libffi
 	gstreamer? ( media-plugins/gst-plugins-meta:0.10[ffmpeg] )
-	system-cairo? ( >=x11-libs/cairo-1.8[X] )
+	system-cairo? ( >=x11-libs/cairo-1.10[X] )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-sqlite? ( || (
 		>=dev-db/sqlite-3.7.16:3[secure-delete,debug=]
