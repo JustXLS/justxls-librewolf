@@ -302,7 +302,7 @@ src_install() {
 			>> "${S}/${obj_dir}/dist/bin/defaults/pref/all-gentoo.js" || die
 	fi
 
-	echo "pref("extensions.autoDisableScopes", 3);" >> \
+	echo "pref(\"extensions.autoDisableScopes\", 3);" >> \
 		"${S}/${obj_dir}/dist/bin/defaults/pref/all-gentoo.js" || die
 
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
