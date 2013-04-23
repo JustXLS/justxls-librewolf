@@ -150,6 +150,9 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
 
+	# Undefined reference fix
+	epatch "${FILESDIR}"/bug-846986.patch
+
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
 
@@ -267,11 +270,11 @@ src_compile() {
 		shopt -u nullglob
 
 		CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
-		MOZ_MAKE_FLAGS="${MAKEOPTS}" \
+		MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL}" \
 		Xemake -f client.mk profiledbuild || die "Xemake failed"
 	else
 		CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
-		MOZ_MAKE_FLAGS="${MAKEOPTS}" \
+		MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL}" \
 		emake -f client.mk || die "emake failed"
 	fi
 

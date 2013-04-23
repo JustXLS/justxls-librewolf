@@ -1,0 +1,29 @@
+# HG changeset patch
+# Parent fd0973ef9744d3a0e4f6febf7e83c3b7f94de899
+# User Steve Singer <steve@ssinger.info>
+Bug 846986 - Include inline member functions in SPSProfiler to avoid undefined symbols at link time
+
+diff --git a/js/src/vm/SPSProfiler.cpp b/js/src/vm/SPSProfiler.cpp
+--- a/js/src/vm/SPSProfiler.cpp
++++ b/js/src/vm/SPSProfiler.cpp
+@@ -10,16 +10,19 @@
+ #include "jsnum.h"
+ #include "jsscript.h"
+ 
+ #include "methodjit/MethodJIT.h"
+ #include "methodjit/Compiler.h"
+ 
+ #include "vm/SPSProfiler.h"
+ #include "vm/StringBuffer.h"
++#include "jsatominlines.h"
++#include "jscntxtinlines.h"
++#include "jsobjinlines.h"
+ 
+ using namespace js;
+ 
+ using mozilla::DebugOnly;
+ 
+ SPSProfiler::SPSProfiler(JSRuntime *rt)
+   : rt(rt),
+     stack_(NULL),
+
