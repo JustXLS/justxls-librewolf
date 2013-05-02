@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.17.ebuild,v 1.1 2013/04/03 07:02:36 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.17.1.ebuild,v 1.2 2013/04/16 05:59:17 polynomial-c Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
@@ -28,7 +28,7 @@ fi
 
 inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
 
-PATCHFF="firefox-21_pre-patches-02"
+PATCHFF="firefox-21.0-patches-0.1"
 PATCH="${PN}-2.14-patches-01"
 EMVER="1.5.1"
 
@@ -51,7 +51,7 @@ IUSE="+chatzilla +crypt gstreamer +ipc +jit +roaming system-cairo system-jpeg sy
 
 SRC_URI+="${SRC_URI}
 	${MOZ_FTP_URI}/source/${MY_MOZ_P}.source.tar.bz2 -> ${P}.source.tar.bz2
-	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCHFF}.tar.xz
+	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
 	crypt? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz )"
 
@@ -60,7 +60,7 @@ ASM_DEPEND=">=dev-lang/yasm-1.1"
 # Mesa 7.10 needed for WebGL + bugfixes
 RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.14.3
-	>=dev-libs/nspr-4.9.4
+	>=dev-libs/nspr-4.9.6
 	>=dev-libs/glib-2.26:2
 	>=media-libs/mesa-7.10
 	>=media-libs/libpng-1.5.13[apng]
@@ -256,7 +256,7 @@ src_configure() {
 
 src_compile() {
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
-	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
+	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL}" \
 	emake -f client.mk || die
 
 	# Only build enigmail extension if conditions are met.
@@ -290,11 +290,8 @@ src_install() {
 		>> "${S}/${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
 
-	# Without methodjit and tracejit there's no conflict with PaX
-	if use jit ; then
-		# Pax mark xpcshell for hardened support, only used for startupcache creation.
-		pax-mark m "${S}/${obj_dir}/mozilla/dist/bin/xpcshell"
-	fi
+	# Pax mark xpcshell for hardened support, only used for startupcache creation.
+	pax-mark m "${S}/${obj_dir}/mozilla/dist/bin/xpcshell"
 
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
 	emake DESTDIR="${D}" install || die "emake install failed"
@@ -330,15 +327,8 @@ src_install() {
 		|| die
 	domenu "${T}"/${PN}.desktop || die
 
-	# Without methodjit and tracejit there's no conflict with PaX
-	if use jit ; then
-		# Required in order to use plugins and even run firefox on hardened.
-		pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{seamonkey,seamonkey-bin}
-	fi
-
-	# Plugin-container needs to be pax-marked for hardened to ensure plugins such as flash
-	# continue to work as expected.
-	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/plugin-container
+	# Required in order to use plugins and even run firefox on hardened.
+	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{seamonkey,seamonkey-bin,plugin-container}
 
 	# Handle plugins dir through nsplugins.eclass
 	share_plugins_dir
