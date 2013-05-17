@@ -25,7 +25,7 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-21.0-patches-0.2"
+PATCH="${PN}-21.0-patches-0.1"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
@@ -296,19 +296,19 @@ src_install() {
 
 	# Add our default prefs for firefox
 	cp "${FILESDIR}"/gentoo-default-prefs.js-1 \
-		"${S}/${obj_dir}/dist/bin/defaults/pref/all-gentoo.js" || die
+		"${S}/${obj_dir}/dist/bin/browser/defaults/preferences/all-gentoo.js" || die
 
 	# Set default path to search for dictionaries.
 	echo "pref(\"spellchecker.dictionary_path\", ${DICTPATH});" \
-		>> "${S}/${obj_dir}/dist/bin/defaults/pref/all-gentoo.js" || die
+		>> "${S}/${obj_dir}/dist/bin/browser/defaults/preferences/all-gentoo.js" || die
 
 	if ! use libnotify; then
 		echo "pref(\"browser.download.manager.showAlertOnComplete\", false);" \
-			>> "${S}/${obj_dir}/dist/bin/defaults/pref/all-gentoo.js" || die
+			>> "${S}/${obj_dir}/dist/bin/browser/defaults/preferences/all-gentoo.js" || die
 	fi
 
 	echo "pref(\"extensions.autoDisableScopes\", 3);" >> \
-		"${S}/${obj_dir}/dist/bin/defaults/pref/all-gentoo.js" || die
+		"${S}/${obj_dir}/dist/bin/browser/defaults/preferences/all-gentoo.js" || die
 
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
 	emake DESTDIR="${D}" install || die "emake install failed"
