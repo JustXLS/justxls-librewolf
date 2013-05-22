@@ -40,27 +40,6 @@ mozconfig_config() {
 		fi
 	fi
 
-	if ! $(mozversion_is_new_enough) ; then
-		mozconfig_use_enable alsa ogg
-		mozconfig_use_enable alsa wave
-		mozconfig_use_enable libnotify
-		mozconfig_use_enable debug debugger-info-modules
-		if has +ipc ${IUSE}; then
-			mozconfig_use_enable ipc
-		fi
-		if [[ ${PN} != thunderbird ]] ; then
-			mozconfig_annotate 'places' --enable-storage --enable-places --enable-places_bookmarks
-			mozconfig_annotate '' --enable-oji --enable-mathml
-			mozconfig_annotate 'broken' --disable-mochitest
-		fi
-		if use system-sqlite; then
-			mozconfig_annotate '' --with-sqlite-prefix="${EPREFIX}"/usr
-		fi
-		if use amd64 || use x86 || use arm || use sparc; then
-			mozconfig_annotate '' --enable-tracejit
-		fi
-	fi
-
 	mozconfig_use_enable dbus
 	mozconfig_use_enable debug
 	mozconfig_use_enable debug tests
@@ -71,25 +50,9 @@ mozconfig_config() {
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_enable wifi necko-wifi
 
-	if $(mozversion_is_new_enough) ; then
-		mozconfig_annotate 'required' --enable-ogg
-		mozconfig_annotate 'required' --enable-wave
-		mozconfig_annotate 'required' --with-system-libvpx
-	elif has +webm ${IUSE} && use webm; then
-		if ! use alsa; then
-			echo "Enabling alsa support due to webm request"
-			mozconfig_annotate '+webm -alsa' --enable-ogg
-			mozconfig_annotate '+webm -alsa' --enable-wave
-			mozconfig_annotate '+webm' --enable-webm
-			mozconfig_annotate '+webm' --with-system-libvpx
-		else
-			mozconfig_use_enable webm
-			mozconfig_annotate '+webm' --with-system-libvpx
-		fi
-	else
-		mozconfig_annotate '' --disable-webm
-		mozconfig_annotate '' --disable-system-libvpx
-	fi
+	mozconfig_annotate 'required' --enable-ogg
+	mozconfig_annotate 'required' --enable-wave
+	mozconfig_annotate 'required' --with-system-libvpx
 
 	# These are enabled by default in all mozilla applications
 	mozconfig_annotate '' --with-system-nspr --with-nspr-prefix="${EPREFIX}"/usr
