@@ -8,7 +8,7 @@
 # @BLURB: Install extensions for use in mozilla products.
 
 
-inherit eutils
+inherit eutils mozcoreconf-2
 
 DEPEND="app-arch/unzip"
 
@@ -53,7 +53,7 @@ xpi_install() {
 	# determine id for extension
 	emid="$(sed -n -e '/install-manifest/,$ { /em:id/!d; s/.*[\">]\([^\"<>]*\)[\"<].*/\1/; p; q }' "${x}"/install.rdf)" \
 		|| die "failed to determine extension id"
-	fi $(mozversion_is_new_enough) ; then
+	if $(mozversion_is_new_enough) ; then
 		insinto "${MOZILLA_FIVE_HOME}"/browser/extensions/${emid}
 	else
 		insinto "${MOZILLA_FIVE_HOME}"/extensions/${emid}
