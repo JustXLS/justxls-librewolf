@@ -38,7 +38,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist gstreamer +jit +minimal pgo selinux system-cairo system-jpeg system-sqlite"
+IUSE="bindist gstreamer +jit +minimal pgo pulseaudio selinux system-cairo system-jpeg system-sqlite"
 
 # More URIs appended below...
 SRC_URI="${SRC_URI}
@@ -222,6 +222,7 @@ src_configure() {
 	mozconfig_annotate '' --build="${CTARGET:-${CHOST}}"
 
 	mozconfig_use_enable gstreamer
+	mozconfig_use_enable pulseaudio
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_with system-jpeg
 	# Feature is know to cause problems on hardened
