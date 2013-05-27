@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mozcoreconf-2.eclass,v 1.29 2013/03/25 13:08:39 anarchy Exp $
 #
 # mozcoreconf.eclass : core options for mozilla
 # inherit mozconfig-2 if you need USE flags
@@ -66,12 +66,12 @@ mozconfig_use_extension() {
 mozversion_is_new_enough() {
 	case ${PN} in
 		firefox|thunderbird)
-			if [[ $(get_version_component_range 1) -ge 21 ]] ; then
+			if [[ $(get_version_component_range 1) -ge 17 ]] ; then
 				return 0
 			fi
 		;;
 		seamonkey)
-			if [[ $(get_version_component_range 1) -eq 2 ]] && [[ $(get_version_component_range 2) -ge 18 ]] ; then
+			if [[ $(get_version_component_range 1) -eq 2 ]] && [[ $(get_version_component_range 2) -ge 14 ]] ; then
 				return 0
 			fi
 		;;
@@ -208,16 +208,29 @@ mozconfig_init() {
 		--with-system-zlib \
 		--enable-pango \
 		--enable-system-cairo
+		if ! $(mozversion_is_new_enough) ; then
+			mozconfig_annotate system-libs --enable-svg
+		fi
 
 	mozconfig_annotate disable_update_strip \
 		--disable-pedantic \
 		--disable-updater \
 		--disable-strip \
 		--disable-install-strip
+		if ! $(mozversion_is_new_enough) ; then
+			mozconfig_annotate disable_update_strip \
+				--disable-installer \
+				--disable-strip-libs
+		fi
 
 	if [[ ${PN} != seamonkey ]]; then
 		mozconfig_annotate basic_profile \
 			--disable-profilelocking
+			if ! $(mozversion_is_new_enough) ; then
+				mozconfig_annotate basic_profile \
+					--enable-single-profile \
+					--disable-profilesharing
+			fi
 	fi
 
 	# Here is a strange one...
