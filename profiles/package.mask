@@ -5,9 +5,8 @@
 # NOTE: Please add your entry at the top!
 #
 
-# Thunderbird beta's masked due to amount of
-# plugins that continue to break.
->=mail-client/thunderbird-18.0_beta1
+# Masked until nss-3.15 is added.
+=dev-libs/nspr-4.10
 
 # Work in progress
 =www-client/seamonkey-2.18_beta*

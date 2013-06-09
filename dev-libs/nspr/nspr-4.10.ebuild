@@ -20,26 +20,26 @@ IUSE="debug"
 
 src_prepare() {
 	mkdir build inst
+	cd "${S}"/nspr/
 	epatch "${FILESDIR}"/${PN}-4.6.1-lang.patch
 	epatch "${FILESDIR}"/${PN}-4.7.0-prtime.patch
 	epatch "${FILESDIR}"/${PN}-4.7.1-solaris.patch
 	epatch "${FILESDIR}"/${PN}-4.7.4-solaris.patch
-	epatch "${FILESDIR}"/${PN}-4.8.3-aix-gcc.patch
+	# epatch "${FILESDIR}"/${PN}-4.8.3-aix-gcc.patch
 	epatch "${FILESDIR}"/${PN}-4.8.4-darwin-install_name.patch
 	epatch "${FILESDIR}"/${PN}-4.8.9-link-flags.patch
 	# We do not need to pass -L$libdir via nspr-config --libs
 	epatch "${FILESDIR}"/${PN}-4.9.5_nspr_config.patch
 
 	# We must run eautoconf to regenerate configure
-	cd "${S}"/mozilla/nsprpub
 	eautoconf
 
 	# make sure it won't find Perl out of Prefix
-	sed -i -e "s/perl5//g" "${S}"/mozilla/nsprpub/configure || die
+	sed -i -e "s/perl5//g" "${S}"/nspr/configure || die
 
 	# Respect LDFLAGS
 	sed -i -e 's/\$(MKSHLIB) \$(OBJS)/\$(MKSHLIB) \$(LDFLAGS) \$(OBJS)/g' \
-		"${S}"/mozilla/nsprpub/config/rules.mk || die
+		"${S}"/nspr/config/rules.mk || die
 }
 
 src_configure() {
@@ -63,7 +63,7 @@ src_configure() {
 	esac
 
 	# Ancient autoconf needs help finding the right tools.
-	LC_ALL="C" ECONF_SOURCE="../mozilla/nsprpub" \
+	LC_ALL="C" ECONF_SOURCE="../nspr" \
 	ac_cv_path_AR="${AR}" \
 	econf \
 		--libdir="${EPREFIX}/usr/$(get_libdir)" \
