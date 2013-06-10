@@ -254,7 +254,9 @@ src_compile() {
 }
 
 src_install() {
-	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+	 MOZILA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+	DICTPATH="\"${EPREFIX}/usr/share/myspell\""
+
 	declare emid
 	local obj_dir="tbird"
 	cd "${S}/${obj_dir}"
