@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/mail-client/thunderbird/thunderbird-17.0.4.ebuild,v 1.1 2013/03/08 21:16:53 axs Exp $
+# $Header: /var/cvsroot/gentoo-x86/mail-client/thunderbird/thunderbird-17.0.6-r1.ebuild,v 1.1 2013/06/10 04:03:50 anarchy Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
@@ -25,6 +25,7 @@ EMVER="1.5.1"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
+MOZ_HTTP_URI="http://ftp.mozilla.org/pub/${PN}/releases/"
 
 inherit flag-o-matic toolchain-funcs mozconfig-3 makeedit multilib autotools pax-utils check-reqs nsplugins mozlinguas
 
@@ -34,13 +35,14 @@ HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist gconf +crypt +jit +ipc ldap +lightning +minimal mozdom selinux system-cairo"
+IUSE="bindist gconf +crypt +jit +ipc ldap +lightning +minimal mozdom selinux"
 
 PATCH="thunderbird-17.0-patches-01"
 PATCHFF="firefox-17.0-patches-0.6"
 
 SRC_URI="${SRC_URI}
 	${MOZ_FTP_URI}${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
+	${MOZ_HTTP_URI}${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
 	crypt? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz )
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.xz
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz
@@ -203,7 +205,6 @@ src_configure() {
 	mozconfig_use_enable lightning calendar
 	mozconfig_use_enable gconf
 	mozconfig_use_enable ldap
-	mozconfig_use_enable system-cairo
 	# Features know to cause problems with hardened.
 	mozconfig_use_enable jit methodjit
 	mozconfig_use_enable jit tracejit
@@ -254,8 +255,6 @@ src_compile() {
 
 src_install() {
 	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
-	DICTPATH="\"${EPREFIX}/usr/share/myspell\""
-
 	declare emid
 	local obj_dir="tbird"
 	cd "${S}/${obj_dir}"

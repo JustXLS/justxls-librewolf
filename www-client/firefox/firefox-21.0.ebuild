@@ -29,6 +29,7 @@ PATCH="${PN}-21.0-patches-0.1"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
+MOZ_HTTP_URI="http://ftp.mozilla.org/pub/${PN}/releases/"
 
 inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-3 multilib pax-utils fdo-mime autotools virtualx mozlinguas
 
@@ -85,10 +86,12 @@ if [[ ${PV} =~ alpha ]]; then
 elif [[ ${PV} =~ beta ]]; then
 	S="${WORKDIR}/mozilla-beta"
 	SRC_URI="${SRC_URI}
-		${MOZ_FTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.bz2"
+		${MOZ_FTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.bz2
+		${MOZ_HTTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.bz2"
 else
 	SRC_URI="${SRC_URI}
-		${MOZ_FTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.bz2"
+		${MOZ_FTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.bz2
+		${MOZ_HTTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.bz2"
 	if [[ ${MOZ_ESR} == 1 ]]; then
 		S="${WORKDIR}/mozilla-esr${PV%%.*}"
 	else
