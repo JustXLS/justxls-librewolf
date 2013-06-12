@@ -5,8 +5,7 @@
 # NOTE: Please add your entry at the top!
 #
 
-# Masked until nss-3.15 is added.
+# Masked until it received enough testing
 =dev-libs/nspr-4.10
+=dev-libs/nss-3.15
 
-# Work in progress
-=www-client/seamonkey-2.18_beta*
