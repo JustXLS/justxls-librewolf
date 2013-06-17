@@ -12,7 +12,7 @@ DESCRIPTION="Mozilla's Network Security Services library that implements PKI sup
 HOMEPAGE="http://www.mozilla.org/projects/security/pki/nss/"
 SRC_URI="ftp://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/${RTM_NAME}/src/${P}.tar.gz
 	http://dev.gentoo.org/~anarchy/patches/${PN}-3.14.1-add_spi+cacerts_ca_certs.patch
-	http://dev.gentoo.org/~polynomial-c/mozilla/${PN}-3.15_pem.support.patch.bz2"
+	http://dev.gentoo.org/~anarchy/patches/${PN}-3.15-pem-support-20130617.patch.xz"
 
 LICENSE="|| ( MPL-2.0 GPL-2 LGPL-2.1 )"
 SLOT="0"
@@ -37,10 +37,8 @@ src_prepare() {
 	epatch "${FILESDIR}/${PN}-3.15-gentoo-fixups.patch"
 	epatch "${FILESDIR}/${PN}-3.15-gentoo-fixup-warnings.patch"
 	epatch "${DISTDIR}/${PN}-3.14.1-add_spi+cacerts_ca_certs.patch"
-	epatch "${DISTDIR}/${PN}-3.15_pem.support.patch.bz2"
+	epatch "${DISTDIR}/${PN}-3.15-pem-support-20130617.patch.xz"
 	epatch "${FILESDIR}/${PN}-3.15-x32.patch"
-	epatch "${FILESDIR}/${PN}-3.14.3_sync_with_upstream_softokn_changes.patch"
-
 	cd coreconf
 	# hack nspr paths
 	echo 'INCLUDES += -I$(DIST)/include/dbm' \
