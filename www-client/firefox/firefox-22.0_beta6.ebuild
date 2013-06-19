@@ -259,10 +259,7 @@ src_compile() {
 		# Firefox tries to use dri stuff when it's run, see bug 380283
 		shopt -s nullglob
 		cards=$(echo -n /dev/dri/card* | sed 's/ /:/g')
-		if test -n "${cards}"; then
-			# FOSS drivers are fine
-			addpredict "${cards}"
-		else
+		if test -z "${cards}"; then
 			cards=$(echo -n /dev/ati/card* /dev/nvidiactl* | sed 's/ /:/g')
 			if test -n "${cards}"; then
 				# Binary drivers seem to cause access violations anyway, so
@@ -272,6 +269,7 @@ src_compile() {
 			fi
 		fi
 		shopt -u nullglob
+		addpredict "${cards}"
 
 		CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
 		MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL}" \
