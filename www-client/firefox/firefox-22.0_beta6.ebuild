@@ -25,7 +25,7 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-21.0-patches-0.1"
+PATCH="${PN}-22.0-patches-0.1"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
@@ -51,8 +51,8 @@ ASM_DEPEND=">=dev-lang/yasm-1.1"
 # Mesa 7.10 needed for WebGL + bugfixes
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.14.3
-	>=dev-libs/nspr-4.9.6
+	>=dev-libs/nss-3.15
+	>=dev-libs/nspr-4.10
 	>=dev-libs/glib-2.26:2
 	>=media-libs/mesa-7.10
 	>=media-libs/libpng-1.5.13[apng]
@@ -148,13 +148,11 @@ src_prepare() {
 	if ! use system-cairo ; then
 		export EPATCH_EXCLUDE="6009_fix_system_cairo_support.patch"
 	fi
+
 	# Apply our patches
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
-
-	# Undefined reference fix
-	epatch "${FILESDIR}"/bug-846986.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
