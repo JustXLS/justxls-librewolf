@@ -254,7 +254,7 @@ src_compile() {
 }
 
 src_install() {
-	 MOZILA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 	DICTPATH="\"${EPREFIX}/usr/share/myspell\""
 
 	declare emid
@@ -337,7 +337,7 @@ src_install() {
 	share_plugins_dir
 
 	if use minimal; then
-		rm -rf "${ED}"/usr/include "${ED}${MOZILLA_FIVE_HOME}"/{idl,include,lib,sdk} || \
+		rm -rf "${ED}"/usr/include "${ED}"${MOZILLA_FIVE_HOME}/{idl,include,lib,sdk} || \
 			die "Failed to remove sdk and headers"
 	fi
 }
