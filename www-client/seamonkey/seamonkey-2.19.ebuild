@@ -28,9 +28,10 @@ fi
 
 inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
 
-PATCHFF="firefox-22.0-patches-0.1"
+PATCHFF="firefox-22.0-patches-0.2"
 PATCH="${PN}-2.14-patches-01"
-EMVER="1.5.1"
+#EMVER="1.5.1"
+EMVER="1.5.2_pre20130621"
 
 DESCRIPTION="Seamonkey Web Browser"
 HOMEPAGE="http://www.seamonkey-project.org"
@@ -53,7 +54,8 @@ SRC_URI+="${SRC_URI}
 	${MOZ_FTP_URI}/source/${MY_MOZ_P}.source.tar.bz2 -> ${P}.source.tar.bz2
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
-	crypt? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz )"
+	crypt? ( http://dev.gentoo.org/~polynomial-c/mozilla/enigmail-${EMVER}.tar.gz )"
+	#crypt? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz )
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 

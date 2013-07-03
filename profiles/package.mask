@@ -5,5 +5,3 @@
 # NOTE: Please add your entry at the top!
 #
 
-=www-client/seamonkey-2.19_beta*
-=www-client/seamonkey-2.19_pre*
