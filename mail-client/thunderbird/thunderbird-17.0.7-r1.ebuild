@@ -21,7 +21,7 @@ fi
 MOZ_P="${PN}-${MOZ_PV}"
 
 # Enigmail version
-EMVER="1.5.1"
+EMVER="1.5.2"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
@@ -248,8 +248,8 @@ src_compile() {
 		cd "${S}"/mailnews/extensions/enigmail || die
 		./makemake -r 2&> /dev/null
 		cd "${S}"/tbird/mailnews/extensions/enigmail
-		emake || die "make enigmail failed"
-		emake xpi || die "make enigmail xpi failed"
+		emake -j1 || die "make enigmail failed"
+		emake -j1 xpi || die "make enigmail xpi failed"
 	fi
 }
 
