@@ -5,3 +5,6 @@
 # NOTE: Please add your entry at the top!
 #
 
+# Masked for testing
+=www-client/seamonkey-2.20_beta*
+

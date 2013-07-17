@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.17.ebuild,v 1.1 2013/04/03 07:02:36 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.18_beta4.ebuild,v 1.1 2013/05/30 09:06:07 polynomial-c Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
@@ -28,9 +28,10 @@ fi
 
 inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
 
-PATCHFF="firefox-20.0-patches-0.3"
+PATCHFF="firefox-22.0-patches-0.2"
 PATCH="${PN}-2.14-patches-01"
-EMVER="1.5.1"
+EMVER="1.5.2"
+#EMVER="20130623"
 
 DESCRIPTION="Seamonkey Web Browser"
 HOMEPAGE="http://www.seamonkey-project.org"
@@ -38,11 +39,11 @@ HOMEPAGE="http://www.seamonkey-project.org"
 if [[ ${PV} == *_pre* ]] ; then
 	# pre-releases. No need for arch teams to change KEYWORDS here.
 
-	KEYWORDS=""
+	KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86"
 else
 	# This is where arch teams should change the KEYWORDS.
 
-	KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86"
 fi
 
 SLOT="0"
@@ -60,7 +61,7 @@ ASM_DEPEND=">=dev-lang/yasm-1.1"
 # Mesa 7.10 needed for WebGL + bugfixes
 RDEPEND=">=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.14.3
-	>=dev-libs/nspr-4.9.4
+	>=dev-libs/nspr-4.9.6
 	>=dev-libs/glib-2.26:2
 	>=media-libs/mesa-7.10
 	>=media-libs/libpng-1.5.13[apng]
@@ -130,7 +131,9 @@ src_prepare() {
 	# browser patches go here
 	pushd "${S}"/mozilla &>/dev/null || die
 	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch
-			$(use system-cairo || echo "6009_fix_system_cairo_support.patch")" \
+			2003_fix_system_hunspell_dict_detection.patch
+			$(use system-cairo || echo "6009_fix_system_cairo_support.patch")
+			8000_version_symbols_to_prevent_conflicts.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
@@ -143,14 +146,15 @@ src_prepare() {
 		edos2unix "${file}" || die
 	done
 
-	# Allow user to apply any additional patches without modifing ebuild
-	epatch_user
-
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
-		#cd "${S}"/mailnews/extensions/enigmail || die
-		#cd "${S}"
+		pushd "${S}"/mailnews/extensions/enigmail &>/dev/null || die
+		epatch "${FILESDIR}"/enigmail_mailnews_extensions_genxpi.patch
+		popd &>/dev/null || die
 	fi
+
+	# Allow user to apply any additional patches without modifing ebuild
+	epatch_user
 
 	local ms="${S}/mozilla"
 
@@ -256,7 +260,7 @@ src_configure() {
 
 src_compile() {
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
-	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
+	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL}" \
 	emake -f client.mk || die
 
 	# Only build enigmail extension if conditions are met.
@@ -264,15 +268,14 @@ src_compile() {
 		cd "${S}"/mailnews/extensions/enigmail || die
 		./makemake -r 2&> /dev/null
 		cd "${S}"/seamonk/mailnews/extensions/enigmail
-		emake || die "make enigmail failed"
-		emake xpi || die "make enigmail xpi failed"
+		emake -j1 || die "make enigmail failed"
+		emake -j1 xpi || die "make enigmail xpi failed"
 	fi
 }
 
 src_install() {
 	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 	DICTPATH="\"${EPREFIX}/usr/share/myspell\""
-
 	local emid obj_dir="seamonk"
 	cd "${S}/${obj_dir}"
 
@@ -290,11 +293,8 @@ src_install() {
 		>> "${S}/${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
 
-	# Without methodjit and tracejit there's no conflict with PaX
-	if use jit ; then
-		# Pax mark xpcshell for hardened support, only used for startupcache creation.
-		pax-mark m "${S}/${obj_dir}/mozilla/dist/bin/xpcshell"
-	fi
+	# Pax mark xpcshell for hardened support, only used for startupcache creation.
+	pax-mark m "${S}/${obj_dir}/mozilla/dist/bin/xpcshell"
 
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
 	emake DESTDIR="${D}" install || die "emake install failed"
@@ -330,15 +330,8 @@ src_install() {
 		|| die
 	domenu "${T}"/${PN}.desktop || die
 
-	# Without methodjit and tracejit there's no conflict with PaX
-	if use jit ; then
-		# Required in order to use plugins and even run firefox on hardened.
-		pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{seamonkey,seamonkey-bin}
-	fi
-
-	# Plugin-container needs to be pax-marked for hardened to ensure plugins such as flash
-	# continue to work as expected.
-	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/plugin-container
+	# Required in order to use plugins and even run firefox on hardened.
+	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{seamonkey,seamonkey-bin,plugin-container}
 
 	# Handle plugins dir through nsplugins.eclass
 	share_plugins_dir
