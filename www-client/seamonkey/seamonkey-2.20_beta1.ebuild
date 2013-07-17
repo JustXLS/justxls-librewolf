@@ -39,7 +39,7 @@ HOMEPAGE="http://www.seamonkey-project.org"
 if [[ ${PV} == *_pre* ]] ; then
 	# pre-releases. No need for arch teams to change KEYWORDS here.
 
-	KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86"
+	KEYWORDS=""
 else
 	# This is where arch teams should change the KEYWORDS.
 
@@ -268,8 +268,8 @@ src_compile() {
 		cd "${S}"/mailnews/extensions/enigmail || die
 		./makemake -r 2&> /dev/null
 		cd "${S}"/seamonk/mailnews/extensions/enigmail
-		emake -j1 || die "make enigmail failed"
-		emake -j1 xpi || die "make enigmail xpi failed"
+		emake || die "make enigmail failed"
+		emake xpi || die "make enigmail xpi failed"
 	fi
 }
 
