@@ -25,7 +25,7 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-22.0-patches-0.2"
+PATCH="${PN}-23.0-patches-0.1"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
@@ -144,12 +144,8 @@ src_unpack() {
 }
 
 src_prepare() {
-	# Discard system cairo patch if support is not requested
-	if ! use system-cairo ; then
-		export EPATCH_EXCLUDE="6009_fix_system_cairo_support.patch"
-	fi
-
 	# Apply our patches
+	EPATCH_EXCLUDE="$(use system-cairo || echo "6009_fix_system_cairo_support.patch")" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
