@@ -339,8 +339,7 @@ src_install() {
 	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{seamonkey,seamonkey-bin,plugin-container}
 
 	if use minimal ; then
-		rm -rf "${ED}"/usr/include "${ED}${MOZILLA_FIVE_HOME}"/{idl,include,lib,sdk} \
-			|| die "Failed to remove sdk and headers"
+		rm -rf "${ED}"/usr/include "${ED}${MOZILLA_FIVE_HOME}"/{idl,include,lib,sdk}
 	fi
 
 	# Handle plugins dir through nsplugins.eclass
