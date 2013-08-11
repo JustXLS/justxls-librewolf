@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/nss/nss-3.14.3.ebuild,v 1.13 2013/03/29 22:54:52 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/nss/nss-3.15.1.ebuild,v 1.1 2013/07/24 05:58:28 polynomial-c Exp $
 
 EAPI=5
 inherit eutils flag-o-matic multilib toolchain-funcs
@@ -52,7 +52,7 @@ src_prepare() {
 	sed -i -e 's/\$(MKSHLIB) -o/\$(MKSHLIB) \$(LDFLAGS) -o/g' rules.mk
 
 	# Ensure we stay multilib aware
-	sed -i -e "s:gentoo\/nss:$(get_libdir):" "${S}"/config/Makefile
+	sed -i -e "/@libdir@/ s:lib64:$(get_libdir):" "${S}"/config/Makefile
 
 	# Fix pkgconfig file for Prefix
 	sed -i -e "/^PREFIX =/s:= /usr:= ${EPREFIX}/usr:" \
