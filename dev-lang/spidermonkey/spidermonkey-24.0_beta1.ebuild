@@ -6,7 +6,7 @@ EAPI="5"
 WANT_AUTOCONF="2.1"
 PYTHON_COMPAT=( python2_{6,7} )
 PYTHON_REQ_USE="threads"
-inherit eutils toolchain-funcs multilib python-any-r1 versionator pax-utils
+inherit autotools eutils toolchain-funcs multilib python-any-r1 versionator pax-utils
 
 MY_PN="mozjs"
 MY_P="${MY_PN}-${PV}"
@@ -17,15 +17,14 @@ SRC_URI="http://dev.gentoo.org/~axs/distfiles/${MY_P}.tar.bz2"
 LICENSE="NPL-1.1"
 SLOT="24"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa -ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd"
-IUSE="debug jit minimal static-libs test"
-
-REQUIRED_USE="debug? ( jit )"
+IUSE="debug icu jit minimal static-libs test"
 
 S="${WORKDIR}/${MY_P}"
 BUILDDIR="${S}/js/src"
 
 RDEPEND=">=dev-libs/nspr-4.9.4
-	virtual/libffi"
+	virtual/libffi
+	icu? ( dev-libs/icu )"
 DEPEND="${RDEPEND}
 	${PYTHON_DEPS}
 	app-arch/zip
@@ -39,12 +38,16 @@ pkg_setup(){
 }
 
 src_prepare() {
+	epatch "${FILESDIR}"/${PN}-${SLOT}-system-icu.patch
 	epatch_user
 
 	if [[ ${CHOST} == *-freebsd* ]]; then
 		# Don't try to be smart, this does not work in cross-compile anyway
 		ln -sfn "${BUILDDIR}/config/Linux_All.mk" "${S}/config/$(uname -s)$(uname -r).mk" || die
 	fi
+
+	cd "${BUILDDIR}" || die
+	eautoconf
 }
 
 src_configure() {
@@ -61,7 +64,8 @@ src_configure() {
 		--with-system-nspr \
 		--enable-system-ffi \
 		--enable-jemalloc \
-		--enable-system-icu \
+		$(use_enable icu intl-api) \
+		$(use_with icu system-icu) \
 		$(use_enable debug) \
 		$(use_enable jit tracejit) \
 		$(use_enable jit methodjit) \
