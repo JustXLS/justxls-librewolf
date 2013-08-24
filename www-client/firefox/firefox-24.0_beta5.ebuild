@@ -25,7 +25,7 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-24.0-patches-0.1"
+PATCH="${PN}-24.0-patches-0.2"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
@@ -39,7 +39,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist gstreamer +jit +minimal pgo pulseaudio selinux system-cairo system-jpeg system-sqlite"
+IUSE="bindist gstreamer icu +jit +minimal pgo pulseaudio selinux system-cairo system-jpeg system-sqlite"
 
 # More URIs appended below...
 SRC_URI="${SRC_URI}
@@ -178,6 +178,10 @@ src_prepare() {
 		-i "${S}"/toolkit/mozapps/installer/packager.mk || die
 
 	eautoreconf
+
+	# Must run autoconf in js/src
+	cd "${S}"/js/src
+	eautoconf
 }
 
 src_configure() {
@@ -217,7 +221,9 @@ src_configure() {
 	mozconfig_use_enable gstreamer
 	mozconfig_use_enable pulseaudio
 	mozconfig_use_enable system-sqlite
+	mozconfig_use_enable icu intl-api
 	mozconfig_use_with system-jpeg
+	mozconfig_use_with icu system-icu
 	# Feature is know to cause problems on hardened
 	mozconfig_use_enable jit methodjit
 	mozconfig_use_enable jit tracejit
