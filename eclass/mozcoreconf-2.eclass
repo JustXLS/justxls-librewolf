@@ -93,6 +93,8 @@ moz_pkgsetup() {
 	export NO_STATIC_LIB=1
 	export USE_PTHREADS=1
 	export ALDFLAGS=${LDFLAGS}
+	# ensure MOZCONFIG is not defined
+	eval unset MOZCONFIG
 
 	# nested configure scripts in mozilla products generate unrecognized options
 	# false positives when toplevel configure passes downwards.
