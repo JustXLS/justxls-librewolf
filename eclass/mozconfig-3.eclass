@@ -21,7 +21,7 @@ RDEPEND="app-arch/zip
 	>=x11-libs/cairo-1.8[X]
 	>=x11-libs/gtk+-2.8.6:2
 	>=x11-libs/pango-1.10.1[X]
-	virtual/jpeg
+	virtual/jpeg:0
 	alsa? ( media-libs/alsa-lib )
 	virtual/freedesktop-icon-theme
 	dbus? ( >=dev-libs/dbus-glib-0.72 )
