@@ -39,7 +39,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist gstreamer icu +jit +minimal pgo pulseaudio selinux system-cairo system-jpeg system-sqlite"
+IUSE="bindist gstreamer +jit +minimal pgo pulseaudio selinux system-cairo system-icu system-jpeg system-sqlite"
 
 # More URIs appended below...
 SRC_URI="${SRC_URI}
@@ -59,6 +59,7 @@ RDEPEND="
 	virtual/libffi
 	gstreamer? ( media-plugins/gst-plugins-meta:0.10[ffmpeg] )
 	system-cairo? ( >=x11-libs/cairo-1.12[X] )
+	system-icu? ( dev-libs/icu )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-sqlite? ( >=dev-db/sqlite-3.7.16.1:3[secure-delete,debug=] )
 	>=media-libs/libvpx-1.0.0
@@ -221,9 +222,9 @@ src_configure() {
 	mozconfig_use_enable gstreamer
 	mozconfig_use_enable pulseaudio
 	mozconfig_use_enable system-sqlite
-	mozconfig_use_enable icu intl-api
 	mozconfig_use_with system-jpeg
-	mozconfig_use_with icu system-icu
+	mozconfig_use_with system-icu
+	mozconfig_use_enable system-icu intl-api
 	# Feature is know to cause problems on hardened
 	mozconfig_use_enable jit methodjit
 	mozconfig_use_enable jit tracejit
