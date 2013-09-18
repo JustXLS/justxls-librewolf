@@ -28,7 +28,7 @@ fi
 
 inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
 
-PATCHFF="firefox-23.0-patches-0.1"
+PATCHFF="firefox-24.0-patches-0.3"
 PATCH="${PN}-2.14-patches-01"
 EMVER="1.5.2"
 
@@ -47,9 +47,9 @@ fi
 
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="+chatzilla +crypt gstreamer +ipc +jit minimal pulseaudio +roaming system-cairo system-jpeg system-sqlite"
+IUSE="+chatzilla +crypt gstreamer +ipc +jit minimal pulseaudio +roaming system-cairo system-icu system-jpeg system-sqlite"
 
-SRC_URI+="${SRC_URI}
+SRC_URI="${SRC_URI}
 	${MOZ_FTP_URI}/source/${MY_MOZ_P}.source.tar.bz2 -> ${P}.source.tar.bz2
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
@@ -59,8 +59,8 @@ ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 # Mesa 7.10 needed for WebGL + bugfixes
 RDEPEND=">=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.15
-	>=dev-libs/nspr-4.9.6
+	>=dev-libs/nss-3.15.1
+	>=dev-libs/nspr-4.10
 	>=dev-libs/glib-2.26:2
 	>=media-libs/mesa-7.10
 	>=media-libs/libpng-1.5.13[apng]
@@ -68,7 +68,8 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 	>=x11-libs/gtk+-2.14:2
 	virtual/libffi
 	gstreamer? ( media-plugins/gst-plugins-meta:0.10[ffmpeg] )
-	system-cairo? ( >=x11-libs/cairo-1.10[X] )
+	system-cairo? ( >=x11-libs/cairo-1.12[X] )
+	system-icu? ( dev-libs/icu )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-sqlite? ( >=dev-db/sqlite-3.7.16.1:3[secure-delete,debug=] )
 	>=media-libs/libvpx-1.0.0
@@ -124,8 +125,7 @@ src_prepare() {
 
 	# browser patches go here
 	pushd "${S}"/mozilla &>/dev/null || die
-	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch
-			$(use system-cairo || echo "6009_fix_system_cairo_support.patch")" \
+	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
@@ -177,7 +177,9 @@ src_prepare() {
 		-i "${ms}"/toolkit/mozapps/installer/packager.mk || die
 
 	eautoreconf
-	cd "${S}"/mozilla
+	cd "${S}"/mozilla || die
+	eautoconf
+	cd js/src || die
 	eautoconf
 }
 
@@ -231,6 +233,8 @@ src_configure() {
 	mozconfig_use_enable pulseaudio
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_with system-jpeg
+	mozconfig_use_with system-icu
+	mozconfig_use_enable system-icu intl-api
 	# Feature is know to cause problems on hardened
 	mozconfig_use_enable jit methodjit
 	mozconfig_use_enable jit tracejit
