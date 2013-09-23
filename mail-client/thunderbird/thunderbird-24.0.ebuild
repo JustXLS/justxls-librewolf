@@ -132,7 +132,9 @@ src_prepare() {
 
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
-		cd "${S}"
+		pushd "${S}"/mailnews/extensions/enigmail &>/dev/null || die
+		epatch "${FILESDIR}"/enigmail_mailnews_extensions_genxpi.patch
+		popd &>/dev/null || die
 	fi
 
 	# Ensure that are plugins dir is enabled as default
