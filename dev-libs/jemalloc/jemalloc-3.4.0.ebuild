@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/jemalloc/jemalloc-3.3.0.ebuild,v 1.2 2013/01/28 20:17:28 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/jemalloc/jemalloc-3.4.0.ebuild,v 1.1 2013/09/24 22:51:43 anarchy Exp $
 
 EAPI=4
 
@@ -12,7 +12,7 @@ SRC_URI="http://www.canonware.com/download/${PN}/${P}.tar.bz2"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~s390 ~x86"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~s390 ~x86 ~x64-macos"
 IUSE="debug static-libs stats"
 
 src_prepare() {
@@ -35,5 +35,11 @@ src_install() {
 	default
 	dohtml doc/jemalloc.html
 
+	if [[ ${CHOST} == *-darwin* ]] ; then
+		# fixup install_name, #437362
+		install_name_tool \
+			-id "${EPREFIX}"/usr/$(get_libdir)/libjemalloc.1.dylib \
+			"${ED}"/usr/$(get_libdir)/libjemalloc.1.dylib || die
+	fi
 	use static-libs || find "${ED}" -name '*.a' -delete
 }
