@@ -206,6 +206,7 @@ src_configure() {
 	# Use enable features
 	mozconfig_use_enable gstreamer
 	mozconfig_use_enable pulseaudio
+	mozconfig_use_enable system-cairo
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_with system-jpeg
 	mozconfig_use_with system-icu
@@ -213,10 +214,7 @@ src_configure() {
 	mozconfig_use_enable lightning calendar
 	mozconfig_use_enable ldap
 	# Feature is know to cause problems on hardened
-	mozconfig_use_enable jit methodjit
-	mozconfig_use_enable jit tracejit
 	mozconfig_use_enable jit ion
-	mozconfig_use_enable system-cairo 
 
 	# Bug #72667
 	if use mozdom; then

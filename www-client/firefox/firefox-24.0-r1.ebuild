@@ -228,7 +228,6 @@ src_configure() {
 	mozconfig_use_with system-icu
 	mozconfig_use_enable system-icu intl-api
 	# Feature is know to cause problems on hardened
-	mozconfig_use_enable jit methodjit
 	mozconfig_use_enable jit ion
 
 	# Allow for a proper pgo build
