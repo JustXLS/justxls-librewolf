@@ -162,12 +162,6 @@ src_prepare() {
 		-e "s:gnomevfs::" "${ms}"/xulrunner/confvars.sh \
 		|| die "Failed to remove gnomevfs extension"
 
-	# Ensure that are plugins dir is enabled as default
-	sed -i -e "s:/usr/lib/mozilla/plugins:/usr/lib/nsbrowser/plugins:" \
-		"${ms}"/xpcom/io/nsAppFileLocationProvider.cpp || die "sed failed to replace plugin path for 32bit!"
-	sed -i -e "s:/usr/lib64/mozilla/plugins:/usr/lib64/nsbrowser/plugins:" \
-		"${ms}"/xpcom/io/nsAppFileLocationProvider.cpp || die "sed failed to replace plugin path for 64bit!"
-
 	# Don't exit with error when some libs are missing which we have in
 	# system.
 	sed '/^MOZ_PKG_FATAL_WARNINGS/s@= 1@= 0@' \
@@ -230,16 +224,14 @@ src_configure() {
 	mozconfig_annotate '' --enable-safe-browsing
 
 	mozconfig_use_enable gstreamer
+	mozconfig_use_enable system-cairo
 	mozconfig_use_enable pulseaudio
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_with system-jpeg
 	mozconfig_use_with system-icu
 	mozconfig_use_enable system-icu intl-api
 	# Feature is know to cause problems on hardened
-	mozconfig_use_enable jit methodjit
-	mozconfig_use_enable jit tracejit
 	mozconfig_use_enable jit ion
-	mozconfig_use_enable system-cairo
 
 	# Use an objdir to keep things organized.
 	echo "mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/seamonk" \
