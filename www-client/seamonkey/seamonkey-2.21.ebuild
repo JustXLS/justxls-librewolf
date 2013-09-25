@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.19.ebuild,v 1.1 2013/07/12 21:09:39 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.21.ebuild,v 1.4 2013/09/25 14:15:10 polynomial-c Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
@@ -42,7 +42,7 @@ if [[ ${PV} == *_pre* ]] ; then
 else
 	# This is where arch teams should change the KEYWORDS.
 
-	KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
+	KEYWORDS="amd64 ~arm ~ppc ~ppc64 x86"
 fi
 
 SLOT="0"
@@ -156,11 +156,11 @@ src_prepare() {
 			"${ms}"/build/unix/run-mozilla.sh || die "sed failed!"
 	fi
 
-	# Disable gnomevfs extension
-	sed -i -e "s:gnomevfs::" "${S}"/suite/confvars.sh \
-		-e "s:gnomevfs::" "${ms}"/browser/confvars.sh \
-		-e "s:gnomevfs::" "${ms}"/xulrunner/confvars.sh \
-		|| die "Failed to remove gnomevfs extension"
+	# Ensure that are plugins dir is enabled as default
+	sed -i -e "s:/usr/lib/mozilla/plugins:/usr/lib/nsbrowser/plugins:" \
+		"${ms}"/xpcom/io/nsAppFileLocationProvider.cpp || die "sed failed to replace plugin path for 32bit!"
+	sed -i -e "s:/usr/lib64/mozilla/plugins:/usr/lib64/nsbrowser/plugins:" \
+		"${ms}"/xpcom/io/nsAppFileLocationProvider.cpp || die "sed failed to replace plugin path for 64bit!"
 
 	# Don't exit with error when some libs are missing which we have in
 	# system.
@@ -224,8 +224,8 @@ src_configure() {
 	mozconfig_annotate '' --enable-safe-browsing
 
 	mozconfig_use_enable gstreamer
-	mozconfig_use_enable system-cairo
 	mozconfig_use_enable pulseaudio
+	mozconfig_use_enable system-cairo
 	mozconfig_use_enable system-sqlite
 	mozconfig_use_with system-jpeg
 	mozconfig_use_with system-icu
