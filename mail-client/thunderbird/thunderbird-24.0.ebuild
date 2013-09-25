@@ -277,7 +277,7 @@ src_install() {
 		>> "${S}/${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" || die
 
 	# Pax mark xpcshell for hardened support, only used for startupcache creation.
-		pax-mark m "${S}"/${obj_dir}/mozilla/dist/bin/xpcshell
+	pax-mark m "${S}"/${obj_dir}/mozilla/dist/bin/xpcshell
 
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
 	emake DESTDIR="${D}" install || die "emake install failed"
@@ -308,20 +308,15 @@ src_install() {
 	fi
 
 	if use lightning ; then
-		emid="{a62ef8ec-5fdc-40c2-873c-223b8a6925cc}"
+		emid="{3550f703-e582-4d05-9a08-453d09bdfdc6}"
 		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid}
 		cd "${ED}"${MOZILLA_FIVE_HOME}/extensions/${emid}
-		unzip "${S}"/${obj_dir}/mozilla/dist/xpi-stage/gdata-provider.xpi
-
-		emid="calendar-timezones@mozilla.org"
-		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid}
-		cd "${ED}"${MOZILLA_FIVE_HOME}/extensions/${emid}
-		unzip "${S}"/${obj_dir}/mozilla/dist/xpi-stage/calendar-timezones.xpi
+		unzip "${S}"/${obj_dir}/mozilla/dist/xpi-stage/gdata-provider-*.xpi
 
 		emid="{e2fda1a4-762b-4020-b5ad-a41df1933103}"
 		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid}
 		cd "${ED}"${MOZILLA_FIVE_HOME}/extensions/${emid}
-		unzip "${S}"/${obj_dir}/mozilla/dist/xpi-stage/lightning.xpi
+		unzip "${S}"/${obj_dir}/mozilla/dist/xpi-stage/lightning-*.xpi
 
 		# Fix mimetype so it shows up as a calendar application in GNOME 3
 		# This requires that the .desktop file was already installed earlier
@@ -335,9 +330,6 @@ src_install() {
 	# Plugin-container needs to be pax-marked for hardened to ensure plugins such as flash
 	# continue to work as expected.
 	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/plugin-container
-
-	# Plugins dir
-	share_plugins_dir
 
 	if use minimal; then
 		rm -rf "${ED}"/usr/include "${ED}"${MOZILLA_FIVE_HOME}/{idl,include,lib,sdk} || \
