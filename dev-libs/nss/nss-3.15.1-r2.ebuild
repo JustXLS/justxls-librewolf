@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/nss/nss-3.15.1.ebuild,v 1.1 2013/07/24 05:58:28 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/nss/nss-3.15.1-r2.ebuild,v 1.1 2013/09/26 06:02:24 vapier Exp $
 
 EAPI=5
 inherit eutils flag-o-matic multilib toolchain-funcs
@@ -26,6 +26,8 @@ RDEPEND=">=dev-libs/nspr-${NSPR_VER}
 	>=dev-db/sqlite-3.5
 	sys-libs/zlib"
 
+RESTRICT="test"
+
 S="${WORKDIR}/${P}/${PN}"
 
 src_setup() {
@@ -39,6 +41,7 @@ src_prepare() {
 	epatch "${DISTDIR}/${PN}-3.14.1-add_spi+cacerts_ca_certs.patch"
 	epatch "${DISTDIR}/${PN}-3.15-pem-support-20130617.patch.xz"
 	epatch "${FILESDIR}/${PN}-3.15-x32.patch"
+	epatch "${FILESDIR}/${PN}-3.15.1-fipstest-warnings.patch"
 	cd coreconf
 	# hack nspr paths
 	echo 'INCLUDES += -I$(DIST)/include/dbm' \
@@ -198,7 +201,6 @@ cleanup_chk() {
 }
 
 src_install() {
-	MINOR_VERSION=12
 	cd "${S}"/dist
 
 	dodir /usr/$(get_libdir)
@@ -216,16 +218,6 @@ src_install() {
 	# all the include files
 	insinto /usr/include/nss
 	doins public/nss/*.h
-	cd "${ED}"/usr/$(get_libdir)
-	local n file
-	for file in *$(get_libname); do
-		n=${file%$(get_libname)}$(get_libname ${MINOR_VERSION})
-		mv ${file} ${n}
-		ln -s ${n} ${file}
-		if [[ ${CHOST} == *-darwin* ]]; then
-			install_name_tool -id "${EPREFIX}/usr/$(get_libdir)/${n}" ${n} || die
-		fi
-	done
 
 	local f nssutils
 	# Always enabled because we need it for chk generation.
@@ -247,13 +239,12 @@ src_install() {
 
 	# Prelink breaks the CHK files. We don't have any reliable way to run
 	# shlibsign after prelink.
-	local l libs=()
+	local l libs=() liblist
 	for l in ${NSS_CHK_SIGN_LIBS} ; do
 		libs+=("${EPREFIX}/usr/$(get_libdir)/lib${l}.so")
 	done
-	OLD_IFS="${IFS}" IFS=":" ; liblist="${libs[*]}" ; IFS="${OLD_IFS}"
-	echo -e "PRELINK_PATH_MASK=${liblist}" >"${T}/90nss"
-	unset libs liblist
+	liblist=$(printf '%s:' "${libs[@]}")
+	echo -e "PRELINK_PATH_MASK=${liblist%:}" > "${T}/90nss"
 	doenvd "${T}/90nss"
 }
 
