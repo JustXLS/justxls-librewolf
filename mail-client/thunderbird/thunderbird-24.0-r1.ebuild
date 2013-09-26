@@ -51,7 +51,7 @@ SRC_URI="${SRC_URI}
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
-RDEPEND="	
+RDEPEND="
 	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.15.1
 	>=dev-libs/nspr-4.10
@@ -122,6 +122,8 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/thunderbird"
+	# drop -Wl,--build-id from LDFLAGS, bug #465446
+	epatch "${FILESDIR}"/moz${PV%%\.*}-drop-Wl-build-id.patch
 
 	# Apply our patchset from firefox to thunderbird as well
 	pushd "${S}"/mozilla &>/dev/null || die
