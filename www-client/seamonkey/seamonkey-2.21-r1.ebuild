@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.21.ebuild,v 1.4 2013/09/25 14:15:10 polynomial-c Exp $
 
-EAPI="3"
+EAPI=5
 WANT_AUTOCONF="2.1"
 
 # This list can be updated with scripts/get_langs.sh from the mozilla overlay
@@ -59,27 +59,27 @@ ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 # Mesa 7.10 needed for WebGL + bugfixes
 RDEPEND=">=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.15.1
-	>=dev-libs/nspr-4.10
-	>=dev-libs/glib-2.26:2
-	>=media-libs/mesa-7.10
-	>=media-libs/libpng-1.5.13[apng]
-	>=x11-libs/pango-1.14.0
-	>=x11-libs/gtk+-2.14:2
-	virtual/libffi
-	gstreamer? ( media-plugins/gst-plugins-meta:0.10[ffmpeg] )
-	system-cairo? ( >=x11-libs/cairo-1.12[X] )
-	system-icu? ( dev-libs/icu )
-	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
-	system-sqlite? ( >=dev-db/sqlite-3.7.16.1:3[secure-delete,debug=] )
-	>=media-libs/libvpx-1.0.0
+	>=dev-libs/nss-3.15.1:=
+	>=dev-libs/nspr-4.10:=
+	>=dev-libs/glib-2.26:2=
+	>=media-libs/mesa-7.10:=
+	>=media-libs/libpng-1.5.13:0=[apng]
+	>=x11-libs/pango-1.14.0:=
+	>=x11-libs/gtk+-2.14:2=
+	virtual/libffi:=
+	gstreamer? ( media-plugins/gst-plugins-meta:0.10=[ffmpeg] )
+	system-cairo? ( >=x11-libs/cairo-1.12:=[X] )
+	system-icu? ( dev-libs/icu:= )
+	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1:= )
+	system-sqlite? ( >=dev-db/sqlite-3.7.16.1:3=[secure-delete,debug=] )
+	>=media-libs/libvpx-1.0.0:=
 	crypt? ( >=app-crypt/gnupg-1.4 )
-	kernel_linux? ( media-libs/alsa-lib )
+	kernel_linux? ( media-libs/alsa-lib:= )
 	pulseaudio? ( media-sound/pulseaudio )
 	selinux? ( sec-policy/selinux-mozilla )"
 
 DEPEND="${RDEPEND}
-	!elibc_glibc? ( dev-libs/libexecinfo )
+	!elibc_glibc? ( dev-libs/libexecinfo:= )
 	virtual/pkgconfig
 	amd64? ( ${ASM_DEPEND}
 		virtual/opengl )
@@ -257,15 +257,15 @@ src_configure() {
 src_compile() {
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL}" \
-	emake -f client.mk || die
+	emake -f client.mk
 
 	# Only build enigmail extension if conditions are met.
 	if use crypt ; then
 		cd "${S}"/mailnews/extensions/enigmail || die
 		./makemake -r 2&> /dev/null
 		cd "${S}"/seamonk/mailnews/extensions/enigmail
-		emake || die "make enigmail failed"
-		emake xpi || die "make enigmail xpi failed"
+		emake
+		emake xpi
 	fi
 }
 
@@ -300,7 +300,7 @@ src_install() {
 		|| die
 
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
-	emake DESTDIR="${D}" install || die "emake install failed"
+	emake DESTDIR="${D}" install
 	cp -f "${FILESDIR}"/icon/${PN}.desktop "${T}" || die
 
 	if use crypt ; then
@@ -308,7 +308,7 @@ src_install() {
 		unzip "${S}"/${obj_dir}/mozilla/dist/bin/enigmail*.xpi install.rdf || die
 		emid=$(sed -n '/<em:id>/!d; s/.*\({.*}\).*/\1/; p; q' install.rdf)
 
-		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid} || die
+		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid}
 		cd "${D}"${MOZILLA_FIVE_HOME}/extensions/${emid} || die
 		unzip "${S}"/${obj_dir}/mozilla/dist/bin/enigmail*.xpi || die
 
@@ -329,9 +329,8 @@ src_install() {
 	fi
 
 	# Install icon and .desktop for menu entry
-	newicon "${S}"/suite/branding/nightly/content/icon64.png ${PN}.png \
-		|| die
-	domenu "${T}"/${PN}.desktop || die
+	newicon "${S}"/suite/branding/nightly/content/icon64.png ${PN}.png
+	domenu "${T}"/${PN}.desktop
 
 	# Required in order to use plugins and even run seamonkey on hardened.
 	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{seamonkey,seamonkey-bin,plugin-container}
@@ -343,7 +342,7 @@ src_install() {
 	# Handle plugins dir through nsplugins.eclass
 	share_plugins_dir
 
-	doman "${S}"/${obj_dir}/suite/app/${PN}.1 || die
+	doman "${S}"/${obj_dir}/suite/app/${PN}.1
 }
 
 pkg_preinst() {
