@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=5
+EAPI="3"
 VIRTUALX_REQUIRED="pgo"
 WANT_AUTOCONF="2.1"
 MOZ_ESR=""
@@ -51,20 +51,20 @@ ASM_DEPEND=">=dev-lang/yasm-1.1"
 # Mesa 7.10 needed for WebGL + bugfixes
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.15.1:=
-	>=dev-libs/nspr-4.10:=
-	>=dev-libs/glib-2.26:2=
-	>=media-libs/mesa-7.10:=
-	>=media-libs/libpng-1.5.13:0=[apng]
-	virtual/libffi:=
-	gstreamer? ( media-plugins/gst-plugins-meta:0.10=[ffmpeg] )
+	>=dev-libs/nss-3.15.1
+	>=dev-libs/nspr-4.10
+	>=dev-libs/glib-2.26:2
+	>=media-libs/mesa-7.10
+	>=media-libs/libpng-1.5.13[apng]
+	virtual/libffi
+	gstreamer? ( media-plugins/gst-plugins-meta:0.10[ffmpeg] )
 	pulseaudio? ( media-sound/pulseaudio )
-	system-cairo? ( >=x11-libs/cairo-1.12:=[X] )
-	system-icu? ( dev-libs/icu:= )
-	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1:= )
-	system-sqlite? ( >=dev-db/sqlite-3.7.16.1:3=[secure-delete,debug=] )
-	>=media-libs/libvpx-1.0.0:=
-	kernel_linux? ( media-libs/alsa-lib:= )
+	system-cairo? ( >=x11-libs/cairo-1.12[X] )
+	system-icu? ( dev-libs/icu )
+	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
+	system-sqlite? ( >=dev-db/sqlite-3.7.16.1:3[secure-delete,debug=] )
+	>=media-libs/libvpx-1.0.0
+	kernel_linux? ( media-libs/alsa-lib )
 	selinux? ( sec-policy/selinux-mozilla )"
 
 DEPEND="${RDEPEND}
@@ -277,7 +277,7 @@ src_compile() {
 	else
 		CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
 		MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL}" \
-		emake -f client.mk
+		emake -f client.mk || die "emake failed"
 	fi
 
 }
@@ -311,7 +311,7 @@ src_install() {
 		"${S}/${obj_dir}/dist/bin/browser/defaults/preferences/all-gentoo.js" || die
 
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
-	emake DESTDIR="${D}" install
+	emake DESTDIR="${D}" install || die "emake install failed"
 
 	# Install language packs
 	mozlinguas_src_install
@@ -334,16 +334,16 @@ src_install() {
 	# Install icons and .desktop for menu entry
 	for size in ${sizes}; do
 		insinto "/usr/share/icons/hicolor/${size}x${size}/apps"
-		newins "${icon_path}/default${size}.png" "${icon}.png"
+		newins "${icon_path}/default${size}.png" "${icon}.png" || die
 	done
 	# The 128x128 icon has a different name
 	insinto "/usr/share/icons/hicolor/128x128/apps"
-	newins "${icon_path}/mozicon128.png" "${icon}.png"
+	newins "${icon_path}/mozicon128.png" "${icon}.png" || die
 	# Install a 48x48 icon into /usr/share/pixmaps for legacy DEs
-	newicon "${icon_path}/content/icon48.png" "${icon}.png"
-	newmenu "${FILESDIR}/icon/${PN}.desktop" "${PN}.desktop"
+	newicon "${icon_path}/content/icon48.png" "${icon}.png" || die
+	newmenu "${FILESDIR}/icon/${PN}.desktop" "${PN}.desktop" || die
 	sed -i -e "s:@NAME@:${name}:" -e "s:@ICON@:${icon}:" \
-		"${ED}/usr/share/applications/${PN}.desktop"
+		"${ED}/usr/share/applications/${PN}.desktop" || die
 
 	# Add StartupNotify=true bug 237317
 	if use startup-notification ; then

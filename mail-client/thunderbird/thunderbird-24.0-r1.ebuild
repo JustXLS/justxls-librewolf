@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=5
+EAPI="3"
 WANT_AUTOCONF="2.1"
 MOZ_ESR=""
 
@@ -53,20 +53,20 @@ ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 RDEPEND="
 	>=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.15.1:=
-	>=dev-libs/nspr-4.10:=
+	>=dev-libs/nss-3.15.1
+	>=dev-libs/nspr-4.10
 	>=dev-libs/glib-2.26:2
-	>=media-libs/mesa-7.10:=
-	>=media-libs/libpng-1.5.13:0=[apng]
-	virtual/libffi:=
-	gstreamer? ( media-plugins/gst-plugins-meta:0.10=[ffmpeg] )
-	pulseaudio? ( media-sound/pulseaudio:= )
-	system-cairo? ( >=x11-libs/cairo-1.12:=[X] )
-	system-icu? ( dev-libs/icu:= )
-	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1:= )
-	system-sqlite? ( >=dev-db/sqlite-3.7.16.1:3=[secure-delete,debug=] )
-	>=media-libs/libvpx-1.0.0:=
-	kernel_linux? ( media-libs/alsa-lib:= )
+	>=media-libs/mesa-7.10
+	>=media-libs/libpng-1.5.13[apng]
+	virtual/libffi
+	gstreamer? ( media-plugins/gst-plugins-meta:0.10[ffmpeg] )
+	pulseaudio? ( media-sound/pulseaudio )
+	system-cairo? ( >=x11-libs/cairo-1.12[X] )
+	system-icu? ( dev-libs/icu )
+	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
+	system-sqlite? ( >=dev-db/sqlite-3.7.16.1:3[secure-delete,debug=] )
+	>=media-libs/libvpx-1.0.0
+	kernel_linux? ( media-libs/alsa-lib )
 	selinux? ( sec-policy/selinux-thunderbird )
 	!x11-plugins/enigmail
 	crypt?  ( || (
@@ -257,8 +257,8 @@ src_compile() {
 		cd "${S}"/mailnews/extensions/enigmail || die
 		./makemake -r 2&> /dev/null
 		cd "${S}"/tbird/mailnews/extensions/enigmail
-		emake -j1
-		emake -j1 xpi
+		emake -j1 || die "make enigmail failed"
+		emake -j1 xpi || die "make enigmail xpi failed"
 	fi
 }
 
@@ -282,7 +282,7 @@ src_install() {
 	pax-mark m "${S}"/${obj_dir}/mozilla/dist/bin/xpcshell
 
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
-	emake DESTDIR="${D}" install
+	emake DESTDIR="${D}" install || die "emake install failed"
 
 	# Install language packs
 	mozlinguas_src_install
@@ -304,7 +304,7 @@ src_install() {
 		unzip "${S}"/${obj_dir}/mozilla/dist/bin/enigmail*.xpi install.rdf || die
 		emid=$(sed -n '/<em:id>/!d; s/.*\({.*}\).*/\1/; p; q' install.rdf)
 
-		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid}
+		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid} || die
 		cd "${D}"${MOZILLA_FIVE_HOME}/extensions/${emid} || die
 		unzip "${S}"/${obj_dir}/mozilla/dist/bin/enigmail*.xpi || die
 	fi
