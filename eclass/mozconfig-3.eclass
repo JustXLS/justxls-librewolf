@@ -20,7 +20,7 @@ RDEPEND="app-arch/zip
 	>=dev-libs/libevent-1.4.7
 	>=x11-libs/cairo-1.8[X]
 	>=x11-libs/gtk+-2.8.6:2
-	>=x11-libs/pango-1.10.1[X]
+	>=x11-libs/pango-1.10.1
 	virtual/jpeg:0
 	alsa? ( media-libs/alsa-lib )
 	virtual/freedesktop-icon-theme
