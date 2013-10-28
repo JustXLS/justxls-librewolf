@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.21.ebuild,v 1.4 2013/09/25 14:15:10 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.21-r1.ebuild,v 1.3 2013/10/28 07:51:57 polynomial-c Exp $
 
 EAPI="3"
 WANT_AUTOCONF="2.1"
@@ -28,9 +28,9 @@ fi
 
 inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
 
-PATCHFF="firefox-24.0-patches-0.3"
+PATCHFF="firefox-24.0-patches-0.4"
 PATCH="${PN}-2.14-patches-01"
-EMVER="1.5.2"
+EMVER="1.6"
 
 DESCRIPTION="Seamonkey Web Browser"
 HOMEPAGE="http://www.seamonkey-project.org"
@@ -42,7 +42,7 @@ if [[ ${PV} == *_pre* ]] ; then
 else
 	# This is where arch teams should change the KEYWORDS.
 
-	KEYWORDS="amd64 ~arm ~ppc ~ppc64 x86"
+	KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
 fi
 
 SLOT="0"
@@ -53,13 +53,12 @@ SRC_URI="${SRC_URI}
 	${MOZ_FTP_URI}/source/${MY_MOZ_P}.source.tar.bz2 -> ${P}.source.tar.bz2
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
-	crypt? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz )"
+	crypt? ( http://www.enigmail.net/download/source/enigmail-${EMVER}.tar.gz )"
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 # Mesa 7.10 needed for WebGL + bugfixes
-RDEPEND=">=sys-devel/binutils-2.16.1
-	>=dev-libs/nss-3.15.1
+RDEPEND=">=dev-libs/nss-3.15.1
 	>=dev-libs/nspr-4.10
 	>=dev-libs/glib-2.26:2
 	>=media-libs/mesa-7.10
@@ -80,6 +79,7 @@ RDEPEND=">=sys-devel/binutils-2.16.1
 
 DEPEND="${RDEPEND}
 	!elibc_glibc? ( dev-libs/libexecinfo )
+	>=sys-devel/binutils-2.16.1
 	virtual/pkgconfig
 	amd64? ( ${ASM_DEPEND}
 		virtual/opengl )
@@ -125,13 +125,16 @@ src_prepare() {
 
 	# browser patches go here
 	pushd "${S}"/mozilla &>/dev/null || die
-	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch" \
+	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch
+			7006_fixup_hppa_support.patch
+			8000_allow_system_icu.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
+	epatch "${FILESDIR}"/8000_allow_system_icu.patch
 	popd &>/dev/null || die
 	# drop -Wl,--build-id from LDFLAGS, bug #465466
-	epatch "${FILESDIR}"/moz${PATCHFF:8:2}-drop-Wl-build-id.patch
+	epatch "${FILESDIR}"/moz25-drop-Wl-build-id.patch
 
 	# Shell scripts sometimes contain DOS line endings; bug 391889
 	grep -rlZ --include="*.sh" $'\r$' . |
@@ -142,9 +145,9 @@ src_prepare() {
 
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
-		pushd "${S}"/mailnews/extensions/enigmail &>/dev/null || die
-		epatch "${FILESDIR}"/enigmail_mailnews_extensions_genxpi.patch
-		popd &>/dev/null || die
+		#pushd "${S}"/mailnews/extensions/enigmail &>/dev/null || die
+
+		#popd &>/dev/null || die
 	fi
 
 	# Allow user to apply any additional patches without modifing ebuild
