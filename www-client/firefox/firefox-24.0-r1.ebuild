@@ -50,7 +50,6 @@ ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 # Mesa 7.10 needed for WebGL + bugfixes
 RDEPEND="
-	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.15.1
 	>=dev-libs/nspr-4.10
 	>=dev-libs/glib-2.26:2
@@ -68,6 +67,7 @@ RDEPEND="
 	selinux? ( sec-policy/selinux-mozilla )"
 
 DEPEND="${RDEPEND}
+	>=sys-devel/binutils-2.16.1
 	virtual/pkgconfig
 	pgo? (
 		>=sys-devel/gcc-4.5 )

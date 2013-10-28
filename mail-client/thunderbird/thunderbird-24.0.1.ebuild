@@ -21,7 +21,7 @@ fi
 MOZ_P="${PN}-${MOZ_PV}"
 
 # Enigmail version
-EMVER="1.5.2"
+EMVER="1.6"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
@@ -43,16 +43,14 @@ PATCHFF="firefox-24.0-patches-0.4"
 SRC_URI="${SRC_URI}
 	${MOZ_FTP_URI}${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
 	${MOZ_HTTP_URI}${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
-	crypt? ( http://www.mozilla-enigmail.org/download/source/enigmail-${EMVER}.tar.gz )
+	crypt? ( http://www.enigmail.net/download/source/enigmail-${EMVER}.tar.gz )
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.xz
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz
-	http://dev.gentoo.org/~nirbheek/mozilla/patchsets/${PATCHFF}.tar.xz
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz"
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 RDEPEND="
-	>=sys-devel/binutils-2.16.1
 	>=dev-libs/nss-3.15.1
 	>=dev-libs/nspr-4.10
 	>=dev-libs/glib-2.26:2
@@ -80,6 +78,7 @@ RDEPEND="
 	) )"
 
 DEPEND="${RDEPEND}
+	>=sys-devel/binutils-2.16.1
 	virtual/pkgconfig
 	amd64? ( ${ASM_DEPEND}
 		virtual/opengl )
@@ -134,9 +133,6 @@ src_prepare() {
 
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
-		pushd "${S}"/mailnews/extensions/enigmail &>/dev/null || die
-		epatch "${FILESDIR}"/enigmail_mailnews_extensions_genxpi.patch
-		popd &>/dev/null || die
 	fi
 
 	# Ensure that are plugins dir is enabled as default
