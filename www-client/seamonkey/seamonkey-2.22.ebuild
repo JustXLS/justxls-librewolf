@@ -28,7 +28,7 @@ fi
 
 inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
 
-PATCHFF="firefox-24.0-patches-0.4"
+PATCHFF="firefox-24.0-patches-0.5"
 PATCH="${PN}-2.14-patches-01"
 EMVER="1.6"
 
