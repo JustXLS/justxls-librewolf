@@ -28,7 +28,7 @@ fi
 
 inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
 
-PATCHFF="firefox-24.0-patches-0.5"
+PATCHFF="firefox-25.0-patches-0.3"
 PATCH="${PN}-2.14-patches-01"
 EMVER="1.6"
 
@@ -68,7 +68,7 @@ RDEPEND=">=dev-libs/nss-3.15.1
 	virtual/libffi
 	gstreamer? ( media-plugins/gst-plugins-meta:0.10[ffmpeg] )
 	system-cairo? ( >=x11-libs/cairo-1.12[X] )
-	system-icu? ( dev-libs/icu )
+	system-icu? ( >=dev-libs/icu-0.51.1 )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-sqlite? ( >=dev-db/sqlite-3.7.16.1:3[secure-delete,debug=] )
 	>=media-libs/libvpx-1.0.0
@@ -125,16 +125,12 @@ src_prepare() {
 
 	# browser patches go here
 	pushd "${S}"/mozilla &>/dev/null || die
-	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch
-			7006_fixup_hppa_support.patch
-			8000_allow_system_icu.patch" \
+	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
-	epatch "${FILESDIR}"/8000_allow_system_icu.patch
 	popd &>/dev/null || die
 	# drop -Wl,--build-id from LDFLAGS, bug #465466
-	epatch "${FILESDIR}"/moz25-drop-Wl-build-id.patch
 
 	# Shell scripts sometimes contain DOS line endings; bug 391889
 	grep -rlZ --include="*.sh" $'\r$' . |
