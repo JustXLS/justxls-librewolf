@@ -38,7 +38,7 @@ LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="bindist crypt gstreamer +jit ldap +lightning +minimal mozdom pulseaudio selinux system-cairo system-icu system-jpeg system-sqlite"
 
 PATCH="thunderbird-24.0-patches-0.1"
-PATCHFF="firefox-24.0-patches-0.5"
+PATCHFF="firefox-24.0-patches-0.6"
 
 SRC_URI="${SRC_URI}
 	${MOZ_FTP_URI}${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
@@ -121,8 +121,6 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/thunderbird"
-	# drop -Wl,--build-id from LDFLAGS, bug #465466
-	epatch "${FILESDIR}"/moz${PV%%\.*}-drop-Wl-build-id.patch
 
 	# Apply our patchset from firefox to thunderbird as well
 	pushd "${S}"/mozilla &>/dev/null || die
@@ -253,8 +251,8 @@ src_compile() {
 		cd "${S}"/mailnews/extensions/enigmail || die
 		./makemake -r 2&> /dev/null
 		cd "${S}"/tbird/mailnews/extensions/enigmail
-		emake -j1 || die "make enigmail failed"
-		emake -j1 xpi || die "make enigmail xpi failed"
+		emake || die "make enigmail failed"
+		emake xpi || die "make enigmail xpi failed"
 	fi
 }
 

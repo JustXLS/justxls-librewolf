@@ -25,7 +25,7 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-24.0-patches-0.5"
+PATCH="${PN}-24.0-patches-0.6"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
@@ -147,8 +147,6 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
-	# drop -Wl,--build-id from LDFLAGS, bug #465466
-	epatch "${FILESDIR}"/moz${PV%%\.*}-drop-Wl-build-id.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
