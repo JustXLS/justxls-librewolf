@@ -54,7 +54,7 @@ RDEPEND="
 	>=dev-libs/nspr-4.10
 	>=dev-libs/glib-2.26:2
 	>=media-libs/mesa-7.10
-	>=media-libs/libpng-1.5.13[apng]
+	>=media-libs/libpng-1.5.17[apng]
 	virtual/libffi
 	gstreamer? ( media-plugins/gst-plugins-meta:0.10[ffmpeg] )
 	pulseaudio? ( media-sound/pulseaudio )
