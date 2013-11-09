@@ -9,17 +9,18 @@ PYTHON_REQ_USE="threads"
 inherit autotools eutils toolchain-funcs multilib python-any-r1 versionator pax-utils
 
 MY_PN="mozjs"
-MY_P="${MY_PN}-${PV}"
+MY_P="${MY_PN}-${PV/_/.}"
 DESCRIPTION="Stand-alone JavaScript C library"
 HOMEPAGE="http://www.mozilla.org/js/spidermonkey/"
 SRC_URI="http://dev.gentoo.org/~axs/distfiles/${MY_P}.tar.bz2"
+SRC_URI="http://people.mozilla.org/~sstangl/${MY_P}.tar.bz2"
 
 LICENSE="NPL-1.1"
 SLOT="24"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa -ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd"
 IUSE="debug icu jit minimal static-libs test"
 
-S="${WORKDIR}/${MY_P}"
+S="${WORKDIR}/${MY_P%.rc*}"
 BUILDDIR="${S}/js/src"
 
 RDEPEND=">=dev-libs/nspr-4.9.4
