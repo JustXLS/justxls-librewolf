@@ -143,6 +143,9 @@ src_prepare() {
 
 	if use crypt ; then
 		mv "${WORKDIR}"/enigmail "${S}"/mailnews/extensions/enigmail
+		pushd "${S}"/mailnews/extensions/enigmail &>/dev/null || die
+		epatch "${FILESDIR}"/enigmail-1.6.0-parallel-fix.patch
+		popd &>/dev/null || die
 	fi
 
 	# Ensure that are plugins dir is enabled as default
