@@ -28,7 +28,7 @@ fi
 
 inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
 
-PATCHFF="firefox-25.0-patches-0.3"
+PATCHFF="firefox-26.0-patches-0.3"
 PATCH="${PN}-2.23-patches-01"
 EMVER="1.6"
 
@@ -125,10 +125,7 @@ src_prepare() {
 
 	# browser patches go here
 	pushd "${S}"/mozilla &>/dev/null || die
-	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch
-			8000_allow_system_icu.patch
-			8001_ia64_support_bug_910845.patch
-			8002_fix_versioning_bug_927073.patch" \
+	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
