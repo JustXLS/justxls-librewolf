@@ -6,5 +6,5 @@
 #
 
 # Masked for testing
-=www-client/seamonkey-2.23_beta*
+=www-client/seamonkey-2.24_beta*
 
