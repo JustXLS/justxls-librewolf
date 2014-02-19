@@ -28,7 +28,7 @@ fi
 
 inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-3 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
 
-PATCHFF="firefox-26.0-patches-0.3"
+PATCHFF="firefox-28.0_pre-patches-1"
 PATCH="${PN}-2.23-patches-01"
 EMVER="1.6.1_pre20140112"
 
@@ -51,7 +51,7 @@ IUSE="+chatzilla +crypt gstreamer +ipc +jit minimal pulseaudio +roaming selinux 
 
 SRC_URI="${SRC_URI}
 	${MOZ_FTP_URI}/source/${MY_MOZ_P}.source.tar.bz2 -> ${P}.source.tar.bz2
-	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz
+	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCHFF}.tar.xz
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
 	crypt? ( http://dev.gentoo.org/~polynomial-c/mozilla/enigmail-${EMVER}.tar.xz )"
 	#crypt? ( http://www.enigmail.net/download/source/enigmail-${EMVER}.tar.gz )
@@ -59,11 +59,11 @@ SRC_URI="${SRC_URI}
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 # Mesa 7.10 needed for WebGL + bugfixes
-RDEPEND=">=dev-libs/nss-3.15.3
+RDEPEND=">=dev-libs/nss-3.15.4
 	>=dev-libs/nspr-4.10.2
 	>=dev-libs/glib-2.26:2
 	>=media-libs/mesa-7.10
-	>=media-libs/libpng-1.5.17[apng]
+	>=media-libs/libpng-1.6.6[apng]
 	>=x11-libs/pango-1.14.0
 	>=x11-libs/gtk+-2.14:2
 	virtual/libffi
@@ -71,7 +71,7 @@ RDEPEND=">=dev-libs/nss-3.15.3
 	system-cairo? ( >=x11-libs/cairo-1.12[X] )
 	system-icu? ( >=dev-libs/icu-0.51.1 )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
-	system-sqlite? ( >=dev-db/sqlite-3.7.17:3[secure-delete,debug=] )
+	system-sqlite? ( >=dev-db/sqlite-3.8.0.2:3[secure-delete,debug=] )
 	>=media-libs/libvpx-1.0.0
 	crypt? ( >=app-crypt/gnupg-1.4 )
 	kernel_linux? ( media-libs/alsa-lib )
@@ -126,8 +126,7 @@ src_prepare() {
 
 	# browser patches go here
 	pushd "${S}"/mozilla &>/dev/null || die
-	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch
-			7007_fix_missing_strings.patch" \
+	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
