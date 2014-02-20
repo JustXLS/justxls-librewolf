@@ -72,7 +72,7 @@ RDEPEND=">=dev-libs/nss-3.15.4
 	system-icu? ( >=dev-libs/icu-0.51.1 )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-sqlite? ( >=dev-db/sqlite-3.8.0.2:3[secure-delete,debug=] )
-	>=media-libs/libvpx-1.0.0
+	>=media-libs/libvpx-1.3.0
 	crypt? ( >=app-crypt/gnupg-1.4 )
 	kernel_linux? ( media-libs/alsa-lib )
 	pulseaudio? ( media-sound/pulseaudio )
