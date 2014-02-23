@@ -1,27 +1,29 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/nss/nss-3.15.3.ebuild,v 1.1 2013/11/14 11:45:36 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/nss/nss-3.15.5.ebuild,v 1.1 2014/02/22 10:42:36 polynomial-c Exp $
 
 EAPI=5
 inherit eutils flag-o-matic multilib toolchain-funcs
 
 NSPR_VER="4.10"
 RTM_NAME="NSS_${PV//./_}_RTM"
+# Rev of https://git.fedorahosted.org/cgit/nss-pem.git
+PEM_GIT_REV="3ade37c5c4ca5a6094e3f4b2e4591405db1867dd"
+PEM_P="${PN}-pem-${PEM_GIT_REV}"
 
 DESCRIPTION="Mozilla's Network Security Services library that implements PKI support"
 HOMEPAGE="http://www.mozilla.org/projects/security/pki/nss/"
 SRC_URI="ftp://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/${RTM_NAME}/src/${P}.tar.gz
-	http://dev.gentoo.org/~anarchy/patches/${PN}-3.14.1-add_spi+cacerts_ca_certs.patch
-	http://dev.gentoo.org/~anarchy/patches/${PN}-3.15-pem-support-20130617.patch.xz"
+	cacert? ( http://dev.gentoo.org/~anarchy/patches/${PN}-3.14.1-add_spi+cacerts_ca_certs.patch )
+	nss-pem? ( https://git.fedorahosted.org/cgit/nss-pem.git/snapshot/${PEM_P}.tar.bz2 )"
 
 LICENSE="|| ( MPL-2.0 GPL-2 LGPL-2.1 )"
 SLOT="0"
-KEYWORDS="~alpha amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
-IUSE="utils"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
+IUSE="+cacert +nss-pem utils"
 
 DEPEND="virtual/pkgconfig
 	>=dev-libs/nspr-${NSPR_VER}"
-
 RDEPEND=">=dev-libs/nspr-${NSPR_VER}
 	>=dev-db/sqlite-3.5
 	sys-libs/zlib"
@@ -34,14 +36,21 @@ src_setup() {
 	export LC_ALL="C"
 }
 
+src_unpack() {
+	unpack ${A}
+	if use nss-pem ; then
+		mv "${PEM_P}"/nss/lib/ckfw/pem/ "${S}"/lib/ckfw/ || die
+	fi
+}
+
 src_prepare() {
 	# Custom changes for gentoo
 	epatch "${FILESDIR}/${PN}-3.15-gentoo-fixups.patch"
 	epatch "${FILESDIR}/${PN}-3.15-gentoo-fixup-warnings.patch"
-	epatch "${DISTDIR}/${PN}-3.14.1-add_spi+cacerts_ca_certs.patch"
-	epatch "${DISTDIR}/${PN}-3.15-pem-support-20130617.patch.xz"
+	use cacert && epatch "${DISTDIR}/${PN}-3.14.1-add_spi+cacerts_ca_certs.patch"
+	use nss-pem && epatch "${FILESDIR}/${PN}-3.15.4-enable-pem.patch"
 	epatch "${FILESDIR}/${PN}-3.15-x32.patch"
-	epatch "${FILESDIR}/${PN}-3.15.1-fipstest-warnings.patch"
+	epatch "${FILESDIR}/nss-3.14.2-solaris-gcc.patch"
 	cd coreconf
 	# hack nspr paths
 	echo 'INCLUDES += -I$(DIST)/include/dbm' \
@@ -60,8 +69,6 @@ src_prepare() {
 	# Fix pkgconfig file for Prefix
 	sed -i -e "/^PREFIX =/s:= /usr:= ${EPREFIX}/usr:" \
 		"${S}"/config/Makefile
-
-	epatch "${FILESDIR}/nss-3.14.2-solaris-gcc.patch"
 
 	# use host shlibsign if need be #436216
 	if tc-is-cross-compiler ; then
@@ -82,6 +89,7 @@ nssarch() {
 	# Most of the arches are the same as $ARCH
 	local t=${1:-${CHOST}}
 	case ${t} in
+	aarch64*)echo "aarch64";;
 	hppa*)   echo "parisc";;
 	i?86*)   echo "i686";;
 	x86_64*) echo "x86_64";;
