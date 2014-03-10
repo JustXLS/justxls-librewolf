@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-lang/spidermonkey/spidermonkey-17.0.0-r1.ebuild,v 1.1 2013/08/10 02:43:06 axs Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-lang/spidermonkey/spidermonkey-24.2.0-r1.ebuild,v 1.1 2014/03/08 14:38:51 anarchy Exp $
 
 EAPI="5"
 WANT_AUTOCONF="2.1"
@@ -12,20 +12,22 @@ MY_PN="mozjs"
 MY_P="${MY_PN}-${PV/_/.}"
 DESCRIPTION="Stand-alone JavaScript C library"
 HOMEPAGE="http://www.mozilla.org/js/spidermonkey/"
-SRC_URI="http://dev.gentoo.org/~axs/distfiles/${MY_P}.tar.bz2"
-SRC_URI="http://people.mozilla.org/~sstangl/${MY_P}.tar.bz2"
+SRC_URI="https://ftp.mozilla.org/pub/mozilla.org/js/${MY_P}.tar.bz2"
 
 LICENSE="NPL-1.1"
 SLOT="24"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa -ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd"
-IUSE="debug icu jit minimal static-libs test"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd"
+IUSE="debug icu jit minimal static-libs +system-icu test"
+
+RESTRICT="ia64? ( test )"
 
 S="${WORKDIR}/${MY_P%.rc*}"
 BUILDDIR="${S}/js/src"
 
 RDEPEND=">=dev-libs/nspr-4.9.4
 	virtual/libffi
-	icu? ( dev-libs/icu )"
+	>=sys-libs/zlib-1.1.4
+	system-icu? ( >=dev-libs/icu-1.51:= )"
 DEPEND="${RDEPEND}
 	${PYTHON_DEPS}
 	app-arch/zip
@@ -40,6 +42,7 @@ pkg_setup(){
 
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-${SLOT}-system-icu.patch
+	epatch "${FILESDIR}"/${PN}-24.2.0-fix-file-permissions.patch
 	epatch_user
 
 	if [[ ${CHOST} == *-freebsd* ]]; then
@@ -54,6 +57,13 @@ src_prepare() {
 src_configure() {
 	cd "${BUILDDIR}" || die
 
+	local myopts=""
+	if use icu; then # make sure system-icu flag only affects icu-enabled build
+		myopts+="$(use_with system-icu)"
+	else
+		myopts+="--without-system-icu"
+	fi
+
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" \
 	AR="$(tc-getAR)" RANLIB="$(tc-getRANLIB)" \
 	LD="$(tc-getLD)" \
@@ -66,7 +76,6 @@ src_configure() {
 		--enable-system-ffi \
 		--enable-jemalloc \
 		$(use_enable icu intl-api) \
-		$(use_with icu system-icu) \
 		$(use_enable debug) \
 		$(use_enable jit tracejit) \
 		$(use_enable jit methodjit) \
