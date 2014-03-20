@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.23.ebuild,v 1.4 2014/01/13 17:30:22 polynomial-c Exp $
 
-EAPI="3"
+EAPI=5
 WANT_AUTOCONF="2.1"
 
 # This list can be updated with scripts/get_langs.sh from the mozilla overlay
@@ -59,8 +59,8 @@ SRC_URI="${SRC_URI}
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 # Mesa 7.10 needed for WebGL + bugfixes
-RDEPEND=">=dev-libs/nss-3.15.4
-	>=dev-libs/nspr-4.10.2
+RDEPEND=">=dev-libs/nss-3.16
+	>=dev-libs/nspr-4.10.4
 	>=dev-libs/glib-2.26:2
 	>=media-libs/mesa-7.10
 	>=media-libs/libpng-1.6.6[apng]
@@ -101,7 +101,9 @@ pkg_setup() {
 	fi
 
 	moz_pkgsetup
+}
 
+pkg_pretend() {
 	# Ensure we have enough disk space to compile
 	if use debug || use test ; then
 		CHECKREQS_DISK_BUILD="8G"
@@ -137,7 +139,7 @@ src_prepare() {
 	grep -rlZ --include="*.sh" $'\r$' . |
 	while read -r -d $'\0' file ; do
 		einfo edos2unix "${file}"
-		edos2unix "${file}" || die
+		edos2unix "${file}"
 	done
 
 	if use crypt ; then
@@ -244,6 +246,7 @@ src_configure() {
 
 	if use crypt ; then
 		pushd "${S}"/mailnews/extensions/enigmail &>/dev/null || die
+		# econf fails here and would produce useless Makefiles anyway
 		./configure || die
 		popd &>/dev/null || die
 	fi
@@ -263,13 +266,13 @@ src_configure() {
 src_compile() {
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL}" \
-	emake -f client.mk || die
+	emake -f client.mk
 
 	# Only build enigmail extension if conditions are met.
 	if use crypt ; then
 		cd "${S}"/mailnews/extensions/enigmail || die
-		emake || die "make enigmail failed"
-		emake xpi || die "make enigmail xpi failed"
+		emake
+		emake xpi
 	fi
 }
 
@@ -278,7 +281,7 @@ src_install() {
 	DICTPATH="\"${EPREFIX}/usr/share/myspell\""
 
 	local emid obj_dir="seamonk"
-	cd "${S}/${obj_dir}"
+	cd "${S}/${obj_dir}" || die
 
 	# Pax mark xpcshell for hardened support, only used for startupcache creation.
 	pax-mark m "${S}/${obj_dir}/mozilla/dist/bin/xpcshell"
@@ -304,20 +307,20 @@ src_install() {
 		|| die
 
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
-	emake DESTDIR="${D}" install || die "emake install failed"
-	cp -f "${FILESDIR}"/icon/${PN}.desktop "${T}" || die
+	emake DESTDIR="${D}" install
+	cp "${FILESDIR}"/icon/${PN}.desktop "${T}" || die
 
 	if use crypt ; then
 		local em_dir="${S}/mailnews/extensions/enigmail/build"
-		cd "${T}" || die
+		pushd "${T}" &>/dev/null || die
 		unzip "${em_dir}"/enigmail*.xpi install.rdf || die
 		emid=$(sed -n '/<em:id>/!d; s/.*\({.*}\).*/\1/; p; q' install.rdf)
 
-		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid} || die
+		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid}
 		cd "${D}"${MOZILLA_FIVE_HOME}/extensions/${emid} || die
 		unzip "${em_dir}"/enigmail*.xpi || die
 
-		cd "${S}" || die
+		popd &>/dev/null || die
 	fi
 
 	sed 's|^\(MimeType=.*\)$|\1text/x-vcard;text/directory;application/mbox;message/rfc822;x-scheme-handler/mailto;|' \
@@ -330,13 +333,12 @@ src_install() {
 
 	# Add StartupNotify=true bug 290401
 	if use startup-notification ; then
-		echo "StartupNotify=true" >> "${T}"/${PN}.desktop
+		echo "StartupNotify=true" >> "${T}"/${PN}.desktop || die
 	fi
 
 	# Install icon and .desktop for menu entry
-	newicon "${S}"/suite/branding/nightly/content/icon64.png ${PN}.png \
-		|| die
-	domenu "${T}"/${PN}.desktop || die
+	newicon "${S}"/suite/branding/nightly/content/icon64.png ${PN}.png
+	domenu "${T}"/${PN}.desktop
 
 	# Required in order to use plugins and even run seamonkey on hardened.
 	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{seamonkey,seamonkey-bin,plugin-container}
@@ -348,7 +350,7 @@ src_install() {
 	# Handle plugins dir through nsplugins.eclass
 	share_plugins_dir
 
-	doman "${S}"/${obj_dir}/suite/app/${PN}.1 || die
+	doman "${S}"/${obj_dir}/suite/app/${PN}.1
 }
 
 pkg_preinst() {

@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mozlinguas.eclass,v 1.6 2013/04/05 15:27:40 floppym Exp $
 
 # @ECLASS: mozlinguas.eclass
 # @MAINTAINER:
@@ -17,14 +17,13 @@ inherit mozextension
 case "${EAPI:-0}" in
 	0|1)
 		die "EAPI ${EAPI:-0} does not support the '->' SRC_URI operator";;
-	2|3|4)
+	2|3|4|5)
 		EXPORT_FUNCTIONS src_unpack src_install;;
 	*)
 		die "EAPI ${EAPI} is not supported, contact eclass maintainers";;
 esac
 
 # @ECLASS-VARIABLE: MOZ_LANGS
-# @DEFAULT-UNSET
 # @DESCRIPTION:
 # Array containing the list of language pack xpis available for
 # this release. The list can be updated with scripts/get_langs.sh from the
@@ -50,7 +49,6 @@ esac
 : ${MOZ_P:="${MOZ_PN}-${MOZ_PV}"}
 
 # @ECLASS-VARIABLE: MOZ_FTP_URI
-# @DEFAULT-UNSET
 # @DESCRIPTION:
 # The ftp URI prefix for the release tarballs and language packs.
 : ${MOZ_FTP_URI:=""}
