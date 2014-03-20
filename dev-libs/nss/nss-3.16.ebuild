@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/nss/nss-3.15.5.ebuild,v 1.1 2014/02/22 10:42:36 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/nss/nss-3.16.ebuild,v 1.1 2014/03/20 13:32:21 polynomial-c Exp $
 
 EAPI=5
 inherit eutils flag-o-matic multilib toolchain-funcs
@@ -150,13 +150,12 @@ src_compile() {
 	XCFLAGS="${BUILD_CFLAGS}" \
 	emake -j1 -C coreconf \
 		CC="${BUILD_CC}" \
-		$(nssbits BUILD_) \
-		|| die
+		$(nssbits BUILD_)
 	makeargs+=( NSINSTALL="${PWD}/$(find -type f -name nsinstall)" )
 
 	# Then build the target tools.
 	for d in . lib/dbm ; do
-		emake -j1 "${makeargs[@]}" -C ${d} || die "${d} make failed"
+		emake -j1 "${makeargs[@]}" -C ${d}
 	done
 }
 
