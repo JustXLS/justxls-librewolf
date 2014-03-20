@@ -56,8 +56,8 @@ SRC_URI="${SRC_URI}
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 RDEPEND="
-	>=dev-libs/nss-3.15.4
-	>=dev-libs/nspr-4.10.2
+	>=dev-libs/nss-3.16
+	>=dev-libs/nspr-4.10.4
 	>=dev-libs/glib-2.26:2
 	>=media-libs/mesa-7.10
 	>=media-libs/libpng-1.6.6[apng]

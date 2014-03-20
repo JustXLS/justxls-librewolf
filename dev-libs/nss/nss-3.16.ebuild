@@ -49,7 +49,6 @@ src_prepare() {
 	epatch "${FILESDIR}/${PN}-3.15-gentoo-fixup-warnings.patch"
 	use cacert && epatch "${DISTDIR}/${PN}-3.14.1-add_spi+cacerts_ca_certs.patch"
 	use nss-pem && epatch "${FILESDIR}/${PN}-3.15.4-enable-pem.patch"
-	epatch "${FILESDIR}/${PN}-3.15-x32.patch"
 	epatch "${FILESDIR}/nss-3.14.2-solaris-gcc.patch"
 	cd coreconf
 	# hack nspr paths
