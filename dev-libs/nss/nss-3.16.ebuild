@@ -101,7 +101,7 @@ nssbits() {
 	echo > "${T}"/test.c || die
 	${!cc} ${!cppflags} ${!cflags} -c "${T}"/test.c -o "${T}"/test.o || die
 	case $(file "${T}"/test.o) in
-	*32-bit*x86-64*) echo USE_x32=1;;
+	*32-bit*x86-64*) echo USE_X32=1;;
 	*64-bit*|*ppc64*|*x86_64*) echo USE_64=1;;
 	*32-bit*|*ppc*|*i386*) ;;
 	*) die "Failed to detect whether your arch is 64bits or 32bits, disable distcc if you're using it, please";;
