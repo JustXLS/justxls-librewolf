@@ -39,7 +39,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist gstreamer +jit +minimal pgo pulseaudio selinux system-cairo system-icu system-jpeg system-sqlite test"
+IUSE="bindist gstreamer hardened +jit +minimal pgo pulseaudio selinux system-cairo system-icu system-jpeg system-sqlite test"
 
 # More URIs appended below...
 SRC_URI="${SRC_URI}
@@ -204,6 +204,9 @@ src_configure() {
 
 	# It doesn't compile on alpha without this LDFLAGS
 	use alpha && append-ldflags "-Wl,--no-relax"
+
+	# Add full relro support for hardened
+	use hardened && append-ldflags "-Wl,-z,relro,-z,now"
 
 	# We must force enable jemalloc 3 threw .mozconfig
 	echo "export MOZ_JEMALLOC=1" >> ${S}/.mozconfig || die
