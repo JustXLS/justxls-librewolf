@@ -93,6 +93,8 @@ else
 	S="${WORKDIR}/comm-release"
 fi
 
+BUILD_OBJ_DIR="${S}/seamonk"
+
 pkg_setup() {
 	if [[ ${PV} == *_pre* ]] ; then
 		ewarn "You're using an unofficial release of ${PN}. Don't file any bug in"
@@ -128,7 +130,8 @@ src_prepare() {
 
 	# browser patches go here
 	pushd "${S}"/mozilla &>/dev/null || die
-	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch" \
+	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch
+			8000_fix_system_icu.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
@@ -239,7 +242,7 @@ src_configure() {
 	mozconfig_use_enable jit ion
 
 	# Use an objdir to keep things organized.
-	echo "mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/seamonk" \
+	echo "mk_add_options MOZ_OBJDIR=${BUILD_OBJ_DIR}" \
 		>> "${S}"/.mozconfig
 
 	# Finalize and report settings
@@ -281,30 +284,30 @@ src_install() {
 	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 	DICTPATH="\"${EPREFIX}/usr/share/myspell\""
 
-	local emid obj_dir="seamonk"
-	cd "${S}/${obj_dir}" || die
+	local emid obj_dir="${BUILD_OBJ_DIR}"
+	cd "${obj_dir}" || die
 
 	# Pax mark xpcshell for hardened support, only used for startupcache creation.
-	pax-mark m "${S}/${obj_dir}/mozilla/dist/bin/xpcshell"
+	pax-mark m "${obj_dir}/mozilla/dist/bin/xpcshell"
 
 	# Copy our preference before omnijar is created.
 	sed "s|SEAMONKEY_PVR|${PVR}|" "${FILESDIR}"/all-gentoo-1.js > \
-		"${S}/${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
+		"${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
 
 	# Set default path to search for dictionaries.
 	echo "pref(\"spellchecker.dictionary_path\", ${DICTPATH});" \
-		>> "${S}/${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
+		>> "${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
 
 	if ! use libnotify ; then
 		echo 'pref("browser.download.manager.showAlertOnComplete", false);' \
-			>> "${S}/${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
+			>> "${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
 			|| die
 	fi
 
 	echo 'pref("extensions.autoDisableScopes", 3);' >> \
-		"${S}/${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
+		"${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
 
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
