@@ -68,7 +68,7 @@ RDEPEND=">=dev-libs/nss-3.16
 	>=x11-libs/gtk+-2.14:2
 	virtual/libffi
 	gstreamer? ( media-plugins/gst-plugins-meta:0.10[ffmpeg] )
-	system-cairo? ( >=x11-libs/cairo-1.12[X] )
+	system-cairo? ( >=x11-libs/cairo-1.12[X] x11-libs/pixman )
 	system-icu? ( >=dev-libs/icu-51.1 )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-sqlite? ( >=dev-db/sqlite-3.8.1:3[secure-delete,debug=] )
@@ -93,7 +93,7 @@ else
 	S="${WORKDIR}/comm-release"
 fi
 
-BUILD_OBJ_DIR="${S}/seamonk"
+BUILD_OBJ_DIR="${WORKDIR}/seamonk"
 
 pkg_setup() {
 	if [[ ${PV} == *_pre* ]] ; then
@@ -127,6 +127,8 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/seamonkey"
+
+	epatch "${FILESDIR}/pixman-supplement.patch"
 
 	# browser patches go here
 	pushd "${S}"/mozilla &>/dev/null || die
@@ -268,9 +270,11 @@ src_configure() {
 }
 
 src_compile() {
+	mkdir -p ${BUILD_OBJ_DIR} && cd ${BUILD_OBJ_DIR} || die
+
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL}" \
-	emake -f client.mk
+	emake -f "${S}/client.mk"
 
 	# Only build enigmail extension if conditions are met.
 	if use crypt ; then
@@ -284,30 +288,30 @@ src_install() {
 	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 	DICTPATH="\"${EPREFIX}/usr/share/myspell\""
 
-	local emid obj_dir="${BUILD_OBJ_DIR}"
-	cd "${obj_dir}" || die
+	local emid
+	cd "${BUILD_OBJ_DIR}" || die
 
 	# Pax mark xpcshell for hardened support, only used for startupcache creation.
-	pax-mark m "${obj_dir}/mozilla/dist/bin/xpcshell"
+	pax-mark m "${BUILD_OBJ_DIR}/mozilla/dist/bin/xpcshell"
 
 	# Copy our preference before omnijar is created.
 	sed "s|SEAMONKEY_PVR|${PVR}|" "${FILESDIR}"/all-gentoo-1.js > \
-		"${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
+		"${BUILD_OBJ_DIR}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
 
 	# Set default path to search for dictionaries.
 	echo "pref(\"spellchecker.dictionary_path\", ${DICTPATH});" \
-		>> "${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
+		>> "${BUILD_OBJ_DIR}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
 
 	if ! use libnotify ; then
 		echo 'pref("browser.download.manager.showAlertOnComplete", false);' \
-			>> "${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
+			>> "${BUILD_OBJ_DIR}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
 			|| die
 	fi
 
 	echo 'pref("extensions.autoDisableScopes", 3);' >> \
-		"${obj_dir}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
+		"${BUILD_OBJ_DIR}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
 
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
@@ -354,7 +358,7 @@ src_install() {
 	# Handle plugins dir through nsplugins.eclass
 	share_plugins_dir
 
-	doman "${S}"/${obj_dir}/suite/app/${PN}.1
+	doman "${BUILD_OBJ_DIR}/suite/app/${PN}.1"
 }
 
 pkg_preinst() {
