@@ -43,6 +43,7 @@ pkg_setup(){
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-${SLOT}-system-icu.patch
 	epatch "${FILESDIR}"/${PN}-24.2.0-fix-file-permissions.patch
+	epatch "${FILESDIR}"/${PN}-${SLOT}-upward-growing-stack.patch
 	epatch_user
 
 	if [[ ${CHOST} == *-freebsd* ]]; then
