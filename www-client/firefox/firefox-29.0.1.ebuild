@@ -373,6 +373,11 @@ src_install() {
 	use sparc && { sed -e 's/Firefox/FirefoxGentoo/g' \
 					 -i "${ED}/${MOZILLA_FIVE_HOME}/application.ini" \
 					|| die "sparc sed failed"; }
+
+	# revdep-rebuild entry
+	insinto /etc/revdep-rebuild
+	echo "SEARCH_DIRS_MASK=${MOZILLA_FIVE_HOME}" >> ${T}/10firefox
+	doins "${T}"/10${PN} || die
 }
 
 pkg_preinst() {
