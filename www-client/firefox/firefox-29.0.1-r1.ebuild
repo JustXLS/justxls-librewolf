@@ -191,6 +191,10 @@ src_prepare() {
 src_configure() {
 	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 	MEXTENSIONS="default"
+	# Google API keys (see http://www.chromium.org/developers/how-tos/api-keys)
+	# Note: These are for Gentoo Linux use ONLY. For your own distribution, please
+	# get your own set of keys. 
+	_google_api_key=AIzaSyDEAOvatFo0eTgsV_ZlEzx0ObmepsMzfAc
 
 	####################################
 	#
@@ -209,6 +213,10 @@ src_configure() {
 
 	# We must force enable jemalloc 3 threw .mozconfig
 	echo "export MOZ_JEMALLOC=1" >> ${S}/.mozconfig || die
+
+	# Setup api key for location services
+	echo -n "$_google_api_key" > ${S}/google-api-key
+	mozconfig_annotate '' --with-google-api-keyfile=${S}/google-api-key
 
 	mozconfig_annotate '' --enable-jemalloc
 	mozconfig_annotate '' --enable-replace-malloc
