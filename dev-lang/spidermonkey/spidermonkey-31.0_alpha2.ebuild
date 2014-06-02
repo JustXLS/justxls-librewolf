@@ -45,10 +45,6 @@ pkg_setup(){
 
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-${SLOT}-jit-tests.patch
-#	epatch_user
-#
-#	cd "${BUILDDIR}" || die
-#	eautoconf
 }
 
 src_configure() {
@@ -72,11 +68,11 @@ src_configure() {
 		--enable-threadsafe \
 		--with-system-nspr \
 		--enable-system-ffi \
-		--enable-jemalloc \
+		--disable-optimize \
 		$(use_with icu intl-api) \
 		$(use_enable debug) \
-		$(use_enable jit tracejit) \
-		$(use_enable jit methodjit) \
+		$(use_enable jit ion) \
+		$(use_enable jit yarr-jit) \
 		$(use_enable static-libs static) \
 		$(use_enable test tests)
 }
@@ -87,10 +83,14 @@ src_compile() {
 		make CFLAGS="" CXXFLAGS="" \
 			CC=$(tc-getBUILD_CC) CXX=$(tc-getBUILD_CXX) \
 			AR=$(tc-getBUILD_AR) RANLIB=$(tc-getBUILD_RANLIB) \
+			MOZ_OPTIMIZE_FLAGS="" MOZ_DEBUG_FLAGS="" \
+			HOST_OPTIMIZE_FLAGS="" MODULE_OPTIMIZE_FLAGS="" \
+			MOZ_PGO_OPTIMIZE_FLAGS="" \
 			jscpucfg host_jsoplengen host_jskwgen || die
 		make CFLAGS="" CXXFLAGS="" \
 			CC=$(tc-getBUILD_CC) CXX=$(tc-getBUILD_CXX) \
 			AR=$(tc-getBUILD_AR) RANLIB=$(tc-getBUILD_RANLIB) \
+			MOZ_OPTIMIZE_FLAGS="" MOZ_DEBUG_FLAGS="" HOST_OPTIMIZE_FLAGS="" \
 			-C config nsinstall || die
 		mv {,native-}jscpucfg || die
 		mv {,native-}host_jskwgen || die
@@ -106,7 +106,10 @@ src_compile() {
 			host_jskwgen.o \
 			host_jsoplengen.o || die
 	fi
-	emake
+	emake \
+		MOZ_OPTIMIZE_FLAGS="" MOZ_DEBUG_FLAGS="" \
+		HOST_OPTIMIZE_FLAGS="" MODULE_OPTIMIZE_FLAGS="" \
+		MOZ_PGO_OPTIMIZE_FLAGS=""
 }
 
 src_test() {
