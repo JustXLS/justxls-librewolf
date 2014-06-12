@@ -22,7 +22,6 @@ RDEPEND="abi_x86_32? (
 		!<=app-emulation/emul-linux-x86-baselibs-20140508-r9
 		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)]
 	)"
-DEPEND="${RDEPEND}"
 
 src_prepare() {
 	# obsolete - mkdir build inst
@@ -60,9 +59,20 @@ multilib_src_configure() {
 		|| unset CROSS_COMPILE
 
 	local myconf
-	case ${ABI} in
+	# use ABI first, this will work for most cases
+	case "${ABI}" in
 		x32) myconf+=" --enable-x32";;
 		s390x|*64) myconf+=" --enable-64bit";;
+		default) # no abi actually set, figure it out the old way
+			einfo "Running a short build test to determine 64bit'ness"
+		        echo > "${T}"/test.c
+		        ${CC} ${CFLAGS} ${CPPFLAGS} -c "${T}"/test.c -o "${T}"/test.o || die
+		        case $(file "${T}"/test.o) in
+		                *32-bit*x86-64*|*64-bit*|*ppc64*|*x86_64*) myconf+=" --enable-64bit";;
+		                *32-bit*|*ppc*|*i386*) ;;
+		                *) die "Failed to detect whether your arch is 64bits or 32bits, disable distcc if you're using it, please";;
+		        esac ;;
+		*) ;;
 	esac
 
 	# Ancient autoconf needs help finding the right tools.
