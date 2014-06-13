@@ -25,7 +25,7 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-29.0-patches-0.1"
+PATCH="${PN}-30.0-patches-0.1"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
@@ -44,19 +44,20 @@ IUSE="bindist gstreamer hardened +jit +minimal pgo pulseaudio selinux system-cai
 # More URIs appended below...
 SRC_URI="${SRC_URI}
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.xz
-	http://dev.gentoo.org/~nirbheek/mozilla/patchsets/${PATCH}.tar.xz"
+	http://dev.gentoo.org/~nirbheek/mozilla/patchsets/${PATCH}.tar.xz
+	http://dev.gentoo.org/~axs/distfiles/${PATCH}.tar.xz"
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 # Mesa 7.10 needed for WebGL + bugfixes
 RDEPEND="
 	>=dev-libs/nss-3.16
-	>=dev-libs/nspr-4.10.4
+	>=dev-libs/nspr-4.10.6
 	>=dev-libs/glib-2.26:2
 	>=media-libs/mesa-7.10
 	>=media-libs/libpng-1.6.7[apng]
 	virtual/libffi
-	gstreamer? ( media-plugins/gst-plugins-meta:0.10[ffmpeg] )
+	gstreamer? ( media-plugins/gst-plugins-meta:1.0[ffmpeg] )
 	pulseaudio? ( media-sound/pulseaudio )
 	system-cairo? ( >=x11-libs/cairo-1.12[X] )
 	system-icu? ( >=dev-libs/icu-51.1 )
@@ -234,7 +235,12 @@ src_configure() {
 	mozconfig_annotate '' --target="${CTARGET:-${CHOST}}"
 	mozconfig_annotate '' --build="${CTARGET:-${CHOST}}"
 
-	mozconfig_use_enable gstreamer
+	# gstreamer now needs the version specified
+	if use gstreamer; then
+		mozconfig_annotate '' --enable-gstreamer=1.0
+	else
+		mozconfig_annotate '' --disable-gstreamer
+	fi
 	mozconfig_use_enable pulseaudio
 	mozconfig_use_enable system-cairo
 	mozconfig_use_enable system-sqlite
