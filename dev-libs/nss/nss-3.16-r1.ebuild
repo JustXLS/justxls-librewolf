@@ -169,7 +169,7 @@ multilib_src_compile() {
 		CPPFLAGS="${myCPPFLAGS}" \
 		LDFLAGS="${myLDFLAGS}" \
 		XCFLAGS="${CFLAGS} ${CPPFLAGS}" \
-		NSPR_LIB_DIR="${T}-${ABI}-fake-dir" \
+		NSPR_LIB_DIR="${T}/${ABI}-fake-dir" \
 		emake -j1 "${makeargs[@]}" -C ${d}
 	done
 }
