@@ -36,9 +36,9 @@ RESTRICT="test"
 
 S="${WORKDIR}/${P}/${PN}"
 
-src_setup() {
-	export LC_ALL="C"
-}
+MULTILIB_CHOST_TOOLS=(
+	/usr/bin/nss-config
+)
 
 src_unpack() {
 	unpack ${A}
@@ -48,51 +48,48 @@ src_unpack() {
 }
 
 src_prepare() {
+	# Custom changes for gentoo
+	epatch "${FILESDIR}/${PN}-3.15-gentoo-fixups.patch"
+	epatch "${FILESDIR}/${PN}-3.15-gentoo-fixup-warnings.patch"
+	use cacert && epatch "${DISTDIR}/${PN}-3.14.1-add_spi+cacerts_ca_certs.patch"
+	use nss-pem && epatch "${FILESDIR}/${PN}-3.15.4-enable-pem.patch"
+	epatch "${FILESDIR}/nss-3.14.2-solaris-gcc.patch"
+
+	pushd coreconf >/dev/null || die
+	# hack nspr paths
+	echo 'INCLUDES += -I$(DIST)/include/dbm' \
+		>> headers.mk || die "failed to append include"
+
+	# modify install path
+	sed -e '/CORE_DEPTH/s:SOURCE_PREFIX.*$:SOURCE_PREFIX = $(CORE_DEPTH)/dist:' \
+		-i source.mk
+
+	# Respect LDFLAGS
+	sed -i -e 's/\$(MKSHLIB) -o/\$(MKSHLIB) \$(LDFLAGS) -o/g' rules.mk
+	popd >/dev/null
+
+	# Fix pkgconfig file for Prefix
+	sed -i -e "/^PREFIX =/s:= /usr:= ${EPREFIX}/usr:" \
+		config/Makefile
+
+	# use host shlibsign if need be #436216
+	if tc-is-cross-compiler ; then
+		sed -i \
+			-e 's:"${2}"/shlibsign:shlibsign:' \
+			cmd/shlibsign/sign.sh
+	fi
+
+	# dirty hack
+	sed -i -e "/CRYPTOLIB/s:\$(SOFTOKEN_LIB_DIR):../freebl/\$(OBJDIR):" \
+		lib/ssl/config.mk
+	sed -i -e "/CRYPTOLIB/s:\$(SOFTOKEN_LIB_DIR):../../lib/freebl/\$(OBJDIR):" \
+		cmd/platlibs.mk
+
 	multilib_copy_sources
 
 	abi_specific_src_prepare() {
-		cd "${BUILD_DIR}"
-
-		# Custom changes for gentoo
-		epatch "${FILESDIR}/${PN}-3.15-gentoo-fixups.patch"
-		epatch "${FILESDIR}/${PN}-3.15-gentoo-fixup-warnings.patch"
-		use cacert && epatch "${DISTDIR}/${PN}-3.14.1-add_spi+cacerts_ca_certs.patch"
-		use nss-pem && epatch "${FILESDIR}/${PN}-3.15.4-enable-pem.patch"
-		epatch "${FILESDIR}/nss-3.14.2-solaris-gcc.patch"
-
-		pushd coreconf
-		# hack nspr paths
-		echo 'INCLUDES += -I$(DIST)/include/dbm' \
-		>> headers.mk || die "failed to append include"
-
-		# modify install path
-		sed -e '/CORE_DEPTH/s:SOURCE_PREFIX.*$:SOURCE_PREFIX = $(CORE_DEPTH)/dist:' \
-			-i source.mk
-
-		# Respect LDFLAGS
-		sed -i -e 's/\$(MKSHLIB) -o/\$(MKSHLIB) \$(LDFLAGS) -o/g' rules.mk
-		popd
-
 		# Ensure we stay multilib aware
-		sed -i -e "/@libdir@/ s:lib64:$(get_libdir):" config/Makefile
-
-		# Fix pkgconfig file for Prefix
-		sed -i -e "/^PREFIX =/s:= /usr:= ${EPREFIX}/usr:" \
-			config/Makefile
-
-		# use host shlibsign if need be #436216
-		if tc-is-cross-compiler ; then
-			sed -i \
-				-e 's:"${2}"/shlibsign:shlibsign:' \
-				cmd/shlibsign/sign.sh
-		fi
-
-		# dirty hack
-		sed -i -e "/CRYPTOLIB/s:\$(SOFTOKEN_LIB_DIR):../freebl/\$(OBJDIR):" \
-			lib/ssl/config.mk
-		sed -i -e "/CRYPTOLIB/s:\$(SOFTOKEN_LIB_DIR):../../lib/freebl/\$(OBJDIR):" \
-			cmd/platlibs.mk
-
+		sed -i -e "/@libdir@/ s:lib64:$(get_libdir):" "${BUILD_DIR}"/config/Makefile
 	}
 
 	multilib_parallel_foreach_abi abi_specific_src_prepare
@@ -138,7 +135,7 @@ multilib_src_compile() {
 	local myCPPFLAGS="${CPPFLAGS} $(${PKG_CONFIG} nspr --cflags)"
 	local myLDFLAGS="${LDFLAGS} $(${PKG_CONFIG} nspr --libs-only-L)"
 	unset NSPR_INCLUDE_DIR
-	#export NSPR_LIB_DIR=${T}/fake-dir-${ABI}
+	#export NSPR_LIB_DIR=${T}/fake-dir-${ABI} - do this further down now
 
 	# Do not let `uname` be used.
 	if use kernel_linux ; then
@@ -161,7 +158,7 @@ multilib_src_compile() {
 	# Build the host tools first.
 	LDFLAGS="${BUILD_LDFLAGS}" \
 	XCFLAGS="${BUILD_CFLAGS}" \
-	NSPR_LIB_DIR="${T}-${ABI}-fake-dir" \
+	NSPR_LIB_DIR="${T}/${ABI}-fake-dir" \
 	emake -j1 -C coreconf \
 		CC="${BUILD_CC}" \
 		$(nssbits BUILD_)
@@ -225,7 +222,7 @@ cleanup_chk() {
 }
 
 multilib_src_install() {
-	pushd dist
+	pushd dist >/dev/null || die
 
 	dodir /usr/$(get_libdir)
 	cp -L */lib/*$(get_libname) "${ED}"/usr/$(get_libdir) || die "copying shared libs failed"
@@ -243,7 +240,7 @@ multilib_src_install() {
 	insinto /usr/include/nss
 	doins public/nss/*.h
 
-	popd
+	popd >/dev/null
 
 	local f nssutils
 	# Always enabled because we need it for chk generation.
@@ -260,11 +257,11 @@ multilib_src_install() {
 			pk12util pp rsaperf selfserv shlibsign signtool signver ssltap strsclnt
 			symkeyutil tstclnt vfychain vfyserv"
 		fi
-		pushd dist/*/bin
+		pushd dist/*/bin >/dev/null || die
 		for f in ${nssutils}; do
 			dobin ${f}
 		done
-		popd
+		popd >/dev/null
 	fi
 
 	# Prelink breaks the CHK files. We don't have any reliable way to run
