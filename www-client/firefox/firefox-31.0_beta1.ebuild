@@ -62,7 +62,7 @@ RDEPEND="
 	system-cairo? ( >=x11-libs/cairo-1.12[X] )
 	system-icu? ( >=dev-libs/icu-51.1 )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
-	system-sqlite? ( >=dev-db/sqlite-3.8.1.3:3[secure-delete,debug=] )
+	system-sqlite? ( >=dev-db/sqlite-3.8.3.1:3[secure-delete,debug=] )
 	>=media-libs/libvpx-1.3.0
 	kernel_linux? ( media-libs/alsa-lib )
 	selinux? ( sec-policy/selinux-mozilla )"
