@@ -1,11 +1,12 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/mail-client/thunderbird/thunderbird-24.4.0.ebuild,v 1.1 2014/03/20 14:57:54 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/mail-client/thunderbird/thunderbird-24.6.0.ebuild,v 1.2 2014/06/12 00:28:33 floppym Exp $
 
 EAPI=5
 WANT_AUTOCONF="2.1"
 MOZ_ESR=""
-MOZ_LIGHTNING_VER="2.6.2"
+MOZ_LIGHTNING_VER="2.6.5"
+MOZ_LIGHTNING_GDATA_VER="2.6.3"
 
 # This list can be updated using scripts/get_langs.sh from the mozilla overlay
 MOZ_LANGS=(ar ast be bg bn-BD br ca cs da de el en en-GB en-US es-AR
@@ -36,7 +37,7 @@ HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist crypt gstreamer hardened +jit ldap +lightning +minimal mozdom pulseaudio selinux system-cairo system-icu system-jpeg system-sqlite"
+IUSE="bindist crypt gstreamer +jit ldap +lightning +minimal mozdom pulseaudio selinux system-cairo system-icu system-jpeg system-sqlite"
 
 PATCH="thunderbird-24.0-patches-0.1"
 PATCHFF="firefox-24.0-patches-0.9"
@@ -46,8 +47,8 @@ SRC_URI="${SRC_URI}
 	${MOZ_HTTP_URI}${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
 	crypt? ( http://www.enigmail.net/download/source/enigmail-${EMVER}.tar.gz )
 	lightning? (
-		${MOZ_HTTP_URI/${PN}/calendar/lightning}/${MOZ_LIGHTNING_VER}/linux/lightning.xpi -> lightning-${MOZ_LIGHTNING_VER}.xpi
-		${MOZ_HTTP_URI/${PN}/calendar/lightning}/${MOZ_LIGHTNING_VER}/linux/gdata-provider.xpi -> gdata-provider-${MOZ_LIGHTNING_VER}.xpi
+		${MOZ_HTTP_URI/${PN}/calendar/lightning}${MOZ_LIGHTNING_VER}/linux/lightning.xpi -> lightning-${MOZ_LIGHTNING_VER}.xpi
+		${MOZ_HTTP_URI/${PN}/calendar/lightning}${MOZ_LIGHTNING_GDATA_VER}/linux/gdata-provider.xpi -> gdata-provider-${MOZ_LIGHTNING_GDATA_VER}.xpi
 	)
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.xz
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz
@@ -125,7 +126,7 @@ src_unpack() {
 	# Unpack lightning for calendar locales
 	if use lightning ; then
 		xpi_unpack lightning-${MOZ_LIGHTNING_VER}.xpi
-		xpi_unpack gdata-provider-${MOZ_LIGHTNING_VER}.xpi
+		xpi_unpack gdata-provider-${MOZ_LIGHTNING_GDATA_VER}.xpi
 	fi
 }
 
@@ -204,9 +205,6 @@ src_configure() {
 
 	# It doesn't compile on alpha without this LDFLAGS
 	use alpha && append-ldflags "-Wl,--no-relax"
-
-	# Add full relro support for hardened
-	use hardened && append-ldflags "-Wl,-z,relro,-z,now"
 
 	# We must force enable jemalloc 3 threw .mozconfig
 	echo "export MOZ_JEMALLOC=1" >> ${S}/.mozconfig
@@ -344,7 +342,7 @@ src_install() {
 		unzip "${S}"/${obj_dir}/mozilla/dist/xpi-stage/gdata-provider-*.xpi
 		# Install locales for gdata-provider -- each locale is a directory tree
 		insinto ${MOZILLA_FIVE_HOME}/extensions/${emid}/chrome
-		cd "${WORKDIR}"/gdata-provider-${MOZ_LIGHTNING_VER}/chrome
+		cd "${WORKDIR}"/gdata-provider-${MOZ_LIGHTNING_GDATA_VER}/chrome
 		for l in "${mozlinguas[@]}"; do if [[ -d gdata-provider-${l} ]]; then
 			doins -r gdata-provider-${l}
 			echo "locale gdata-provider ${l} chrome/gdata-provider-${l}/locale/${l}/" \

@@ -6,5 +6,8 @@
 #
 
 # Masked for testing
+=dev-lang/spidermonkey-31.0_beta*
+=www-client/firefox-31.0_beta*
+=mail-client/thunderbird-31.0_beta*
 =www-client/seamonkey-2.26_beta*
 

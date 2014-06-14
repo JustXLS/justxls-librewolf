@@ -1,0 +1,3 @@
+# mask crypt flag until enigmail releases something compatible
+# we do not want to try and play with the enigmail nightlies
+=mail-client/thunderbird-31.0_beta1 crypt

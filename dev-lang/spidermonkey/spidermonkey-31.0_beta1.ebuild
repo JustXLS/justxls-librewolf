@@ -10,6 +10,7 @@ inherit autotools eutils toolchain-funcs multilib python-any-r1 versionator pax-
 
 MY_PN="mozjs"
 MY_PV="${PV/_alpha/a}"
+MY_PV="${PV/_beta/b}"
 MY_P="${MY_PN}-${MY_PV/_/.}"
 DESCRIPTION="Stand-alone JavaScript C library"
 HOMEPAGE="http://www.mozilla.org/js/spidermonkey/"
@@ -41,10 +42,6 @@ pkg_setup(){
 		python-any-r1_pkg_setup
 		export LC_ALL="C"
 	fi
-}
-
-src_prepare() {
-	epatch "${FILESDIR}"/${PN}-${SLOT}-jit-tests.patch
 }
 
 src_configure() {
