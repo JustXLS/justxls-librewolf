@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/nss/nss-3.16.ebuild,v 1.1 2014/03/20 13:32:21 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/nss/nss-3.16-r1.ebuild,v 1.1 2014/06/14 08:27:39 mgorny Exp $
 
 EAPI=5
 inherit eutils flag-o-matic multilib toolchain-funcs multilib-minimal
@@ -22,14 +22,14 @@ SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
 IUSE="+cacert +nss-pem utils"
 
-DEPEND="virtual/pkgconfig
+DEPEND="virtual/pkgconfig[${MULTILIB_USEDEP}]
 	>=dev-libs/nspr-${NSPR_VER}"
 RDEPEND=">=dev-libs/nspr-${NSPR_VER}
-	>=dev-db/sqlite-3.5
-	sys-libs/zlib
+	>=dev-db/sqlite-3.5[${MULTILIB_USEDEP}]
+	sys-libs/zlib[${MULTILIB_USEDEP}]
 	abi_x86_32? (
-                !<=app-emulation/emul-linux-x86-baselibs-20140508-r9
-                !app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)]
+		!<=app-emulation/emul-linux-x86-baselibs-20140508-r9
+		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)]
 	)"
 
 RESTRICT="test"
@@ -62,66 +62,73 @@ src_prepare() {
 
 	# modify install path
 	sed -e '/CORE_DEPTH/s:SOURCE_PREFIX.*$:SOURCE_PREFIX = $(CORE_DEPTH)/dist:' \
-		-i source.mk
+		-i source.mk || die
 
 	# Respect LDFLAGS
 	sed -i -e 's/\$(MKSHLIB) -o/\$(MKSHLIB) \$(LDFLAGS) -o/g' rules.mk
-	popd >/dev/null
+	popd >/dev/null || die
 
 	# Fix pkgconfig file for Prefix
 	sed -i -e "/^PREFIX =/s:= /usr:= ${EPREFIX}/usr:" \
-		config/Makefile
+		config/Makefile || die
 
 	# use host shlibsign if need be #436216
 	if tc-is-cross-compiler ; then
 		sed -i \
 			-e 's:"${2}"/shlibsign:shlibsign:' \
-			cmd/shlibsign/sign.sh
+			cmd/shlibsign/sign.sh || die
 	fi
 
 	# dirty hack
 	sed -i -e "/CRYPTOLIB/s:\$(SOFTOKEN_LIB_DIR):../freebl/\$(OBJDIR):" \
-		lib/ssl/config.mk
+		lib/ssl/config.mk || die
 	sed -i -e "/CRYPTOLIB/s:\$(SOFTOKEN_LIB_DIR):../../lib/freebl/\$(OBJDIR):" \
-		cmd/platlibs.mk
+		cmd/platlibs.mk || die
 
 	multilib_copy_sources
 
-	abi_specific_src_prepare() {
-		# Ensure we stay multilib aware
-		sed -i -e "/@libdir@/ s:lib64:$(get_libdir):" "${BUILD_DIR}"/config/Makefile
-	}
+	strip-flags
+}
 
-	multilib_parallel_foreach_abi abi_specific_src_prepare
+multilib_src_configure() {
+	# Ensure we stay multilib aware
+	sed -i -e "/@libdir@/ s:lib64:$(get_libdir):" config/Makefile || die
 }
 
 nssarch() {
 	# Most of the arches are the same as $ARCH
 	local t=${1:-${CHOST}}
 	case ${t} in
-	aarch64*)echo "aarch64";;
-	hppa*)   echo "parisc";;
-	i?86*)   echo "i686";;
-	x86_64*) echo "x86_64";;
-	*)       tc-arch ${t};;
+		aarch64*)echo "aarch64";;
+		hppa*)   echo "parisc";;
+		i?86*)   echo "i686";;
+		x86_64*) echo "x86_64";;
+		*)       tc-arch ${t};;
 	esac
 }
 
 nssbits() {
-	local cc="${1}CC" cppflags="${1}CPPFLAGS" cflags="${1}CFLAGS"
-	echo > "${T}"/test.c || die
-	${!cc} ${!cppflags} ${!cflags} -c "${T}"/test.c -o "${T}"/test.o || die
-	case $(file "${T}"/test.o) in
-	*32-bit*x86-64*) echo USE_X32=1;;
-	*64-bit*|*ppc64*|*x86_64*) echo USE_64=1;;
-	*32-bit*|*ppc*|*i386*) ;;
-	*) die "Failed to detect whether your arch is 64bits or 32bits, disable distcc if you're using it, please";;
+	# use ABI first, this will work for most cases
+	case "${ABI}" in
+		alpha|arm|hppa|m68k|o32|ppc|s390|sh|sparc|x86) ;;
+		n32) echo USE_N32=1;;
+		x32) echo USE_X32=1;;
+		s390x|*64) echo USE_64=1;;
+		default) # no abi actually set, fall back to old check
+			einfo "Running a short build test to determine 64bit'ness"
+			echo > "${T}"/test.c || die
+			${CC} ${CFLAGS} ${CPPFLAGS} -c "${T}"/test.c -o "${T}"/test.o || die
+			case $(file "${T}"/test.o) in
+				*32-bit*x86-64*) echo USE_X32=1;;
+				*64-bit*|*ppc64*|*x86_64*) echo USE_64=1;;
+				*32-bit*|*ppc*|*i386*) ;;
+				*) die "Failed to detect whether your arch is 64bits or 32bits, disable distcc if you're using it, please";;
+			esac ;;
+		*) ;;
 	esac
 }
 
 multilib_src_compile() {
-	strip-flags
-
 	tc-export AR RANLIB {BUILD_,}{CC,PKG_CONFIG}
 	local makeargs=(
 		CC="${CC}"
@@ -240,7 +247,7 @@ multilib_src_install() {
 	insinto /usr/include/nss
 	doins public/nss/*.h
 
-	popd >/dev/null
+	popd >/dev/null || die
 
 	local f nssutils
 	# Always enabled because we need it for chk generation.
@@ -261,7 +268,7 @@ multilib_src_install() {
 		for f in ${nssutils}; do
 			dobin ${f}
 		done
-		popd >/dev/null
+		popd >/dev/null || die
 	fi
 
 	# Prelink breaks the CHK files. We don't have any reliable way to run
@@ -276,8 +283,7 @@ multilib_src_install() {
 }
 
 pkg_postinst() {
-
-	abi_specific_pkg_postinst() {
+	multilib_pkg_postinst() {
 		# We must re-sign the libraries AFTER they are stripped.
 		local shlibsign="${EROOT}/usr/bin/shlibsign"
 		# See if we can execute it (cross-compiling & such). #436216
@@ -288,13 +294,13 @@ pkg_postinst() {
 		generate_chk "${shlibsign}" "${EROOT}"/usr/$(get_libdir)
 	}
 
-	multilib_foreach_abi abi_specific_pkg_postinst
+	multilib_foreach_abi multilib_pkg_postinst
 }
 
 pkg_postrm() {
-	abi_specific_pkg_postrm() {
-	cleanup_chk "${EROOT}"/usr/$(get_libdir)
+	multilib_pkg_postrm() {
+		cleanup_chk "${EROOT}"/usr/$(get_libdir)
 	}
 
-	multilib_foreach_abi abi_specific_pkg_postrm
+	multilib_foreach_abi multilib_pkg_postrm
 }

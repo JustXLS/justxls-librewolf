@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/nspr/nspr-4.10.4.ebuild,v 1.1 2014/03/20 13:31:07 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/nspr/nspr-4.10.6.ebuild,v 1.2 2014/06/13 16:14:10 zlogene Exp $
 
 EAPI=5
 WANT_AUTOCONF="2.5"
@@ -15,7 +15,7 @@ SRC_URI="ftp://ftp.mozilla.org/pub/mozilla.org/nspr/releases/v${PV}/src/${P}.tar
 
 LICENSE="|| ( MPL-2.0 GPL-2 LGPL-2.1 )"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
 IUSE="debug"
 
 src_prepare() {
@@ -55,13 +55,13 @@ src_configure() {
 
 	local myconf
 	einfo "Running a short build test to determine 64bit'ness"
-        echo > "${T}"/test.c
-        ${CC} ${CFLAGS} ${CPPFLAGS} -c "${T}"/test.c -o "${T}"/test.o || die
-        case $(file "${T}"/test.o) in
-                *32-bit*x86-64*|*64-bit*|*ppc64*|*x86_64*) myconf+=" --enable-64bit";;
-                *32-bit*|*ppc*|*i386*) ;;
-                *) die "Failed to detect whether your arch is 64bits or 32bits, disable distcc if you're using it, please";;
-        esac
+	echo > "${T}"/test.c
+	${CC} ${CFLAGS} ${CPPFLAGS} -c "${T}"/test.c -o "${T}"/test.o || die
+	case $(file "${T}"/test.o) in
+		*32-bit*x86-64*|*64-bit*|*ppc64*|*x86_64*) myconf+=" --enable-64bit";;
+		*32-bit*|*ppc*|*i386*) ;;
+		*) die "Failed to detect whether your arch is 64bits or 32bits, disable distcc if you're using it, please";;
+	esac
 
 	# Ancient autoconf needs help finding the right tools.
 	LC_ALL="C" ECONF_SOURCE="${S}/nspr" \
@@ -73,7 +73,13 @@ src_configure() {
 		${myconf}
 }
 
+src_compile() {
+	cd "${S}"/build || die
+	emake
+}
+
 src_install() {
+	cd "${S}"/build
 	# Their build system is royally confusing, as usual
 	MINOR_VERSION=${MIN_PV} # Used for .so version
 	emake DESTDIR="${D}" install

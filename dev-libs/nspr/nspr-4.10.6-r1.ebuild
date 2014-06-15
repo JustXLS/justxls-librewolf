@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/nspr/nspr-4.10.4.ebuild,v 1.1 2014/03/20 13:31:07 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/dev-libs/nspr/nspr-4.10.6-r1.ebuild,v 1.1 2014/06/13 14:19:49 axs Exp $
 
 EAPI=5
 WANT_AUTOCONF="2.5"
@@ -58,15 +58,15 @@ multilib_src_configure() {
 	case "${ABI}" in
 		x32) myconf+=" --enable-x32";;
 		s390x|*64) myconf+=" --enable-64bit";;
-		default) # no abi actually set, figure it out the old way
+		default) # no abi actually set, fall back to old check
 			einfo "Running a short build test to determine 64bit'ness"
-		        echo > "${T}"/test.c
-		        ${CC} ${CFLAGS} ${CPPFLAGS} -c "${T}"/test.c -o "${T}"/test.o || die
-		        case $(file "${T}"/test.o) in
-		                *32-bit*x86-64*|*64-bit*|*ppc64*|*x86_64*) myconf+=" --enable-64bit";;
-		                *32-bit*|*ppc*|*i386*) ;;
-		                *) die "Failed to detect whether your arch is 64bits or 32bits, disable distcc if you're using it, please";;
-		        esac ;;
+			echo > "${T}"/test.c
+			${CC} ${CFLAGS} ${CPPFLAGS} -c "${T}"/test.c -o "${T}"/test.o || die
+			case $(file "${T}"/test.o) in
+				*32-bit*x86-64*|*64-bit*|*ppc64*|*x86_64*) myconf+=" --enable-64bit";;
+				*32-bit*|*ppc*|*i386*) ;;
+				*) die "Failed to detect whether your arch is 64bits or 32bits, disable distcc if you're using it, please";;
+			esac ;;
 		*) ;;
 	esac
 
