@@ -6,6 +6,10 @@
 
 inherit multilib flag-o-matic mozcoreconf-2
 
+# NOTE - for ebuilds that need necko-wifi support, define
+# MOZCONFIG_OPTIONAL_WIFI above the inherit line
+
+
 # use-flags common among all mozilla ebuilds
 IUSE="dbus debug startup-notification"
 
@@ -19,10 +23,15 @@ RDEPEND=">=app-text/hunspell-1.2
 	virtual/freedesktop-icon-theme
 	dbus? ( >=dev-libs/dbus-glib-0.72 )
 	startup-notification? ( >=x11-libs/startup-notification-0.8 )
+	>=dev-libs/glib-2.26:2"
+
+if [[ -n ${MOZCONFIG_OPTIONAL_WIFI} ]]; then
+IUSE+=" wifi"
+RDEPEND+="
 	wifi? ( >=sys-apps/dbus-0.60
 		>=dev-libs/dbus-glib-0.72
-		net-wireless/wireless-tools )
-	>=dev-libs/glib-2.26:2"
+		net-wireless/wireless-tools )"
+fi
 
 DEPEND="app-arch/zip
 	app-arch/unzip
