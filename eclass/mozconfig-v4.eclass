@@ -6,9 +6,30 @@
 
 inherit multilib flag-o-matic mozcoreconf-2
 
-# NOTE - for ebuilds that need necko-wifi support, define
-# MOZCONFIG_OPTIONAL_WIFI above the inherit line
+# @ECLASS-VARIABLE: MOZCONFIG_OPTIONAL_WIFI
+# @DESCRIPTION:
+# Set this variable before the inherit line, when an ebuild needs to provide
+# optional necko-wifi support via IUSE="wifi".  Currently this would include
+# ebuilds for firefox, and potentially seamonkey.
+#
+# Leave the variable UNSET if necko-wifi support should not be available.
 
+# @FUNCTION: mozconfig_config
+# @DESCRIPTION:
+# Set common configure options for mozilla packages.
+# Call this within src_configure() phase, after mozconfig_init
+#
+# Example:
+#
+# inherit mozconfig-v4
+#
+# src_configure() {
+# 	mozconfig_init
+# 	mozconfig_config
+#	# ... misc ebuild-unique settings via calls to
+#	# ... mozconfig_{annotate,use_with,use_enable}
+#	mozconfig_final
+# }
 
 # use-flags common among all mozilla ebuilds
 IUSE="dbus debug startup-notification"
