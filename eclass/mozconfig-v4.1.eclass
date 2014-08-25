@@ -13,6 +13,18 @@ inherit multilib flag-o-matic mozcoreconf-2
 # ebuilds for firefox, and potentially seamonkey.
 #
 # Leave the variable UNSET if necko-wifi support should not be available.
+# Set the variable to "enabled" if the use flag should be enabled by default.
+# Set the variable to any value if the use flag should exist but not be default-enabled.
+
+# @ECLASS-VARIABLE: MOZCONFIG_OPTIONAL_JIT
+# @DESCRIPTION:
+# Set this variable before the inherit line, when an ebuild needs to provide
+# optional necko-wifi support via IUSE="wifi".  Currently this would include
+# ebuilds for firefox, and potentially seamonkey.
+#
+# Leave the variable UNSET if optional jit support should not be available.
+# Set the variable to "enabled" if the use flag should be enabled by default.
+# Set the variable to any value if the use flag should exist but not be default-enabled.
 
 # @FUNCTION: mozconfig_config
 # @DESCRIPTION:
@@ -47,11 +59,22 @@ RDEPEND=">=app-text/hunspell-1.2
 	>=dev-libs/glib-2.26:2"
 
 if [[ -n ${MOZCONFIG_OPTIONAL_WIFI} ]]; then
-IUSE+=" wifi"
-RDEPEND+="
+	if [[ ${MOZCONFIG_OPTIONAL_WIFI} = "enabled" ]]; then
+		IUSE+=" +wifi"
+	else
+		IUSE+=" wifi"
+	fi
+	RDEPEND+="
 	wifi? ( >=sys-apps/dbus-0.60
 		>=dev-libs/dbus-glib-0.72
 		net-wireless/wireless-tools )"
+fi
+if [[ -n ${MOZCONFIG_OPTIONAL_JIT} ]]; then
+	if [[ ${MOZCONFIG_OPTIONAL_JIT} = "enabled" ]]; then
+		IUSE+=" +jit"
+	else
+		IUSE+=" jit"
+	fi
 fi
 
 DEPEND="app-arch/zip
@@ -78,7 +101,7 @@ mozconfig_config() {
 
 	mozconfig_use_enable startup-notification
 
-	if has wifi ${IUSE} ; then
+	if [[ -n ${MOZCONFIG_OPTIONAL_WIFI} ]] ; then
 		# wifi pulls in dbus so manage both here
 		mozconfig_use_enable wifi necko-wifi
 		if use wifi && ! use dbus; then
@@ -95,7 +118,7 @@ mozconfig_config() {
 	mozconfig_annotate 'required' --enable-ogg
 	mozconfig_annotate 'required' --enable-wave
 
-	if has jit ${IUSE}; then
+	if [[ -n ${MOZCONFIG_OPTIONAL_JIT} ]]; then
 		mozconfig_use_enable jit ion
 		mozconfig_use_enable jit yarr-jit
 	fi

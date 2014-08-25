@@ -32,8 +32,9 @@ MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
 MOZ_HTTP_URI="http://ftp.mozilla.org/pub/${PN}/releases/"
 
 MOZCONFIG_OPTIONAL_WIFI=1
+MOZCONFIG_OPTIONAL_JIT="enabled"
 
-inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-v4 multilib pax-utils fdo-mime autotools virtualx mozlinguas
+inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-v4.1 multilib pax-utils fdo-mime autotools virtualx mozlinguas
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
@@ -41,7 +42,7 @@ HOMEPAGE="http://www.mozilla.com/firefox"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist gstreamer hardened +jit +minimal pgo pulseaudio selinux system-cairo system-icu system-jpeg system-sqlite test"
+IUSE="bindist gstreamer hardened +minimal pgo pulseaudio selinux system-cairo system-icu system-jpeg system-sqlite test"
 
 # More URIs appended below...
 SRC_URI="${SRC_URI}
