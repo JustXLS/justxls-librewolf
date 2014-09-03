@@ -60,7 +60,7 @@ SRC_URI="${SRC_URI}
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 RDEPEND="
-	>=dev-libs/nss-3.16.2
+	>=dev-libs/nss-3.16.4
 	>=dev-libs/nspr-4.10.6
 	>=dev-libs/glib-2.26:2
 	>=media-libs/mesa-7.10
