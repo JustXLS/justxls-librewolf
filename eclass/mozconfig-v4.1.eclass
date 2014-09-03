@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/eclass/mozconfig-v4.eclass,v 1.3 2014/08/01 16:32:16 axs Exp $
 #
-# mozconfig-v4.eclass: the new mozilla.eclass
+# mozconfig-v4.1.eclass: the new mozilla.eclass
 
 inherit multilib flag-o-matic mozcoreconf-2
 
@@ -19,29 +19,12 @@ inherit multilib flag-o-matic mozcoreconf-2
 # @ECLASS-VARIABLE: MOZCONFIG_OPTIONAL_JIT
 # @DESCRIPTION:
 # Set this variable before the inherit line, when an ebuild needs to provide
-# optional necko-wifi support via IUSE="wifi".  Currently this would include
+# optional necko-wifi support via IUSE="jit".  Currently this would include
 # ebuilds for firefox, and potentially seamonkey.
 #
 # Leave the variable UNSET if optional jit support should not be available.
 # Set the variable to "enabled" if the use flag should be enabled by default.
 # Set the variable to any value if the use flag should exist but not be default-enabled.
-
-# @FUNCTION: mozconfig_config
-# @DESCRIPTION:
-# Set common configure options for mozilla packages.
-# Call this within src_configure() phase, after mozconfig_init
-#
-# Example:
-#
-# inherit mozconfig-v4
-#
-# src_configure() {
-# 	mozconfig_init
-# 	mozconfig_config
-#	# ... misc ebuild-unique settings via calls to
-#	# ... mozconfig_{annotate,use_with,use_enable}
-#	mozconfig_final
-# }
 
 # use-flags common among all mozilla ebuilds
 IUSE="dbus debug startup-notification"
@@ -80,6 +63,23 @@ fi
 DEPEND="app-arch/zip
 	app-arch/unzip
 	${RDEPEND}"
+
+# @FUNCTION: mozconfig_config
+# @DESCRIPTION:
+# Set common configure options for mozilla packages.
+# Call this within src_configure() phase, after mozconfig_init
+#
+# Example:
+#
+# inherit mozconfig-v4
+#
+# src_configure() {
+# 	mozconfig_init
+# 	mozconfig_config
+#	# ... misc ebuild-unique settings via calls to
+#	# ... mozconfig_{annotate,use_with,use_enable}
+#	mozconfig_final
+# }
 
 mozconfig_config() {
 
