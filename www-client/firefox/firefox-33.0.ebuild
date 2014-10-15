@@ -1,11 +1,11 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-31.1.0.ebuild,v 1.1 2014/09/03 22:09:11 axs Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/firefox/firefox-33.0.ebuild,v 1.1 2014/10/14 18:17:47 axs Exp $
 
 EAPI="5"
 VIRTUALX_REQUIRED="pgo"
 WANT_AUTOCONF="2.1"
-MOZ_ESR="1"
+MOZ_ESR=""
 
 # This list can be updated with scripts/get_langs.sh from the mozilla overlay
 MOZ_LANGS=( af ar as ast be bg bn-BD bn-IN br bs ca cs csb cy da de el en
@@ -34,7 +34,7 @@ MOZ_HTTP_URI="http://ftp.mozilla.org/pub/${PN}/releases/"
 MOZCONFIG_OPTIONAL_WIFI=1
 MOZCONFIG_OPTIONAL_JIT="enabled"
 
-inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-v5.31 multilib pax-utils fdo-mime autotools virtualx mozlinguas
+inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-v5.33 multilib pax-utils fdo-mime autotools virtualx mozlinguas
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
@@ -51,8 +51,9 @@ SRC_URI="${SRC_URI}
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
+# Mesa 7.10 needed for WebGL + bugfixes
 RDEPEND="
-	>=dev-libs/nss-3.16.2
+	>=dev-libs/nss-3.17.1
 	>=dev-libs/nspr-4.10.6
 	selinux? ( sec-policy/selinux-mozilla )"
 
@@ -143,6 +144,7 @@ src_prepare() {
 	# Apply our patches
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
+	EPATCH_EXCLUDE="8000_gcc49_mozbug999496_ff31.patch" \
 	epatch "${WORKDIR}/firefox"
 
 	# Allow user to apply any additional patches without modifing ebuild
@@ -335,8 +337,6 @@ src_install() {
 
 	# Required in order to use plugins and even run firefox on hardened.
 	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{firefox,firefox-bin,plugin-container}
-	# Required in order for jit to work on hardened, as of firefox-31
-	use jit && pax-mark p "${ED}"${MOZILLA_FIVE_HOME}/{firefox,firefox-bin}
 
 	if use minimal; then
 		rm -r "${ED}"/usr/include "${ED}${MOZILLA_FIVE_HOME}"/{idl,include,lib,sdk} \

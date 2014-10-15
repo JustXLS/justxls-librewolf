@@ -166,6 +166,18 @@ mozconfig_init() {
 		mozconfig_annotate "mozilla default" --enable-optimize
 	fi
 
+	# check for valid options in ${EXTRA_ECONF} to pass along to mozconfig
+	if [[ -n ${EXTRA_ECONF} ]]; then
+		ewarn "You are passing configure arguments via EXTRA_ECONF.  This is NOT SUPPORTED, please"
+		ewarn "be aware that any resulting breakage will be left for you to pick up the pieces."
+		ewarn
+		local i extra_econf_array
+		extra_econf_array=(${EXTRA_ECONF})
+		for i in "${extra_econf_array[@]}" ; do
+			mozconfig_annotate "EXTRA_ECONF" "${i}"
+		done
+	fi
+
 	# Strip optimization so it does not end up in compile string
 	filter-flags '-O*'
 
