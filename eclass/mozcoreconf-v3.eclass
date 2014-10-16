@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/mozcoreconf-2.eclass,v 1.29 2013/03/25 13:08:39 anarchy Exp $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mozcoreconf-v3.eclass,v 1.1 2014/10/14 16:10:36 axs Exp $
 #
 # @ECLASS: mozcoreconf.eclass
 # @MAINTAINER:
@@ -164,18 +164,6 @@ mozconfig_init() {
 	else
 		# Enable Mozilla's default
 		mozconfig_annotate "mozilla default" --enable-optimize
-	fi
-
-	# check for valid options in ${EXTRA_ECONF} to pass along to mozconfig
-	if [[ -n ${EXTRA_ECONF} ]]; then
-		ewarn "You are passing configure arguments via EXTRA_ECONF.  This is NOT SUPPORTED, please"
-		ewarn "be aware that any resulting breakage will be left for you to pick up the pieces."
-		ewarn
-		local i extra_econf_array
-		extra_econf_array=(${EXTRA_ECONF})
-		for i in "${extra_econf_array[@]}" ; do
-			mozconfig_annotate "EXTRA_ECONF" "${i}"
-		done
 	fi
 
 	# Strip optimization so it does not end up in compile string
