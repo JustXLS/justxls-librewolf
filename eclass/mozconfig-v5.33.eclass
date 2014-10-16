@@ -135,7 +135,8 @@ mozconfig_config() {
 	mozconfig_annotate 'system_libs' \
 		--with-system-zlib \
 		--enable-pango \
-		--enable-svg
+		--enable-svg \
+		--with-system-bz2
 
 	mozconfig_annotate '' --enable-default-toolkit=cairo-gtk2
 
@@ -194,7 +195,6 @@ mozconfig_config() {
 	mozconfig_annotate '' --enable-system-ffi
 	mozconfig_annotate 'Gentoo default to honor system linker' --disable-gold
 	mozconfig_annotate '' --disable-gconf
-	mozconfig_annotate 'Gentoo default' --with-system-zlib
 
 	# We must force-enable jemalloc 3 via .mozconfig
 	echo "export MOZ_JEMALLOC=1" >> "${S}"/.mozconfig || die

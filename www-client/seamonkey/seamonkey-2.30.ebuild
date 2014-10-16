@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.26.1.ebuild,v 1.4 2014/07/05 11:23:47 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.29.1.ebuild,v 1.2 2014/10/05 18:08:51 polynomial-c Exp $
 
 EAPI=5
 WANT_AUTOCONF="2.1"
@@ -28,11 +28,11 @@ fi
 
 MOZCONFIG_OPTIONAL_WIFI=1
 MOZCONFIG_OPTIONAL_JIT="enabled"
-inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-v4.31 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
+inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-v5.33 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
 
 PATCHFF="firefox-31.0-patches-0.2"
-PATCH="${PN}-2.23-patches-01"
-EMVER="1.7"
+PATCH="${PN}-2.30-patches-01"
+EMVER="1.7.2"
 
 DESCRIPTION="Seamonkey Web Browser"
 HOMEPAGE="http://www.seamonkey-project.org"
@@ -53,14 +53,13 @@ IUSE="+chatzilla +crypt +ipc +mailclient minimal pulseaudio +roaming selinux tes
 
 SRC_URI="${SRC_URI}
 	${MOZ_FTP_URI}/source/${MY_MOZ_P}.source.tar.bz2 -> ${P}.source.tar.bz2
-	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz
-	http://dev.gentoo.org/~axs/distfiles/${PATCHFF}.tar.xz
+	http://dev.gentoo.org/~axs/mozilla/patchsets/${PATCHFF}.tar.xz
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
 	mailclient? ( crypt? ( http://www.enigmail.net/download/source/enigmail-${EMVER}.tar.gz ) )"
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
-RDEPEND=">=dev-libs/nss-3.16.2
+RDEPEND=">=dev-libs/nss-3.17.1
 	>=dev-libs/nspr-4.10.6
 	mailclient? ( crypt? ( || (
 				( >=app-crypt/gnupg-2.0
@@ -70,10 +69,11 @@ RDEPEND=">=dev-libs/nss-3.16.2
 					)
 				)
 				=app-crypt/gnupg-1.4* ) ) )
-	selinux? ( sec-policy/selinux-mozilla )"
+	selinux? ( sec-policy/selinux-mozilla )
+	system-sqlite? ( >=dev-db/sqlite-3.8.5:3[secure-delete,debug=] )"
 
 DEPEND="${RDEPEND}
-	!elibc_glibc? ( !elibc_uclibc? ( dev-libs/libexecinfo ) )
+	!elibc_glibc? ( !elibc_uclibc?  ( dev-libs/libexecinfo ) )
 	mailclient? ( crypt? ( dev-lang/perl ) )
 	amd64? ( ${ASM_DEPEND}
 		virtual/opengl )
@@ -120,6 +120,9 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/seamonkey"
+
+	epatch "${FILESDIR}"/${PN}-2.30-pulseaudio_configure_switch_fix.patch
+	epatch "${FILESDIR}"/${P}-jemalloc-configure.patch
 
 	# browser patches go here
 	pushd "${S}"/mozilla &>/dev/null || die
@@ -168,6 +171,8 @@ src_prepare() {
 	eautoconf
 	cd "${S}"/mozilla/js/src || die
 	eautoconf
+	cd "${S}"/mozilla/memory/jemalloc/src || die
+	WANT_AUTOCONF= eautoconf
 }
 
 src_configure() {
@@ -213,11 +218,16 @@ src_configure() {
 
 	# Other sm-specific settings
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
+
 	mozconfig_annotate '' --enable-safe-browsing
+
 	mozconfig_use_enable mailclient mailnews
 
 	# Use an objdir to keep things organized.
 	echo "mk_add_options MOZ_OBJDIR=${BUILD_OBJ_DIR}" \
+		>> "${S}"/.mozconfig
+	# Add a TOPSRCDIR too just in case
+	echo "mk_add_options TOPSRCDIR=${S}" \
 		>> "${S}"/.mozconfig
 
 	# Finalize and report settings
@@ -229,6 +239,7 @@ src_configure() {
 		popd &>/dev/null || die
 	fi
 
+
 	# Work around breakage in makeopts with --no-print-directory
 	MAKEOPTS="${MAKEOPTS/--no-print-directory/}"
 
@@ -239,21 +250,30 @@ src_configure() {
 			append-flags -mno-avx
 		fi
 	fi
-}
 
-src_compile() {
-	mkdir -p ${BUILD_OBJ_DIR} && cd ${BUILD_OBJ_DIR} || die
+	mkdir -p "${BUILD_OBJ_DIR}" && cd "${BUILD_OBJ_DIR}" || die
+	# run configure twice to get it to prepare the objdir and then actually set up properly
+	# apparently necessary due to build system b0rkage on mozilla-33
+	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
+	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL}" \
+	emake V=1 -f "${S}"/client.mk configure
 
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL}" \
-	emake V=1 -f "${S}/client.mk"
+	emake V=1 -f "${S}"/client.mk configure
+}
+
+src_compile() {
+	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
+	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL}" \
+	emake V=1 -f "${S}"/client.mk
 
 	# Only build enigmail extension if conditions are met.
 	if use crypt && use mailclient ; then
 		einfo "Building enigmail"
 		pushd "${WORKDIR}"/enigmail &>/dev/null || die
 		emake -j1
-		emake -j1 xpi
+		emake xpi
 		popd &>/dev/null || die
 	fi
 }
@@ -278,12 +298,6 @@ src_install() {
 		>> "${BUILD_OBJ_DIR}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
 
-	#if ! use libnotify ; then
-	#	echo 'pref("browser.download.manager.showAlertOnComplete", false);' \
-	#		>> "${BUILD_OBJ_DIR}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
-	#		|| die
-	#fi
-
 	echo 'pref("extensions.autoDisableScopes", 3);' >> \
 		"${BUILD_OBJ_DIR}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
@@ -297,7 +311,7 @@ src_install() {
 		pushd "${T}" &>/dev/null || die
 		unzip "${em_dir}"/enigmail*.xpi install.rdf || die
 		emid=$(sed -n '/<em:id>/!d; s/.*\({.*}\).*/\1/; p; q' install.rdf)
-
+		#'
 		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid}
 		cd "${D}"${MOZILLA_FIVE_HOME}/extensions/${emid} || die
 		unzip "${em_dir}"/enigmail*.xpi || die
@@ -334,11 +348,11 @@ src_install() {
 	# Handle plugins dir through nsplugins.eclass
 	share_plugins_dir
 
-	doman "${BUILD_OBJ_DIR}/suite/app/${PN}.1"
+	#doman "${BUILD_OBJ_DIR}/suite/app/${PN}.1"
 
 	# revdep-rebuild entry
 	insinto /etc/revdep-rebuild
-	echo "SEARCH_DIRS_MASK=${MOZILLA_FIVE_HOME}" >> ${T}/11${PN}
+	echo "SEARCH_DIRS_MASK=${MOZILLA_FIVE_HOME}*" >> ${T}/11${PN}
 	doins "${T}"/11${PN}
 }
 
