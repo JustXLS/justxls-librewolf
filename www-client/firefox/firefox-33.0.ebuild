@@ -147,6 +147,9 @@ src_prepare() {
 	EPATCH_EXCLUDE="8000_gcc49_mozbug999496_ff31.patch" \
 	epatch "${WORKDIR}/firefox"
 
+	epatch "${FILESDIR}"/${P}-jemalloc-configure.patch
+	epatch "${FILESDIR}"/${PN}-32.0-hppa-js-configure.patch # bug 524556
+
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
 
@@ -182,6 +185,10 @@ src_prepare() {
 	# Must run autoconf in js/src
 	cd "${S}"/js/src || die
 	eautoconf
+
+	# Need to update jemalloc's configure
+	cd "${S}"/memory/jemalloc/src || die
+	WANT_AUTOCONF= eautoconf
 }
 
 src_configure() {
