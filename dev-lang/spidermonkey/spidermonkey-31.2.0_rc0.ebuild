@@ -15,7 +15,7 @@ MY_P="${MY_PN}-${MY_PV/_/.}"
 DESCRIPTION="Stand-alone JavaScript C library"
 HOMEPAGE="http://www.mozilla.org/js/spidermonkey/"
 #SRC_URI="https://ftp.mozilla.org/pub/mozilla.org/js/${MY_P}.tar.bz2"
-SRC_URI="http://dev.gentoo.org/~axs/distfiles/${MY_P}.tar.bz2"
+SRC_URI="http://people.mozilla.org/~sstangl/${MY_P}.tar.bz2"
 
 LICENSE="NPL-1.1"
 SLOT="31"
@@ -58,8 +58,8 @@ src_configure() {
 	AR="$(tc-getAR)" RANLIB="$(tc-getRANLIB)" \
 	LD="$(tc-getLD)" \
 	ECONF_SOURCE="${S}/js/src" \
-	econf \
-		${myopts}
+	econf ${myopts} \
+		--disable-trace-malloc \
 		--enable-jemalloc \
 		--enable-readline \
 		--enable-threadsafe \
