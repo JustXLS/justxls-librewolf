@@ -19,11 +19,11 @@ SRC_URI="http://people.mozilla.org/~sstangl/${MY_P}.tar.bz2"
 
 LICENSE="NPL-1.1"
 SLOT="31"
-#KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd"
-KEYWORDS=""
-IUSE="debug jit icu minimal static-libs +system-icu test"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd"
+IUSE="debug +jit icu minimal static-libs +system-icu test"
 
 RESTRICT="ia64? ( test )"
+REQUIRED_USE="debug? ( jit )"
 
 S="${WORKDIR}/${MY_P%.rc*}"
 BUILDDIR="${WORKDIR}/jsbuild"
