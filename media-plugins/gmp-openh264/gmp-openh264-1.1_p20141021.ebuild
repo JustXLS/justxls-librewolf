@@ -12,7 +12,7 @@ SRC_URI="http://dev.gentoo.org/~axs/distfiles/${P}.tar.xz"
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
-IUSE="+plugin"
+IUSE=""
 
 RESTRICT="bindist"
 
