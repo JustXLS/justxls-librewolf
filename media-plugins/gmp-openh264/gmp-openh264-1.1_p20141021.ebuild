@@ -43,7 +43,7 @@ pkg_postinst() {
 	elog ""
 	elog "Also, if a previous mozilla version has already installed gmp-gmpopenh264"
 	elog "into a user's profile, that version will take precedence over this package"
-	elog "and will need to be removed before the files installed by this package
+	elog "and will need to be removed before the files installed by this package"
 	elog "will be used."
 	elog ""
 	ewarn "You may need to modify each user's .mozilla profile"
