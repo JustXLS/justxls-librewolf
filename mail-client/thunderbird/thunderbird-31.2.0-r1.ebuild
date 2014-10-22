@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/mail-client/thunderbird/thunderbird-31.1.0.ebuild,v 1.1 2014/09/03 22:11:38 axs Exp $
+# $Header: /var/cvsroot/gentoo-x86/mail-client/thunderbird/thunderbird-31.2.0-r1.ebuild,v 1.1 2014/10/20 17:53:11 axs Exp $
 
 EAPI=5
 WANT_AUTOCONF="2.1"
@@ -23,14 +23,14 @@ fi
 MOZ_P="${PN}-${MOZ_PV}"
 
 # Enigmail version
-EMVER="1.7"
+EMVER="1.7.2"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
 MOZ_HTTP_URI="http://ftp.mozilla.org/pub/${PN}/releases/"
 
 MOZCONFIG_OPTIONAL_JIT="enabled"
-inherit flag-o-matic toolchain-funcs mozconfig-v4.31 makeedit multilib autotools pax-utils check-reqs nsplugins mozlinguas
+inherit flag-o-matic toolchain-funcs mozconfig-v5.31 makeedit multilib autotools pax-utils check-reqs nsplugins mozlinguas
 
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
@@ -60,7 +60,7 @@ SRC_URI="${SRC_URI}
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 RDEPEND="
-	>=dev-libs/nss-3.16.2
+	>=dev-libs/nss-3.16.5
 	>=dev-libs/nspr-4.10.6
 	selinux? ( sec-policy/selinux-thunderbird )
 	!x11-plugins/enigmail
@@ -106,6 +106,13 @@ pkg_pretend() {
 	# Ensure we have enough disk space to compile
 	CHECKREQS_DISK_BUILD="4G"
 	check-reqs_pkg_setup
+
+	if use jit && [[ -n ${PROFILE_IS_HARDENED} ]]; then
+		ewarn "You are emerging this package on a hardened profile with USE=jit enabled."
+		ewarn "This is horribly insecure as it disables all PAGEEXEC restrictions."
+		ewarn "Please ensure you know what you are doing.  If you don't, please consider"
+		ewarn "emerging the package with USE=-jit"
+	fi
 }
 
 src_unpack() {
@@ -350,6 +357,8 @@ src_install() {
 	fi
 
 	pax-mark m "${ED}"/${MOZILLA_FIVE_HOME}/{thunderbird-bin,thunderbird}
+	# Required in order for jit to work on hardened, for mozilla-31
+	use jit && pax-mark p "${ED}"${MOZILLA_FIVE_HOME}/{thunderbird,thunderbird-bin}
 
 	# Plugin-container needs to be pax-marked for hardened to ensure plugins such as flash
 	# continue to work as expected.
