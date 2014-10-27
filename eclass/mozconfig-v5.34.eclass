@@ -152,6 +152,8 @@ mozconfig_config() {
 
 	if ! use debug ; then
 		mozconfig_annotate 'disabled by Gentoo' --disable-debug-symbols
+	else
+		mozconfig_annotate 'disabled by Gentoo' --enable-debug-symbols
 	fi
 
 	mozconfig_use_enable startup-notification
@@ -196,10 +198,13 @@ mozconfig_config() {
 	mozconfig_annotate 'Gentoo default to honor system linker' --disable-gold
 	mozconfig_annotate '' --disable-gconf
 
-	# We must force-enable jemalloc 3 via .mozconfig
-	echo "export MOZ_JEMALLOC=1" >> "${S}"/.mozconfig || die
-	mozconfig_annotate '' --enable-jemalloc
-	mozconfig_annotate '' --enable-replace-malloc
+	# Use jemalloc unless libc is not glibc >= 2.4
+	if has_version ">=sys-libs/glibc-2.4"; then
+		# We must force-enable jemalloc 3 via .mozconfig
+		echo "export MOZ_JEMALLOC3=1" >> "${S}"/.mozconfig || die
+		mozconfig_annotate '' --enable-jemalloc
+		mozconfig_annotate '' --enable-replace-malloc
+	fi
 
 	mozconfig_annotate '' --target="${CTARGET:-${CHOST}}"
 	mozconfig_annotate '' --build="${CTARGET:-${CHOST}}"
