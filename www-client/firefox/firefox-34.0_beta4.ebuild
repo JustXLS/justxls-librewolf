@@ -147,6 +147,8 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
 
+	epatch "${FILESDIR}"/${PN}-31.0-webm-disallow-negative-samples.patch # bug 527010
+
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
 
