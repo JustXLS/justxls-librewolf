@@ -17,7 +17,7 @@ IUSE=""
 RESTRICT="bindist"
 
 RDEPEND=""
-DEPEND=""
+DEPEND="dev-lang/nasm"
 
 DOCS=( LICENSE CONTRIBUTORS README.md )
 
