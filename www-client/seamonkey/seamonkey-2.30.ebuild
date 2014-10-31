@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.29.1.ebuild,v 1.2 2014/10/05 18:08:51 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.30.ebuild,v 1.1 2014/10/21 18:29:15 polynomial-c Exp $
 
 EAPI=5
 WANT_AUTOCONF="2.1"
@@ -49,32 +49,32 @@ fi
 
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="+chatzilla +crypt +ipc +mailclient minimal pulseaudio +roaming selinux test"
+IUSE="+chatzilla +crypt +ipc minimal pulseaudio +roaming selinux test"
 
 SRC_URI="${SRC_URI}
 	${MOZ_FTP_URI}/source/${MY_MOZ_P}.source.tar.bz2 -> ${P}.source.tar.bz2
 	http://dev.gentoo.org/~axs/mozilla/patchsets/${PATCHFF}.tar.xz
 	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
-	mailclient? ( crypt? ( http://www.enigmail.net/download/source/enigmail-${EMVER}.tar.gz ) )"
+	crypt? ( http://www.enigmail.net/download/source/enigmail-${EMVER}.tar.gz )"
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 RDEPEND=">=dev-libs/nss-3.17.1
 	>=dev-libs/nspr-4.10.6
-	mailclient? ( crypt? ( || (
-				( >=app-crypt/gnupg-2.0
-					|| (
-						app-crypt/pinentry[gtk]
-						app-crypt/pinentry[qt4]
-					)
+	crypt? ( || (
+			( >=app-crypt/gnupg-2.0
+				|| (
+					app-crypt/pinentry[gtk]
+					app-crypt/pinentry[qt4]
 				)
-				=app-crypt/gnupg-1.4* ) ) )
+			)
+			=app-crypt/gnupg-1.4* ) )
 	selinux? ( sec-policy/selinux-mozilla )
 	system-sqlite? ( >=dev-db/sqlite-3.8.5:3[secure-delete,debug=] )"
 
 DEPEND="${RDEPEND}
 	!elibc_glibc? ( !elibc_uclibc?  ( dev-libs/libexecinfo ) )
-	mailclient? ( crypt? ( dev-lang/perl ) )
+	crypt? ( dev-lang/perl )
 	amd64? ( ${ASM_DEPEND}
 		virtual/opengl )
 	x86? ( ${ASM_DEPEND}
@@ -86,7 +86,7 @@ else
 	S="${WORKDIR}/comm-release"
 fi
 
-BUILD_OBJ_DIR="${WORKDIR}/seamonk"
+BUILD_OBJ_DIR="${S}/seamonk"
 
 pkg_setup() {
 	if [[ ${PV} == *_pre* ]] ; then
@@ -121,8 +121,8 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/seamonkey"
 
-	epatch "${FILESDIR}"/${PN}-2.30-pulseaudio_configure_switch_fix.patch
-	epatch "${FILESDIR}"/${P}-jemalloc-configure.patch
+	epatch "${FILESDIR}"/${PN}-2.30-pulseaudio_configure_switch_fix.patch \
+		"${FILESDIR}"/${PN}-2.30-jemalloc-configure.patch
 
 	# browser patches go here
 	pushd "${S}"/mozilla &>/dev/null || die
@@ -204,10 +204,6 @@ src_configure() {
 		MEXTENSIONS+=",-sroaming"
 	fi
 
-	if ! use mailclient ; then
-		mozconfig_annotate '-mailclient' --disable-composer
-	fi
-
 	# Setup api key for location services
 	echo -n "${_google_api_key}" > "${S}"/google-api-key
 	mozconfig_annotate '' --with-google-api-keyfile="${S}/google-api-key"
@@ -221,24 +217,18 @@ src_configure() {
 
 	mozconfig_annotate '' --enable-safe-browsing
 
-	mozconfig_use_enable mailclient mailnews
-
 	# Use an objdir to keep things organized.
 	echo "mk_add_options MOZ_OBJDIR=${BUILD_OBJ_DIR}" \
-		>> "${S}"/.mozconfig
-	# Add a TOPSRCDIR too just in case
-	echo "mk_add_options TOPSRCDIR=${S}" \
 		>> "${S}"/.mozconfig
 
 	# Finalize and report settings
 	mozconfig_final
 
-	if use crypt && use mailclient ; then
+	if use crypt ; then
 		pushd "${WORKDIR}"/enigmail &>/dev/null || die
 		econf
 		popd &>/dev/null || die
 	fi
-
 
 	# Work around breakage in makeopts with --no-print-directory
 	MAKEOPTS="${MAKEOPTS/--no-print-directory/}"
@@ -250,26 +240,15 @@ src_configure() {
 			append-flags -mno-avx
 		fi
 	fi
-
-	mkdir -p "${BUILD_OBJ_DIR}" && cd "${BUILD_OBJ_DIR}" || die
-	# run configure twice to get it to prepare the objdir and then actually set up properly
-	# apparently necessary due to build system b0rkage on mozilla-33
-	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
-	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL}" \
-	emake V=1 -f "${S}"/client.mk configure
-
-	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
-	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL}" \
-	emake V=1 -f "${S}"/client.mk configure
 }
 
 src_compile() {
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL}" \
-	emake V=1 -f "${S}"/client.mk
+	emake V=1 -f client.mk
 
 	# Only build enigmail extension if conditions are met.
-	if use crypt && use mailclient ; then
+	if use crypt ; then
 		einfo "Building enigmail"
 		pushd "${WORKDIR}"/enigmail &>/dev/null || die
 		emake -j1
@@ -306,7 +285,7 @@ src_install() {
 	emake DESTDIR="${D}" install
 	cp "${FILESDIR}"/icon/${PN}.desktop "${T}" || die
 
-	if use crypt && use mailclient ; then
+	if use crypt ; then
 		local em_dir="${WORKDIR}/enigmail/build"
 		pushd "${T}" &>/dev/null || die
 		unzip "${em_dir}"/enigmail*.xpi install.rdf || die
@@ -319,12 +298,10 @@ src_install() {
 		popd &>/dev/null || die
 	fi
 
-	if use mailclient ; then
-		sed 's|^\(MimeType=.*\)$|\1text/x-vcard;text/directory;application/mbox;message/rfc822;x-scheme-handler/mailto;|' \
-			-i "${T}"/${PN}.desktop || die
-		sed 's|^\(Categories=.*\)$|\1Email;|' -i "${T}"/${PN}.desktop \
-			|| die
-	fi
+	sed 's|^\(MimeType=.*\)$|\1text/x-vcard;text/directory;application/mbox;message/rfc822;x-scheme-handler/mailto;|' \
+		-i "${T}"/${PN}.desktop || die
+	sed 's|^\(Categories=.*\)$|\1Email;|' -i "${T}"/${PN}.desktop \
+		|| die
 
 	# Install language packs
 	mozlinguas_src_install
