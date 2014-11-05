@@ -147,8 +147,6 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
 
-	epatch "${FILESDIR}"/${PN}-31.0-webm-disallow-negative-samples.patch # bug 527010
-
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
 
@@ -305,7 +303,11 @@ src_install() {
 		echo "pref(\"media.${plugin}.autoupdate\", false);" >> \
 			"${S}/${obj_dir}/dist/bin/browser/defaults/preferences/all-gentoo.js" \
 			|| die
+		echo "pref(\"media.${plugin}.version\", \"system-installed\");" >> \
+			"${S}/${obj_dir}/dist/bin/browser/defaults/preferences/all-gentoo.js" \
+			|| die
 	done
+
 
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
 	emake DESTDIR="${D}" install

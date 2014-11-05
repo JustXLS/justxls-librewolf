@@ -45,7 +45,7 @@ esac
 # Set the variable to any value if the use flag should exist but not be default-enabled.
 
 # use-flags common among all mozilla ebuilds
-IUSE="${IUSE} dbus debug gstreamer pulseaudio startup-notification system-cairo system-icu system-jpeg system-sqlite +system-libvpx"
+IUSE="${IUSE} dbus debug gstreamer pulseaudio startup-notification system-cairo system-icu system-jpeg system-sqlite system-libvpx"
 
 # some notes on deps:
 # gtk:2 minimum is technically 2.10 but gio support (enabled by default) needs 2.14
@@ -86,7 +86,7 @@ RDEPEND=">=app-text/hunspell-1.2
 	system-icu? ( >=dev-libs/icu-51.1 )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-sqlite? ( >=dev-db/sqlite-3.8.5:3[secure-delete,debug=] )
-	system-libvpx? ( =media-libs/libvpx-1.3.0* )
+	system-libvpx? ( =media-libs/libvpx-1.3.0*[postproc] )
 "
 
 if [[ -n ${MOZCONFIG_OPTIONAL_WIFI} ]]; then
