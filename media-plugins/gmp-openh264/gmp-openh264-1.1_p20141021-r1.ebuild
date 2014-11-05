@@ -30,9 +30,11 @@ src_compile() {
 }
 
 src_install() {
-	insinto /usr/$(get_libdir)/${PLUGINS_DIR}/gmp-${PN/-/}/${PV}
+	local plugpath="usr/$(get_libdir)/${PLUGINS_DIR}/gmp-${PN/-/}/system-installed"
+
+	insinto /${plugpath}
 	doins libgmpopenh264.so gmpopenh264.info
-	echo "MOZ_GMP_PATH=\"${EROOT}usr/$(get_libdir)/${PLUGINS_DIR}/gmp-${PN/-/}/${PV}\"" >"${T}"/98-moz-${PN}
+	echo "MOZ_GMP_PATH=\"${EROOT}${plugpath}\"" >"${T}"/98-moz-${PN}
 	doenvd "${T}"/98-moz-${PN}
 }
 
@@ -42,9 +44,9 @@ pkg_postinst() {
 	elog "overridden in a user's profile (ie, about:config)."
 	elog ""
 	elog "Also, if a previous mozilla version has already installed gmp-gmpopenh264"
-	elog "into a user's profile, that version will take precedence over this package"
+	elog "into a user's profile, that version may take precedence over this package"
 	elog "and will need to be removed before the files installed by this package"
-	elog "will be used."
+	elog "are certain to be used."
 	elog ""
 	ewarn "You may need to modify each user's .mozilla profile"
 	ewarn "by hand, disabling autoupdates in about:config and deleting any"

@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.30.ebuild,v 1.1 2014/10/21 18:29:15 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.30.ebuild,v 1.2 2014/11/02 10:28:35 swift Exp $
 
 EAPI=5
 WANT_AUTOCONF="2.1"
@@ -49,7 +49,7 @@ fi
 
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="+chatzilla +crypt +ipc minimal pulseaudio +roaming selinux test"
+IUSE="+chatzilla +crypt +ipc minimal pulseaudio +roaming system-gmps test"
 
 SRC_URI="${SRC_URI}
 	${MOZ_FTP_URI}/source/${MY_MOZ_P}.source.tar.bz2 -> ${P}.source.tar.bz2
@@ -69,7 +69,7 @@ RDEPEND=">=dev-libs/nss-3.17.1
 				)
 			)
 			=app-crypt/gnupg-1.4* ) )
-	selinux? ( sec-policy/selinux-mozilla )
+	system-gmps? ( media-plugins/gmp-openh264 )
 	system-sqlite? ( >=dev-db/sqlite-3.8.5:3[secure-delete,debug=] )"
 
 DEPEND="${RDEPEND}
@@ -122,7 +122,8 @@ src_prepare() {
 	epatch "${WORKDIR}/seamonkey"
 
 	epatch "${FILESDIR}"/${PN}-2.30-pulseaudio_configure_switch_fix.patch \
-		"${FILESDIR}"/${PN}-2.30-jemalloc-configure.patch
+		"${FILESDIR}"/${PN}-2.30-jemalloc-configure.patch \
+		"${FILESDIR}"/${PN}-2.30-webm-disallow-negative-samples.patch
 
 	# browser patches go here
 	pushd "${S}"/mozilla &>/dev/null || die
@@ -280,6 +281,17 @@ src_install() {
 	echo 'pref("extensions.autoDisableScopes", 3);' >> \
 		"${BUILD_OBJ_DIR}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
+
+	local plugin
+	use system-gmps && for plugin in \
+	gmp-gmpopenh264 ; do
+		echo "pref(\"media.${plugin}.autoupdate\", false);" >> \
+			"${S}/${obj_dir}/dist/bin/browser/defaults/preferences/all-gentoo.js" \
+			|| die
+		echo "pref(\"media.${plugin}.version\", \"system-installed\");" >> \
+			"${S}/${obj_dir}/dist/bin/browser/defaults/preferences/all-gentoo.js" \
+			|| die
+	done
 
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
 	emake DESTDIR="${D}" install
