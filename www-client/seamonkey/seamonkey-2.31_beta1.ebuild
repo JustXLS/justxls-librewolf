@@ -28,7 +28,7 @@ fi
 
 MOZCONFIG_OPTIONAL_WIFI=1
 MOZCONFIG_OPTIONAL_JIT="enabled"
-inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-v5.33 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
+inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-v5.34 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
 
 PATCHFF="firefox-31.0-patches-0.2"
 PATCH="${PN}-2.30-patches-01"
