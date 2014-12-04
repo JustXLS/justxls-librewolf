@@ -30,7 +30,7 @@ MOZCONFIG_OPTIONAL_WIFI=1
 MOZCONFIG_OPTIONAL_JIT="enabled"
 inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-v5.34 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
 
-PATCHFF="firefox-31.0-patches-0.2"
+PATCHFF="firefox-34.0-patches-0.1"
 PATCH="${PN}-2.30-patches-01"
 EMVER="1.7.2"
 
@@ -49,7 +49,7 @@ fi
 
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="+chatzilla +crypt +ipc minimal pulseaudio +roaming test"
+IUSE="+chatzilla +crypt +gmp-autoupdate +ipc minimal pulseaudio +roaming selinux test"
 
 SRC_URI="${SRC_URI}
 	${MOZ_FTP_URI}/source/${MY_MOZ_P}.source.tar.bz2 -> ${P}.source.tar.bz2
@@ -59,8 +59,8 @@ SRC_URI="${SRC_URI}
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
-RDEPEND=">=dev-libs/nss-3.17.1
-	>=dev-libs/nspr-4.10.6
+RDEPEND=">=dev-libs/nss-3.17.2
+	>=dev-libs/nspr-4.10.7
 	crypt? ( || (
 			( >=app-crypt/gnupg-2.0
 				|| (
@@ -120,14 +120,12 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/seamonkey"
 
-	epatch"${FILESDIR}"/${PN}-2.30-jemalloc-configure.patch \
-		"${FILESDIR}"/${PN}-2.30-webm-disallow-negative-samples.patch
+	epatch"${FILESDIR}"/${PN}-2.30-jemalloc-configure.patch
 
 	# browser patches go here
 	pushd "${S}"/mozilla &>/dev/null || die
 	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch
-			5001_allow_locked_prefs_v2.patch
-			8000_gcc49_mozbug999496_ff31.patch" \
+			8002_jemalloc_configure_unbashify.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
@@ -282,6 +280,15 @@ src_install() {
 	echo 'pref("extensions.autoDisableScopes", 3);' >> \
 		"${BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
+
+	local plugin
+	if ! use gmp-autoupdate ; then
+		for plugin in gmp-gmpopenh264 ; do
+			echo "pref(\"media.${plugin}.autoupdate\", false);" >> \
+				"${S}/${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js" \
+				|| dir
+		done
+	fi
 
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
 	emake DESTDIR="${D}" install
