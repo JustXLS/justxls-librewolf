@@ -25,7 +25,7 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-34.0-patches-0.1"
+PATCH="${PN}-35.0-patches-0.1"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
@@ -53,7 +53,7 @@ ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 # Mesa 7.10 needed for WebGL + bugfixes
 RDEPEND="
-	>=dev-libs/nss-3.17.2
+	>=dev-libs/nss-3.17.3
 	>=dev-libs/nspr-4.10.7
 	selinux? ( sec-policy/selinux-mozilla )"
 
@@ -145,6 +145,8 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
+
+	epatch "${FILESDIR}"/${PN}-35.0-gmp-clearkey-sprintf.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
@@ -297,7 +299,7 @@ src_install() {
 		|| die
 
 	local plugin
-	use gmp-autoupdate && for plugin in \
+	use gmp-autoupdate || for plugin in \
 	gmp-gmpopenh264 ; do
 		echo "pref(\"media.${plugin}.autoupdate\", false);" >> \
 			"${S}/${obj_dir}/dist/bin/browser/defaults/preferences/all-gentoo.js" \
