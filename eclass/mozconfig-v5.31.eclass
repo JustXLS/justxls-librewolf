@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mozconfig-v5.31.eclass,v 1.2 2014/12/03 23:10:06 axs Exp $
 #
 # @ECLASS: mozconfig-v5.31.eclass
 # @MAINTAINER:
@@ -45,7 +45,7 @@ esac
 # Set the variable to any value if the use flag should exist but not be default-enabled.
 
 # use-flags common among all mozilla ebuilds
-IUSE="${IUSE} dbus debug gstreamer pulseaudio startup-notification system-cairo system-icu system-jpeg system-sqlite +system-libvpx"
+IUSE="${IUSE} dbus debug gstreamer pulseaudio startup-notification system-cairo system-icu system-jpeg system-sqlite system-libvpx"
 
 # some notes on deps:
 # gtk:2 minimum is technically 2.10 but gio support (enabled by default) needs 2.14
@@ -78,7 +78,7 @@ RDEPEND=">=app-text/hunspell-1.2
 	x11-libs/libXrender
 	x11-libs/libXt
 	system-cairo? ( >=x11-libs/cairo-1.12[X] >=x11-libs/pixman-0.19.2 )
-	system-icu? ( >=dev-libs/icu-51.1:= )
+	system-icu? ( >=dev-libs/icu-51.1 )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-sqlite? ( >=dev-db/sqlite-3.8.4.2:3[secure-delete,debug=] )
 	system-libvpx? ( =media-libs/libvpx-1.3.0* )
