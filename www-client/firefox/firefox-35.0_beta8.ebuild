@@ -349,7 +349,11 @@ src_install() {
 	fi
 
 	# Required in order to use plugins and even run firefox on hardened.
-	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{firefox,firefox-bin,plugin-container}
+	if use jit; then
+		pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{firefox,firefox-bin,plugin-container}
+	else
+		pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/plugin-container
+	fi
 
 	if use minimal; then
 		rm -r "${ED}"/usr/include "${ED}${MOZILLA_FIVE_HOME}"/{idl,include,lib,sdk} \
