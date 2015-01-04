@@ -1,12 +1,13 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/mail-client/thunderbird/thunderbird-31.2.0-r1.ebuild,v 1.1 2014/10/20 17:53:11 axs Exp $
+# $Header: /var/cvsroot/gentoo-x86/mail-client/thunderbird/thunderbird-31.3.0.ebuild,v 1.6 2014/12/24 14:55:42 ago Exp $
 
 EAPI=5
 WANT_AUTOCONF="2.1"
 MOZ_ESR=""
 MOZ_LIGHTNING_VER="3.3"
-MOZ_LIGHTNING_GDATA_VER="2.6.3"
+#MOZ_LIGHTNING_GDATA_VER="2.6.3"
+MOZ_LIGHTNING_GDATA_VER="1.0.3"
 
 # This list can be updated using scripts/get_langs.sh from the mozilla overlay
 MOZ_LANGS=(ar ast be bg bn-BD br ca cs da de el en en-GB en-US es-AR
@@ -35,7 +36,7 @@ inherit flag-o-matic toolchain-funcs mozconfig-v5.31 makeedit multilib autotools
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 
-KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha amd64 ~arm ppc ppc64 x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="bindist crypt ldap +lightning +minimal mozdom selinux"
@@ -49,7 +50,7 @@ SRC_URI="${SRC_URI}
 	crypt? ( http://www.enigmail.net/download/source/enigmail-${EMVER}.tar.gz )
 	lightning? (
 		${MOZ_HTTP_URI/${PN}/calendar/lightning}${MOZ_LIGHTNING_VER}/linux/lightning.xpi -> lightning-${MOZ_LIGHTNING_VER}.xpi
-		${MOZ_HTTP_URI/${PN}/calendar/lightning}${MOZ_LIGHTNING_GDATA_VER}/linux/gdata-provider.xpi -> gdata-provider-${MOZ_LIGHTNING_GDATA_VER}.xpi
+		http://dev.gentoo.org/~axs/distfiles/gdata-provider-${MOZ_LIGHTNING_GDATA_VER}.tar.xz
 	)
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.xz
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz
@@ -59,10 +60,9 @@ SRC_URI="${SRC_URI}
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
-RDEPEND="
-	>=dev-libs/nss-3.16.5
+CDEPEND="
+	>=dev-libs/nss-3.17.1
 	>=dev-libs/nspr-4.10.6
-	selinux? ( sec-policy/selinux-thunderbird )
 	!x11-plugins/enigmail
 	crypt?  ( || (
 		( >=app-crypt/gnupg-2.0
@@ -74,11 +74,15 @@ RDEPEND="
 		=app-crypt/gnupg-1.4*
 	) )"
 
-DEPEND="${RDEPEND}
+DEPEND="${CDEPEND}
 	amd64? ( ${ASM_DEPEND}
 		virtual/opengl )
 	x86? ( ${ASM_DEPEND}
 		virtual/opengl )"
+
+RDEPEND="${CDEPEND}
+	selinux? ( sec-policy/selinux-thunderbird )
+"
 
 if [[ ${PV} =~ beta ]]; then
 	S="${WORKDIR}/comm-beta"
@@ -86,7 +90,7 @@ else
 	S="${WORKDIR}/comm-esr${PV%%.*}"
 fi
 
-BUILD_OBJ_DIR="${WORKDIR}/tbird"
+BUILD_OBJ_DIR="${S}/tbird"
 
 pkg_setup() {
 	moz_pkgsetup
@@ -124,7 +128,6 @@ src_unpack() {
 	# Unpack lightning for calendar locales
 	if use lightning ; then
 		xpi_unpack lightning-${MOZ_LIGHTNING_VER}.xpi
-		xpi_unpack gdata-provider-${MOZ_LIGHTNING_GDATA_VER}.xpi
 	fi
 }
 
@@ -315,12 +318,17 @@ src_install() {
 		mozlinguas_export
 
 		emid="{a62ef8ec-5fdc-40c2-873c-223b8a6925cc}"
-		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid}
-		cd "${ED}"${MOZILLA_FIVE_HOME}/extensions/${emid}
-		unzip "${BUILD_OBJ_DIR}"/mozilla/dist/xpi-stage/gdata-provider-*.xpi
-		# Install locales for gdata-provider -- each locale is a directory tree
+		# just for ESR31, install custom-rolled gdata-provider
+		cd "${WORKDIR}/gdata-provider-${MOZ_LIGHTNING_GDATA_VER}" || die
+		insinto ${MOZILLA_FIVE_HOME}/extensions/${emid}
+		if [[ -e chrome.manifest.original ]]; then
+			cp chrome.manifest.original chrome.manifest || die
+		fi
+		doins -r chrome.manifest components defaults modules install.rdf
+		cd "${WORKDIR}/gdata-provider-${MOZ_LIGHTNING_GDATA_VER}/chrome" || die
 		insinto ${MOZILLA_FIVE_HOME}/extensions/${emid}/chrome
-		cd "${WORKDIR}"/gdata-provider-${MOZ_LIGHTNING_GDATA_VER}/chrome
+		doins -r gdata-provider gdata-provider-en-US
+		# Install locales for gdata-provider -- each locale is a directory tree
 		for l in "${mozlinguas[@]}"; do if [[ -d gdata-provider-${l} ]]; then
 			doins -r gdata-provider-${l}
 			echo "locale gdata-provider ${l} chrome/gdata-provider-${l}/locale/${l}/" \
@@ -333,8 +341,7 @@ src_install() {
 		emid="{e2fda1a4-762b-4020-b5ad-a41df1933103}"
 		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid}
 		cd "${ED}"${MOZILLA_FIVE_HOME}/extensions/${emid} || die
-		unzip "${BUILD_OBJ_DIR}"/mozilla/dist/xpi-stage/lightning-*.xpi \
-			|| die
+		unzip "${BUILD_OBJ_DIR}"/mozilla/dist/xpi-stage/lightning-*.xpi || die
 		# Install locales for lightning - each locale is a jar file
 		insinto ${MOZILLA_FIVE_HOME}/extensions/${emid}/chrome
 		cd "${WORKDIR}"/lightning-${MOZ_LIGHTNING_VER}/chrome || die
