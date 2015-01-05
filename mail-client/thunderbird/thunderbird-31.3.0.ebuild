@@ -41,8 +41,8 @@ SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="bindist crypt hardened ldap +lightning +minimal mozdom selinux"
 
-PATCH="thunderbird-31.0-patches-0.1"
-PATCHFF="firefox-31.0-patches-0.2"
+PATCH="thunderbird-31.3-patches-0.1"
+PATCHFF="firefox-31.3-patches-0.1"
 
 SRC_URI="${SRC_URI}
 	${MOZ_FTP_URI}${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
@@ -204,6 +204,8 @@ src_configure() {
 
 	# Add full relro support for hardened
 	use hardened && append-ldflags "-Wl,-z,relro,-z,now"
+
+	mozconfig_annotate '' --enable-pie
 
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 	mozconfig_annotate '' --disable-mailnews
