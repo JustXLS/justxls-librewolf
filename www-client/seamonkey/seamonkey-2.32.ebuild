@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.31-r1.ebuild,v 1.3 2014/12/10 19:34:45 ago Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-client/seamonkey/seamonkey-2.32.ebuild,v 1.1 2015/01/14 09:01:55 polynomial-c Exp $
 
 EAPI=5
 WANT_AUTOCONF="2.1"
@@ -30,7 +30,7 @@ MOZCONFIG_OPTIONAL_WIFI=1
 MOZCONFIG_OPTIONAL_JIT="enabled"
 inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-v5.34 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
 
-PATCHFF="firefox-34.0-patches-0.1"
+PATCHFF="firefox-35.0-patches-0.1"
 PATCH="${PN}-2.32-patches-01"
 EMVER="1.7.2"
 
@@ -40,11 +40,11 @@ HOMEPAGE="http://www.seamonkey-project.org"
 if [[ ${PV} == *_pre* ]] ; then
 	# pre-releases. No need for arch teams to change KEYWORDS here.
 
-	KEYWORDS="~alpha amd64 ~arm ~ppc ~ppc64 x86"
+	KEYWORDS=""
 else
 	# This is where arch teams should change the KEYWORDS.
 
-	KEYWORDS="~alpha amd64 ~arm ~ppc ~ppc64 x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86"
 fi
 
 SLOT="0"
@@ -125,14 +125,10 @@ src_prepare() {
 	# browser patches go here
 	pushd "${S}"/mozilla &>/dev/null || die
 	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch
-			7000_drop-Wl-build-id_v3.patch
 			8002_jemalloc_configure_unbashify.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
-
-	epatch "${FILESDIR}"/7000_drop-Wl-build-id_v3.patch
-
 	popd &>/dev/null || die
 	# drop -Wl,--build-id from LDFLAGS, bug #465466
 
@@ -296,7 +292,7 @@ src_install() {
 
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
 	emake DESTDIR="${D}" install
-	cp "${FILESDIR}"/icon/${PN}.desktop "${T}" || die
+	cp "${FILESDIR}"/${PN}.desktop "${T}" || die
 
 	if use crypt ; then
 		local em_dir="${WORKDIR}/enigmail/build"
