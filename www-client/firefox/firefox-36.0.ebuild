@@ -148,6 +148,7 @@ src_prepare() {
 
 	epatch "${FILESDIR}"/${PN}-35.0-gmp-clearkey-sprintf.patch
 	epatch "${FILESDIR}"/${PN}-36.0-disable-ion.patch
+	epatch "${FILESDIR}"/${PN}-36.0-depollute-CONST-from-dtoa.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
