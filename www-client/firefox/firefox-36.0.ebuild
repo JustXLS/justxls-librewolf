@@ -224,10 +224,6 @@ src_configure() {
 	# Other ff-specific settings
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 
-	# Force jit simulators for mips and arm
-	use jit && use arm && mozconfig_annotate '' --enable-arm-simulator
-	use jit && use mips && mozconfig_annotate '' --enable-mips-simulator
-
 	# Allow for a proper pgo build
 	if use pgo; then
 		echo "mk_add_options PROFILE_GEN_SCRIPT='\$(PYTHON) \$(OBJDIR)/_profile/pgo/profileserver.py'" >> "${S}"/.mozconfig
