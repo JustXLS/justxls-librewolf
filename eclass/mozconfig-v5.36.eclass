@@ -184,9 +184,6 @@ mozconfig_config() {
 
 	if [[ -n ${MOZCONFIG_OPTIONAL_JIT} ]]; then
 		mozconfig_use_enable jit ion
-	        # Force jit simulators for mips and arm
-	        use jit && use arm && mozconfig_annotate '' --enable-arm-simulator
-	        use jit && use mips && mozconfig_annotate '' --enable-mips-simulator
 	fi
 
 	# These are enabled by default in all mozilla applications
