@@ -147,6 +147,7 @@ src_prepare() {
 	epatch "${WORKDIR}/firefox"
 
 	epatch "${FILESDIR}"/${PN}-35.0-gmp-clearkey-sprintf.patch
+	epatch "${FILESDIR}"/${PN}-37.0-jemalloc_configure_unbashify.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
