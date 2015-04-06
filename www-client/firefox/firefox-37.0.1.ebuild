@@ -34,7 +34,6 @@ MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
 MOZ_HTTP_URI="http://ftp.mozilla.org/pub/${PN}/releases/"
 
 MOZCONFIG_OPTIONAL_WIFI=1
-MOZCONFIG_OPTIONAL_JIT="enabled"
 
 inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-v5.36 multilib pax-utils fdo-mime autotools virtualx mozlinguas
 
@@ -223,6 +222,9 @@ src_configure() {
 	# Other ff-specific settings
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 
+	# force jit
+	mozconfig_annotate '' --enable-ion
+
 	# Allow for a proper pgo build
 	if use pgo; then
 		echo "mk_add_options PROFILE_GEN_SCRIPT='\$(PYTHON) \$(OBJDIR)/_profile/pgo/profileserver.py'" >> "${S}"/.mozconfig
@@ -349,11 +351,7 @@ src_install() {
 	fi
 
 	# Required in order to use plugins and even run firefox on hardened.
-	if use jit; then
-		pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{firefox,firefox-bin,plugin-container}
-	else
-		pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/plugin-container
-	fi
+	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{firefox,firefox-bin,plugin-container}
 
 	if use minimal; then
 		rm -r "${ED}"/usr/include "${ED}${MOZILLA_FIVE_HOME}"/{idl,include,lib,sdk} \
