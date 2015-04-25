@@ -77,7 +77,7 @@ if [[ ${PV} =~ alpha ]]; then
 		http://dev.gentoo.org/~nirbheek/mozilla/firefox/firefox-${MOZ_PV}_${CHANGESET}.source.tar.bz2"
 	S="${WORKDIR}/mozilla-aurora-${CHANGESET}"
 elif [[ ${PV} =~ beta ]]; then
-	S="${WORKDIR}/mozilla-beta"
+	S="${WORKDIR}/mozilla-release"
 	SRC_URI="${SRC_URI}
 		${MOZ_FTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.bz2
 		${MOZ_HTTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.bz2"
@@ -232,10 +232,6 @@ src_configure() {
 
 	if [[ $(gcc-major-version) -lt 4 ]]; then
 		append-cxxflags -fno-stack-protector
-	elif [[ $(gcc-major-version) -gt 4 || $(gcc-minor-version) -gt 3 ]]; then
-		if use amd64 || use x86; then
-			append-flags -mno-avx
-		fi
 	fi
 }
 
