@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Header: /var/cvsroot/gentoo-x86/eclass/mozconfig-v5.33.eclass,v 1.5 2015/05/28 06:37:16 polynomial-c Exp $
 #
 # @ECLASS: mozconfig-v5.33.eclass
 # @MAINTAINER:
@@ -21,7 +21,8 @@
 inherit multilib flag-o-matic toolchain-funcs mozcoreconf-v3
 
 case ${EAPI} in
-	0|1|2|3|4) die "EAPI=${EAPI} not supported"
+	0|1|2|3|4) die "EAPI=${EAPI} not supported" ;;
+	*) die "This eclass has been disabled and will be removed on 2015-06-30.  If you need it, copy to your overlay and remove this line." ;;
 esac
 
 # @ECLASS-VARIABLE: MOZCONFIG_OPTIONAL_WIFI
@@ -53,7 +54,6 @@ IUSE="${IUSE} dbus debug gstreamer pulseaudio selinux startup-notification syste
 
 RDEPEND=">=app-text/hunspell-1.2
 	dev-libs/atk
-	dev-libs/expat
 	>=dev-libs/libevent-1.4.7
 	>=x11-libs/cairo-1.10[X]
 	>=x11-libs/gtk+-2.14:2
@@ -79,11 +79,14 @@ RDEPEND=">=app-text/hunspell-1.2
 		>=media-plugins/gst-plugins-libav-1.1.0_pre20130128-r1:1.0
 	)
 	x11-libs/libX11
+	x11-libs/libXcomposite
+	x11-libs/libXdamage
+	x11-libs/libXfixes
 	x11-libs/libXext
 	x11-libs/libXrender
 	x11-libs/libXt
 	system-cairo? ( >=x11-libs/cairo-1.12[X] >=x11-libs/pixman-0.19.2 )
-	system-icu? ( >=dev-libs/icu-51.1:= )
+	system-icu? ( >=dev-libs/icu-51.1 )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-sqlite? ( >=dev-db/sqlite-3.8.5:3[secure-delete,debug=] )
 	system-libvpx? ( =media-libs/libvpx-1.3.0*[postproc] )
@@ -138,8 +141,7 @@ mozconfig_config() {
 	mozconfig_annotate 'system_libs' \
 		--with-system-zlib \
 		--enable-pango \
-		--enable-svg \
-		--with-system-bz2
+		--enable-svg
 
 	mozconfig_annotate '' --enable-default-toolkit=cairo-gtk2
 
@@ -200,6 +202,7 @@ mozconfig_config() {
 	mozconfig_annotate '' --disable-gconf
 
 	# We must force-enable jemalloc 3 via .mozconfig
+	# Except this doesn't actually enable jemalloc3.
 	echo "export MOZ_JEMALLOC=1" >> "${S}"/.mozconfig || die
 	mozconfig_annotate '' --enable-jemalloc
 	mozconfig_annotate '' --enable-replace-malloc
