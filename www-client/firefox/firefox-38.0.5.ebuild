@@ -167,6 +167,12 @@ src_prepare() {
 		-i "${S}"/nsprpub/configure{.in,} \
 		|| die
 
+	# Fix building and linking with freetype-2.6
+	if has_version '>=media-libs/freetype-2.6' ; then
+		sed -i -e 's/FT_Get_X11_Font_Format/FT_Get_Font_Format/g' \
+			"${S}"/gfx/skia/trunk/src/ports/SkFontHost_FreeType.cpp || die
+	fi
+
 	# Don't exit with error when some libs are missing which we have in
 	# system.
 	sed '/^MOZ_PKG_FATAL_WARNINGS/s@= 1@= 0@' \
