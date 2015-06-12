@@ -232,8 +232,6 @@ src_configure() {
 		fi
 	fi
 
-	use gtk3 && mozconfig_annotate 'Enable Cairo Gtk+3 support' --enable-default-toolkit=cairo-gtk3
-
 	use egl && mozconfig_annotate 'Enable EGL as GL provider' --with-gl-provider=EGL
 
 	# Setup api key for location services
