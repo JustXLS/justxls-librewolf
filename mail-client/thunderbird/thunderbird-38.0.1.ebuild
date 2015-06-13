@@ -24,11 +24,11 @@ fi
 MOZ_P="${PN}-${MOZ_PV}"
 
 # Enigmail version
-EMVER="1.8.1"
+EMVER="1.8.2"
 
 # Patches
-PATCH="thunderbird-31.0-patches-0.1"
-PATCHFF="firefox-31.0-patches-0.3"
+PATCH="thunderbird-38.0-patches-0.1"
+PATCHFF="firefox-38.0-patches-0.3"
 
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
@@ -36,7 +36,7 @@ MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
 MOZ_HTTP_URI="http://ftp.mozilla.org/pub/${PN}/releases/"
 
 MOZCONFIG_OPTIONAL_JIT="enabled"
-inherit flag-o-matic toolchain-funcs mozconfig-v5.31 makeedit multilib autotools pax-utils check-reqs nsplugins mozlinguas
+inherit flag-o-matic toolchain-funcs mozconfig-v5.38 makeedit multilib autotools pax-utils check-reqs nsplugins mozlinguas
 
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
@@ -145,9 +145,6 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
-	if [[ $(gcc-major-version) -ge 5 ]]; then
-		epatch "${FILESDIR}/thunderbird-31.7.0-gcc5-1.patch"
-	fi
 	popd &>/dev/null || die
 
 	# Ensure that are plugins dir is enabled as default
@@ -243,10 +240,6 @@ src_configure() {
 
 	if [[ $(gcc-major-version) -lt 4 ]]; then
 		append-cxxflags -fno-stack-protector
-	elif [[ $(gcc-major-version) -gt 4 || $(gcc-minor-version) -gt 3 ]]; then
-		if use amd64 || use x86; then
-			append-flags -mno-avx
-		fi
 	fi
 
 	if use crypt; then

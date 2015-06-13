@@ -27,7 +27,7 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-38.0-patches-0.1"
+PATCH="${PN}-38.0-patches-0.3"
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
 MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases"
@@ -166,12 +166,6 @@ src_prepare() {
 		-i "${S}"/config/rules.mk \
 		-i "${S}"/nsprpub/configure{.in,} \
 		|| die
-
-	# Fix building and linking with freetype-2.6
-	if has_version '>=media-libs/freetype-2.6' ; then
-		sed -i -e 's/FT_Get_X11_Font_Format/FT_Get_Font_Format/g' \
-			"${S}"/gfx/skia/trunk/src/ports/SkFontHost_FreeType.cpp || die
-	fi
 
 	# Don't exit with error when some libs are missing which we have in
 	# system.
