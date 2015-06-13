@@ -1,13 +1,10 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/mail-client/thunderbird/thunderbird-31.7.0-r1.ebuild,v 1.2 2015/06/10 01:29:55 anarchy Exp $
+# $Header: $
 
 EAPI=5
 WANT_AUTOCONF="2.1"
 MOZ_ESR=""
-MOZ_LIGHTNING_VER="3.3"
-#MOZ_LIGHTNING_GDATA_VER="2.6.3"
-MOZ_LIGHTNING_GDATA_VER="1.0.3"
 
 # This list can be updated using scripts/get_langs.sh from the mozilla overlay
 MOZ_LANGS=(ar ast be bg bn-BD br ca cs da de el en en-GB en-US es-AR
@@ -44,17 +41,13 @@ HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist crypt hardened ldap +lightning +minimal mozdom selinux"
+IUSE="bindist crypt hardened ldap +minimal mozdom selinux"
 RESTRICT="!bindist? ( bindist )"
 
 SRC_URI="${SRC_URI}
 	${MOZ_FTP_URI}${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
 	${MOZ_HTTP_URI}${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
 	crypt? ( http://www.enigmail.net/download/source/enigmail-${EMVER}.tar.gz )
-	lightning? (
-		${MOZ_HTTP_URI/${PN}/calendar/lightning}${MOZ_LIGHTNING_VER}/linux/lightning.xpi -> lightning-${MOZ_LIGHTNING_VER}.xpi
-		http://dev.gentoo.org/~axs/distfiles/gdata-provider-${MOZ_LIGHTNING_GDATA_VER}.tar.xz
-	)
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.xz
 	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz
 	http://dev.gentoo.org/~axs/distfiles/${PATCH}.tar.xz
@@ -127,11 +120,6 @@ src_unpack() {
 
 	# Unpack language packs
 	mozlinguas_src_unpack
-
-	# Unpack lightning for calendar locales
-	if use lightning ; then
-		xpi_unpack lightning-${MOZ_LIGHTNING_VER}.xpi
-	fi
 }
 
 src_prepare() {
@@ -168,15 +156,6 @@ src_prepare() {
 		einfo edos2unix "${file}"
 		edos2unix "${file}"
 	done
-
-	# Confirm the version of lightning being grabbed for langpacks is the same
-	# as that used in thunderbird
-	local THIS_MOZ_LIGHTNING_VER=$(python "${S}"/calendar/lightning/build/makeversion.py ${PV})
-	if [[ ${MOZ_LIGHTNING_VER} != ${THIS_MOZ_LIGHTNING_VER} ]]; then
-		eqawarn "The version of lightning used for localization differs from the version"
-		eqawarn "in thunderbird.  Please update MOZ_LIGHTNING_VER in the ebuild from ${MOZ_LIGHTNING_VER}"
-		eqawarn "to ${THIS_MOZ_LIGHTNING_VER}"
-	fi
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
@@ -215,7 +194,6 @@ src_configure() {
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 	mozconfig_annotate '' --with-user-appdir=.thunderbird
 
-	mozconfig_use_enable lightning calendar
 	mozconfig_use_enable ldap
 
 	# Bug #72667
@@ -288,9 +266,6 @@ src_install() {
 
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
 	emake DESTDIR="${D}" install
-
-	# Install language packs
-	mozlinguas_src_install
 
 	if ! use bindist; then
 		newicon "${S}"/other-licenses/branding/thunderbird/content/icon48.png thunderbird-icon.png
