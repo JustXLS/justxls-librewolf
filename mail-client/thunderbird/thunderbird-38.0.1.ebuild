@@ -275,12 +275,12 @@ src_install() {
 
 	# Copy our preference before omnijar is created.
 	cp "${FILESDIR}"/thunderbird-gentoo-default-prefs-1.js-1 \
-		"${BUILD_OBJ_DIR}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
+		"${BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
 
 	# Set default path to search for dictionaries.
 	echo "pref(\"spellchecker.dictionary_path\", ${DICTPATH});" \
-		>> "${BUILD_OBJ_DIR}/mozilla/dist/bin/defaults/pref/all-gentoo.js" \
+		>> "${BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
 
 	# Pax mark xpcshell for hardened support, only used for startupcache creation.
@@ -315,55 +315,6 @@ src_install() {
 		unzip "${enigmail_xpipath}"/enigmail*.xpi || die
 	fi
 
-	if use lightning ; then
-		local l c
-		mozlinguas_export
-
-		emid="{a62ef8ec-5fdc-40c2-873c-223b8a6925cc}"
-		# just for ESR31, install custom-rolled gdata-provider
-		cd "${WORKDIR}/gdata-provider-${MOZ_LIGHTNING_GDATA_VER}" || die
-		insinto ${MOZILLA_FIVE_HOME}/extensions/${emid}
-		if [[ -e chrome.manifest.original ]]; then
-			cp chrome.manifest.original chrome.manifest || die
-		fi
-		doins -r chrome.manifest components defaults modules install.rdf
-		cd "${WORKDIR}/gdata-provider-${MOZ_LIGHTNING_GDATA_VER}/chrome" || die
-		insinto ${MOZILLA_FIVE_HOME}/extensions/${emid}/chrome
-		doins -r gdata-provider gdata-provider-en-US
-		# Install locales for gdata-provider -- each locale is a directory tree
-		for l in "${mozlinguas[@]}"; do if [[ -d gdata-provider-${l} ]]; then
-			doins -r gdata-provider-${l}
-			echo "locale gdata-provider ${l} chrome/gdata-provider-${l}/locale/${l}/" \
-				>> "${ED}"/${MOZILLA_FIVE_HOME}/extensions/${emid}/chrome.manifest \
-				|| die "Error adding gdata-provider-${l} to chrome.manifest"
-		else
-			ewarn "Sorry, but lightning gdata-provider in ${P} does not support the ${l} locale"
-		fi; done
-
-		emid="{e2fda1a4-762b-4020-b5ad-a41df1933103}"
-		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid}
-		cd "${ED}"${MOZILLA_FIVE_HOME}/extensions/${emid} || die
-		unzip "${BUILD_OBJ_DIR}"/mozilla/dist/xpi-stage/lightning-*.xpi || die
-		# Install locales for lightning - each locale is a jar file
-		insinto ${MOZILLA_FIVE_HOME}/extensions/${emid}/chrome
-		cd "${WORKDIR}"/lightning-${MOZ_LIGHTNING_VER}/chrome || die
-		for l in "${mozlinguas[@]}"; do if [[ -e calendar-${l}.jar ]]; then
-			for c in calendar lightning; do
-				doins ${c}-${l}.jar
-				echo "locale ${c} $l jar:chrome/${c}-${l}.jar!/locale/${l}/${c}/" \
-					>> "${ED}"/${MOZILLA_FIVE_HOME}/extensions/${emid}/chrome.manifest \
-					|| die "Error adding ${c}-${l} to chrome.manifest"
-			done
-		else
-			ewarn "Sorry, but lightning calendar in ${P} does not support the ${l} locale"
-		fi; done
-
-		# Fix mimetype so it shows up as a calendar application in GNOME 3
-		# This requires that the .desktop file was already installed earlier
-		sed -e "s:^\(MimeType=\):\1text/calendar;:" \
-			-e "s:^\(Categories=\):\1Calendar;:" \
-			-i "${ED}"/usr/share/applications/${PN}.desktop || die
-	fi
 
 	# Required in order for jit to work on hardened, for mozilla-31
 	use jit && pax-mark pm "${ED}"${MOZILLA_FIVE_HOME}/{thunderbird,thunderbird-bin}
