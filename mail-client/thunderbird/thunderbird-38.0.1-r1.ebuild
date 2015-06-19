@@ -323,4 +323,9 @@ pkg_postinst() {
 	elog "If you experience problems with plugins please issue the"
 	elog "following command : rm \${HOME}/.thunderbird/*/extensions.sqlite ,"
 	elog "then restart thunderbird"
+	elog
+	elog "If calendar fails to show up in extensions please open config editor"
+	elog "and set extensions.lastAppVersion to 38.0.0 to force a reload. If this"
+	elog "fails to show the calendar extension after restarting with above change"
+	elog "please file a bug report."
 }
