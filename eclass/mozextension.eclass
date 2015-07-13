@@ -7,6 +7,7 @@
 # Mozilla team <mozilla@gentoo.org>
 # @BLURB: Install extensions for use in mozilla products.
 
+if [[ ! ${_MOZEXTENSION} ]]; then
 
 inherit eutils
 
@@ -72,3 +73,6 @@ xpi_install() {
 	fi
 	doins -r "${x}"/* || die "failed to copy extension"
 }
+
+_MOZEXTENSION=1
+fi

@@ -10,6 +10,8 @@
 #
 # inherit mozconfig-v5.* or above for mozilla configuration support
 
+if [[ ! ${_MOZCORECONF_V3} ]]; then
+
 PYTHON_COMPAT=( python2_7 )
 PYTHON_REQ_USE='threads,sqlite'
 
@@ -255,3 +257,5 @@ mozconfig_final() {
 	echo "ac_add_options --enable-extensions=${exts// /,}" >> .mozconfig
 }
 
+_MOZCORECONF_V3=1
+fi
