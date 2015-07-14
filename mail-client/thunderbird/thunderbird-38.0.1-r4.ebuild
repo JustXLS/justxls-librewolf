@@ -12,7 +12,7 @@ es-ES et eu fi fr fy-NL ga-IE gd gl he hr hu hy-AM id is it ja ko lt nb-NO
 nl nn-NO pa-IN pl pt-BR pt-PT rm ro ru si sk sl sq sr sv-SE ta-LK tr uk vi
 zh-CN zh-TW )
 
-# Convert the ebuild version to th firefox-24.0-patches-0.4.tar.xze upstream mozilla version, used by mozlinguas
+# Convert the ebuild version to the upstream mozilla version, used by mozlinguas
 MOZ_PV="${PV/_beta/b}"
 # ESR releases have slightly version numbers
 if [[ ${MOZ_ESR} == 1 ]]; then
@@ -29,11 +29,13 @@ PATCHFF="firefox-38.0-patches-0.3"
 
 # Upstream ftp release URI that's used by mozlinguas.eclass
 # We don't use the http mirror because it deletes old tarballs.
-MOZ_FTP_URI="ftp://ftp.mozilla.org/pub/${PN}/releases/"
-MOZ_HTTP_URI="http://ftp.mozilla.org/pub/${PN}/releases/"
+MOZ_FTP_URI="{ftp,http}://ftp.mozilla.org/pub/${PN}/releases/"
+#MOZ_HTTP_URI="http://ftp.mozilla.org/pub/${PN}/releases/"
 
+MOZ_GENERATE_LANGPACKS=1
+MOZ_L10N_SOURCEDIR="${WORKDIR}"/l10n-release
 MOZCONFIG_OPTIONAL_JIT="enabled"
-inherit flag-o-matic toolchain-funcs mozconfig-v5.38 makeedit multilib autotools pax-utils check-reqs nsplugins mozlinguas
+inherit flag-o-matic toolchain-funcs mozconfig-v6.38 makeedit multilib autotools pax-utils check-reqs nsplugins mozlinguas
 
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
@@ -41,18 +43,18 @@ HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist crypt hardened ldap +minimal mozdom selinux"
+IUSE="bindist crypt hardened ldap +lightning +minimal mozdom selinux"
 RESTRICT="!bindist? ( bindist )"
 
-SRC_URI="${SRC_URI}
+SRC_URIS=(
+	${SRC_URI}
 	${MOZ_FTP_URI}${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
-	${MOZ_HTTP_URI}${MOZ_PV}/source/${MOZ_P}.source.tar.bz2
-	crypt? ( http://www.enigmail.net/download/source/enigmail-${EMVER}.tar.gz )
-	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCH}.tar.xz
-	http://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz
-	http://dev.gentoo.org/~axs/distfiles/${PATCH}.tar.xz
-	http://dev.gentoo.org/~axs/distfiles/${PATCHFF}.tar.xz
-	http://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz"
+	"crypt? ( http://www.enigmail.net/download/source/enigmail-${EMVER}.tar.gz )"
+	http://dev.gentoo.org/~{anarchy,axs,polynomial-c}/mozilla/patchsets/{${PATCH},${PATCHFF}}.tar.xz
+	http://dev.gentoo.org/~axs/distfiles/${P}-l10n-release.tar.xz
+)
+
+SRC_URI="${SRC_URIS[@]}"
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
@@ -120,6 +122,9 @@ src_unpack() {
 
 	# Unpack language packs
 	mozlinguas_src_unpack
+
+	local i
+	cd "${WORKDIR}" || die
 }
 
 src_prepare() {
@@ -189,13 +194,15 @@ src_configure() {
 
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 	mozconfig_annotate '' --disable-mailnews
-	mozconfig_annotate '' --enable-calendar
+	mozconfig_use_enable lightning calendar
 
 	# Other tb-specific settings
 	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 	mozconfig_annotate '' --with-user-appdir=.thunderbird
 
 	mozconfig_use_enable ldap
+
+	mozlinguas_mozconfig
 
 	# Bug #72667
 	if use mozdom; then
@@ -243,6 +250,9 @@ src_compile() {
 		emake -j1 xpi
 		popd &>/dev/null || die
 	fi
+
+	# build locales
+	mozlinguas_src_compile
 }
 
 src_install() {
@@ -283,6 +293,25 @@ src_install() {
 			"${ED}"/usr/share/applications/${PN}.desktop
 	fi
 
+	local emid
+	# stage extra locales for lightning and install over existing
+	mozlinguas_xpistage_langpacks "${BUILD_OBJ_DIR}"/dist/xpi-stage/lightning \
+		"${BUILD_OBJ_DIR}"/dist/xpi-stage/lightning lightning calendar
+
+	emid='{e2fda1a4-762b-4020-b5ad-a41df1933103}'
+	mkdir -p "${T}/${emid}" || die
+	cp -RLp -t "${T}/${emid}" "${BUILD_OBJ_DIR}"/dist/xpi-stage/lightning/* || die
+	insinto ${MOZILLA_FIVE_HOME}/distribution/extensions
+	doins -r "${T}/${emid}"
+
+	# stage extra locales for gdata-provider and install over existing
+	mozlinguas_xpistage_langpacks "${BUILD_OBJ_DIR}"/dist/xpi-stage/gdata-provider
+	emid='{a62ef8ec-5fdc-40c2-873c-223b8a6925cc}'
+	mkdir -p "${T}/${emid}" || die
+	cp -RLp -t "${T}/${emid}" "${BUILD_OBJ_DIR}"/dist/xpi-stage/gdata-provider/* || die
+	insinto ${MOZILLA_FIVE_HOME}/distribution/extensions
+	doins -r "${T}/${emid}"
+
 	if use crypt ; then
 		local enigmail_xpipath="${WORKDIR}/enigmail/build"
 		cd "${T}" || die
@@ -290,7 +319,7 @@ src_install() {
 		emid=$(sed -n '/<em:id>/!d; s/.*\({.*}\).*/\1/; p; q' install.rdf)
 
 		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid} || die
-		cd "${D}"${MOZILLA_FIVE_HOME}/extensions/${emid} || die
+		cd "${ED}"${MOZILLA_FIVE_HOME}/extensions/${emid} || die
 		unzip "${enigmail_xpipath}"/enigmail*.xpi || die
 	fi
 
