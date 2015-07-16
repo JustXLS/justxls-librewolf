@@ -7,13 +7,20 @@
 # mozilla@gentoo.org
 # @AUTHOR:
 # Nirbheek Chauhan <nirbheek@gentoo.org>
+# Ian Stakenvicius <axs@gentoo.org>
 # @BLURB: Handle language packs for mozilla products
 # @DESCRIPTION:
 # Sets IUSE according to MOZ_LANGS (language packs available). Also exports
 # src_unpack, src_compile and src_install for use in ebuilds, and provides
 # supporting functions for langpack generation and installation.
 
-inherit mozextension mozcoreconf-v3
+inherit mozextension
+
+# Binary packages do not modify .mozconfig and so do not need mozcoreconf-v3
+# which is important since mozcoreconf-v3 adds to IUSE and *DEPEND
+if ! [[ ${PN} = *-bin ]]; then
+	inherit mozcoreconf-v3
+fi
 
 case "${EAPI:-0}" in
 	0|1)
