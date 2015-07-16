@@ -16,12 +16,6 @@
 
 inherit mozextension
 
-# Binary packages do not modify .mozconfig and so do not need mozcoreconf-v3
-# which is important since mozcoreconf-v3 adds to IUSE and *DEPEND
-if ! [[ ${PN} = *-bin ]]; then
-	inherit mozcoreconf-v3
-fi
-
 case "${EAPI:-0}" in
 	0|1)
 		die "EAPI ${EAPI:-0} does not support the '->' SRC_URI operator";;
@@ -213,10 +207,16 @@ mozlinguas_src_unpack() {
 # @FUNCTION: mozlinguas_mozconfig
 # @DESCRIPTION:
 # if applicable, add the necessary flag to .mozconfig to support
-# the generation of locales
+# the generation of locales.  Note that this function requires
+# mozconfig_annontate to already be declared via an inherit of
+# mozconfig or mozcoreconf.
 mozlinguas_mozconfig() {
 	if [[ -n ${MOZ_GENERATE_LANGPACKS} ]]; then
-		mozconfig_annotate 'for building locales' --with-l10n-base=${MOZ_L10N_SOURCEDIR}
+		if declare -f mozconfig_annotate >/dev/null ; then
+			mozconfig_annotate 'for building locales' --with-l10n-base=${MOZ_L10N_SOURCEDIR}
+		else
+			die "Could not configure l10n-base, mozconfig_annotate not declared -- missing inherit?"
+		fi
 	fi
 }
 
@@ -275,6 +275,7 @@ mozlinguas_xpistage_langpacks() {
 	if [[ -n ${1} ]] ; then modules=( $@ ) ; fi
 
 	mozlinguas_export
+	mkdir -p "${modpath}/chrome" || die
 	for l in "${mozlinguas[@]}"; do	for c in "${modules[@]}" ; do
 		if [[ -e "${srcprefix}-${l}/chrome/${c}-${l}" ]]; then
 			cp -RLp -t "${modpath}/chrome" "${srcprefix}-${l}/chrome/${c}-${l}" || die
