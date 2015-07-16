@@ -9,7 +9,7 @@ MOZ_LIGHTNING_VER="4.0.1"
 MOZ_LIGHTNING_GDATA_VER="1.9"
 
 # This list can be updated using scripts/get_langs.sh from the mozilla overlay
-MOZ_LANGS=(ar ast be bg bn-BD br ca cs cy da de dsb el en en-GB en-US es-AR
+MOZ_LANGS=(ar ast be bg bn-BD br ca cs cy da de el en en-GB en-US es-AR
 es-ES et eu fi fr fy-NL ga-IE gd gl he hr hsb hu hy-AM id is it ja ko lt
 nb-NO nl nn-NO pa-IN pl pt-BR pt-PT rm ro ru si sk sl sq sr sv-SE ta-LK tr
 uk vi zh-CN zh-TW )
