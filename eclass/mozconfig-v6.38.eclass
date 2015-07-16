@@ -221,12 +221,10 @@ mozconfig_config() {
 	mozconfig_annotate '' --target="${CTARGET:-${CHOST}}"
 	mozconfig_annotate '' --build="${CTARGET:-${CHOST}}"
 
-	if use gstreamer || use gstreamer-0 ; then
-		if use gstreamer-0 ; then
-			mozconfig_annotate '+gstreamer-0' --enable-gstreamer=0.10
-		else
-			mozconfig_annotate '+gstreamer' --enable-gstreamer=1.0
-		fi
+	if use gstreamer ; then
+		mozconfig_annotate '+gstreamer' --enable-gstreamer=1.0
+	elif use gstreamer-0 ; then
+		mozconfig_annotate '+gstreamer-0' --enable-gstreamer=0.10
 	else
 		mozconfig_annotate '' --disable-gstreamer
 	fi
