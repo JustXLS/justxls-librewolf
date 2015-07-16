@@ -1,6 +1,6 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Header: /var/cvsroot/gentoo-x86/eclass/nsplugins.eclass,v 1.33 2013/05/28 03:29:50 anarchy Exp $
 #
 # @ECLASS: nsplugins.eclass
 # @MAINTAINER:
@@ -12,9 +12,7 @@
 # Reusable functions that promote sharing of netscape/moz plugins, also provides
 # share_plugins_dir function for mozilla applications.
 
-inherit eutils
-
-DESCRIPTION="Based on the ${ECLASS} eclass"
+inherit eutils multilib versionator mozextension
 
 PLUGINS_DIR="nsbrowser/plugins"
 
@@ -50,6 +48,11 @@ pkg_mv_plugins() {
 # This function installs a plugin with dosym to PLUGINS_DIR.
 # First argument should be the plugin file.
 inst_plugin() {
+	if [[ -z "${1}" ]]; then
+		eerror "The plugin file \"${1}\" does not exist."
+		die "No such file or directory."
+	fi
+
 	dodir /usr/$(get_libdir)/${PLUGINS_DIR}
 	dosym ${1} /usr/$(get_libdir)/${PLUGINS_DIR}/$(basename ${1})
 }
@@ -69,5 +72,9 @@ share_plugins_dir() {
 		PLUGIN_BASE_PATH=".."
 	fi
 
-	dosym "${PLUGIN_BASE_PATH}/nsbrowser/plugins" "${MOZILLA_FIVE_HOME}/plugins"
+	if $(mozversion_extension_location) ; then
+		dosym "${PLUGIN_BASE_PATH}/nsbrowser/plugins" "${MOZILLA_FIVE_HOME}/browser/plugins"
+	else
+		dosym "${PLUGIN_BASE_PATH}/nsbrowser/plugins" "${MOZILLA_FIVE_HOME}/plugins"
+	fi
 }
