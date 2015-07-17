@@ -77,6 +77,7 @@ RDEPEND=">=app-text/hunspell-1.2
 		>=media-libs/gst-plugins-base-1.2.3:1.0
 		>=media-libs/gst-plugins-good-1.2.3:1.0
 		>=media-plugins/gst-plugins-libav-1.1.0_pre20130128-r1:1.0
+		>=media-plugins/gst-plugins-mad-1.2.3:1.0
 	)
 	gstreamer-0? (
 		>=media-libs/gstreamer-0.10.25:0.10
