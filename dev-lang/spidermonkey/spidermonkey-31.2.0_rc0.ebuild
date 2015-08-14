@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-lang/spidermonkey/spidermonkey-24.2.0-r1.ebuild,v 1.1 2014/03/08 14:38:51 anarchy Exp $
+# $Id$
 
 EAPI="5"
 WANT_AUTOCONF="2.1"
