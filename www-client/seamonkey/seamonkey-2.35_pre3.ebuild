@@ -7,7 +7,7 @@ WANT_AUTOCONF="2.1"
 
 # This list can be updated with scripts/get_langs.sh from the mozilla overlay
 MOZ_LANGS=(be ca cs de en en-GB en-US es-AR es-ES fi fr gl hu it ja lt nb-NO nl
-	    pl pt-PT ru sk sv-SE tr uk zh-TW)
+	    pl pt-PT ru sk sv-SE tr uk zh-CN zh-TW)
 
 MOZ_PV="${PV/_pre*}"
 MOZ_PV="${MOZ_PV/_alpha/a}"
