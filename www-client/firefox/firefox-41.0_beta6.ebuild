@@ -174,6 +174,10 @@ src_prepare() {
 	sed 's@\(xargs rm\)$@\1 -f@' \
 		-i "${S}"/toolkit/mozapps/installer/packager.mk || die
 
+	# Keep codebase the same even if not using official branding
+	sed '/^MOZ_DEV_EDITION=1/d' \
+		-i "${S}"/browser/branding/aurora/configure.sh || die
+
 	eautoreconf
 
 	# Must run autoconf in js/src
@@ -332,6 +336,17 @@ src_install() {
 		# Let's just stick with this one...
 		icon="aurora"
 		name="Aurora"
+
+		# Override preferences to set the MOZ_DEV_EDITION defaults, since we
+		# don't define MOZ_DEV_EDITION to avoid profile debaucles.
+		# (source: browser/app/profile/firefox.js)
+		cat >>"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js" <<PROFILE_EOF
+pref("app.feedback.baseURL", "https://input.mozilla.org/%LOCALE%/feedback/firefoxdev/%VERSION%/");
+sticky_pref("lightweightThemes.selectedThemeID", "firefox-devedition@mozilla.org");
+sticky_pref("browser.devedition.theme.enabled", true);
+sticky_pref("devtools.theme", "dark");
+PROFILE_EOF
+
 	else
 		sizes="16 22 24 32 256"
 		icon_path="${S}/browser/branding/official"
