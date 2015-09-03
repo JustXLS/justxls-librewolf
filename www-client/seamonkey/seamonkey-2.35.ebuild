@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
+# $Id: 185037f356356bfdd329a8211c71d1ff4348c705 $
 
 EAPI=5
 WANT_AUTOCONF="2.1"
@@ -53,9 +53,9 @@ IUSE="+chatzilla +crypt +gmp-autoupdate +ipc minimal pulseaudio +roaming selinux
 
 SRC_URI="${SRC_URI}
 	${MOZ_HTTP_URI}/source/${MY_MOZ_P}.source.tar.bz2 -> ${P}.source.tar.bz2
-	https://dev.gentoo.org/~axs/mozilla/patchsets/${PATCHFF}.tar.xz
+	https://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCHFF}.tar.xz
 	https://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
-	crypt? ( http://www.enigmail.net/download/source/enigmail-${EMVER}.tar.gz )"
+	crypt? ( https://www.enigmail.net/download/source/enigmail-${EMVER}.tar.gz )"
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
@@ -119,12 +119,9 @@ src_prepare() {
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/seamonkey"
 
-	epatch "${FILESDIR}"/${PN}-2.30-jemalloc-configure.patch
-
 	# browser patches go here
 	pushd "${S}"/mozilla &>/dev/null || die
-	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch
-			8002_jemalloc_configure_unbashify.patch" \
+	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
@@ -191,9 +188,7 @@ src_configure() {
 	# It doesn't compile on alpha without this LDFLAGS
 	use alpha && append-ldflags "-Wl,--no-relax"
 
-	if use chatzilla ; then
-		MEXTENSIONS+=",irc"
-	else
+	if ! use chatzilla ; then
 		MEXTENSIONS+=",-irc"
 	fi
 	if ! use roaming ; then
