@@ -9,6 +9,7 @@
 =dev-lang/spidermonkey-31.0_beta*
 =www-client/firefox-31.0_beta*
 =mail-client/thunderbird-31.0_beta*
+=www-client/seamonkey-2.38_beta*
 
 # Please don't remove neither this mask nor the affected ebuilds without
 # speaking to Lars Wendler <polynomial-c@gentoo.org> first.
