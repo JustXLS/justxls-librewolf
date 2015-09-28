@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id: 185037f356356bfdd329a8211c71d1ff4348c705 $
+# $Id: e5d1b01455053fbfd96c96c7a98246daa8d1a2e7 $
 
 EAPI=5
 WANT_AUTOCONF="2.1"
@@ -28,7 +28,7 @@ fi
 
 MOZCONFIG_OPTIONAL_WIFI=1
 MOZCONFIG_OPTIONAL_JIT="enabled"
-inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-v6.40 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
+inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-v6.41 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
 
 PATCHFF="firefox-40.0-patches-0.01"
 PATCH="${PN}-2.33-patches-01"
@@ -37,15 +37,8 @@ EMVER="1.8.2"
 DESCRIPTION="Seamonkey Web Browser"
 HOMEPAGE="http://www.seamonkey-project.org"
 
-if [[ ${PV} == *_pre* ]] ; then
-	# pre-releases. No need for arch teams to change KEYWORDS here.
-
-	KEYWORDS=""
-else
-	# This is where arch teams should change the KEYWORDS.
-
-	KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86"
-fi
+[[ ${PV} != *_pre* ]] && \
+KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86"
 
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
