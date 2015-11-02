@@ -16,7 +16,6 @@ KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~s390 ~x86 ~x64-macos"
 IUSE="debug static-libs stats"
 HTML_DOCS=( doc/jemalloc.html )
 PATCHES=( "${FILESDIR}/${PN}-3.5.1-strip-optimization.patch"
-	"${FILESDIR}/${PN}-3.5.1-no-pprof.patch"
 	"${FILESDIR}/${PN}-3.5.1_fix_html_install.patch"
 )
 MULTILIB_WRAPPED_HEADERS=( /usr/include/jemalloc/jemalloc.h )
@@ -30,6 +29,12 @@ src_configure() {
 		$(use_enable stats)
 	)
 	autotools-multilib_src_configure
+}
+
+multilib_src_install() {
+	# Copy man file which the Makefile looks for
+	cp "${S}/doc/jemalloc.3" "${BUILD_DIR}/doc" || die
+	emake DESTDIR="${D}" install
 }
 
 src_install() {
