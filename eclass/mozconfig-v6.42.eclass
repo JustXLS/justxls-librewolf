@@ -65,7 +65,7 @@ RDEPEND=">=app-text/hunspell-1.2
 	dev-libs/atk
 	dev-libs/expat
 	>=dev-libs/libevent-1.4.7
-	>=x11-libs/cairo-1.10[X]
+	>=x11-libs/cairo-1.10[X,xcb,-xlib-xcb]
 	>=x11-libs/gtk+-2.18:2
 	x11-libs/gdk-pixbuf
 	>=x11-libs/pango-1.22.0
