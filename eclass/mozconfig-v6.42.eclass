@@ -65,6 +65,7 @@ RDEPEND=">=app-text/hunspell-1.2
 	dev-libs/atk
 	dev-libs/expat
 	>=dev-libs/libevent-1.4.7
+	>=x11-libs/cairo-1.10[X,xcb,-xlib-xcb]
 	>=x11-libs/gtk+-2.18:2
 	x11-libs/gdk-pixbuf
 	>=x11-libs/pango-1.22.0
@@ -98,7 +99,7 @@ RDEPEND=">=app-text/hunspell-1.2
 	x11-libs/libXfixes
 	x11-libs/libXrender
 	x11-libs/libXt
-	system-cairo? ( >=x11-libs/cairo-1.12[X,xcb] >=x11-libs/pixman-0.19.2 )
+	system-cairo? ( >=x11-libs/cairo-1.12[X] >=x11-libs/pixman-0.19.2 )
 	system-icu? ( >=dev-libs/icu-51.1:= )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-sqlite? ( >=dev-db/sqlite-3.8.11.1:3[secure-delete,debug=] )
