@@ -9,13 +9,13 @@ NSPR_VER="4.10.8"
 RTM_NAME="NSS_${PV//./_}_RTM"
 # Rev of https://git.fedorahosted.org/cgit/nss-pem.git
 PEM_GIT_REV="015ae754dd9f6fbcd7e52030ec9732eb27fc06a8"
-PEM_P="${PN}-pem-${PEM_GIT_REV}"
+PEM_P="${PN}-pem-20140125"
 
 DESCRIPTION="Mozilla's Network Security Services library that implements PKI support"
 HOMEPAGE="http://www.mozilla.org/projects/security/pki/nss/"
 SRC_URI="http://archive.mozilla.org/pub/mozilla.org/security/nss/releases/${RTM_NAME}/src/${P}.tar.gz
 	cacert? ( https://dev.gentoo.org/~anarchy/patches/${PN}-3.14.1-add_spi+cacerts_ca_certs.patch )
-	nss-pem? ( https://git.fedorahosted.org/cgit/nss-pem.git/snapshot/${PEM_P}.tar.bz2 )"
+	nss-pem? ( https://dev.gentoo.org/~anarchy/dist/${PEM_P}.tar.bz2 )"
 
 LICENSE="|| ( MPL-2.0 GPL-2 LGPL-2.1 )"
 SLOT="0"
@@ -44,18 +44,18 @@ MULTILIB_CHOST_TOOLS=(
 src_unpack() {
 	unpack ${A}
 	if use nss-pem ; then
-		mv "${PEM_P}"/nss/lib/ckfw/pem/ "${S}"/lib/ckfw/ || die
+		mv "${PN}"/lib/ckfw/pem/ "${S}"/lib/ckfw/ || die
 	fi
 }
 
 src_prepare() {
 	# Custom changes for gentoo
-	epatch "${FILESDIR}/${PN}-3.17.1-gentoo-fixups.patch"
-	epatch "${FILESDIR}/${PN}-3.15-gentoo-fixup-warnings.patch"
+	epatch "${FILESDIR}/${PN}-3.21-gentoo-fixups.patch"
+	epatch "${FILESDIR}/${PN}-3.21-gentoo-fixup-warnings.patch"
 	use cacert && epatch "${DISTDIR}/${PN}-3.14.1-add_spi+cacerts_ca_certs.patch"
-	use nss-pem && epatch "${FILESDIR}/${PN}-3.15.4-enable-pem.patch"
-	epatch "${FILESDIR}/nss-3.14.2-solaris-gcc.patch"
-	epatch "${FILESDIR}/${PN}-cacert-class3.patch" # 521462
+	use nss-pem && epatch "${FILESDIR}/${PN}-3.21-enable-pem.patch" \
+		"${FILESDIR}/${PN}-3.21-pem-werror.patch"
+	epatch "${FILESDIR}/${PN}-3.21-cacert-class3.patch" # 521462
 
 	pushd coreconf >/dev/null || die
 	# hack nspr paths
