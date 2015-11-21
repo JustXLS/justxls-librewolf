@@ -37,6 +37,8 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-4.8.9-link-flags.patch
 	# We do not need to pass -L$libdir via nspr-config --libs
 	epatch "${FILESDIR}"/${PN}-4.9.5_nspr_config.patch
+	# https://bugzilla.mozilla.org/show_bug.cgi?id=1128029
+	epatch "${FILESDIR}"/${P}-musl-support.patch
 
 	# rename configure.in to configure.ac for new autotools compatibility
 	if [[ -e "${S}"/nspr/configure.in ]] ; then
