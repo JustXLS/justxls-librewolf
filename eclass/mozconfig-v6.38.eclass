@@ -207,6 +207,7 @@ mozconfig_config() {
 	mozconfig_annotate 'Gentoo default' --with-system-png
 	mozconfig_annotate '' --enable-system-ffi
 	mozconfig_annotate 'Gentoo default to honor system linker' --disable-gold
+	mozconfig_annotate 'Gentoo default' --disable-skia
 	mozconfig_annotate '' --disable-gconf
 
 	# Use jemalloc unless libc is not glibc >= 2.4
