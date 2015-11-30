@@ -148,6 +148,7 @@ src_prepare() {
 	EPATCH_EXCLUDE="8002_jemalloc_configure_unbashify.patch
 			8011_bug1194520-freetype261_until_moz43.patch" \
 	epatch "${WORKDIR}/firefox"
+	epatch "${FILESDIR}"/jit-none.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
