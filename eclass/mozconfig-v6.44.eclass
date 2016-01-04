@@ -55,7 +55,7 @@ esac
 # Set the variable to any value if the use flag should exist but not be default-enabled.
 
 # use-flags common among all mozilla ebuilds
-IUSE="${IUSE} dbus debug +gstreamer gstreamer-0 +jemalloc3 neon pulseaudio selinux startup-notification system-cairo
+IUSE="${IUSE} dbus debug ffmpeg +gstreamer gstreamer-0 +jemalloc3 neon pulseaudio selinux startup-notification system-cairo
 	system-icu system-jpeg system-libevent system-sqlite system-libvpx"
 
 # some notes on deps:
@@ -83,6 +83,7 @@ RDEPEND=">=app-text/hunspell-1.2
 	>=dev-libs/glib-2.26:2
 	>=sys-libs/zlib-1.2.3
 	>=virtual/libffi-3.0.10
+	ffmpeg? ( virtual/ffmpeg[mp3,x264] )
 	gstreamer? (
 		>=media-libs/gstreamer-1.4.5:1.0
 		>=media-libs/gst-plugins-base-1.4.5:1.0
@@ -251,6 +252,7 @@ mozconfig_config() {
 	mozconfig_annotate '' --target="${CTARGET:-${CHOST}}"
 	mozconfig_annotate '' --build="${CTARGET:-${CHOST}}"
 
+	use ffmpeg || mozconfig_annotate '-ffmpeg' --disable-ffmpeg
 	if use gstreamer ; then
 		mozconfig_annotate '+gstreamer' --enable-gstreamer=1.0
 	elif use gstreamer-0 ; then
