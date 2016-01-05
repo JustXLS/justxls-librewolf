@@ -31,6 +31,7 @@ PATCH="${PN}-44.0-patches-0.3"
 MOZ_HTTP_URI="http://archive.mozilla.org/pub/${PN}/releases"
 
 MOZCONFIG_OPTIONAL_GTK3=1
+MOZCONFIG_OPTIONAL_QT5=1
 MOZCONFIG_OPTIONAL_WIFI=1
 MOZCONFIG_OPTIONAL_JIT="enabled"
 
@@ -133,6 +134,7 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
+	epatch "${FILESDIR}"/${PN}-44-qt-widget-fix.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
