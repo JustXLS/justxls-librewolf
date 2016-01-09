@@ -1,0 +1,30 @@
+# HG changeset patch
+# User Steve Singer <steve@ssinger.info>
+# Date 1451504814 18000
+#      Wed Dec 30 14:46:54 2015 -0500
+# Node ID 990f442c885d2b906ac3e18ee72f34478788c6fa
+# Parent  c690c50b2b543b420803e8192d6e08e06b20e0a3
+Bug 1235859 - Add FrameSize to non-skia downscaler. 
+
+diff --git a/image/Downscaler.h b/image/Downscaler.h
+--- a/image/Downscaler.h
++++ b/image/Downscaler.h
+@@ -166,16 +166,17 @@ public:
+ 
+   bool IsFrameComplete() const { return false; }
+   uint8_t* RowBuffer() { return nullptr; }
+   void ClearRow(uint32_t = 0) { }
+   void CommitRow() { }
+   bool HasInvalidation() const { return false; }
+   DownscalerInvalidRect TakeInvalidRect() { return DownscalerInvalidRect(); }
+   void ResetForNextProgressivePass() { }
++  const nsIntSize FrameSize() const { return nsIntSize(0, 0); }
+ };
+ 
+ #endif // MOZ_ENABLE_SKIA
+ 
+ 
+ 
+ } // namespace image
+ } // namespace mozilla
+
