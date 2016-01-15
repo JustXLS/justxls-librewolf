@@ -134,8 +134,7 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
-	epatch "${FILESDIR}"/${PN}-44-qt-widget-fix.patch \
-		"${FILESDIR}"/${PN}-no-skia-fixup.patch
+	epatch "${FILESDIR}"/${PN}-44-qt-widget-fix.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
 	epatch_user
