@@ -27,7 +27,7 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-44.0-patches-0.3"
+PATCH="${PN}-44.0-patches-0.4"
 MOZ_HTTP_URI="http://archive.mozilla.org/pub/${PN}/releases"
 
 MOZCONFIG_OPTIONAL_GTK3=1
@@ -35,7 +35,7 @@ MOZCONFIG_OPTIONAL_QT5=1
 MOZCONFIG_OPTIONAL_WIFI=1
 MOZCONFIG_OPTIONAL_JIT="enabled"
 
-inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-v6.44 multilib pax-utils fdo-mime autotools virtualx mozlinguas
+inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-v6.44 multilib fdo-mime autotools virtualx mozlinguas
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
@@ -44,7 +44,7 @@ KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linu
 
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist egl hardened +hwaccel +minimal pgo selinux +gmp-autoupdate test"
+IUSE="bindist egl hardened +hwaccel pgo selinux +gmp-autoupdate test"
 RESTRICT="!bindist? ( bindist )"
 
 # More URIs appended below...
@@ -276,9 +276,6 @@ src_install() {
 
 	cd "${BUILD_OBJ_DIR}" || die
 
-	# Pax mark xpcshell for hardened support, only used for startupcache creation.
-	pax-mark m "${BUILD_OBJ_DIR}"/dist/bin/xpcshell
-
 	# Add our default prefs for firefox
 	cp "${FILESDIR}"/gentoo-default-prefs.js-1 \
 		"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js" \
@@ -361,17 +358,9 @@ PROFILE_EOF
 			|| die
 	fi
 
-	# Required in order to use plugins and even run firefox on hardened.
-	if use jit; then
-		pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{firefox,firefox-bin,plugin-container}
-	else
-		pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/plugin-container
-	fi
+	# Only required for plugins such as adobe flash.
+	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/plugin-container
 
-	if use minimal; then
-		rm -r "${ED}"/usr/include "${ED}${MOZILLA_FIVE_HOME}"/{idl,include,lib,sdk} \
-			|| die "Failed to remove sdk and headers"
-	fi
 
 	# very ugly hack to make firefox not sigbus on sparc
 	# FIXME: is this still needed??
