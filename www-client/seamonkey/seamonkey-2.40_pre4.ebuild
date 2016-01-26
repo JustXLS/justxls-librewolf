@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id: 10e1d1f972e407ee2f7cbe0996b1130c4d29f8a8 $
 
@@ -30,7 +30,7 @@ MOZCONFIG_OPTIONAL_WIFI=1
 MOZCONFIG_OPTIONAL_JIT="enabled"
 inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-v6.41 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
 
-PATCHFF="firefox-42.0-patches-02"
+PATCHFF="firefox-42.0-patches-0.3"
 PATCH="${PN}-2.33-patches-01"
 EMVER="1.8.2"
 
@@ -46,6 +46,7 @@ IUSE="+chatzilla +crypt +gmp-autoupdate +ipc minimal pulseaudio +roaming selinux
 
 SRC_URI="${SRC_URI}
 	${MOZ_HTTP_URI}/source/${MY_MOZ_P}.source.tar.xz -> ${P}.source.tar.xz
+	https://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz
 	https://dev.gentoo.org/~axs/mozilla/patchsets/${PATCHFF}.tar.xz
 	https://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
 	crypt? ( https://www.enigmail.net/download/source/enigmail-${EMVER}.tar.gz )"
@@ -111,7 +112,9 @@ src_prepare() {
 
 	# browser patches go here
 	pushd "${S}"/mozilla &>/dev/null || die
-	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch" \
+	EPATCH_EXCLUDE="2000-firefox_gentoo_install_dirs.patch
+			8002_jemalloc_configure_unbashify.patch
+			8011_bug1194520-freetype261_until_moz43.patch" \
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
