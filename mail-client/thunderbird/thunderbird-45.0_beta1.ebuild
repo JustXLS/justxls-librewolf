@@ -31,6 +31,7 @@ PATCHFF="firefox-45.0-patches-0.1"
 
 MOZ_HTTP_URI="http://ftp.mozilla.org/pub/${PN}/releases"
 
+MOZ_FORCE_UPSTREAM_L10N=1
 MOZCONFIG_OPTIONAL_GTK3=1
 MOZCONFIG_OPTIONAL_JIT="enabled"
 inherit flag-o-matic toolchain-funcs mozconfig-v6.44 makeedit multilib autotools pax-utils check-reqs nsplugins mozlinguas
