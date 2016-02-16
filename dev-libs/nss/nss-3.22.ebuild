@@ -1,8 +1,9 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
+# $Id: 5729f0b5310702f605ac6451514cc150b8d7fad6 $
 
-EAPI=5
+EAPI="5"
+
 inherit eutils flag-o-matic multilib toolchain-funcs multilib-minimal
 
 NSPR_VER="4.10.8"
@@ -52,10 +53,14 @@ src_prepare() {
 	# Custom changes for gentoo
 	epatch "${FILESDIR}/${PN}-3.21-gentoo-fixups.patch"
 	epatch "${FILESDIR}/${PN}-3.21-gentoo-fixup-warnings.patch"
-	use cacert && epatch "${DISTDIR}/${PN}-3.14.1-add_spi+cacerts_ca_certs.patch"
+	epatch "${FILESDIR}/${PN}-3.21-hppa-byte_order.patch"
+
+	if use cacert ; then
+		epatch "${DISTDIR}/${PN}-3.14.1-add_spi+cacerts_ca_certs.patch"
+		epatch "${FILESDIR}/${PN}-3.21-cacert-class3.patch" #521462
+	fi
 	use nss-pem && epatch "${FILESDIR}/${PN}-3.21-enable-pem.patch" \
 		"${FILESDIR}/${PN}-3.21-pem-werror.patch"
-	epatch "${FILESDIR}/${PN}-3.21-cacert-class3.patch" # 521462
 
 	pushd coreconf >/dev/null || die
 	# hack nspr paths
@@ -164,6 +169,7 @@ multilib_src_compile() {
 		)
 	fi
 
+	export NSS_ENABLE_WERROR=0 #567158
 	export BUILD_OPT=1
 	export NSS_USE_SYSTEM_SQLITE=1
 	export NSDISTMODE=copy
@@ -276,7 +282,10 @@ multilib_src_install() {
 			# The tests we do not need to install.
 			#nssutils_test="bltest crmftest dbtest dertimetest
 			#fipstest remtest sdrtest"
-			nssutils="addbuiltin atob baddbdir btoa certcgi certutil checkcert
+			# checkcert utils has been removed in nss-3.22:
+			# https://bugzilla.mozilla.org/show_bug.cgi?id=1187545
+			# https://hg.mozilla.org/projects/nss/rev/df1729d37870
+			nssutils="addbuiltin atob baddbdir btoa certcgi certutil
 			cmsutil conflict crlutil derdump digest makepqg mangle modutil multinit
 			nonspr10 ocspclnt oidcalc p7content p7env p7sign p7verify pk11mode
 			pk12util pp rsaperf selfserv shlibsign signtool signver ssltap strsclnt
@@ -293,13 +302,9 @@ multilib_src_install() {
 
 	# Prelink breaks the CHK files. We don't have any reliable way to run
 	# shlibsign after prelink.
-	local l libs=() liblist
-	for l in ${NSS_CHK_SIGN_LIBS} ; do
-		libs+=("${EPREFIX}/usr/$(get_libdir)/lib${l}.so")
-	done
-	liblist=$(printf '%s:' "${libs[@]}")
-	echo -e "PRELINK_PATH_MASK=${liblist%:}" > "${T}/90nss-${ABI}"
-	doenvd "${T}/90nss-${ABI}"
+	dodir /etc/prelink.conf.d
+	printf -- "-b ${EPREFIX}/usr/$(get_libdir)/lib%s.so\n" ${NSS_CHK_SIGN_LIBS} \
+		> "${ED}"/etc/prelink.conf.d/nss.conf
 }
 
 pkg_postinst() {
