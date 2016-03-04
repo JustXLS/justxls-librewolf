@@ -28,7 +28,7 @@ fi
 
 MOZCONFIG_OPTIONAL_WIFI=1
 MOZCONFIG_OPTIONAL_JIT="enabled"
-inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-v6.41 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
+inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-v6.42 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
 
 PATCHFF="firefox-42.0-patches-0.3"
 PATCH="${PN}-2.33-patches-01"
@@ -37,7 +37,7 @@ EMVER="1.8.2"
 DESCRIPTION="Seamonkey Web Browser"
 HOMEPAGE="http://www.seamonkey-project.org"
 
-[[ ${PV} != *_pre* ]] && \
+#[[ ${PV} != *_pre* ]] && \
 KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86"
 
 SLOT="0"
@@ -49,12 +49,13 @@ SRC_URI="${SRC_URI}
 	https://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz
 	https://dev.gentoo.org/~axs/mozilla/patchsets/${PATCHFF}.tar.xz
 	https://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
+	https://dev.gentoo.org/~polynomial-c/mozilla/mozilla-graphite2-1.3.5-upgrade_patches.tar.xz
 	crypt? ( https://www.enigmail.net/download/source/enigmail-${EMVER}.tar.gz )"
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
-RDEPEND=">=dev-libs/nss-3.19.2
-	>=dev-libs/nspr-4.10.8
+RDEPEND=">=dev-libs/nss-3.20.1
+	>=dev-libs/nspr-4.10.10
 	crypt? ( || (
 			( >=app-crypt/gnupg-2.0
 				|| (
@@ -118,6 +119,18 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	EPATCH_FORCE="yes" \
 	epatch "${WORKDIR}/firefox"
+
+	# graphite2 fixes (bug #574968)
+	EPATCH_EXCLUDE="0001-mozilla-graphite2-1.3.0.patch
+			0002-mozilla-graphite2-1.3.2.patch
+			0003-mozilla-graphite2-gr_nobidi-flag.patch
+			0004-mozilla-graphite2-1.3.3.patch
+			0005-mozilla-graphite2-1.3.4.patch
+			0006-mozilla-graphite2-post-1.3.4-bugfixes.patch
+			0007-mozilla-graphite2-always_call_ReleaseGrFace.patch" \
+	EPATCH_SUFFIX="patch" \
+	EPATCH_FORCE="yes" \
+	epatch "${WORKDIR}/mozilla-graphite2"
 	popd &>/dev/null || die
 
 	# Shell scripts sometimes contain DOS line endings; bug 391889
@@ -177,6 +190,9 @@ src_configure() {
 
 	mozconfig_init
 	mozconfig_config
+
+	# We want rpath support to prevent unneeded hacks on different libc variants
+	append-ldflags -Wl,-rpath="${MOZILLA_FIVE_HOME}"
 
 	# It doesn't compile on alpha without this LDFLAGS
 	use alpha && append-ldflags "-Wl,--no-relax"
