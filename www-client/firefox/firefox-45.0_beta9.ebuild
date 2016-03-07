@@ -57,7 +57,7 @@ ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 # Mesa 7.10 needed for WebGL + bugfixes
 RDEPEND="
-	>=dev-libs/nss-3.21
+	>=dev-libs/nss-3.21.1
 	>=dev-libs/nspr-4.11
 	selinux? ( sec-policy/selinux-mozilla )"
 
