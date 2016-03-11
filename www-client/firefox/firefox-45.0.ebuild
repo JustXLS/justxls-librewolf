@@ -131,7 +131,8 @@ src_unpack() {
 
 src_prepare() {
 	# Apply our patches
-	eapply "${WORKDIR}/firefox"
+	eapply "${WORKDIR}/firefox" \
+		"${FILESDIR}"/${PN}-45-qt-widget-fix.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
 	eapply_user
