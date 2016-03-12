@@ -132,7 +132,9 @@ src_unpack() {
 src_prepare() {
 	# Apply our patches
 	eapply "${WORKDIR}/firefox" \
-		"${FILESDIR}"/${PN}-45-qt-widget-fix.patch
+		"${FILESDIR}"/${PN}-45-qt-widget-fix.patch \
+		"${FILESDIR}"/${P}-jitless-atomic-operations-ppc64.patch \
+		"${FILESDIR}"/${P}-jitless-atomic-operations-x86.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
 	eapply_user
