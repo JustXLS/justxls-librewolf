@@ -59,6 +59,19 @@ inherit flag-o-matic toolchain-funcs mozcoreconf-v3
 # Set the variable to "enabled" if the use flag should be enabled by default.
 # Set the variable to any value if the use flag should exist but not be default-enabled.
 
+# @ECLASS-VARIABLE: MOZCONFIG_OPTIONAL_GTK2ONLY
+# @DESCRIPTION:
+# Set this variable before the inherit line, when an ebuild can provide
+# optional gtk2-only support via IUSE="force-gtk2".
+#
+# Note that this option conflicts directly with MOZCONFIG_OPTIONAL_GTK3, both
+# variables cannot be set at the same time and this variable will be ignored if
+# MOZCONFIG_OPTIONAL_GTK3 is set.
+#
+# Leave the variable UNSET if gtk2-only support should not be available.
+# Set the variable to "enabled" if the use flag should be enabled by default.
+# Set the variable to any value if the use flag should exist but not be default-enabled.
+
 # @ECLASS-VARIABLE: MOZCONFIG_OPTIONAL_QT5
 # @DESCRIPTION:
 # Set this variable before the inherit line, when an ebuild can provide
@@ -70,7 +83,7 @@ inherit flag-o-matic toolchain-funcs mozcoreconf-v3
 # Set the variable to any value if the use flag should exist but not be default-enabled.
 
 # use-flags common among all mozilla ebuilds
-IUSE="${IUSE} dbus debug ffmpeg +gstreamer gstreamer-0 +jemalloc3 neon pulseaudio selinux startup-notification system-cairo
+IUSE="${IUSE} dbus debug +ffmpeg +jemalloc3 neon pulseaudio selinux startup-notification system-cairo
 	system-icu system-jpeg system-libevent system-sqlite system-libvpx"
 
 # some notes on deps:
@@ -98,16 +111,6 @@ RDEPEND=">=app-text/hunspell-1.2
 	>=sys-libs/zlib-1.2.3
 	>=virtual/libffi-3.0.10
 	ffmpeg? ( virtual/ffmpeg )
-	gstreamer? (
-		>=media-libs/gstreamer-1.4.5:1.0
-		>=media-libs/gst-plugins-base-1.4.5:1.0
-		>=media-libs/gst-plugins-good-1.4.5:1.0
-		>=media-plugins/gst-plugins-libav-1.4.5:1.0
-	)
-	gstreamer-0? (
-		>=media-libs/gstreamer-0.10.25:0.10
-		media-plugins/gst-plugins-meta:0.10[ffmpeg]
-	)
 	x11-libs/libX11
 	x11-libs/libXcomposite
 	x11-libs/libXdamage
@@ -124,6 +127,7 @@ RDEPEND=">=app-text/hunspell-1.2
 "
 
 if [[ -n ${MOZCONFIG_OPTIONAL_GTK3} ]]; then
+	MOZCONFIG_OPTIONAL_GTK2ONLY=
 	if [[ ${MOZCONFIG_OPTIONAL_GTK3} = "enabled" ]]; then
 		IUSE+=" +gtk3"
 	else
@@ -131,6 +135,14 @@ if [[ -n ${MOZCONFIG_OPTIONAL_GTK3} ]]; then
 	fi
 	RDEPEND+="
 	gtk3? ( >=x11-libs/gtk+-3.4.0:3 )"
+elif [[ -n ${MOZCONFIG_OPTIONAL_GTK2ONLY} ]]; then
+	if [[ ${MOZCONFIG_OPTIONAL_GTK2ONLY} = "enabled" ]]; then
+		IUSE+=" +force-gtk2"
+	else
+		IUSE+=" force-gtk2"
+	fi
+	RDEPEND+="
+	!force-gtk2? ( >=x11-libs/gtk+-3.4.0:3 )"
 fi
 if [[ -n ${MOZCONFIG_OPTIONAL_QT5} ]]; then
 	inherit qmake-utils
@@ -179,12 +191,16 @@ DEPEND="app-arch/zip
 RDEPEND+="
 	selinux? ( sec-policy/selinux-mozilla )"
 
-# only one of gstreamer and gstreamer-0 can be enabled at a time, so set REQUIRED_USE to signify this
-REQUIRED_USE="?? ( gstreamer gstreamer-0 )"
+# ensure REQUIRED_USE is set just in case += fails otherwise
+: ${REQUIRED_USE:=""}
 
 # only one of gtk3 or qt5 should be permitted to be selected, since only one will be used.
 [[ -n ${MOZCONFIG_OPTIONAL_GTK3} ]] && [[ -n ${MOZCONFIG_OPTIONAL_QT5} ]] && \
 	REQUIRED_USE+=" ?? ( gtk3 qt5 )"
+
+# only one of force-gtk2 or qt5 should be permitted to be selected, since only one will be used.
+[[ -n ${MOZCONFIG_OPTIONAL_GTK2ONLY} ]] && [[ -n ${MOZCONFIG_OPTIONAL_QT5} ]] && \
+	REQUIRED_USE+=" ?? ( force-gtk2 qt5 )"
 
 # @FUNCTION: mozconfig_config
 # @DESCRIPTION:
@@ -280,6 +296,13 @@ mozconfig_config() {
 			toolkit_comment="gtk3 use flag"
 		fi
 	fi
+	if [[ -n ${MOZCONFIG_OPTIONAL_GTK2ONLY} ]]; then
+		if ! use force-gtk2 ; then
+			toolkit="cairo-gtk3"
+		else
+			toolkit_comment="force-gtk2 use flag"
+		fi
+	fi
 	if [[ -n ${MOZCONFIG_OPTIONAL_QT5} ]]; then
 		if use qt5; then
 			toolkit="cairo-qt"
@@ -310,15 +333,6 @@ mozconfig_config() {
 	mozconfig_annotate '' --build="${CTARGET:-${CHOST}}"
 
 	use ffmpeg || mozconfig_annotate '-ffmpeg' --disable-ffmpeg
-	if use gstreamer ; then
-		use ffmpeg && einfo "${PN} will not use ffmpeg unless gstreamer:1.0 is not available at runtime"
-		mozconfig_annotate '+gstreamer' --enable-gstreamer=1.0
-	elif use gstreamer-0 ; then
-		use ffmpeg && einfo "${PN} will not use ffmpeg unless gstreamer:0.10 is not available at runtime"
-		mozconfig_annotate '+gstreamer-0' --enable-gstreamer=0.10
-	else
-		mozconfig_annotate '' --disable-gstreamer
-	fi
 	mozconfig_use_enable pulseaudio
 
 	mozconfig_use_enable system-cairo
