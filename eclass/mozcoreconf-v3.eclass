@@ -1,4 +1,4 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 #
@@ -13,7 +13,7 @@
 if [[ ! ${_MOZCORECONF_V3} ]]; then
 
 PYTHON_COMPAT=( python2_7 )
-PYTHON_REQ_USE='threads,sqlite'
+PYTHON_REQ_USE='ncurses,sqlite,ssl,threads'
 
 inherit multilib flag-o-matic python-any-r1 versionator
 
@@ -103,7 +103,7 @@ moz_pkgsetup() {
 }
 
 # @FUNCTION: mozconfig_init
-# @DESCRIPTION
+# @DESCRIPTION:
 # Initialize mozilla configuration and populate with core settings.
 # This should be called in src_configure before any other mozconfig_* functions.
 mozconfig_init() {
