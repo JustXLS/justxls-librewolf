@@ -57,7 +57,7 @@ ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 # Mesa 7.10 needed for WebGL + bugfixes
 RDEPEND="
-	>=dev-libs/nss-3.21.1
+	>=dev-libs/nss-3.23
 	>=dev-libs/nspr-4.12
 	selinux? ( sec-policy/selinux-mozilla )"
 
@@ -76,9 +76,7 @@ DEPEND="${RDEPEND}
 #		https://dev.gentoo.org/~nirbheek/mozilla/firefox/firefox-${MOZ_PV}_${CHANGESET}.source.tar.xz"
 #	S="${WORKDIR}/mozilla-aurora-${CHANGESET}"
 #else
-#	S="${WORKDIR}/firefox-${MOZ_PV}"
-# -- temporary workaround just for this beta version
-	S="${WORKDIR}/firefox-46.0"
+	S="${WORKDIR}/firefox-${MOZ_PV}"
 	SRC_URI="${SRC_URI}
 		${MOZ_HTTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.xz"
 #fi
@@ -132,6 +130,9 @@ src_unpack() {
 }
 
 src_prepare() {
+	# Clear patches no longer needed
+	rm -f "${WORKDIR}"/firefox/8005_gtk3_fix_transparent_tooltip_bkg_bug1197165_moz47.patch
+
 	# Apply our patches
 	eapply "${WORKDIR}/firefox"
 #		"${FILESDIR}"/${PN}-45-qt-widget-fix.patch \
