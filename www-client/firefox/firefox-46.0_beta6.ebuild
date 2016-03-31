@@ -27,13 +27,13 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-46.0-patches-0.2"
+PATCH="${PN}-46.0-patches-0.3"
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 
 MOZCONFIG_OPTIONAL_GTK2ONLY=1
 #MOZCONFIG_OPTIONAL_QT5=1 -- fails to build so leave it off until the code can be patched
 MOZCONFIG_OPTIONAL_WIFI=1
-#MOZCONFIG_OPTIONAL_JIT="enabled" -- forcing jit no matter what, hardened should work due to W^X support
+MOZCONFIG_OPTIONAL_JIT="enabled"
 
 inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-v6.46 pax-utils fdo-mime autotools virtualx mozlinguas
 
@@ -130,14 +130,9 @@ src_unpack() {
 }
 
 src_prepare() {
-	# Clear patches no longer needed
-	rm -f "${WORKDIR}"/firefox/8005_gtk3_fix_transparent_tooltip_bkg_bug1197165_moz47.patch
-
 	# Apply our patches
 	eapply "${WORKDIR}/firefox"
-#		"${FILESDIR}"/${PN}-45-qt-widget-fix.patch \
-#		"${FILESDIR}"/${P}-jitless-atomic-operations-ppc64.patch \
-#		"${FILESDIR}"/${P}-jitless-atomic-operations-x86.patch
+#		"${FILESDIR}"/${PN}-45-qt-widget-fix.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
 	eapply_user
@@ -216,9 +211,6 @@ src_configure() {
 	# Setup api key for location services
 	echo -n "${_google_api_key}" > "${S}"/google-api-key
 	mozconfig_annotate '' --with-google-api-keyfile="${S}/google-api-key"
-
-	# upstream W^X support should mean we can enable jit all the time
-	mozconfig_annotate '' --enable-ion
 
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 	mozconfig_annotate '' --disable-mailnews
@@ -366,11 +358,11 @@ PROFILE_EOF
 	fi
 
 	# Required in order to use plugins and even run firefox on hardened, with jit useflag.
-#	if use jit; then
-#		pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{firefox,firefox-bin,plugin-container}
-#	else
+	if use jit; then
+		pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{firefox,firefox-bin,plugin-container}
+	else
 		pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/plugin-container
-#	fi
+	fi
 
 	# very ugly hack to make firefox not sigbus on sparc
 	# FIXME: is this still needed??
