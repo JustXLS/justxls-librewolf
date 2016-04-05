@@ -132,6 +132,11 @@ src_unpack() {
 src_prepare() {
 	# Apply our patches
 	eapply "${WORKDIR}/firefox" \
+		"${FILESDIR}"/arm64-1-define-ARCH_CPU_ARM64.patch \
+		"${FILESDIR}"/arm64-2-import-crbug-for-aarch64.patch \
+		"${FILESDIR}"/arm64-3-set-WEBRTC_DETECT_ARM_NEON-when-optional.patch \
+		"${FILESDIR}"/arm64-4-link-chromium-mutex-based-atomics.patch \
+		"${FILESDIR}"/arm64-5-mozjemalloc-no-static-page-sizes.patch \
 		"${FILESDIR}"/${PN}-45-qt-widget-fix.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
