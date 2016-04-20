@@ -1,8 +1,8 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
+EAPI=6
 WANT_AUTOCONF="2.1"
 MOZ_ESR=""
 MOZ_LIGHTNING_VER="4.7"
@@ -23,18 +23,17 @@ fi
 MOZ_P="${PN}-${MOZ_PV}"
 
 # Enigmail version
-EMVER="1.8.2"
+EMVER="1.9.1"
 
 # Patches
 PATCH="thunderbird-38.0-patches-0.1"
 PATCHFF="firefox-45.0-patches-03"
 
-MOZ_HTTP_URI="http://archive.mozilla.org/pub/${PN}/releases"
+MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 
-MOZ_FORCE_UPSTREAM_L10N=1
 MOZCONFIG_OPTIONAL_GTK3=1
 MOZCONFIG_OPTIONAL_JIT="enabled"
-inherit flag-o-matic toolchain-funcs mozconfig-v6.44 makeedit multilib autotools pax-utils check-reqs nsplugins mozlinguas
+inherit flag-o-matic toolchain-funcs mozconfig-v6.45 makeedit autotools pax-utils check-reqs nsplugins mozlinguas
 
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
@@ -45,8 +44,6 @@ LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="bindist crypt hardened ldap lightning +minimal mozdom selinux"
 RESTRICT="!bindist? ( bindist )"
 
-# URI for upstream lightning package (when it is available)
-#${MOZ_HTTP_URI/${PN}/calendar/lightning}/${MOZ_LIGHTNING_VER}/linux/lightning.xpi -> lightning-${MOZ_LIGHTNING_VER}.xpi
 PATCH_URIS=( https://dev.gentoo.org/~{anarchy,axs,polynomial-c}/mozilla/patchsets/{${PATCH},${PATCHFF}}.tar.xz )
 SRC_URI="${SRC_URI}
 	${MOZ_HTTP_URI}/${MOZ_PV}/source/${MOZ_P}.source.tar.xz
@@ -58,8 +55,8 @@ SRC_URI="${SRC_URI}
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 CDEPEND="
-	>=dev-libs/nss-3.21
-	>=dev-libs/nspr-4.11
+	>=dev-libs/nss-3.21.1
+	>=dev-libs/nspr-4.12
 	!x11-plugins/enigmail
 	crypt?  ( || (
 		( >=app-crypt/gnupg-2.0
@@ -127,20 +124,13 @@ src_unpack() {
 
 src_prepare() {
 	# Apply our Thunderbird patchset
-	EPATCH_SUFFIX="patch" \
-	EPATCH_FORCE="yes" \
-	EPATCH_EXCLUDE="2001_ldap_respect_cflags.patch" \
-	epatch "${WORKDIR}/thunderbird"
+	rm -f "${WORKDIR}"/thunderbird/2001_ldap_respect_cflags.patch
+	eapply "${WORKDIR}/thunderbird"
 
 	# Apply our patchset from firefox to thunderbird as well
 	pushd "${S}"/mozilla &>/dev/null || die
-	EPATCH_SUFFIX="patch" \
-	EPATCH_FORCE="yes" \
-	epatch "${WORKDIR}/firefox"
+	eapply "${WORKDIR}/firefox"
 	popd &>/dev/null || die
-
-#	EPATCH_EXCLUDE="8010_bug114311-freetype26.patch
-#			8011_bug1194520-freetype261_until_moz43.patch" \
 
 	# Ensure that are plugins dir is enabled as default
 	sed -i -e "s:/usr/lib/mozilla/plugins:/usr/lib/nsbrowser/plugins:" \
@@ -165,7 +155,7 @@ src_prepare() {
 	done
 
 	# Allow user to apply any additional patches without modifing ebuild
-	epatch_user
+	eapply_user
 
 	# Confirm the version of lightning being grabbed for langpacks is the same
 	# as that used in thunderbird
