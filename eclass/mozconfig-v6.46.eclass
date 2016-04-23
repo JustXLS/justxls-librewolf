@@ -361,3 +361,44 @@ mozconfig_config() {
 		fi
 	fi
 }
+
+# @FUNCTION: mozconfig_install_prefs
+# @DESCRIPTION:
+# Set preferences into the prefs.js file specified as a parameter to
+# the function.  This sets both some common prefs to all mozilla
+# packages, and any prefs that may relate to the use flags administered
+# by mozconfig_config().
+#
+# Call this within src_install() phase, after copying the template
+# prefs file (if any) from ${FILESDIR}
+#
+# Example:
+#
+# inherit mozconfig-v6.46
+#
+# src_install() {
+# 	cp "${FILESDIR}"/gentoo-default-prefs.js \
+#	"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js"  \
+#	|| die
+#
+# 	mozconfig_install_prefs \
+#	"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js"
+#
+#	...
+# }
+
+mozconfig_install_prefs() {
+	local prefs_file="${1}"
+
+	einfo "Adding prefs from mozconfig to ${prefs_file}"
+
+	# set dictionary path, to use system hunspell
+	echo "pref(\"spellchecker.dictionary_path\", \"${EPREFIX}/usr/share/myspell\");" \
+		>>"${prefs_file}" || die
+
+	# force the graphite pref if system-harfbuzz is enabled, since the pref cant disable it
+	if use system-harfbuzz ; then
+		echo "sticky_pref(\"gfx.font_rendering.graphite.enabled\",true);" \
+			>>"${prefs_file}" || die
+	fi
+}

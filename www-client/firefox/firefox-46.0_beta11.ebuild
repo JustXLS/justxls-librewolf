@@ -256,7 +256,6 @@ src_compile() {
 
 src_install() {
 	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
-	DICTPATH="\"${EPREFIX}/usr/share/myspell\""
 
 	cd "${BUILD_OBJ_DIR}" || die
 
@@ -265,17 +264,15 @@ src_install() {
 		"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js" \
 		|| die
 
+	mozconfig_install_prefs \
+		"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js"
+
 	# Augment this with hwaccel prefs
 	if use hwaccel ; then
 		cat "${FILESDIR}"/gentoo-hwaccel-prefs.js-1 >> \
 		"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js" \
 		|| die
 	fi
-
-	# Set default path to search for dictionaries.
-	echo "pref(\"spellchecker.dictionary_path\", ${DICTPATH});" \
-		>> "${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js" \
-		|| die
 
 	echo "pref(\"extensions.autoDisableScopes\", 3);" >> \
 		"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js" \
