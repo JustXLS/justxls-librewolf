@@ -27,7 +27,7 @@ EMVER="1.9.1"
 
 # Patches
 PATCH="thunderbird-38.0-patches-0.1"
-PATCHFF="firefox-45.0-patches-03"
+PATCHFF="firefox-45.0-patches-04"
 
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 
@@ -258,7 +258,6 @@ src_compile() {
 
 src_install() {
 	declare MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
-	DICTPATH="\"${EPREFIX}/usr/share/myspell\""
 
 	declare emid
 	cd "${BUILD_OBJ_DIR}" || die
@@ -268,10 +267,8 @@ src_install() {
 		"${BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
 
-	# Set default path to search for dictionaries.
-	echo "pref(\"spellchecker.dictionary_path\", ${DICTPATH});" \
-		>> "${BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" \
-		|| die
+	mozconfig_install_prefs \
+		"${BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js"
 
 	# Pax mark xpcshell for hardened support, only used for startupcache creation.
 	pax-mark m "${BUILD_OBJ_DIR}"/dist/bin/xpcshell
