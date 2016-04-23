@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 #
-# @ECLASS: mozconfig-v6.45.eclass
+# @ECLASS: mozconfig-v6.46.eclass
 # @MAINTAINER:
 # mozilla team <mozilla@gentoo.org>
 # @BLURB: the new mozilla common configuration eclass for FF33 and newer, v6
@@ -84,7 +84,7 @@ inherit flag-o-matic toolchain-funcs mozcoreconf-v3
 
 # use-flags common among all mozilla ebuilds
 IUSE="${IUSE} dbus debug +ffmpeg +jemalloc3 neon pulseaudio selinux startup-notification system-cairo
-	system-icu system-jpeg system-libevent system-sqlite system-libvpx"
+	system-harfbuzz system-icu system-jpeg system-libevent system-sqlite system-libvpx"
 
 # some notes on deps:
 # gtk:2 minimum is technically 2.10 but gio support (enabled by default) needs 2.14
@@ -124,6 +124,7 @@ RDEPEND=">=app-text/hunspell-1.2
 	system-libevent? ( =dev-libs/libevent-2.0*:0= )
 	system-sqlite? ( >=dev-db/sqlite-3.9.1:3[secure-delete,debug=] )
 	system-libvpx? ( >=media-libs/libvpx-1.3.0:0=[postproc,svc(-)] )
+	system-harfbuzz? ( >=media-libs/harfbuzz-1.1.3:0=[graphite2,icu] >=media-gfx/graphite2-1.3.8 )
 "
 
 if [[ -n ${MOZCONFIG_OPTIONAL_GTK3} ]]; then
@@ -191,8 +192,9 @@ DEPEND="app-arch/zip
 RDEPEND+="
 	selinux? ( sec-policy/selinux-mozilla )"
 
-# ensure REQUIRED_USE is set just in case += fails otherwise
-: ${REQUIRED_USE:=""}
+# force system-icu if system-harfbuzz is selected, to avoid potential ABI issues
+REQUIRED_USE="
+	system-harfbuzz? ( system-icu )"
 
 # only one of gtk3 or qt5 should be permitted to be selected, since only one will be used.
 [[ -n ${MOZCONFIG_OPTIONAL_GTK3} ]] && [[ -n ${MOZCONFIG_OPTIONAL_QT5} ]] && \
@@ -209,7 +211,7 @@ RDEPEND+="
 #
 # Example:
 #
-# inherit mozconfig-v5.33
+# inherit mozconfig-v6.46
 #
 # src_configure() {
 # 	mozconfig_init
@@ -340,6 +342,8 @@ mozconfig_config() {
 	mozconfig_use_with system-jpeg
 	mozconfig_use_with system-icu
 	mozconfig_use_with system-libvpx
+	mozconfig_use_with system-harfbuzz
+	mozconfig_use_with system-harfbuzz system-graphite2
 
 	# Modifications to better support ARM, bug 553364
 	if use neon ; then
