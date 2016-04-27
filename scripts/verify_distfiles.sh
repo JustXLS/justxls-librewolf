@@ -20,11 +20,6 @@ check_distfiles() {
 	wget -O ${sigfile} -q https://archive.mozilla.org/pub/${mybasename}/releases/${myver}/SHA512SUMS
 	gpg --verify ${sigfile}.asc ${sigfile} || exit 1
 
-	grep -e "^DIST ${mybasename}-${myver}[-\.]" \
-	  -e "^DIST ${myname}_.*-${myver}[-\.]" \
-	  Manifest
-	exit 1
-
 	grep -e "^DIST ${myname}-${myver}[-\.]" \
 	  -e "^DIST ${mybasename}_.*-${myver}[-\.]" \
 	  Manifest |grep -v -- "${myname}-.*-patches-" |awk '{print $7}' |while read ech ; do
