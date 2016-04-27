@@ -22,6 +22,7 @@ check_distfiles() {
 
 	grep -e "^DIST ${mybasename}-${myver}[-\.]" \
 	  -e "^DIST ${myname}_.*-${myver}[-\.]" \
+	  -e "^DIST ${myname}_.*-${myver/esr/}[-\.]" \
 	  Manifest |grep -v -- "${myname}-.*-patches-" |awk '{print $7}' |while read ech ; do
 		tmp=$(grep ${ech} Manifest |awk '{print $2}')
 		if grep $ech ${sigfile} &>/dev/null ; then
