@@ -21,7 +21,7 @@ fi
 
 ebuild=${1}
 
-if [[ ${ebuild/.ebuild/} == ${ebuild} ]]; then
+if [[ ${ebuild/.ebuild/} == ${ebuild} ]] || [[ ! -e ${ebuild} ]]; then
   echo "Must specify the full path to the ebuild as arg.1"
 fi
 
