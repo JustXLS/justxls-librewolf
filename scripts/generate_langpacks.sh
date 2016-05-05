@@ -197,16 +197,13 @@ function package_gdata_provider {
 # run the locales
 for langpack_op in "${langpack_targets[@]}"; do
   cd ${S}/${locale_buildpath}
-  for ech_l10n in ${l10n_releasedir}/* ; do
+  for ech_l10n in ${l10n_releasedir}/src/* ; do
     if [[ -d ${ech_l10n} ]]; then
       abcd=${ech_l10n##*/}
       # Need to set LOCALE_MERGEDIR to someplace that doesnt exist -- odd but whatever
       make ${langpack_op}-${abcd} LOCALE_MERGEDIR=./${abcd}
     fi
   done
-
-  # get the langpacks
-  cp -t ${l10n_releasedir}/ ${S}/dist/linux-*/xpi/*lang*
 
   # package lightning and gdata-provider if calendar was a target
   if ! [[ ${langpack_op/calendar/} == ${langpack_op} ]]; then
@@ -215,3 +212,7 @@ for langpack_op in "${langpack_targets[@]}"; do
   fi
 
 done
+
+# get the langpacks
+cp -t ${l10n_releasedir}/ ${S}/dist/linux-*/xpi/*lang*
+
