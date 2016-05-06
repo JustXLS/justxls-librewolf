@@ -165,7 +165,6 @@ src_prepare() {
 }
 
 src_configure() {
-	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 	MEXTENSIONS="default"
 	# Google API keys (see http://www.chromium.org/developers/how-tos/api-keys)
 	# Note: These are for Gentoo Linux use ONLY. For your own distribution, please
@@ -180,9 +179,6 @@ src_configure() {
 
 	mozconfig_init
 	mozconfig_config
-
-	# We want rpath support to prevent unneeded hacks on different libc variants
-	append-ldflags -Wl,-rpath="${MOZILLA_FIVE_HOME}"
 
 	# It doesn't compile on alpha without this LDFLAGS
 	use alpha && append-ldflags "-Wl,--no-relax"
@@ -200,9 +196,6 @@ src_configure() {
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 	mozconfig_annotate '' --disable-mailnews
 
-	# Other ff-specific settings
-	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
-
 	# Allow for a proper pgo build
 	if use pgo; then
 		echo "mk_add_options PROFILE_GEN_SCRIPT='\$(PYTHON) \$(OBJDIR)/_profile/pgo/profileserver.py'" >> "${S}"/.mozconfig
@@ -218,6 +211,7 @@ src_configure() {
 	fi
 
 	# workaround for funky/broken upstream configure...
+	SHELL="${SHELL:-${EPREFIX%/}/bin/bash}" \
 	emake -f client.mk configure
 }
 
@@ -243,11 +237,9 @@ src_compile() {
 		shopt -u nullglob
 		addpredict "${cards}"
 
-		CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
 		MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX%/}/bin/bash}" \
 		virtx emake -f client.mk profiledbuild || die "virtx emake failed"
 	else
-		CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
 		MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX%/}/bin/bash}" \
 		emake -f client.mk realbuild
 	fi
@@ -255,8 +247,6 @@ src_compile() {
 }
 
 src_install() {
-	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
-
 	cd "${BUILD_OBJ_DIR}" || die
 
 	# Add our default prefs for firefox

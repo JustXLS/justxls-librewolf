@@ -27,7 +27,7 @@ case ${EAPI} in
 		;;
 esac
 
-inherit flag-o-matic toolchain-funcs mozcoreconf-v3
+inherit flag-o-matic toolchain-funcs mozcoreconf-v4
 
 # @ECLASS-VARIABLE: MOZCONFIG_OPTIONAL_WIFI
 # @DESCRIPTION:
@@ -270,11 +270,11 @@ mozconfig_config() {
 	fi
 
 	# These are enabled by default in all mozilla applications
-	mozconfig_annotate '' --with-system-nspr --with-nspr-prefix="${EPREFIX}"/usr
-	mozconfig_annotate '' --with-system-nss --with-nss-prefix="${EPREFIX}"/usr
-	mozconfig_annotate '' --x-includes="${EPREFIX}"/usr/include --x-libraries="${EPREFIX}"/usr/$(get_libdir)
+	mozconfig_annotate '' --with-system-nspr --with-nspr-prefix="${SYSROOT}${EPREFIX}"/usr
+	mozconfig_annotate '' --with-system-nss --with-nss-prefix="${SYSROOT}${EPREFIX}"/usr
+	mozconfig_annotate '' --x-includes="${SYSROOT}${EPREFIX}"/usr/include --x-libraries="${SYSROOT}${EPREFIX}"/usr/$(get_libdir)
 	if use system-libevent; then
-		mozconfig_annotate '' --with-system-libevent="${EPREFIX}"/usr
+		mozconfig_annotate '' --with-system-libevent="${SYSROOT}${EPREFIX}"/usr
 	fi
 	mozconfig_annotate '' --prefix="${EPREFIX}"/usr
 	mozconfig_annotate '' --libdir="${EPREFIX}"/usr/$(get_libdir)
@@ -331,8 +331,14 @@ mozconfig_config() {
 		mozconfig_annotate '' --enable-replace-malloc
 	fi
 
-	mozconfig_annotate '' --target="${CTARGET:-${CHOST}}"
-	mozconfig_annotate '' --build="${CTARGET:-${CHOST}}"
+	# Instead of the standard --build= and --host=, mozilla uses --host instead
+	# of --build, and --target intstead of --host.
+	# Note, mozilla also has --build but it does not do what you think it does.
+	mozconfig_annotate '' --target="${CHOST}"
+	if [[ "${CBUILD:-${CHOST}}" != "${CHOST}" ]]; then
+		# set --host only when cross-compiling
+		mozconfig_annotate '' --host="${CBUILD:-${CHOST}}"
+	fi
 
 	use ffmpeg || mozconfig_annotate '-ffmpeg' --disable-ffmpeg
 	mozconfig_use_enable pulseaudio
