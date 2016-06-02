@@ -70,11 +70,12 @@ if ! [[ -e ${l10n_releasedir}/mozlangs.cached ]]; then
   for abcd in "${MOZ_LANGS[@]}" ; do
     if [[ ! -d ${L10N_STAGING_DIR%/}/${l10nrepo}/${abcd} ]]; then
       mkdir -p ${L10N_STAGING_DIR%/}/${l10nrepo}
-      cd ${L10N_STAGING_DIR%/}/${l10nrepo}
+      pushd ${L10N_STAGING_DIR%/}/${l10nrepo} &>/dev/null || die
       hg clone "http://hg.mozilla.org/releases/l10n/${l10nrepo}/${abcd}"
+      popd &>/dev/null || die
     fi
     if [[ -d ${L10N_STAGING_DIR%/}/${l10nrepo}/${abcd} ]]; then
-      cd ${L10N_STAGING_DIR%/}/${l10nrepo}/${abcd}
+      pushd ${L10N_STAGING_DIR%/}/${l10nrepo}/${abcd} &>/dev/null || die
       hg pull
       if hg tags |grep ${uctarget//\./_}_RELEASE &>/dev/null; then
         rev="-r ${uctarget//\./_}_RELEASE"
@@ -85,6 +86,7 @@ if ! [[ -e ${l10n_releasedir}/mozlangs.cached ]]; then
         rev=
       fi
       hg archive ${rev} -t files ${l10n_releasedir}/src/${abcd}
+      popd &>/dev/null || die
     fi
   done
   cp ${l10n_releasedir}/mozlangs{,.cached}
@@ -139,7 +141,7 @@ fi
 
 
 function package_lightning {
-  cd ${S}/dist/xpi-stage
+  pushd ${S}/dist/xpi-stage &>/dev/null || die
   cp -rL lightning stage-lightning
   for ech in lightning-*; do
     if [[ -d $ech ]]; then
@@ -164,10 +166,11 @@ function package_lightning {
   cd ..
   mv stage-lightning lightning-${vers}
   tar -Jcf ${l10n_releasedir}/lightning-${vers}.tar.xz lightning-${vers}
+  popd &>/dev/null || die
 }
 
 function package_gdata_provider {
-  cd ${S}/dist/xpi-stage
+  pushd ${S}/dist/xpi-stage &>/dev/null || die
   cp -rL gdata-provider stage-gdata-provider
   for ech in gdata-provider-*; do
     if [[ -d $ech ]]; then
@@ -192,6 +195,7 @@ function package_gdata_provider {
   cd ..
   mv stage-gdata-provider gdata-provider-${vers}
   tar -Jcf ${l10n_releasedir}/gdata-provider-${vers}.tar.xz gdata-provider-${vers}
+  popd &>/dev/null || die
 }
 
 # run the locales
