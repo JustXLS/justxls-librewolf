@@ -83,7 +83,7 @@ inherit flag-o-matic toolchain-funcs mozcoreconf-v4
 # Set the variable to any value if the use flag should exist but not be default-enabled.
 
 # use-flags common among all mozilla ebuilds
-IUSE="${IUSE} dbus debug +ffmpeg +jemalloc3 neon pulseaudio selinux startup-notification system-cairo
+IUSE="${IUSE} dbus debug +jemalloc3 neon pulseaudio selinux startup-notification system-cairo
 	system-harfbuzz system-icu system-jpeg system-libevent system-sqlite system-libvpx"
 
 # some notes on deps:
@@ -110,7 +110,7 @@ RDEPEND=">=app-text/hunspell-1.2
 	>=dev-libs/glib-2.26:2
 	>=sys-libs/zlib-1.2.3
 	>=virtual/libffi-3.0.10
-	ffmpeg? ( virtual/ffmpeg )
+	virtual/ffmpeg
 	x11-libs/libX11
 	x11-libs/libXcomposite
 	x11-libs/libXdamage
@@ -124,7 +124,7 @@ RDEPEND=">=app-text/hunspell-1.2
 	system-libevent? ( =dev-libs/libevent-2.0*:0= )
 	system-sqlite? ( >=dev-db/sqlite-3.11.0:3[secure-delete,debug=] )
 	system-libvpx? ( >=media-libs/libvpx-1.5.0:0=[postproc] )
-	system-harfbuzz? ( >=media-libs/harfbuzz-1.1.3:0=[graphite,icu] >=media-gfx/graphite2-1.3.8 )
+	system-harfbuzz? ( >=media-libs/harfbuzz-1.2.2:0=[graphite,icu] >=media-gfx/graphite2-1.3.8 )
 "
 
 if [[ -n ${MOZCONFIG_OPTIONAL_GTK3} ]]; then
@@ -340,7 +340,6 @@ mozconfig_config() {
 		mozconfig_annotate '' --host="${CBUILD:-${CHOST}}"
 	fi
 
-	use ffmpeg || mozconfig_annotate '-ffmpeg' --disable-ffmpeg
 	mozconfig_use_enable pulseaudio
 
 	mozconfig_use_enable system-cairo
