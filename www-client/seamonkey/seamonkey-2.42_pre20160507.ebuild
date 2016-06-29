@@ -34,7 +34,7 @@ fi
 
 MOZCONFIG_OPTIONAL_WIFI=1
 MOZCONFIG_OPTIONAL_JIT="enabled"
-inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-v6.45 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas
+inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-v6.45 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas-v2
 
 PATCHFF="firefox-45.0-patches-04"
 PATCH="${PN}-2.42-patches-01"
