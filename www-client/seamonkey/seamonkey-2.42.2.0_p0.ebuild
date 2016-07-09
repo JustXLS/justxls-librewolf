@@ -14,6 +14,7 @@ MOZ_PV="${PV/_pre*}"
 MOZ_PV="${MOZ_PV/_alpha/a}"
 MOZ_PV="${MOZ_PV/_beta/b}"
 MOZ_PV="${MOZ_PV/_rc/rc}"
+MOZ_PV="${MOZ_PV/_p0}"
 MOZ_P="${P}"
 MY_MOZ_P="${PN}-${MOZ_PV}"
 
@@ -26,10 +27,31 @@ if [[ ${PV} == *_pre* ]] ; then
 	MOZ_HTTP_URI="https://dev.gentoo.org/~axs/distfiles"
 	MOZ_LANGPACK_PREFIX="${MY_MOZ_P}."
 	MOZ_LANGPACK_SUFFIX=".langpack.xpi"
+	SRC_URI="${SRC_URI}
+	${MOZ_HTTP_URI}/${P}.source.tar.xz
+	"
+elif [[ ${PV} == *_p0 ]]; then
+	# gentoo-unofficial release using thunderbird distfiles to build seamonkey instead
+	TB_MAJOR=45
+	SMPV="${PV%.[0-9].*}"
+	MOZ_P="${PN}-${SMPV}"
+	MOZ_HTTP_URI="https://archive.mozilla.org/pub/thunderbird/releases/${MOZ_PV/${SMPV}/${TB_MAJOR}}"
+	MOZ_GENERATE_LANGPACKS=1
+	S="${WORKDIR}/thunderbird-${MOZ_PV/${SMPV}/${TB_MAJOR}}"
+	SRC_URI="${SRC_URI}
+	${MOZ_HTTP_URI}/source/${MY_MOZ_P/${MOZ_P}/thunderbird-${TB_MAJOR}}.source.tar.xz
+	https://dev.gentoo.org/~axs/distfiles/${MY_MOZ_P}-l10n-sources.tar.xz
+	https://dev.gentoo.org/~axs/distfiles/chatzilla-2.42.tar.xz
+	https://dev.gentoo.org/~axs/distfiles/dom-inspector-2.0.16.tar.xz
+	"
 else
 	MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases/${MOZ_PV}"
 	MOZ_LANGPACK_PREFIX="langpack/${MY_MOZ_P}."
 	MOZ_LANGPACK_SUFFIX=".langpack.xpi"
+	S="${WORKDIR}/${PN}-${MOZ_PV}"
+	SRC_URI="${SRC_URI}
+	${MOZ_HTTP_URI}/source/${MY_MOZ_P}.source.tar.xz -> ${P}.source.tar.xz
+	"
 fi
 
 MOZCONFIG_OPTIONAL_WIFI=1
@@ -42,8 +64,6 @@ EMVER="1.9.1"
 
 DESCRIPTION="Seamonkey Web Browser"
 HOMEPAGE="http://www.seamonkey-project.org"
-
-[[ ${PV} != *_pre* ]] && \
 KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86"
 
 SLOT="0"
@@ -51,7 +71,6 @@ LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="+chatzilla +crypt +gmp-autoupdate +ipc minimal pulseaudio +roaming selinux test"
 
 SRC_URI="${SRC_URI}
-	${MOZ_HTTP_URI}/source/${MY_MOZ_P}.source.tar.xz -> ${P}.source.tar.xz
 	https://dev.gentoo.org/~anarchy/mozilla/patchsets/${PATCHFF}.tar.xz
 	https://dev.gentoo.org/~axs/mozilla/patchsets/${PATCHFF}.tar.xz
 	https://dev.gentoo.org/~axs/mozilla/patchsets/${PATCH}.tar.xz
@@ -80,8 +99,6 @@ DEPEND="${RDEPEND}
 	x86? ( ${ASM_DEPEND}
 		virtual/opengl )"
 
-S="${WORKDIR}/${PN}-${MOZ_PV}"
-
 BUILD_OBJ_DIR="${S}/seamonk"
 
 pkg_setup() {
@@ -109,6 +126,10 @@ src_unpack() {
 
 	# Unpack language packs
 	mozlinguas_src_unpack
+
+	# move the irc and inspector code into the correct locations
+	mv "${WORKDIR}"/irc "${S}"/mozilla/extensions/irc || die
+	mv "${WORKDIR}"/inspector "${S}"/mozilla/extensions/inspector || die
 }
 
 src_prepare() {
@@ -238,6 +259,8 @@ src_compile() {
 	CC="$(tc-getCC)" CXX="$(tc-getCXX)" LD="$(tc-getLD)" \
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL}" \
 	emake V=1 -f client.mk
+
+	mozlinguas_src_compile
 
 	# Only build enigmail extension if conditions are met.
 	if use crypt ; then
