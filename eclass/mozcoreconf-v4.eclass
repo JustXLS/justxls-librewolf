@@ -2,20 +2,20 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 #
-# @ECLASS: mozcoreconf.eclass
+# @ECLASS: mozcoreconf-v4.eclass
 # @MAINTAINER:
 # Mozilla team <mozilla@gentoo.org>
 # @BLURB: core options and configuration functions for mozilla
 # @DESCRIPTION:
 #
-# inherit mozconfig-v5.* or above for mozilla configuration support
+# inherit mozconfig-v6.* or above for mozilla configuration support
 
 # @ECLASS-VARIABLE: MOZILLA_FIVE_HOME
-# @DESCCRIPTION:
+# @DESCRIPTION:
 # This is an eclass-generated variable that defines the rpath that the mozilla
 # product will be installed in.  Read-only
 
-if [[ ! ${_MOZCORECONF_V3} ]]; then
+if [[ ! ${_MOZCORECONF} ]]; then
 
 PYTHON_COMPAT=( python2_7 )
 PYTHON_REQ_USE='ncurses,sqlite,ssl,threads'
@@ -86,6 +86,8 @@ moz_pkgsetup() {
 	export LC_CTYPE="C"
 
 	# Ensure we use correct toolchain
+	export HOST_CC="$(tc-getBUILD_CC)"
+	export HOST_CXX="$(tc-getBUILD_CXX)"
 	tc-export CC CXX LD PKG_CONFIG
 
 	# Ensure that we have a sane build enviroment
@@ -263,5 +265,5 @@ mozconfig_final() {
 	echo "ac_add_options --enable-extensions=${exts// /,}" >> .mozconfig
 }
 
-_MOZCORECONF_V3=1
+_MOZCORECONF=1
 fi
