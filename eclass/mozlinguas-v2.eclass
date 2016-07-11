@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-# @ECLASS: mozlinguas.eclass
+# @ECLASS: mozlinguas-v2.eclass
 # @MAINTAINER:
 # mozilla@gentoo.org
 # @AUTHOR:
@@ -123,7 +123,7 @@ esac
 # @INTERNAL
 # @DESCRIPTION:
 # Upstream identifiers that should not contain region subtags in L10N
-MOZ_TOO_REGIONALIZED_FOR_L10N=( fy-NL ga-IE hi-IN hy-AM nb-NO nn-NO pa-IN sv-SE )
+MOZ_TOO_REGIONALIZED_FOR_L10N=( fy-NL ga-IE gu-IN hi-IN hy-AM nb-NO nn-NO pa-IN sv-SE )
 
 # Add l10n_* to IUSE according to available language packs
 # No language packs for alphas and betas
@@ -353,7 +353,6 @@ mozlinguas_src_install() {
 		mkdir -p "${repopath}" || die
 		pushd "${BUILD_OBJ_DIR:-.}"/dist/*/xpi > /dev/null || die
 		for x in "${mozlinguas[@]}"; do
-			einfo "${MOZ_P}.${x}.langpack.xpi to ${repopath}/${MOZ_P}-${x}${MOZ_LANGPACK_UNOFFICIAL:+.unofficial}.xpi"  
 			cp "${MOZ_P}.${x}.langpack.xpi" \
 			"${repopath}/${MOZ_P}-${x}${MOZ_LANGPACK_UNOFFICIAL:+.unofficial}.xpi" || die
 			xpi_unpack "${repopath}/${MOZ_P}-${x}${MOZ_LANGPACK_UNOFFICIAL:+.unofficial}.xpi"
