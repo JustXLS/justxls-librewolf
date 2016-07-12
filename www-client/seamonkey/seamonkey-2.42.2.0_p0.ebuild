@@ -134,7 +134,8 @@ src_unpack() {
 
 src_prepare() {
 	# Apply our patches
-	eapply "${WORKDIR}"/seamonkey
+	eapply "${WORKDIR}"/seamonkey \
+		"${FILESDIR}"/${MY_MOZ_P}-fix-chatzillaless-locale-building.patch
 
 	# browser patches go here
 	pushd "${S}"/mozilla &>/dev/null || die
@@ -344,6 +345,24 @@ src_install() {
 
 	if use minimal ; then
 		rm -rf "${ED}"/usr/include "${ED}${MOZILLA_FIVE_HOME}"/{idl,include,lib,sdk}
+	fi
+
+	if use chatzilla ; then
+		local emid='{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}'
+
+		# remove the en_US-only xpi file so a version with all requested locales can be installed
+		if [[ -e "${ED}"${MOZILLA_FIVE_HOME}/distribution/extensions/${emid}.xpi ]]; then
+			rm -f "${ED}"${MOZILLA_FIVE_HOME}/distribution/extensions/${emid}.xpi || die
+		fi
+
+		# merge the extra locales into the main extension
+		mozlinguas_xpistage_langpacks "${BUILD_OBJ_DIR}"/dist/xpi-stage/chatzilla
+
+		# install the merged extension
+		mkdir -p "${T}/${emid}" || die
+		cp -RLp -t "${T}/${emid}" "${BUILD_OBJ_DIR}"/dist/xpi-stage/chatzilla/* || die
+		insinto ${MOZILLA_FIVE_HOME}/distribution/extensions
+		doins -r "${T}/${emid}"
 	fi
 
 	# Handle plugins dir through nsplugins.eclass
