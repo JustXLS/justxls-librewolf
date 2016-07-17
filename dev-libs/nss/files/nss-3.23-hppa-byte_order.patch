@@ -1,5 +1,5 @@
---- a/nss/lib/dbm/include/mcom_db.h
-+++ b/nss/lib/dbm/include/mcom_db.h
+--- nss/lib/dbm/include/mcom_db.h
++++ nss/lib/dbm/include/mcom_db.h
 @@ -110,11 +110,13 @@
  #endif /* !BYTE_ORDER */
  #endif /* __sun */
@@ -7,8 +7,8 @@
 +#ifndef BYTE_ORDER
  #if defined(__hpux) || defined(__hppa)
  #define BYTE_ORDER BIG_ENDIAN
- #define BIG_ENDIAN      4321
- #define LITTLE_ENDIAN   1234            /* LSB first: i386, vax, all NT risc */
+ #define BIG_ENDIAN 4321
+ #define LITTLE_ENDIAN 1234 /* LSB first: i386, vax, all NT risc */
  #endif
 +#endif /* !BYTE_ORDER */
  
