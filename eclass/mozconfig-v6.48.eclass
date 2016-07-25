@@ -83,7 +83,7 @@ inherit flag-o-matic toolchain-funcs mozcoreconf-v4
 # Set the variable to any value if the use flag should exist but not be default-enabled.
 
 # use-flags common among all mozilla ebuilds
-IUSE="${IUSE} dbus debug +jemalloc3 neon pulseaudio selinux startup-notification system-cairo
+IUSE="${IUSE} dbus debug +jemalloc3 neon pulseaudio selinux +skia startup-notification system-cairo
 	system-harfbuzz system-icu system-jpeg system-libevent system-sqlite system-libvpx"
 
 # some notes on deps:
@@ -280,7 +280,7 @@ mozconfig_config() {
 	mozconfig_annotate 'Gentoo default' --with-system-png
 	mozconfig_annotate '' --enable-system-ffi
 	mozconfig_annotate 'Gentoo default to honor system linker' --disable-gold
-	mozconfig_annotate 'Gentoo default' --disable-skia
+	mozconfig_use_enable skia
 	mozconfig_annotate '' --disable-gconf
 	mozconfig_annotate '' --with-intl-api
 
@@ -399,6 +399,12 @@ mozconfig_install_prefs() {
 	# force the graphite pref if system-harfbuzz is enabled, since the pref cant disable it
 	if use system-harfbuzz ; then
 		echo "sticky_pref(\"gfx.font_rendering.graphite.enabled\",true);" \
+			>>"${prefs_file}" || die
+	fi
+
+	# force cairo as the canvas renderer if USE=skia is disabled
+	if ! use skia ; then
+		echo "lockPref(\"gfx.canvas.azure.backends\",\"cairo\");" \
 			>>"${prefs_file}" || die
 	fi
 }
