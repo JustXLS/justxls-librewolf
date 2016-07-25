@@ -406,5 +406,7 @@ mozconfig_install_prefs() {
 	if ! use skia ; then
 		echo "lockPref(\"gfx.canvas.azure.backends\",\"cairo\");" \
 			>>"${prefs_file}" || die
+		echo "lockPref(\"gfx.content.azure.backends\",\"cairo\");" \
+			>>"${prefs_file}" || die
 	fi
 }
