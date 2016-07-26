@@ -14,6 +14,7 @@ check_distfiles() {
 	else
 		myver=$(qatom $1 |awk '{print $3 "esr"}')
 	fi
+	myver=${myver/_beta/b}
 
 	sigfile=$(mktemp)
 	wget -O ${sigfile}.asc -q https://archive.mozilla.org/pub/${mybasename}/releases/${myver}/SHA512SUMS.asc
