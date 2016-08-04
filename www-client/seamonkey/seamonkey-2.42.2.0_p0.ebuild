@@ -298,28 +298,10 @@ src_install() {
 	if ! use gmp-autoupdate ; then
 		for plugin in gmp-gmpopenh264 ; do
 			echo "pref(\"media.${plugin}.autoupdate\", false);" >> \
-				"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js" \
+				"${S}/${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js" \
 				|| dir
 		done
 	fi
-
-	# DEBUGGING xpcshell libxul error
-	cat <<EOF >"${BUILD_OBJ_DIR}"/dist/bin/xpcshell.sh
-#!/bin/bash
-echo "****** XPCSHELL CALLING ENVIRONMENT:"
-env
-echo "****** STAT XPCSHELL:"
-stat ${BUILD_OBJ_DIR}/dist/bin/xpcshell
-echo "****** MOUNTINFO:"
-cat /proc/self/mountinfo
-echo "****** XPCSHELL COMMAND CALL WITH LD_DEBUG:"
-export LD_DEBUG=all
-exec ${BUILD_OBJ_DIR}/dist/bin/xpcshell "\$@"
-EOF
-	chmod +x "${BUILD_OBJ_DIR}"/dist/bin/xpcshell.sh
-	sed -i -e '/launcher.launch/s/xpcshell/xpcshell.sh/' \
-		"${S}"/mozilla/toolkit/mozapps/installer/packager.py || die
-
 
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" \
 	emake DESTDIR="${D}" install
