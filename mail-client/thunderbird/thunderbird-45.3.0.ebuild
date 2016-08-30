@@ -5,7 +5,7 @@
 EAPI=6
 WANT_AUTOCONF="2.1"
 MOZ_ESR=""
-MOZ_LIGHTNING_VER="4.7.2"
+MOZ_LIGHTNING_VER="4.7.3"
 MOZ_LIGHTNING_GDATA_VER="2.6"
 
 # This list can be updated using scripts/get_langs.sh from the mozilla overlay
@@ -16,11 +16,6 @@ uk vi zh-CN zh-TW )
 
 # Convert the ebuild version to the upstream mozilla version, used by mozlinguas
 MOZ_PV="${PV/_beta/b}"
-# ESR releases have slightly version numbers
-if [[ ${MOZ_ESR} == 1 ]]; then
-	MOZ_PV="${MOZ_PV}esr"
-fi
-MOZ_P="${PN}-${MOZ_PV}"
 
 # Enigmail version
 EMVER="1.9.1"
@@ -30,6 +25,19 @@ PATCH="thunderbird-38.0-patches-0.1"
 PATCHFF="firefox-45.0-patches-04"
 
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
+
+if [[ ${MOZ_PV} == *_p[0-9]* ]]; then
+	MOZ_PV="${MOZ_PV%_p[0-9]*}"
+	FF_PV=${MOZ_PV/.[0-9]./.${PV##*_p}.}esr
+	SRC_URI+="
+	${MOZ_HTTP_URI//thunderbird/firefox}/${FF_PV}/source/firefox-${FF_PV}.source.tar.xz"
+fi
+# ESR releases have slightly version numbers
+if [[ ${MOZ_ESR} == 1 ]]; then
+	MOZ_PV="${MOZ_PV}esr"
+fi
+MOZ_P="${PN}-${MOZ_PV}"
+
 
 MOZCONFIG_OPTIONAL_GTK3=1
 MOZCONFIG_OPTIONAL_JIT="enabled"
@@ -120,6 +128,13 @@ src_unpack() {
 
 	# this version of gdata-provider is a .tar.xz , no xpi needed
 	#use lightning && xpi_unpack gdata-provider-${MOZ_LIGHTNING_GDATA_VER}.xpi
+
+	# if this is a gentoo-patch release then put the firefox sourcedir in the
+	# right location within ${S}
+	if [[ -n ${FF_PV} ]]; then
+		rm -f "${S}"/mozilla
+		mv "${WORKDIR}"/firefox-${FF_PV} "${S}"/mozilla
+	fi
 }
 
 src_prepare() {
