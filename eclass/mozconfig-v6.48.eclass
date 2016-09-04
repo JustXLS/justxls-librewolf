@@ -83,7 +83,7 @@ inherit flag-o-matic toolchain-funcs mozcoreconf-v4
 # Set the variable to any value if the use flag should exist but not be default-enabled.
 
 # use-flags common among all mozilla ebuilds
-IUSE="${IUSE} dbus debug +jemalloc3 neon pulseaudio selinux +skia startup-notification system-cairo
+IUSE="${IUSE} dbus debug +jemalloc neon pulseaudio selinux +skia startup-notification system-cairo
 	system-harfbuzz system-icu system-jpeg system-libevent system-sqlite system-libvpx"
 
 # some notes on deps:
@@ -319,10 +319,9 @@ mozconfig_config() {
 
 	# Use jemalloc unless libc is not glibc >= 2.4
 	# at this time the minimum glibc in the tree is 2.9 so we should be safe.
-	if use elibc_glibc && use jemalloc3; then
-		# We must force-enable jemalloc 3 via .mozconfig
-		echo "export MOZ_JEMALLOC3=1" >> "${S}"/.mozconfig || die
-		mozconfig_annotate '' --enable-jemalloc
+	if use elibc_glibc && use jemalloc; then
+		# We must force-enable jemalloc 4 via .mozconfig
+		echo "export MOZ_JEMALLOC4=1" >> "${S}"/.mozconfig || die
 		mozconfig_annotate '' --enable-replace-malloc
 	fi
 
