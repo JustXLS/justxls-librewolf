@@ -191,20 +191,24 @@ mozconfig_init() {
 
 	# Additional ARCH support
 	case "${ARCH}" in
+	arm)
+		# Reduce the memory requirements for linking
+		append-ldflags -Wl,--no-keep-memory -Wl,--reduce-memory-overheads
+		;;
 	alpha)
 		# Historically we have needed to add -fPIC manually for 64-bit.
 		# Additionally, alpha should *always* build with -mieee for correct math
 		# operation
 		append-flags -fPIC -mieee
 		;;
-
 	ia64)
 		# Historically we have needed to add this manually for 64-bit
 		append-flags -fPIC
 		;;
-
 	ppc64)
 		append-flags -fPIC -mminimal-toc
+		# Reduce the memory requirements for linking
+		append-ldflags -Wl,--no-keep-memory -Wl,--reduce-memory-overheads
 		;;
 	esac
 
