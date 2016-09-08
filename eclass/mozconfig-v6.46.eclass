@@ -334,11 +334,9 @@ mozconfig_config() {
 	# Instead of the standard --build= and --host=, mozilla uses --host instead
 	# of --build, and --target intstead of --host.
 	# Note, mozilla also has --build but it does not do what you think it does.
+	# Set both --target and --host as mozilla uses python to guess values otherwise
 	mozconfig_annotate '' --target="${CHOST}"
-	if [[ "${CBUILD:-${CHOST}}" != "${CHOST}" ]]; then
-		# set --host only when cross-compiling
-		mozconfig_annotate '' --host="${CBUILD:-${CHOST}}"
-	fi
+	mozconfig_annotate '' --host="${CBUILD:-${CHOST}}"
 
 	use ffmpeg || mozconfig_annotate '-ffmpeg' --disable-ffmpeg
 	mozconfig_use_enable pulseaudio
