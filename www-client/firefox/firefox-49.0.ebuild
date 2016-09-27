@@ -26,10 +26,9 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-49.0-patches-01"
+PATCH="${PN}-49.0-patches-02"
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 
-#MOZCONFIG_OPTIONAL_QT5=1 -- fails to build so leave it off until the code can be patched
 MOZCONFIG_OPTIONAL_GTK2ONLY=1
 MOZCONFIG_OPTIONAL_WIFI=1
 MOZCONFIG_OPTIONAL_JIT="enabled"
@@ -39,11 +38,11 @@ inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-v6
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
 
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~ia64 ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
 
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist egl hardened +hwaccel pgo selinux +gmp-autoupdate test"
+IUSE="bindist hardened +hwaccel pgo selinux +gmp-autoupdate test"
 RESTRICT="!bindist? ( bindist )"
 
 PATCH_URIS=( https://dev.gentoo.org/~{anarchy,axs,polynomial-c}/mozilla/patchsets/${PATCH}.tar.xz )
@@ -117,11 +116,6 @@ src_prepare() {
 	# Apply our patches
 	eapply "${WORKDIR}/firefox" \
 		"${FILESDIR}"/${PN}-48.0-pgo.patch
-#		"${FILESDIR}"/${PN}-45-qt-widget-fix.patch
-
-	if ! tc-ld-is-gold && has_version ">=sys-devel/binutils-2.26" ; then
-		eapply "${FILESDIR}"/xpcom-components-binutils-26.patch
-	fi
 
 	# Enable gnomebreakpad
 	if use debug ; then
@@ -164,7 +158,6 @@ src_prepare() {
 
 	# Must run autoconf in js/src
 	cd "${S}"/js/src || die
-#	/usr/bin/autoconf-2.13 -l ${SYSROOT}/usr/share/aclocal old-configure.in
 	eautoconf old-configure.in
 
 	# Need to update jemalloc's configure
@@ -195,7 +188,7 @@ src_configure() {
 	use hardened && append-ldflags "-Wl,-z,relro,-z,now"
 
 	# Only available on mozilla-overlay for experimentation -- Removed in Gentoo repo per bug 571180
-	use egl && mozconfig_annotate 'Enable EGL as GL provider' --with-gl-provider=EGL
+	#use egl && mozconfig_annotate 'Enable EGL as GL provider' --with-gl-provider=EGL
 
 	# Setup api key for location services
 	echo -n "${_google_api_key}" > "${S}"/google-api-key
