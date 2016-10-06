@@ -144,6 +144,7 @@ src_prepare() {
 	# Apply our patchset from firefox to thunderbird as well
 	pushd "${S}"/mozilla &>/dev/null || die
 	eapply "${WORKDIR}/firefox" \
+		"${FILESDIR}"/firefox-45-binutils-2.26-gold-elfhack.patch \
 		"${FILESDIR}"/firefox-45-gcc6.patch
 	popd &>/dev/null || die
 
