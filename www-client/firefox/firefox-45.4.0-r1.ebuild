@@ -25,7 +25,7 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-45.0-patches-06"
+PATCH="${PN}-45.0-patches-07"
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 
 MOZCONFIG_OPTIONAL_GTK3=1
@@ -132,7 +132,6 @@ src_unpack() {
 src_prepare() {
 	# Apply our patches
 	eapply "${WORKDIR}/firefox" \
-		"${FILESDIR}"/${PN}-45-gcc6.patch \
 		"${FILESDIR}"/${PN}-45-qt-widget-fix.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
