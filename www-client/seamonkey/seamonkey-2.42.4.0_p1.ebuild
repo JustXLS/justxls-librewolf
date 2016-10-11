@@ -14,7 +14,7 @@ MOZ_PV="${PV/_pre*}"
 MOZ_PV="${MOZ_PV/_alpha/a}"
 MOZ_PV="${MOZ_PV/_beta/b}"
 MOZ_PV="${MOZ_PV/_rc/rc}"
-MOZ_PV="${MOZ_PV/_p0}"
+MOZ_PV="${MOZ_PV/_p[0-9]}"
 MOZ_P="${P}"
 MY_MOZ_P="${PN}-${MOZ_PV}"
 
@@ -30,7 +30,7 @@ if [[ ${PV} == *_pre* ]] ; then
 	SRC_URI="${SRC_URI}
 	${MOZ_HTTP_URI}/${P}.source.tar.xz
 	"
-elif [[ ${PV} == *_p0 ]]; then
+elif [[ ${PV} == *_p[0-9] ]]; then
 	# gentoo-unofficial release using thunderbird distfiles to build seamonkey instead
 	TB_MAJOR=45
 	SMPV="${PV%.[0-9].*}"
@@ -58,7 +58,7 @@ MOZCONFIG_OPTIONAL_WIFI=1
 MOZCONFIG_OPTIONAL_JIT="enabled"
 inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-v6.45 multilib pax-utils fdo-mime autotools mozextension nsplugins mozlinguas-v2
 
-PATCHFF="firefox-45.0-patches-04"
+PATCHFF="firefox-45.0-patches-07"
 PATCH="${PN}-2.42-patches-01"
 EMVER="1.9.1"
 
