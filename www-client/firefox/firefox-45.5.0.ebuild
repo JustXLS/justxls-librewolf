@@ -25,7 +25,7 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-45.0-patches-07"
+PATCH="${PN}-45.0-patches-08"
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 
 MOZCONFIG_OPTIONAL_GTK3=1
@@ -261,6 +261,9 @@ src_compile() {
 
 src_install() {
 	cd "${BUILD_OBJ_DIR}" || die
+
+	# Pax mark xpcshell for hardened support, only used for startupcache creation.
+	pax-mark m "${BUILD_OBJ_DIR}"/dist/bin/xpcshell
 
 	# Add our default prefs for firefox
 	cp "${FILESDIR}"/gentoo-default-prefs.js-1 \
