@@ -52,6 +52,7 @@ if [[ ${uctarget/_BETA/} != ${uctarget} ]]; then
   l10nrepo="mozilla-beta"
   uctarget=${uctarget/_BETA/b}
 fi
+uctarget=${uctarget%_PRE*}
 
 l10n_releasedir="${LANGPACK_DESTDIR%/}/l10n-${target}"
 
