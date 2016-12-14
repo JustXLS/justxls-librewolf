@@ -4,7 +4,7 @@
 
 EAPI=6
 
-inherit toolchain-funcs multilib-build
+inherit toolchain-funcs multilib-build multilib-minimal
 
 DESCRIPTION="Jemalloc is a general-purpose scalable concurrent allocator"
 HOMEPAGE="http://www.canonware.com/jemalloc/"
