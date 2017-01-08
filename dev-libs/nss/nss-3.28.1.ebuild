@@ -9,13 +9,14 @@ inherit eutils flag-o-matic multilib toolchain-funcs multilib-minimal
 NSPR_VER="4.12"
 RTM_NAME="NSS_${PV//./_}_RTM"
 # Rev of https://git.fedorahosted.org/cgit/nss-pem.git
-PEM_GIT_REV="015ae754dd9f6fbcd7e52030ec9732eb27fc06a8"
-PEM_P="${PN}-pem-20140125"
+PEM_GIT_REV="429b0222759d8ad8e6dcd29e62875ae3efd69116"
+PEM_P="${PN}-pem-20160329"
 
 DESCRIPTION="Mozilla's Network Security Services library that implements PKI support"
 HOMEPAGE="http://www.mozilla.org/projects/security/pki/nss/"
 SRC_URI="https://archive.mozilla.org/pub/security/nss/releases/${RTM_NAME}/src/${P}.tar.gz
-	nss-pem? ( https://dev.gentoo.org/~anarchy/dist/${PEM_P}.tar.bz2 )"
+	cacert? ( https://dev.gentoo.org/~axs/distfiles/${PN}-cacert-class1-class3.patch )
+	nss-pem? ( https://dev.gentoo.org/~polynomial-c/${PEM_P}.tar.xz )"
 
 LICENSE="|| ( MPL-2.0 GPL-2 LGPL-2.1 )"
 SLOT="0"
@@ -43,7 +44,7 @@ MULTILIB_CHOST_TOOLS=(
 
 PATCHES=(
 	# Custom changes for gentoo
-	"${FILESDIR}/${PN}-3.21-gentoo-fixups.patch"
+	"${FILESDIR}/${PN}-3.28-gentoo-fixups.patch"
 	"${FILESDIR}/${PN}-3.21-gentoo-fixup-warnings.patch"
 	"${FILESDIR}/${PN}-3.23-hppa-byte_order.patch"
 )
@@ -59,12 +60,11 @@ src_prepare() {
 	if use nss-pem ; then
 		PATCHES+=(
 			"${FILESDIR}/${PN}-3.21-enable-pem.patch"
-			"${FILESDIR}/${PN}-3.21-pem-werror.patch"
 		)
 	fi
 	if use cacert ; then #521462
 		PATCHES+=(
-			"${FILESDIR}/${PN}-3.21-cacert-class3.patch"
+			"${DISTDIR}/${PN}-cacert-class1-class3.patch"
 		)
 	fi
 
