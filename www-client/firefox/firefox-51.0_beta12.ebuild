@@ -25,7 +25,7 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-51.0-patches-02"
+PATCH="${PN}-51.0-patches-03"
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 
 MOZCONFIG_OPTIONAL_GTK2ONLY=1
@@ -54,7 +54,7 @@ ASM_DEPEND=">=dev-lang/yasm-1.1"
 RDEPEND="
 	jack? ( virtual/jack )
 	>=dev-libs/nss-3.28.1
-	>=dev-libs/nspr-4.12
+	>=dev-libs/nspr-4.13.1
 	system-sqlite? ( >=dev-db/sqlite-3.14.1:3[secure-delete,debug=] )
 	selinux? ( sec-policy/selinux-mozilla )"
 
