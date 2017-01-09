@@ -55,6 +55,7 @@ RDEPEND="
 	jack? ( virtual/jack )
 	>=dev-libs/nss-3.28.1
 	>=dev-libs/nspr-4.12
+	system-sqlite? ( >=dev-db/sqlite-3.14.1:3[secure-delete,debug=] )
 	selinux? ( sec-policy/selinux-mozilla )"
 
 DEPEND="${RDEPEND}
