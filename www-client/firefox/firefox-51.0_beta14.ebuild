@@ -71,7 +71,7 @@ BUILD_OBJ_DIR="${S}/ff"
 
 # dependencies newer than specified in the eclass
 RDEPEND="${RDEPEND}
-	>=media-libs/libpng-1.6.23
+	>=media-libs/libpng-1.6.25
 	"
 
 pkg_setup() {
