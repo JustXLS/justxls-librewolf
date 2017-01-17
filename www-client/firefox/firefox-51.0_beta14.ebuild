@@ -55,6 +55,7 @@ RDEPEND="
 	jack? ( virtual/jack )
 	>=dev-libs/nss-3.28.1
 	>=dev-libs/nspr-4.13.1
+	>=media-libs/libpng-1.6.25
 	system-sqlite? ( >=dev-db/sqlite-3.14.1:3[secure-delete,debug=] )
 	selinux? ( sec-policy/selinux-mozilla )"
 
@@ -68,11 +69,6 @@ S="${WORKDIR}/firefox-${MOZ_PV}"
 QA_PRESTRIPPED="usr/lib*/${PN}/firefox"
 
 BUILD_OBJ_DIR="${S}/ff"
-
-# dependencies newer than specified in the eclass
-RDEPEND="${RDEPEND}
-	>=media-libs/libpng-1.6.25
-	"
 
 pkg_setup() {
 	moz_pkgsetup
