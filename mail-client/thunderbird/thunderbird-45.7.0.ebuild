@@ -22,7 +22,7 @@ EMVER="1.9.1"
 
 # Patches
 PATCH="thunderbird-38.0-patches-0.1"
-PATCHFF="firefox-45.0-patches-07"
+PATCHFF="firefox-45.0-patches-10"
 
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 
@@ -130,9 +130,7 @@ src_prepare() {
 
 	# Apply our patchset from firefox to thunderbird as well
 	pushd "${S}"/mozilla &>/dev/null || die
-	eapply "${WORKDIR}/firefox" \
-		"${FILESDIR}"/mozilla_configure_regexp_esr.patch \
-		"${FILESDIR}"/update_h2_curve.patch
+	eapply "${WORKDIR}/firefox" 
 	popd &>/dev/null || die
 
 	# Ensure that are plugins dir is enabled as default
