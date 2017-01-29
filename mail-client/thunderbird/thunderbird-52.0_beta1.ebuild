@@ -188,6 +188,7 @@ src_configure() {
 
 	# Use an objdir to keep things organized.
 	echo "mk_add_options MOZ_OBJDIR=${BUILD_OBJ_DIR}" >> "${S}"/.mozconfig
+	echo "mk_add_options XARGS=/usr/bin/xargs" >> "${S}"/.mozconfig
 
 	# Finalize and report settings
 	mozconfig_final
