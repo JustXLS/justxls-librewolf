@@ -149,24 +149,6 @@ else
 	RDEPEND+="
 		>=x11-libs/gtk+-2.18:2"
 fi
-if [[ -n ${MOZCONFIG_OPTIONAL_QT5} ]]; then
-	inherit qmake-utils
-	if [[ ${MOZCONFIG_OPTIONAL_QT5} = "enabled" ]]; then
-		IUSE+=" +qt5"
-	else
-		IUSE+=" qt5"
-	fi
-	RDEPEND+="
-	qt5? (
-		dev-qt/qtcore:5
-		dev-qt/qtgui:5
-		dev-qt/qtnetwork:5
-		dev-qt/qtprintsupport:5
-		dev-qt/qtwidgets:5
-		dev-qt/qtxml:5
-		dev-qt/qtdeclarative:5
-	)"
-fi
 if [[ -n ${MOZCONFIG_OPTIONAL_WIFI} ]]; then
 	if [[ ${MOZCONFIG_OPTIONAL_WIFI} = "enabled" ]]; then
 		IUSE+=" +wifi"
@@ -179,13 +161,6 @@ if [[ -n ${MOZCONFIG_OPTIONAL_WIFI} ]]; then
 			>=dev-libs/dbus-glib-0.72
 			net-misc/networkmanager )
 	)"
-fi
-if [[ -n ${MOZCONFIG_OPTIONAL_JIT} ]]; then
-	if [[ ${MOZCONFIG_OPTIONAL_JIT} = "enabled" ]]; then
-		IUSE+=" +jit"
-	else
-		IUSE+=" jit"
-	fi
 fi
 
 DEPEND="app-arch/zip
@@ -200,14 +175,6 @@ RDEPEND+="
 # force system-icu if system-harfbuzz is selected, to avoid potential ABI issues
 REQUIRED_USE="
 	system-harfbuzz? ( system-icu )"
-
-# only one of gtk3 or qt5 should be permitted to be selected, since only one will be used.
-[[ -n ${MOZCONFIG_OPTIONAL_GTK3} ]] && [[ -n ${MOZCONFIG_OPTIONAL_QT5} ]] && \
-	REQUIRED_USE+=" ?? ( gtk3 qt5 )"
-
-# only one of gtk2 or qt5 should be permitted to be selected, since only one will be used.
-[[ -n ${MOZCONFIG_OPTIONAL_GTK2ONLY} ]] && [[ -n ${MOZCONFIG_OPTIONAL_QT5} ]] && \
-	REQUIRED_USE+=" ?? ( gtk2 qt5 )"
 
 # @FUNCTION: mozconfig_config
 # @DESCRIPTION:
