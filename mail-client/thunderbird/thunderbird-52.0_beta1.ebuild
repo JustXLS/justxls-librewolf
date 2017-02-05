@@ -31,7 +31,7 @@ MOZ_P="${PN}-${MOZ_PV}"
 MOZCONFIG_OPTIONAL_GTK2ONLY=1
 MOZCONFIG_OPTIONAL_WIFI=1
 
-inherit flag-o-matic toolchain-funcs mozconfig-v6.51 makeedit autotools pax-utils check-reqs nsplugins mozlinguas-v2 fdo-mime gnome2-utils
+inherit flag-o-matic toolchain-funcs mozconfig-v6.52 makeedit autotools pax-utils check-reqs nsplugins mozlinguas-v2 fdo-mime gnome2-utils
 
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
@@ -51,20 +51,15 @@ SRC_URI="${SRC_URI}
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
-CDEPEND="
-	>=dev-libs/nss-3.28.1
-	>=dev-libs/nspr-4.13.1
-	>=media-libs/libpng-1.6.25
-	system-sqlite? ( >=dev-db/sqlite-3.14.1:3[secure-delete,debug=] )"
-
-DEPEND="${CDEPEND}
+DEPEND="rust? ( dev-lang/rust )
 	amd64? ( ${ASM_DEPEND}
 		virtual/opengl )
 	x86? ( ${ASM_DEPEND}
-		virtual/opengl )
-	rust? ( dev-lang/rust )"
+		virtual/opengl )"
 
 RDEPEND="${DEPEND}
+	>=dev-libs/nss-3.28.1
+	>=dev-libs/nspr-4.13.1
 	selinux? ( sec-policy/selinux-thunderbird )
 "
 
