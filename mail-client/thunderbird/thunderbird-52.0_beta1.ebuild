@@ -18,7 +18,7 @@ uk vi zh-CN zh-TW )
 MOZ_PV="${PV/_beta/b}"
 
 # Patches
-PATCHFF="firefox-52.0-patches-04"
+PATCHFF="firefox-52.0-patches-05"
 
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 
