@@ -5,11 +5,6 @@
 EAPI=6
 PYTHON_COMPAT=( python2_7 )
 
-# This list is found in the package, in lang/current-languages.txt
-# The ones too regionalized for L10N are nb-NO and sv-SE
-#MY_LANGS=( ar bg ca cs de el es-ES fi fr gd gl hr hu it ja ko lt nl pl pt-BR
-#pt-PT ru sk sl sq tr vi zh-CN zh-TW )
-
 inherit python-any-r1
 
 DESCRIPTION="Mozilla extension to provide GPG support in mail clients"
@@ -18,7 +13,6 @@ HOMEPAGE="http://www.enigmail.net/"
 KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-3"
-#IUSE="${MY_LANGS[@]/#/l10n_}"
 
 SRC_URI="http://www.enigmail.net/download/source/${P}.tar.gz"
 
@@ -48,7 +42,7 @@ src_compile() {
 
 src_install() {
 	insinto /usr/share/${PN}
-	doins -r build/dist/{chrome,components,defaults,modules,chrome.manifest,install.rdf}
+	doins -r build/dist/{chrome,components,defaults,modules,wrappers,chrome.manifest,install.rdf}
 }
 
 pkg_postinst() {
