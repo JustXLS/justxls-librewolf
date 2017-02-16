@@ -14,7 +14,6 @@ SLOT="0"
 LICENSE="MPL-2.0 GPL-2"
 IUSE="+thunderbird seamonkey"
 SRC_URI="http://www.enigmail.net/download/source/${P}.tar.gz"
-REQUIRED_USE="^^ ( thunderbird seamonkey )"
 
 DEPEND="app-arch/zip"
 
@@ -53,6 +52,11 @@ src_install() {
 			unzip "${enigmail_xpipath}"/enigmail*.xpi || die
 		fi
 	done
+	if ! use thunderbird && ! use seamonkey ; then
+		dodir /usr/share/${PN}
+		cd "${ED}"/usr/share/${PN} || die
+		unzip "${enigmail_xpipath}"/enigmail*.xpi || die
+	fi
 }
 
 pkg_postinst() {
