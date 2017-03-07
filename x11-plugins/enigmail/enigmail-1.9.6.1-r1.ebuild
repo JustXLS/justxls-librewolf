@@ -13,7 +13,7 @@ HOMEPAGE="http://www.enigmail.net/"
 KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-3"
-
+IUSE=""
 SRC_URI="http://www.enigmail.net/download/source/${P}.tar.gz"
 
 RDEPEND="|| (
