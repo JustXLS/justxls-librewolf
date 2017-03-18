@@ -59,8 +59,6 @@ RDEPEND="
 DEPEND="${RDEPEND}
 	pgo? ( >=sys-devel/gcc-4.5 )
 	rust? ( dev-lang/rust )
-	system-harfbuzz? ( >=media-libs/harfbuzz-1.3.3:0=[graphite,icu] >=media-gfx/graphite2-1.3.8 )
-	system-icu? ( >=dev-libs/icu-58.1:= )
 	amd64? ( ${ASM_DEPEND} virtual/opengl )
 	x86? ( ${ASM_DEPEND} virtual/opengl )"
 
