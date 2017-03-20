@@ -124,6 +124,9 @@ src_unpack() {
 }
 
 src_prepare() {
+	# Remove obsolete patches
+	rm "${WORKDIR}"/firefox/2003_include_sysmacros_h.patch
+
 	# Apply our patches
 	eapply "${WORKDIR}/firefox"
 
