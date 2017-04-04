@@ -103,8 +103,8 @@ RDEPEND=">=app-text/hunspell-1.2:=
 	media-libs/fontconfig
 	>=media-libs/freetype-2.4.10
 	kernel_linux? ( !pulseaudio? ( media-libs/alsa-lib ) )
-	pulseaudio? ( media-sound/pulseaudio
-		>=media-sound/apulse-0.1.9 )
+	pulseaudio? ( || ( media-sound/pulseaudio
+		>=media-sound/apulse-0.1.9 ) )
 	virtual/freedesktop-icon-theme
 	dbus? ( >=sys-apps/dbus-0.60
 		>=dev-libs/dbus-glib-0.72 )
