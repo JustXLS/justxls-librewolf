@@ -163,9 +163,12 @@ DEPEND="app-arch/zip
 	app-arch/unzip
 	>=sys-devel/binutils-2.16.1
 	sys-apps/findutils
+	pulseaudio? ( media-sound/pulseaudio )
 	${RDEPEND}"
 
 RDEPEND+="
+	pulseaudio? ( || ( media-sound/pulseaudio
+		>=media-sound/apulse-0.1.9 ) )
 	selinux? ( sec-policy/selinux-mozilla )"
 
 # @FUNCTION: mozconfig_config
