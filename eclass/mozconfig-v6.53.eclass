@@ -85,7 +85,7 @@ inherit flag-o-matic toolchain-funcs mozcoreconf-v5
 
 # use-flags common among all mozilla ebuilds
 IUSE="${IUSE} dbus debug +jemalloc neon pulseaudio selinux startup-notification system-cairo
-	system-harfbuzz system-icu system-jpeg system-libevent system-sqlite system-libvpx +webrtc"
+	system-harfbuzz system-icu system-jpeg system-libevent system-sqlite system-libvpx"
 
 # some notes on deps:
 # gtk:2 minimum is technically 2.10 but gio support (enabled by default) needs 2.14
@@ -314,7 +314,6 @@ mozconfig_config() {
 	if use kernel_linux && ! use pulseaudio ; then
 		mozconfig_annotate '-pulseaudio' --enable-alsa
 	fi
-	use webrtc || mozconfig_annotate '-webrtc' --disable-webrtc
 
 	mozconfig_use_enable system-cairo
 	mozconfig_use_enable system-sqlite
