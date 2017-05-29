@@ -3,7 +3,7 @@
 
 EAPI=6
 
-inherit toolchain-funcs multilib-build multilib-minimal
+inherit autotools toolchain-funcs multilib-minimal
 
 DESCRIPTION="Jemalloc is a general-purpose scalable concurrent allocator"
 HOMEPAGE="http://www.canonware.com/jemalloc/"
@@ -22,6 +22,11 @@ MULTILIB_WRAPPED_HEADERS=( /usr/include/jemalloc/jemalloc.h )
 # but jemalloc doesn't implement them in its configure; need this here to
 # supress the warnings until automagic is removed from the eclass
 QA_CONFIGURE_OPTIONS="--enable-static --disable-static --enable-shared --disable-shared"
+
+src_prepare() {
+	default
+	eautoreconf
+}
 
 multilib_src_configure() {
 	local myconf=()
