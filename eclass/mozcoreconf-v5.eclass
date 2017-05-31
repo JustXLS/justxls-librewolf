@@ -158,8 +158,8 @@ mozconfig_init() {
 	# Set optimization level
 	if [[ ${ARCH} == hppa ]]; then
 		mozconfig_annotate "more than -O0 causes a segfault on hppa" --enable-optimize=-O0
-	elif [[ ${ARCH} =~ (x86|amd64) ]]; then
-		mozconfig_annotate "Work around broken gcc optimization level" --enable-optimize=-O2
+	elif [[ ${ARCH} == x86 ]]; then
+		mozconfig_annotate "less then -O2 causes a segfault on x86" --enable-optimize=-O2
 	elif use custom-optimization || [[ ${ARCH} =~ (alpha|ia64) ]]; then
 		# Set optimization level based on CFLAGS
 		if is-flag -O0; then
