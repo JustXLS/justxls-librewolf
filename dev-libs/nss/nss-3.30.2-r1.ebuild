@@ -1,4 +1,4 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -256,8 +256,10 @@ multilib_src_install() {
 
 	dodir /usr/$(get_libdir)
 	cp -L */lib/*$(get_libname) "${ED}"/usr/$(get_libdir) || die "copying shared libs failed"
-	cp -L */lib/libcrmf.a "${ED}"/usr/$(get_libdir) || die "copying libs failed"
-	cp -L */lib/libfreebl.a "${ED}"/usr/$(get_libdir) || die "copying libs failed"
+	local i
+	for i in crmf freebl nssb nssckfw ; do
+		cp -L */lib/lib${i}.a "${ED}"/usr/$(get_libdir) || die "copying libs failed"
+	done
 
 	# Install nss-config and pkgconfig file
 	dodir /usr/bin
@@ -274,7 +276,7 @@ multilib_src_install() {
 
 	# all the include files
 	insinto /usr/include/nss
-	doins public/nss/*.h
+	doins public/nss/*.{h,api}
 	insinto /usr/include/nss/private
 	doins private/nss/{blapi,alghmac}.h
 
