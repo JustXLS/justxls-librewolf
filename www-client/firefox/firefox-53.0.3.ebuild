@@ -125,7 +125,7 @@ src_prepare() {
 	# Apply our patches
 	eapply "${WORKDIR}/firefox"
 	eapply "${FILESDIR}"/musl_drop_hunspell_alloc_hooks.patch
-	eapply "${FILESDIR}"/firefox-53-turn_of_crash_on_seccomp_fail.patch
+	eapply "${FILESDIR}"/${PN}-53-turn_off_crash_on_seccomp_fail.patch
 
 	# Enable gnomebreakpad
 	if use debug ; then
