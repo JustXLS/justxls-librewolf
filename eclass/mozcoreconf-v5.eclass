@@ -156,7 +156,9 @@ mozconfig_init() {
 	####################################
 
 	# Set optimization level
-	if [[ ${ARCH} == hppa ]]; then
+	if [[ $(gcc-major-version) -ge 7 ]]; then
+		mozconfig_annotate "Workaround known breakage" --enable-optimize=-O2
+	elif [[ ${ARCH} == hppa ]]; then
 		mozconfig_annotate "more than -O0 causes a segfault on hppa" --enable-optimize=-O0
 	elif [[ ${ARCH} == x86 ]]; then
 		mozconfig_annotate "less then -O2 causes a segfault on x86" --enable-optimize=-O2
