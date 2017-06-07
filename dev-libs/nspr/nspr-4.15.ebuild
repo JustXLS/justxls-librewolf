@@ -35,6 +35,8 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-4.8.9-link-flags.patch
 	# We do not need to pass -L$libdir via nspr-config --libs
 	"${FILESDIR}"/${PN}-4.9.5_nspr_config.patch
+	# Fix configure.in to we can generate a working configure.ac
+	"${FILESDIR}"/${PN}-4.15-configure_in.patch
 )
 
 src_prepare() {
@@ -47,6 +49,7 @@ src_prepare() {
 		einfo "Renaming configure.in to configure.ac"
 		mv "${S}"/nspr/configure.{in,ac} || die
 	fi
+
 	# We must run eautoconf to regenerate configure
 	eautoconf
 
