@@ -63,11 +63,10 @@ inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-v6.51 multilib 
 
 PATCHFF="firefox-51.0-patches-06"
 PATCH="${PN}-2.46-patches-01"
-EMVER="1.9.8.1"
 
 DESCRIPTION="Seamonkey Web Browser"
 HOMEPAGE="http://www.seamonkey-project.org"
-KEYWORDS="~alpha amd64 ~arm ~ppc ~ppc64 ~x86"
+KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86"
 
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
@@ -79,7 +78,6 @@ SRC_URI+="
 	https://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCHFF}.tar.xz
 	https://dev.gentoo.org/~axs/mozilla/patchsets/${PATCH}.tar.xz
 	https://dev.gentoo.org/~polynomial-c/mozilla/patchsets/${PATCH}.tar.xz
-	crypt? ( https://www.enigmail.net/download/source/enigmail-${EMVER}.tar.gz )
 "
 
 ASM_DEPEND=">=dev-lang/yasm-1.1"
@@ -95,7 +93,9 @@ RDEPEND="
 				app-crypt/pinentry[qt4]
 			)
 		)
-		=app-crypt/gnupg-1.4* ) )
+		=app-crypt/gnupg-1.4* )
+		x11-plugins/enigmail
+	)
 	jack? ( virtual/jack )
 "
 
@@ -147,6 +147,7 @@ src_unpack() {
 src_prepare() {
 	# Apply our patches
 	eapply "${WORKDIR}"/seamonkey
+	eapply "${FILESDIR}/0001-CFLAGS-must-contain-fPIC-when-checking-the-linker.patch" #625992
 
 	# browser patches go here
 	pushd "${S}"/mozilla &>/dev/null || die
@@ -262,12 +263,6 @@ src_configure() {
 	# Finalize and report settings
 	mozconfig_final
 
-	if use crypt ; then
-		pushd "${WORKDIR}"/enigmail &>/dev/null || die
-		econf
-		popd &>/dev/null || die
-	fi
-
 	# Work around breakage in makeopts with --no-print-directory
 	MAKEOPTS="${MAKEOPTS/--no-print-directory/}"
 
@@ -289,15 +284,6 @@ src_compile() {
 	emake V=1 -f client.mk
 
 	mozlinguas_src_compile
-
-	# Only build enigmail extension if conditions are met.
-	if use crypt ; then
-		einfo "Building enigmail"
-		pushd "${WORKDIR}"/enigmail &>/dev/null || die
-		emake -j1
-		emake xpi
-		popd &>/dev/null || die
-	fi
 }
 
 src_install() {
@@ -337,19 +323,6 @@ src_install() {
 	emake DESTDIR="${D}" install
 	cp "${FILESDIR}"/${PN}.desktop "${T}" || die
 
-	if use crypt ; then
-		local em_dir="${WORKDIR}/enigmail/build"
-		pushd "${T}" &>/dev/null || die
-		unzip "${em_dir}"/enigmail*.xpi install.rdf || die
-		emid=$(sed -n '/<em:id>/!d; s/.*\({.*}\).*/\1/; p; q' install.rdf)
-		#'
-		dodir ${MOZILLA_FIVE_HOME}/extensions/${emid}
-		cd "${D}"${MOZILLA_FIVE_HOME}/extensions/${emid} || die
-		unzip "${em_dir}"/enigmail*.xpi || die
-
-		popd &>/dev/null || die
-	fi
-
 	sed 's|^\(MimeType=.*\)$|\1text/x-vcard;text/directory;application/mbox;message/rfc822;x-scheme-handler/mailto;|' \
 		-i "${T}"/${PN}.desktop || die
 	sed 's|^\(Categories=.*\)$|\1Email;|' -i "${T}"/${PN}.desktop \
@@ -372,6 +345,16 @@ src_install() {
 
 	if use minimal ; then
 		rm -rf "${ED}"/usr/include "${ED}${MOZILLA_FIVE_HOME}"/{idl,include,lib,sdk}
+	fi
+
+	if use crypt ; then
+		emid=$(sed -n '/<em:id>/!d; s/.*\({.*}\).*/\1/; p; q' "${EROOT%/}"/usr/share/enigmail/install.rdf)
+		if [[ -n ${emid} ]]; then
+			dosym "${EPREFIX%/}"/usr/share/enigmail ${MOZILLA_FIVE_HOME}/extensions/${emid}
+		else
+			eerror "${EPREFIX%/}/usr/share/enigmail/install.rdf: No such file or directory"
+			die "<EM:ID> tag for x11-plugins/enigmail could not be found!"
+		fi
 	fi
 
 	if use chatzilla ; then
@@ -406,6 +389,26 @@ pkg_preinst() {
 
 	if [ -d ${MOZILLA_FIVE_HOME}/plugins ] ; then
 		rm ${MOZILLA_FIVE_HOME}/plugins -rf
+	fi
+
+	# Because PM's dont seem to properly merge a symlink replacing a directory
+	if use crypt ; then
+		local emid=$(sed -n '/<em:id>/!d; s/.*\({.*}\).*/\1/; p; q' "${EROOT%/}"/usr/share/enigmail/install.rdf)
+		local emidpath="${EROOT%/}"${MOZILLA_FIVE_HOME}/extensions/${emid}
+		if [[ -z ${emid} ]]; then
+			eerror "${EROOT%/}/usr/share/enigmail/install.rdf: No such file or directory"
+			die "Could not find enigmail on disk during pkg_preinst()"
+		fi
+		if [[ ! -h "${emidpath}" ]] && [[ -d "${emidpath}" ]]; then
+			if ! rm -R --interactive=never "${emidpath}" ; then
+				eerror "Could not remove enigmail directory from previous installation,"
+				eerror "You must remove this by hand and rename the symbolic link yourself:"
+				eerror
+				eerror "\t cd ${EPREFIX%/}${MOZILLA_FIVE_HOME}/extensions"
+				eerror "\t rm -Rf ${emid}"
+				eerror "\t mv ${emid}.backup* ${emid}"
+			fi
+		fi
 	fi
 }
 
