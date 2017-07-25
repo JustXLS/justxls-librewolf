@@ -56,7 +56,7 @@ CDEPEND="
 	crypt? ( >=x11-plugins/enigmail-1.9.7 )
 	"
 
-DEPEND="rust? ( dev-lang/rust )
+DEPEND="rust? ( virtual/rust )
 	amd64? ( ${ASM_DEPEND}
 		virtual/opengl )
 	x86? ( ${ASM_DEPEND}
