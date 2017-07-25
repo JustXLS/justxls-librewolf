@@ -209,6 +209,11 @@ src_prepare() {
 	sed 's@\(xargs rm\)$@\1 -f@' \
 		-i "${ms}"/toolkit/mozapps/installer/packager.mk || die
 
+	# Don't build libs-% locale files for chatzilla if we are not building chatzilla
+	# (this is hard-coded in the build system at present rather than being based on configuration)
+	use chatzilla || sed '/extensions\/irc\/locales libs-/s@^@#@' \
+		-i "${S}"/suite/locales/Makefile.in || die
+
 	eautoreconf old-configure.in
 	cd "${S}"/mozilla || die
 	eautoconf old-configure.in
