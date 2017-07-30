@@ -50,8 +50,8 @@ ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 RDEPEND="
 	jack? ( virtual/jack )
-	>=dev-libs/nss-3.31
-	>=dev-libs/nspr-4.15
+	>=dev-libs/nss-3.32
+	>=dev-libs/nspr-4.16
 	selinux? ( sec-policy/selinux-mozilla )"
 
 DEPEND="${RDEPEND}
