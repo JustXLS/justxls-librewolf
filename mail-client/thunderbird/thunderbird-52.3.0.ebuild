@@ -4,7 +4,7 @@
 EAPI=6
 WANT_AUTOCONF="2.1"
 MOZ_ESR=""
-MOZ_LIGHTNING_VER="5.4.1"
+MOZ_LIGHTNING_VER="5.4.3"
 MOZ_LIGHTNING_GDATA_VER="3.3"
 
 # This list can be updated using scripts/get_langs.sh from the mozilla overlay
@@ -30,12 +30,12 @@ MOZ_P="${PN}-${MOZ_PV}"
 MOZCONFIG_OPTIONAL_GTK2ONLY=1
 MOZCONFIG_OPTIONAL_WIFI=1
 
-inherit flag-o-matic toolchain-funcs mozconfig-v6.52 makeedit autotools pax-utils check-reqs nsplugins mozlinguas-v2 xdg-utils gnome2-utils
+inherit flag-o-matic toolchain-funcs mozconfig-v6.53 makeedit autotools pax-utils check-reqs nsplugins mozlinguas-v2 xdg-utils gnome2-utils
 
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 
-KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="bindist crypt hardened ldap lightning +minimal mozdom rust selinux"
@@ -56,7 +56,7 @@ CDEPEND="
 	crypt? ( >=x11-plugins/enigmail-1.9.7 )
 	"
 
-DEPEND="rust? ( virtual/rust )
+DEPEND="rust? ( dev-lang/rust )
 	amd64? ( ${ASM_DEPEND}
 		virtual/opengl )
 	x86? ( ${ASM_DEPEND}
@@ -307,7 +307,7 @@ src_install() {
 	fi
 
 	# Required in order to use plugins and even run thunderbird on hardened.
-	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{thunderbird,thunderbird-bin,plugin-container}
+	pax-mark pm "${ED}"${MOZILLA_FIVE_HOME}/{thunderbird,thunderbird-bin,plugin-container}
 
 	if use minimal; then
 		rm -r "${ED}"/usr/include "${ED}"${MOZILLA_FIVE_HOME}/{idl,include,lib,sdk} || \
