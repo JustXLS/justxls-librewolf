@@ -61,7 +61,7 @@ fi
 
 MOZCONFIG_OPTIONAL_GTK3=1
 MOZCONFIG_OPTIONAL_WIFI=1
-inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-v6.52 pax-utils xdg-utils autotools mozextension nsplugins mozlinguas-v2
+inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-v6.53 pax-utils xdg-utils autotools mozextension nsplugins mozlinguas-v2
 
 PATCHFF="firefox-52.2-patches-02"
 PATCH="${PN}-2.46-patches-01"
