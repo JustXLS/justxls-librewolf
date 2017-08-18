@@ -5,8 +5,10 @@
 # NOTE: Please add your entry at the top!
 #
 
+# 56.0 beta builds are not even ready for testing yet
+>=www-client/firefox-56.0_beta1
+
 # Masked for testing, thunderbird beta known to have configure problem
-=mail-client/thunderbird-52.0_beta*
 =dev-lang/spidermonkey-31.0_beta*
 
 # Please don't remove neither this mask nor the affected ebuilds without
