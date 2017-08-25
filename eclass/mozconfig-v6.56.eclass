@@ -197,8 +197,8 @@ mozconfig_config() {
 		--with-system-zlib \
 		--with-system-bz2
 
-	# Disable for testing purposes only
-	mozconfig_annotate 'Upstream bug 1341234' --disable-stylo
+       # Disable for testing purposes only
+       mozconfig_annotate 'Upstream bug 1341234' --disable-stylo
 
 	# Enable release to we use system ld
 	mozconfig_annotate 'gentoo ld support' --enable-release
