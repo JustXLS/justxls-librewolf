@@ -58,7 +58,6 @@ DEPEND="${RDEPEND}
 	pgo? ( >=sys-devel/gcc-4.5 )
 	>=virtual/rust-1.17.1
 	>=dev-util/cargo-0.17.1
-	
 	amd64? ( ${ASM_DEPEND} virtual/opengl )
 	x86? ( ${ASM_DEPEND} virtual/opengl )"
 
