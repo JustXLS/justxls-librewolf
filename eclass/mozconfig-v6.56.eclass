@@ -121,7 +121,7 @@ RDEPEND=">=app-text/hunspell-1.5.4:=
 	x11-libs/libXfixes
 	x11-libs/libXrender
 	x11-libs/libXt
-	system-icu? ( >=dev-libs/icu-58.1:= )
+	system-icu? ( >=dev-libs/icu-59.1:= )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-libevent? ( >=dev-libs/libevent-2.0:0= )
 	system-sqlite? ( >=dev-db/sqlite-3.19.3:3[secure-delete,debug=] )
