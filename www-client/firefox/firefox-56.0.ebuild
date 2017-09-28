@@ -119,6 +119,7 @@ src_unpack() {
 
 src_prepare() {
 	# Apply our patches
+	rm -f "${WORKDIR}"/firefox/2005_fix_skia_freetype-2_8.patch
 	eapply "${WORKDIR}/firefox"
 
 	# Enable gnomebreakpad
