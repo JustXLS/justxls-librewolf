@@ -124,8 +124,8 @@ src_unpack() {
 
 src_prepare() {
 	# Apply our patches
-	rm -f "${WORKDIR}"/firefox/2004_fix_skia_freetype-2_8.patch
 	eapply "${WORKDIR}/firefox"
+	eapply "${FILESDIR}"/nICEr*patch
 
 	# Enable gnomebreakpad
 	if use debug ; then

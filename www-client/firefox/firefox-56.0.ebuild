@@ -24,7 +24,7 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-56.0-patches-05"
+PATCH="${PN}-56.0-patches-06"
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 
 MOZCONFIG_OPTIONAL_WIFI=1
@@ -119,7 +119,6 @@ src_unpack() {
 
 src_prepare() {
 	# Apply our patches
-	rm -f "${WORKDIR}"/firefox/2005_fix_skia_freetype-2_8.patch
 	eapply "${WORKDIR}/firefox"
 
 	# Enable gnomebreakpad
