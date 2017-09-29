@@ -84,7 +84,7 @@ inherit flag-o-matic toolchain-funcs mozcoreconf-v5
 # Set the variable to any value if the use flag should exist but not be default-enabled.
 
 # use-flags common among all mozilla ebuilds
-IUSE="${IUSE} dbus debug gold neon pulseaudio selinux startup-notification system-harfbuzz
+IUSE="${IUSE} dbus debug neon pulseaudio selinux startup-notification system-harfbuzz
  system-icu system-jpeg system-libevent system-sqlite system-libvpx"
 
 # some notes on deps:
@@ -197,14 +197,18 @@ mozconfig_config() {
 		--with-system-zlib \
 		--with-system-bz2
 
-       # Disable for testing purposes only
-       mozconfig_annotate 'Upstream bug 1341234' --disable-stylo
+	# Disable for testing purposes only
+	mozconfig_annotate 'Upstream bug 1341234' --disable-stylo
 
 	# Must pass release in order to properly select linker via gold useflag
 	mozconfig_annotate 'Enable by Gentoo' --enable-release
 
 	# Must pass --enable-gold if using ld.gold
-	mozconfig_use_enable gold
+	if tc-ld-is-gold ; then
+		mozconfig_annotate 'tc-ld-is-gold=true' --enable-gold
+	else
+		mozconfig_annotate 'tc-ld-is-gold=false' --disable-gold
+	fi
 
 	if has bindist ${IUSE}; then
 		mozconfig_use_enable !bindist official-branding
