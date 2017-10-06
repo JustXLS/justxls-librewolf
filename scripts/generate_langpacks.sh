@@ -21,6 +21,11 @@ fi
 
 ebuild=${1}
 
+if ! hg --version &>/dev/null; then
+	echo "$0 needs mercurial -- aborting"
+	exit 1
+fi
+
 if [[ ${ebuild/.ebuild/} == ${ebuild} ]] || [[ ! -e ${ebuild} ]]; then
   echo "Must specify the full path to the ebuild as arg.1"
 fi
