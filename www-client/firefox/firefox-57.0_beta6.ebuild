@@ -24,7 +24,7 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-56.0-patches-06"
+PATCH="${PN}-57.0-patches-01"
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 
 MOZCONFIG_OPTIONAL_WIFI=1
@@ -118,9 +118,6 @@ src_unpack() {
 }
 
 src_prepare() {
-	# Apply our patches
-	rm -f "${WORKDIR}"/firefox/{2000_Use-C99-math-isfinite.patch,2004_x86_system_libevent.patch}
-
 	eapply "${WORKDIR}/firefox"
 
 	# Enable gnomebreakpad
