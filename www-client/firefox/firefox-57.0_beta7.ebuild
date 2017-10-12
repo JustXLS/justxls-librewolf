@@ -50,6 +50,7 @@ ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 RDEPEND="
 	jack? ( virtual/jack )
+	system-sqlite? ( >=dev-db/sqlite-3.20.1:3[secure-delete,debug=] )
 	>=dev-libs/nss-3.33
 	>=dev-libs/nspr-4.17
 	selinux? ( sec-policy/selinux-mozilla )"
