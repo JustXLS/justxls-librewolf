@@ -5,6 +5,7 @@ EAPI=6
 VIRTUALX_REQUIRED="pgo"
 WANT_AUTOCONF="2.1"
 MOZ_ESR=""
+LLVM_MAX_SLOT="4"
 
 # This list can be updated with scripts/get_langs.sh from the mozilla overlay
 MOZ_LANGS=( ach af an ar as ast az bg bn-BD bn-IN br bs ca cak cs cy da de dsb
@@ -29,7 +30,8 @@ MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 
 MOZCONFIG_OPTIONAL_WIFI=1
 
-inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-v6.56 pax-utils xdg-utils autotools virtualx mozlinguas-v2
+inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-v6.57 pax-utils xdg-utils autotools \
+	virtualx mozlinguas-v2 llvm
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
@@ -50,16 +52,15 @@ ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 RDEPEND="
 	jack? ( virtual/jack )
-	system-sqlite? ( >=dev-db/sqlite-3.20.1:3[secure-delete,debug=] )
 	>=dev-libs/nss-3.33
 	>=dev-libs/nspr-4.17
 	selinux? ( sec-policy/selinux-mozilla )"
 
 DEPEND="${RDEPEND}
 	pgo? ( >=sys-devel/gcc-4.5 )
-	>=virtual/rust-1.17.1
-	>=dev-util/cargo-0.17.1
-	amd64? ( ${ASM_DEPEND} virtual/opengl )
+	amd64? ( ${ASM_DEPEND} virtual/opengl
+			sys-devel/llvm:4
+			sys-devel/clang:4 )
 	x86? ( ${ASM_DEPEND} virtual/opengl )"
 
 S="${WORKDIR}/firefox-${MOZ_PV}"
@@ -76,6 +77,10 @@ fi
 
 pkg_setup() {
 	moz_pkgsetup
+	llvm_pkg_setup
+	# Build stylo 
+	use amd64 &&  export BINDGEN_CFLAGS=$(pkg-config --cflags nspr pixman-1 | xargs) \
+		LLVMCONFIG=$(get_llvm_prefix "$LLVM_MAX_SLOT")/bin/llvm-config 
 
 	# Avoid PGO profiling problems due to enviroment leakage
 	# These should *always* be cleaned up anyway
