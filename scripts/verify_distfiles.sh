@@ -9,7 +9,7 @@ check_distfiles() {
 	local myver myname tmp
 	myname=$(qatom $1 |awk '{print $2}')
         mybasename=${myname/-bin/}
-	if grep -e 'MOZ_ESR=""' -e 'MOZ_ESR="0"' $1 &>/dev/null || [[ -n $(grep -L MOZ_ESR $1) ]] ; then
+	if grep -e 'MOZ_ESR=""' -e 'MOZ_ESR="0"' $1 &>/dev/null || [[ -n $(grep -L '^MOZ_ESR' $1) ]] ; then
 		myver=$(qatom $1 |awk '{print $3}')
 	else
 		myver=$(qatom $1 |awk '{print $3 "esr"}')
