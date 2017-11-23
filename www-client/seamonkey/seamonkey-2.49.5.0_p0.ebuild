@@ -63,9 +63,9 @@ fi
 
 MOZCONFIG_OPTIONAL_GTK3=1
 MOZCONFIG_OPTIONAL_WIFI=1
-inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-v6.53 pax-utils xdg-utils autotools mozextension nsplugins mozlinguas-v2
+inherit check-reqs flag-o-matic toolchain-funcs eutils mozconfig-v6.52 pax-utils xdg-utils autotools mozextension nsplugins mozlinguas-v2
 
-PATCHFF="firefox-52.2-patches-03"
+PATCHFF="firefox-52.4-patches-02"
 PATCH="${PN}-2.46-patches-01"
 
 DESCRIPTION="Seamonkey Web Browser"
@@ -87,26 +87,15 @@ SRC_URI+="
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 RDEPEND="
-	>=dev-libs/nss-3.28.1
-	>=dev-libs/nspr-4.13
-	crypt? ( || (
-		( >=app-crypt/gnupg-2.0
-			|| (
-				app-crypt/pinentry[gtk]
-				app-crypt/pinentry[qt5]
-				app-crypt/pinentry[qt4]
-			)
-		)
-		=app-crypt/gnupg-1.4* )
-		x11-plugins/enigmail
-	)
+	>=dev-libs/nss-3.28.3
+	>=dev-libs/nspr-4.13.1
 	jack? ( virtual/jack )
+	crypt? ( >=x11-plugins/enigmail-1.9.8.3-r1 )
 "
 
 DEPEND="
 	${RDEPEND}
 	!elibc_glibc? ( !elibc_uclibc? ( !elibc_musl? ( dev-libs/libexecinfo ) ) )
-	crypt? ( dev-lang/perl )
 	amd64? ( ${ASM_DEPEND}
 		virtual/opengl )
 	x86? ( ${ASM_DEPEND}
@@ -226,7 +215,6 @@ src_prepare() {
 }
 
 src_configure() {
-	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 	MEXTENSIONS="default"
 	# Google API keys (see http://www.chromium.org/developers/how-tos/api-keys)
 	# Note: These are for Gentoo Linux use ONLY. For your own distribution, please
@@ -359,16 +347,6 @@ src_install() {
 		rm -rf "${ED}"/usr/include "${ED}${MOZILLA_FIVE_HOME}"/{idl,include,lib,sdk}
 	fi
 
-	if use crypt ; then
-		emid=$(sed -n '/<em:id>/!d; s/.*\({.*}\).*/\1/; p; q' "${EROOT%/}"/usr/share/enigmail/install.rdf)
-		if [[ -n ${emid} ]]; then
-			dosym "${EPREFIX%/}"/usr/share/enigmail ${MOZILLA_FIVE_HOME}/extensions/${emid}
-		else
-			eerror "${EPREFIX%/}/usr/share/enigmail/install.rdf: No such file or directory"
-			die "<EM:ID> tag for x11-plugins/enigmail could not be found!"
-		fi
-	fi
-
 	if use chatzilla ; then
 		local emid='{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}'
 
@@ -401,26 +379,6 @@ pkg_preinst() {
 
 	if [ -d ${MOZILLA_FIVE_HOME}/plugins ] ; then
 		rm ${MOZILLA_FIVE_HOME}/plugins -rf
-	fi
-
-	# Because PM's dont seem to properly merge a symlink replacing a directory
-	if use crypt ; then
-		local emid=$(sed -n '/<em:id>/!d; s/.*\({.*}\).*/\1/; p; q' "${EROOT%/}"/usr/share/enigmail/install.rdf)
-		local emidpath="${EROOT%/}"${MOZILLA_FIVE_HOME}/extensions/${emid}
-		if [[ -z ${emid} ]]; then
-			eerror "${EROOT%/}/usr/share/enigmail/install.rdf: No such file or directory"
-			die "Could not find enigmail on disk during pkg_preinst()"
-		fi
-		if [[ ! -h "${emidpath}" ]] && [[ -d "${emidpath}" ]]; then
-			if ! rm -R --interactive=never "${emidpath}" ; then
-				eerror "Could not remove enigmail directory from previous installation,"
-				eerror "You must remove this by hand and rename the symbolic link yourself:"
-				eerror
-				eerror "\t cd ${EPREFIX%/}${MOZILLA_FIVE_HOME}/extensions"
-				eerror "\t rm -Rf ${emid}"
-				eerror "\t mv ${emid}.backup* ${emid}"
-			fi
-		fi
 	fi
 }
 
