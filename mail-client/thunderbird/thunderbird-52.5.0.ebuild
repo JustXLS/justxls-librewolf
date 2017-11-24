@@ -38,7 +38,7 @@ HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist hardened ldap lightning +minimal mozdom rust selinux"
+IUSE="bindist crypt hardened ldap lightning +minimal mozdom rust selinux"
 RESTRICT="!bindist? ( bindist )"
 
 PATCH_URIS=( https://dev.gentoo.org/~{anarchy,axs,polynomial-c}/mozilla/patchsets/${PATCHFF}.tar.xz )
@@ -63,6 +63,7 @@ DEPEND="rust? ( dev-lang/rust )
 
 RDEPEND="${CDEPEND}
 	selinux? ( sec-policy/selinux-thunderbird )
+	crypt? ( >=x11-plugins/enigmail-1.9.8.3-r1 )
 "
 
 S="${WORKDIR}/${MOZ_P}"
@@ -312,10 +313,14 @@ pkg_postinst() {
 	xdg_desktop_database_update
 	gnome2_icon_cache_update
 
-	elog
-	elog "USE=crypt has been removed from thunderbird as enigmail-1.9.8.3-r1 and above"
-	elog "is now a fully standalone package.  For enigmail support in thunderbird"
-	elog "please add that package directly to @world."
+	if use crypt; then
+		elog
+		elog "USE=crypt will be dropped from thunderbird with version 52.6.0 as"
+		elog "x11-plugins/enigmail-1.9.8.3-r1 and above is now a fully standalone"
+		elog "package.  For continued enigmail support in thunderbird please add"
+		elog "x11-plugins/enigmail to your @world set."
+	fi
+
 	elog
 	elog "If you experience problems with plugins please issue the"
 	elog "following command : rm \${HOME}/.thunderbird/*/extensions.sqlite ,"
