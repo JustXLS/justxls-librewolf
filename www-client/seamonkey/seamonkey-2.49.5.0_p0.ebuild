@@ -41,7 +41,7 @@ elif [[ ${PV} == *_p[0-9] ]]; then
 	MOZ_HTTP_URI="https://archive.mozilla.org/pub/thunderbird/releases/${MOZ_PV/${SMPV}/${TB_MAJOR}}"
 	#MOZ_GENERATE_LANGPACKS=1
 	#https://dev.gentoo.org/~axs/distfiles/${PN}-${SMPV}-l10n-sources-20170727.tar.xz
-	MOZ_LANGPACK_PREFIX="../../../seamonkey/candidates/2.49.1-candidates/build2/linux-i686/xpi/"
+	MOZ_LANGPACK_PREFIX="../../../seamonkey/releases/2.49.1/linux-i686/xpi/"
 	MOZ_LANGPACK_SUFFIX=".xpi"
 	S="${WORKDIR}/thunderbird-${MOZ_PV/${SMPV}/${TB_MAJOR}}"
 	CHATZILLA_VER="SEA2_48_RELBRANCH"
