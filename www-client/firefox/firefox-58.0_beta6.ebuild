@@ -24,7 +24,7 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-57.0-patches-01"
+PATCH="${PN}-58.0-patches-01"
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 
 MOZCONFIG_OPTIONAL_WIFI=1
@@ -76,9 +76,6 @@ fi
 
 pkg_setup() {
 	moz_pkgsetup
-
-	# Build stylo 
-	use amd64 &&  export BINDGEN_CFLAGS=$(pkg-config --cflags nspr pixman-1 | xargs) 
 
 	# Avoid PGO profiling problems due to enviroment leakage
 	# These should *always* be cleaned up anyway
@@ -230,10 +227,11 @@ src_configure() {
 
 	# workaround for funky/broken upstream configure...
 	SHELL="${SHELL:-${EPREFIX}/bin/bash}" \
-	emake -f client.mk configure
+	./mach configure
 }
 
 src_compile() {
+	addpredict /proc/self/oom_score_adj
 	if use pgo; then
 		addpredict /root
 		addpredict /etc/gconf
@@ -259,7 +257,7 @@ src_compile() {
 		virtx emake -f client.mk profiledbuild || die "virtx emake failed"
 	else
 		MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX}/bin/bash}" \
-		emake -f client.mk realbuild
+		./mach build
 	fi
 
 }
@@ -308,8 +306,9 @@ src_install() {
 			|| die
 	done
 
+	cd "${S}"
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX}/bin/bash}" \
-	emake DESTDIR="${D}" install
+	DESTDIR="${D}" ./mach install
 
 	# Install language packs
 	mozlinguas_src_install

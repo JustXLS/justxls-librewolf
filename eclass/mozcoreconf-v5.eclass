@@ -224,7 +224,9 @@ mozconfig_init() {
 	# Use the MOZILLA_FIVE_HOME for the rpath
 	append-ldflags -Wl,-rpath="${MOZILLA_FIVE_HOME}",--enable-new-dtags
 	# Set MOZILLA_FIVE_HOME in mozconfig
-	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
+	if [[ ${PV} -lt 58.0 ]]; then
+		mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
+	fi
 
 	####################################
 	#
