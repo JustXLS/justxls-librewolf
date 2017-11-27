@@ -29,8 +29,8 @@ MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 
 MOZCONFIG_OPTIONAL_WIFI=1
 
-inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-v6.57 pax-utils xdg-utils autotools \
-	virtualx mozlinguas-v2
+inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-v6.57 \
+		pax-utils xdg-utils autotools mozlinguas-v2
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
@@ -39,7 +39,7 @@ KEYWORDS="~amd64 ~x86"
 
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist eme-free +gmp-autoupdate hardened hwaccel jack nsplugin pgo +screenshot selinux test"
+IUSE="bindist eme-free +gmp-autoupdate hardened hwaccel jack nsplugin +screenshot selinux test"
 RESTRICT="!bindist? ( bindist )"
 
 PATCH_URIS=( https://dev.gentoo.org/~{anarchy,axs,polynomial-c}/mozilla/patchsets/${PATCH}.tar.xz )
@@ -60,7 +60,6 @@ DEPEND="${RDEPEND}
 	>=dev-util/cargo-0.22.0
 	>=sys-devel/llvm-4.0.1
 	>=sys-devel/clang-4.0.1
-	pgo? ( >=sys-devel/gcc-4.9.0 )
 	amd64? ( ${ASM_DEPEND} virtual/opengl )
 	x86? ( ${ASM_DEPEND} virtual/opengl )"
 
@@ -95,21 +94,12 @@ pkg_setup() {
 		elog "a legal problem with Mozilla Foundation"
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
-
-	if use pgo; then
-		einfo
-		ewarn "You will do a double build for profile guided optimization."
-		ewarn "This will result in your build taking at least twice as long as before."
-	fi
 }
 
 pkg_pretend() {
 	# Ensure we have enough disk space to compile
-	if use pgo || use debug || use test ; then
-		CHECKREQS_DISK_BUILD="8G"
-	else
-		CHECKREQS_DISK_BUILD="4G"
-	fi
+	CHECKREQS_DISK_BUILD="4G"
+
 	check-reqs_pkg_setup
 }
 
@@ -216,11 +206,6 @@ src_configure() {
 
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 
-	# Allow for a proper pgo build
-	if use pgo; then
-		echo "mk_add_options PROFILE_GEN_SCRIPT='EXTRA_TEST_ARGS=10 \$(MAKE) -C \$(MOZ_OBJDIR) pgo-profile-run'" >> "${S}"/.mozconfig
-	fi
-
 	echo "mk_add_options MOZ_OBJDIR=${BUILD_OBJ_DIR}" >> "${S}"/.mozconfig
 	echo "mk_add_options XARGS=/usr/bin/xargs" >> "${S}"/.mozconfig
 
@@ -234,34 +219,9 @@ src_configure() {
 
 src_compile() {
 	addpredict /proc/self/oom_score_adj
-	if use pgo; then
-		addpredict /root
-		addpredict /etc/gconf
-		# Reset and cleanup environment variables used by GNOME/XDG
-		gnome2_environment_reset
 
-		# Firefox tries to use dri stuff when it's run, see bug 380283
-		shopt -s nullglob
-		cards=$(echo -n /dev/dri/card* | sed 's/ /:/g')
-		if test -z "${cards}"; then
-			cards=$(echo -n /dev/ati/card* /dev/nvidiactl* | sed 's/ /:/g')
-			if test -n "${cards}"; then
-				# Binary drivers seem to cause access violations anyway, so
-				# let's use indirect rendering so that the device files aren't
-				# touched at all. See bug 394715.
-				export LIBGL_ALWAYS_INDIRECT=1
-			fi
-		fi
-		shopt -u nullglob
-		[[ -n "${cards}" ]] && addpredict "${cards}"
-
-		MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX}/bin/bash}" \
-		virtx emake -f client.mk profiledbuild || die "virtx emake failed"
-	else
-		MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX}/bin/bash}" \
-		./mach build
-	fi
-
+	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX}/bin/bash}" \
+	./mach build
 }
 
 src_install() {
