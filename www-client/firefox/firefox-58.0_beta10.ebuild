@@ -94,6 +94,8 @@ pkg_setup() {
 		elog "a legal problem with Mozilla Foundation"
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
+
+	addpredict /proc/self/oom_score_adj
 }
 
 pkg_pretend() {
@@ -218,8 +220,6 @@ src_configure() {
 }
 
 src_compile() {
-	addpredict /proc/self/oom_score_adj
-
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX}/bin/bash}" \
 	./mach build
 }
