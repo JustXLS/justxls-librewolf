@@ -87,7 +87,7 @@ moz_pkgsetup() {
 	# Ensure we use correct toolchain
 	export HOST_CC="$(tc-getBUILD_CC)"
 	export HOST_CXX="$(tc-getBUILD_CXX)"
-	tc-export CC CXX LD PKG_CONFIG AR RANLIB
+	tc-export CC CXX LD PKG_CONFIG
 
 	# Ensure that we have a sane build enviroment
 	export MOZILLA_CLIENT=1
@@ -224,9 +224,7 @@ mozconfig_init() {
 	# Use the MOZILLA_FIVE_HOME for the rpath
 	append-ldflags -Wl,-rpath="${MOZILLA_FIVE_HOME}",--enable-new-dtags
 	# Set MOZILLA_FIVE_HOME in mozconfig
-	if [[ ${PV} -lt 58.0 ]]; then
-		mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
-	fi
+	mozconfig_annotate '' --with-default-mozilla-five-home=${MOZILLA_FIVE_HOME}
 
 	####################################
 	#
