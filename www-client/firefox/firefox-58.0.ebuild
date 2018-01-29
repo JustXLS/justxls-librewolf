@@ -24,7 +24,7 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-58.0-patches-01"
+PATCH="${PN}-58.0-patches-02"
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 
 MOZCONFIG_OPTIONAL_WIFI=1
@@ -39,7 +39,7 @@ KEYWORDS="~amd64 ~x86"
 
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist eme-free +gmp-autoupdate hardened hwaccel jack nsplugin +screenshot selinux test"
+IUSE="bindist eme-free +gmp-autoupdate hardened hwaccel jack +screenshot selinux test"
 RESTRICT="!bindist? ( bindist )"
 
 PATCH_URIS=( https://dev.gentoo.org/~{anarchy,axs,polynomial-c}/mozilla/patchsets/${PATCH}.tar.xz )
@@ -258,12 +258,6 @@ src_install() {
 		"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js" \
 		|| die
 
-	if use nsplugin; then
-		echo "pref(\"plugin.load_flash_only\", false);" >> \
-			"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js" \
-			|| die
-	fi
-
 	local plugin
 	use gmp-autoupdate || use eme-free || for plugin in "${GMP_PLUGIN_LIST[@]}" ; do
 		echo "pref(\"media.${plugin}.autoupdate\", false);" >> \
@@ -359,12 +353,14 @@ pkg_postinst() {
 		elog "installing into new profiles:"
 		local plugin
 		for plugin in "${GMP_PLUGIN_LIST[@]}"; do elog "\t ${plugin}" ; done
+		elog
 	fi
 
 	if use pulseaudio && has_version ">=media-sound/apulse-0.1.9"; then
 		elog "Apulse was detected at merge time on this system and so it will always be"
 		elog "used for sound.  If you wish to use pulseaudio instead please unmerge"
 		elog "media-sound/apulse."
+		elog
 	fi
 }
 
