@@ -1,7 +1,7 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 #
-# @ECLASS: mozconfig-v6.57.eclass
+# @ECLASS: mozconfig-v6.58.eclass
 # @MAINTAINER:
 # mozilla team <mozilla@gentoo.org>
 # @BLURB: the new mozilla common configuration eclass for FF33 and newer, v6
@@ -165,8 +165,11 @@ DEPEND="app-arch/zip
 	>=sys-devel/binutils-2.16.1
 	sys-apps/findutils
 	pulseaudio? ( media-sound/pulseaudio )
-	>=virtual/rust-1.19.0
-	dev-util/cargo
+	|| (
+		( >=dev-lang/rust-1.21.0 >=dev-util/cargo-0.22.0 )
+		>=dev-lang/rust-1.21.0[extended]
+		( >=dev-lang/rust-bin-1.21.0 >=dev-util/cargo-0.22.0 )
+	)
 	${RDEPEND}"
 
 RDEPEND+="
