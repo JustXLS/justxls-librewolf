@@ -266,6 +266,7 @@ mozconfig_config() {
 	mozconfig_annotate '' --enable-system-ffi
 	mozconfig_annotate '' --disable-gconf
 	mozconfig_annotate '' --with-intl-api
+	mozconfig_annotate '' --enable-system-pixman
 
 	# skia has no support for big-endian platforms
 	if [[ $(tc-endian) == "big" ]]; then
