@@ -42,7 +42,7 @@ LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="bindist eme-free +gmp-autoupdate hardened hwaccel jack +screenshot selinux test"
 RESTRICT="!bindist? ( bindist )"
 
-SRCHASH=daeb05a6586b5c3ec5b7c4ba1a980f50e3620937
+SRCHASH=f83587c150abb271b3f15742007994ca57bc8395
 
 PATCH_URIS=( https://dev.gentoo.org/~{anarchy,axs,polynomial-c}/mozilla/patchsets/${PATCH}.tar.xz )
 SRC_URI="${SRC_URI}
