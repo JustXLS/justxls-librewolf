@@ -11,6 +11,6 @@ pref("accessibility.typeaheadfind",        true);
 pref("browser.shell.checkDefaultBrowser",  false); 
 pref("browser.EULA.override",              true); 
 pref("general.useragent.vendor",           "Gentoo");
-pref("intl.locale.requested",              true);
+pref("intl.locale.requested"               );
 pref("extensions.autoDisableScopes",       0);
 pref("layout.css.dpi",                     0);
