@@ -229,7 +229,7 @@ src_configure() {
 
 src_compile() {
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX}/bin/bash}" MOZ_NOSPAM=1 \
-	./mach build || die
+	./mach build --verbose || die
 }
 
 src_install() {
