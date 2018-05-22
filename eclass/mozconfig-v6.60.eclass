@@ -169,10 +169,10 @@ DEPEND="app-arch/zip
 		( >=dev-lang/rust-1.24.0[-extended(-)] >=dev-util/cargo-0.25.0 )
 		>=dev-lang/rust-1.24.0[extended]
 		( >=dev-lang/rust-bin-1.24.0 >=dev-util/cargo-0.25.0 )
-	))
+	) )
 	elibc_musl? ( || ( >=dev-lang/rust-1.24.0
 		>=dev-util/cargo-0.25.0
-	))
+	) )
 	${RDEPEND}"
 
 RDEPEND+="
