@@ -24,7 +24,7 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-60.0-patches-0"
+PATCH="${PN}-60.0-patches-02"
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 
 MOZCONFIG_OPTIONAL_WIFI=1
@@ -117,7 +117,6 @@ src_unpack() {
 
 src_prepare() {
 	eapply "${WORKDIR}/firefox"
-	eapply "${FILESDIR}"/${PN}-ffmpeg4.patch
 
 	# Enable gnomebreakpad
 	if use debug ; then
