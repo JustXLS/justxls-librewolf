@@ -6,3 +6,4 @@
 # normal usage; seems there is a very long list of fixes needed, probably
 # similar to the 'Port gtk2 to gtk3' list.
 www-client/firefox qt5
+www-client/torbrowser system-cairo
