@@ -10,7 +10,7 @@ MY_P="${MY_PN}-${PV/_rc/.rc}"
 MY_P="${MY_P/_pre/pre}"
 DESCRIPTION="Stand-alone JavaScript C++ library"
 HOMEPAGE="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey"
-SRC_URI="https://archive.mozilla.org/pub/spidermonkey/prereleases/60/pre2/${MY_P}.tar.bz2
+SRC_URI="https://archive.mozilla.org/pub/spidermonkey/prereleases/60/pre3/${MY_P}.tar.bz2
 	https://dev.gentoo.org/~axs/distfiles/${PN}-60.0-patches-02.tar.xz"
 
 LICENSE="NPL-1.1"
