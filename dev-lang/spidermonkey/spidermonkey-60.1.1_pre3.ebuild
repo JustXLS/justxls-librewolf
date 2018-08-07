@@ -14,7 +14,7 @@ SRC_URI="https://archive.mozilla.org/pub/spidermonkey/prereleases/60/pre3/${MY_P
 	https://dev.gentoo.org/~axs/distfiles/${PN}-60.0-patches-02.tar.xz"
 
 LICENSE="NPL-1.1"
-SLOT="52"
+SLOT="60"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd"
 IUSE="debug +jit minimal +system-icu test"
 
