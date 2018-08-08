@@ -8,9 +8,9 @@ MOZ_LIGHTNING_VER="5.4.8"
 MOZ_LIGHTNING_GDATA_VER="3.3"
 
 # This list can be updated using scripts/get_langs.sh from the mozilla overlay
-MOZ_LANGS=(ar ast be bg bn-BD br ca cs cy da de el en en-GB en-US es-AR
+MOZ_LANGS=(ar ast be bg br ca cs cy da de el en en-GB en-US es-AR
 es-ES et eu fi fr fy-NL ga-IE gd gl he hr hsb hu hy-AM id is it ja ko lt
-nb-NO nl nn-NO pa-IN pl pt-BR pt-PT rm ro ru si sk sl sq sr sv-SE ta-LK tr
+nb-NO nl nn-NO pl pt-BR pt-PT rm ro ru si sk sl sq sr sv-SE tr
 uk vi zh-CN zh-TW )
 
 # Convert the ebuild version to the upstream mozilla version, used by mozlinguas
@@ -109,7 +109,9 @@ src_unpack() {
 
 src_prepare() {
 	# Apply our patchset from firefox to thunderbird as well
-	rm -f "${WORKDIR}"/firefox/2007_fix_nvidia_latest.patch || die
+	rm -f   "${WORKDIR}"/firefox/2007_fix_nvidia_latest.patch \
+		"${WORKDIR}"/firefox/2005_ffmpeg4.patch \
+		|| die
 	eapply "${WORKDIR}/firefox"
 
 	# Ensure that are plugins dir is enabled as default
