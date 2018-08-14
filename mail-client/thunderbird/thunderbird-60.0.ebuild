@@ -4,8 +4,8 @@
 EAPI=6
 WANT_AUTOCONF="2.1"
 MOZ_ESR=""
-MOZ_LIGHTNING_VER="5.4.8"
-MOZ_LIGHTNING_GDATA_VER="3.3"
+MOZ_LIGHTNING_VER="6.2"
+MOZ_LIGHTNING_GDATA_VER="4.4.1"
 
 # This list can be updated using scripts/get_langs.sh from the mozilla overlay
 MOZ_LANGS=(ar ast be bg br ca cs cy da de el en en-GB en-US es-AR
@@ -27,7 +27,6 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 MOZ_P="${PN}-${MOZ_PV}"
 
-#MOZCONFIG_OPTIONAL_GTK2ONLY=1
 MOZCONFIG_OPTIONAL_WIFI=1
 #MOZ_GENERATE_LANGPACKS=1
 
@@ -39,7 +38,6 @@ HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 KEYWORDS="~alpha amd64 ~arm ~ppc ~ppc64 x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-#IUSE="bindist crypt hardened ldap lightning +minimal mozdom rust selinux"
 IUSE="bindist crypt hardened lightning +minimal mozdom rust selinux"
 RESTRICT="!bindist? ( bindist )"
 
@@ -139,6 +137,7 @@ src_prepare() {
 	# Apply our Thunderbird patchset
 	pushd "${S}"/comm &>/dev/null || doe
 	eapply "${FILESDIR}"/1000_fix_gentoo_preferences.patch
+	eapply "${FILESDIR}"/tb60-build-gdata-provider.patch
 
 	# simulate old directory structure just in case it helps eapply_user
 	ln -s .. mozilla || die
@@ -147,16 +146,16 @@ src_prepare() {
 	# remove the symlink
 	rm -f mozilla
 
-	popd &>/dev/null || die
-
 	# Confirm the version of lightning being grabbed for langpacks is the same
 	# as that used in thunderbird
-	local THIS_MOZ_LIGHTNING_VER=$(python "${S}"/calendar/lightning/build/makeversion.py ${PV})
+	local THIS_MOZ_LIGHTNING_VER=$(${PYTHON} calendar/lightning/build/makeversion.py ${PV})
 	if [[ ${MOZ_LIGHTNING_VER} != ${THIS_MOZ_LIGHTNING_VER} ]]; then
 		eqawarn "The version of lightning used for localization differs from the version"
 		eqawarn "in thunderbird.  Please update MOZ_LIGHTNING_VER in the ebuild from ${MOZ_LIGHTNING_VER}"
 		eqawarn "to ${THIS_MOZ_LIGHTNING_VER}"
 	fi
+
+	popd &>/dev/null || die
 
 	eautoreconf old-configure.in
 	# Ensure we run eautoreconf in spidermonkey to regenerate configure
@@ -294,12 +293,13 @@ src_install() {
 
 	local emid
 	# stage extra locales for lightning and install over existing
-	mozlinguas_xpistage_langpacks "${BUILD_OBJ_DIR}"/dist/xpi-stage/lightning \
+	rm -f "${ED}"/${MOZILLA_FIVE_HOME}/distribution/extensions/${emid}.xpi || die
+	mozlinguas_xpistage_langpacks "${BUILD_OBJ_DIR}"/dist/bin/distribution/extensions/${emid} \
 		"${WORKDIR}"/lightning-${MOZ_LIGHTNING_VER} lightning calendar
 
 	emid='{e2fda1a4-762b-4020-b5ad-a41df1933103}'
 	mkdir -p "${T}/${emid}" || die
-	cp -RLp -t "${T}/${emid}" "${BUILD_OBJ_DIR}"/dist/xpi-stage/lightning/* || die
+	cp -RLp -t "${T}/${emid}" "${BUILD_OBJ_DIR}"/dist/bin/distribution/extensions/${emid}/* || die
 	insinto ${MOZILLA_FIVE_HOME}/distribution/extensions
 	doins -r "${T}/${emid}"
 
