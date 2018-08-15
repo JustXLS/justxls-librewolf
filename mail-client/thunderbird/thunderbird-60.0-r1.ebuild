@@ -17,6 +17,7 @@ uk vi zh-CN zh-TW )
 MOZ_PV="${PV/_beta/b}"
 
 # Patches
+PATCHTB="thunderbird-60.0-patches-0"
 PATCHFF="firefox-60.0-patches-02"
 
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
@@ -35,13 +36,13 @@ inherit check-reqs flag-o-matic toolchain-funcs gnome2-utils mozconfig-v6.60 pax
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
 
-KEYWORDS="~alpha amd64 ~arm ~ppc ~ppc64 x86 ~x86-fbsd ~amd64-linux ~x86-linux"
+KEYWORDS="~amd64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="bindist crypt hardened lightning +minimal mozdom rust selinux"
 RESTRICT="!bindist? ( bindist )"
 
-PATCH_URIS=( https://dev.gentoo.org/~{anarchy,axs,polynomial-c}/mozilla/patchsets/${PATCHFF}.tar.xz )
+PATCH_URIS=( https://dev.gentoo.org/~{anarchy,axs,polynomial-c}/mozilla/patchsets/{${PATCHTB},${PATCHFF}}.tar.xz )
 SRC_URI="${SRC_URI}
 	${MOZ_HTTP_URI}/${MOZ_PV}/source/${MOZ_P}.source.tar.xz
 	https://dev.gentoo.org/~axs/distfiles/lightning-${MOZ_LIGHTNING_VER}.tar.xz
@@ -136,8 +137,7 @@ src_prepare() {
 
 	# Apply our Thunderbird patchset
 	pushd "${S}"/comm &>/dev/null || doe
-	eapply "${FILESDIR}"/1000_fix_gentoo_preferences.patch
-	eapply "${FILESDIR}"/tb60-build-gdata-provider.patch
+	eapply "${WORKDIR}"/thunderbird
 
 	# simulate old directory structure just in case it helps eapply_user
 	ln -s .. mozilla || die
@@ -243,7 +243,7 @@ src_install() {
 	pax-mark m "${BUILD_OBJ_DIR}"/dist/bin/xpcshell
 
 	# Copy our preference before omnijar is created.
-	cp "${FILESDIR}"/thunderbird-gentoo-default-prefs-1.js-1 \
+	cp "${FILESDIR}"/thunderbird-gentoo-default-prefs.js-2 \
 		"${BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
 
