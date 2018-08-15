@@ -112,6 +112,7 @@ src_prepare() {
 		"${WORKDIR}"/firefox/2005_ffmpeg4.patch \
 		|| die
 	eapply "${WORKDIR}/firefox"
+	eapply "${FILESDIR}"/fix-setupterm.patch
 
 	# Ensure that are plugins dir is enabled as default
 	sed -i -e "s:/usr/lib/mozilla/plugins:/usr/lib/nsbrowser/plugins:" \
