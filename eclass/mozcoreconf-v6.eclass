@@ -101,6 +101,9 @@ moz_pkgsetup() {
 	# ensure MOZCONFIG is not defined
 	unset MOZCONFIG
 
+	# recent builds call setupterm, ensure TERM has a value
+	export TERM=${TERM:-dumb}
+
 	# set MOZILLA_FIVE_HOME
 	export MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 
