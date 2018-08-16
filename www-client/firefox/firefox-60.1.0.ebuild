@@ -172,6 +172,8 @@ src_unpack() {
 }
 
 src_prepare() {
+	rm -f "${WORKDIR}"/firefox/2005_ffmpeg4.patch \
+		|| die
 	eapply "${WORKDIR}/firefox"
 
 	# Enable gnomebreakpad
