@@ -1,7 +1,8 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
+VIRTUALX_REQUIRED="pgo"
 WANT_AUTOCONF="2.1"
 MOZ_ESR=""
 MOZ_LIGHTNING_VER="6.2"
@@ -28,18 +29,17 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 MOZ_P="${PN}-${MOZ_PV}"
 
-#MOZ_GENERATE_LANGPACKS=1
-
-inherit check-reqs flag-o-matic toolchain-funcs gnome2-utils mozcoreconf-v6 pax-utils xdg-utils autotools mozlinguas-v2
+inherit check-reqs flag-o-matic toolchain-funcs gnome2-utils llvm mozcoreconf-v6 pax-utils xdg-utils autotools mozlinguas-v2
 
 DESCRIPTION="Thunderbird Mail Client"
-HOMEPAGE="http://www.mozilla.com/en-US/thunderbird/"
+HOMEPAGE="https://www.mozilla.org/thunderbird"
 
 KEYWORDS="~amd64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist crypt dbus debug hardened lightning mozdom pulseaudio selinux startup-notification
-	system-harfbuzz system-icu system-jpeg system-libevent system-sqlite system-libvpx wifi"
+IUSE="bindist clang dbus debug hardened jack lightning mozdom neon pulseaudio
+	selinux startup-notification system-harfbuzz system-icu system-jpeg
+	system-libevent system-libvpx system-sqlite wifi"
 RESTRICT="!bindist? ( bindist )"
 
 PATCH_URIS=( https://dev.gentoo.org/~{anarchy,axs,polynomial-c}/mozilla/patchsets/{${PATCHTB},${PATCHFF}}.tar.xz )
@@ -52,8 +52,8 @@ SRC_URI="${SRC_URI}
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 CDEPEND="
-	>=dev-libs/nss-3.28.3
-	>=dev-libs/nspr-4.13.1
+	>=dev-libs/nss-3.36.4
+	>=dev-libs/nspr-4.19
 	>=app-text/hunspell-1.5.4:=
 	dev-libs/atk
 	dev-libs/expat
@@ -68,8 +68,10 @@ CDEPEND="
 	>=media-libs/freetype-2.4.10
 	kernel_linux? ( !pulseaudio? ( media-libs/alsa-lib ) )
 	virtual/freedesktop-icon-theme
-	dbus? ( >=sys-apps/dbus-0.60
-		>=dev-libs/dbus-glib-0.72 )
+	dbus? (
+		>=sys-apps/dbus-0.60
+		>=dev-libs/dbus-glib-0.72
+	)
 	startup-notification? ( >=x11-libs/startup-notification-0.8 )
 	>=x11-libs/pixman-0.19.2
 	>=dev-libs/glib-2.26:2
@@ -83,45 +85,66 @@ CDEPEND="
 	x11-libs/libXfixes
 	x11-libs/libXrender
 	x11-libs/libXt
+	system-harfbuzz? (
+		>=media-libs/harfbuzz-1.4.2:0=
+		>=media-gfx/graphite2-1.3.9-r1
+	)
 	system-icu? ( >=dev-libs/icu-59.1:= )
-	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
+	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1:= )
 	system-libevent? ( >=dev-libs/libevent-2.0:0= )
-	system-sqlite? ( >=dev-db/sqlite-3.20.1:3[secure-delete,debug=] )
 	system-libvpx? ( >=media-libs/libvpx-1.5.0:0=[postproc] )
-	system-harfbuzz? ( >=media-libs/harfbuzz-1.4.2:0= >=media-gfx/graphite2-1.3.9-r1 )
-	wifi? (	kernel_linux? ( >=sys-apps/dbus-0.60
+	system-sqlite? ( >=dev-db/sqlite-3.23.1:3[secure-delete,debug=] )
+	wifi? (
+		kernel_linux? (
+			>=sys-apps/dbus-0.60
 			>=dev-libs/dbus-glib-0.72
-			net-misc/networkmanager ) )
-	"
+			net-misc/networkmanager
+		)
+	)
+	jack? ( virtual/jack )"
 
 DEPEND="${CDEPEND}
 	app-arch/zip
 	app-arch/unzip
-	>=sys-devel/binutils-2.16.1
+	>=sys-devel/binutils-2.30
 	sys-apps/findutils
-	pulseaudio? ( media-sound/pulseaudio )
-	elibc_glibc? ( || (
-		( >=dev-lang/rust-1.24.0[-extended(-)] >=dev-util/cargo-0.25.0 )
-		>=dev-lang/rust-1.24.0[extended]
-		( >=dev-lang/rust-bin-1.24.0 >=dev-util/cargo-0.25.0 )
-	) )
-	elibc_musl? ( || ( >=dev-lang/rust-1.24.0
-		>=dev-util/cargo-0.25.0
-	) )
-
 	>=sys-devel/llvm-4.0.1
 	>=sys-devel/clang-4.0.1
-	amd64? ( ${ASM_DEPEND} virtual/opengl )
-	x86? ( ${ASM_DEPEND} virtual/opengl )"
+	clang? (
+		>=sys-devel/llvm-4.0.1[gold]
+		>=sys-devel/lld-4.0.1
+	)
+	pulseaudio? ( media-sound/pulseaudio )
+	elibc_glibc? (
+		virtual/cargo
+		virtual/rust
+	)
+	elibc_musl? (
+		virtual/cargo
+		virtual/rust
+	)
+	amd64? (
+		${ASM_DEPEND}
+		virtual/opengl
+	)
+	x86? (
+		${ASM_DEPEND}
+		virtual/opengl
+	)"
 
 RDEPEND="${CDEPEND}
-	pulseaudio? ( || ( media-sound/pulseaudio
-		>=media-sound/apulse-0.1.9 ) )
-	selinux? ( sec-policy/selinux-mozilla
-		sec-policy/selinux-thunderbird
+	pulseaudio? (
+		|| (
+			media-sound/pulseaudio
+			>=media-sound/apulse-0.1.9
+		)
 	)
-	crypt? ( >=x11-plugins/enigmail-1.9.8.3-r1 )
-"
+	selinux? (
+		sec-policy/selinux-mozilla
+		sec-policy/selinux-thunderbird
+	)"
+
+REQUIRED_USE="wifi? ( dbus )"
 
 S="${WORKDIR}/${MOZ_P%b[0-9]*}"
 
@@ -130,7 +153,14 @@ BUILD_OBJ_DIR="${S}/tbird"
 pkg_setup() {
 	moz_pkgsetup
 
-	#export MOZILLA_DIR="${S}/mozilla"
+	# Avoid PGO profiling problems due to enviroment leakage
+	# These should *always* be cleaned up anyway
+	unset DBUS_SESSION_BUS_ADDRESS \
+		DISPLAY \
+		ORBIT_SOCKETDIR \
+		SESSION_MANAGER \
+		XDG_SESSION_COOKIE \
+		XAUTHORITY
 
 	if ! use bindist ; then
 		elog "You are enabling official branding. You may not redistribute this build"
@@ -141,6 +171,8 @@ pkg_setup() {
 	fi
 
 	addpredict /proc/self/oom_score_adj
+
+	llvm_pkg_setup
 }
 
 pkg_pretend() {
@@ -154,12 +186,6 @@ src_unpack() {
 
 	# Unpack language packs
 	mozlinguas_src_unpack
-
-	# this version of lightning is a .tar.xz, no xpi needed
-	#xpi_unpack lightning-${MOZ_LIGHTNING_VER}.xpi
-
-	# this version of gdata-provider is a .tar.xz , no xpi needed
-	#use lightning && xpi_unpack gdata-provider-${MOZ_LIGHTNING_GDATA_VER}.xpi
 }
 
 src_prepare() {
@@ -168,7 +194,7 @@ src_prepare() {
 		"${WORKDIR}"/firefox/2005_ffmpeg4.patch \
 		|| die
 	eapply "${WORKDIR}/firefox"
-	eapply "${FILESDIR}"/fix-setupterm.patch
+	eapply "${FILESDIR}"/${PN}-60.0-blessings-TERM.patch # 654316
 
 	# Ensure that are plugins dir is enabled as default
 	sed -i -e "s:/usr/lib/mozilla/plugins:/usr/lib/nsbrowser/plugins:" \
@@ -186,15 +212,8 @@ src_prepare() {
 		-i "${S}"/comm/mail/installer/Makefile.in || die
 
 	# Apply our Thunderbird patchset
-	pushd "${S}"/comm &>/dev/null || doe
+	pushd "${S}"/comm &>/dev/null || die
 	eapply "${WORKDIR}"/thunderbird
-
-	# simulate old directory structure just in case it helps eapply_user
-	ln -s .. mozilla || die
-	# Allow user to apply any additional patches without modifing ebuild
-	eapply_user
-	# remove the symlink
-	rm -f mozilla
 
 	# Confirm the version of lightning being grabbed for langpacks is the same
 	# as that used in thunderbird
@@ -207,14 +226,43 @@ src_prepare() {
 
 	popd &>/dev/null || die
 
+	# Allow user to apply any additional patches without modifing ebuild
+	eapply_user
+
+	# Autotools configure is now called old-configure.in
+	# This works because there is still a configure.in that happens to be for the
+	# shell wrapper configure script
 	eautoreconf old-configure.in
-	# Ensure we run eautoreconf in spidermonkey to regenerate configure
+
+	# Must run autoconf in js/src
 	cd "${S}"/js/src || die
 	eautoconf old-configure.in
 }
 
 src_configure() {
 	MEXTENSIONS="default"
+
+	# Add information about TERM to output (build.log) to aid debugging
+	# blessings problems
+	if [[ -n "${TERM}" ]] ; then
+		einfo "TERM is set to: \"${TERM}\""
+	else
+		einfo "TERM is unset."
+	fi
+
+	if use clang && ! tc-is-clang ; then
+		# Force clang
+		einfo "Enforcing the use of clang due to USE=clang ..."
+		CC=${CHOST}-clang
+		CXX=${CHOST}-clang++
+		strip-unsupported-flags
+	elif ! use clang && ! tc-is-gcc ; then
+		# Force gcc
+		einfo "Enforcing the use of gcc due to USE=-clang ..."
+		CC=${CHOST}-gcc
+		CXX=${CHOST}-gcc++
+		strip-unsupported-flags
+	fi
 
 	####################################
 	#
@@ -228,32 +276,39 @@ src_configure() {
 		--with-system-zlib \
 		--with-system-bz2
 
-	# Stylo is only broken on x86 builds
-	use x86 && mozconfig_annotate 'Upstream bug 1341234' --disable-stylo
-
 	# Must pass release in order to properly select linker
 	mozconfig_annotate 'Enable by Gentoo' --enable-release
 
-	# Must pass --enable-gold if using ld.gold
-	if tc-ld-is-gold ; then
-		mozconfig_annotate 'tc-ld-is-gold=true' --enable-gold
+	# Avoid auto-magic on linker
+	if use clang ; then
+		# This is upstream's default
+		mozconfig_annotate "forcing ld=lld due to USE=clang" --enable-linker=lld
+	elif tc-ld-is-gold ; then
+		mozconfig_annotate "linker is set to gold" --enable-linker=gold
 	else
-		mozconfig_annotate 'tc-ld-is-gold=false' --disable-gold
+		mozconfig_annotate "linker is set to bfd" --enable-linker=bfd
 	fi
 
 	# It doesn't compile on alpha without this LDFLAGS
 	use alpha && append-ldflags "-Wl,--no-relax"
 
 	# Add full relro support for hardened
-	use hardened && append-ldflags "-Wl,-z,relro,-z,now"
+	if use hardened; then
+		append-ldflags "-Wl,-z,relro,-z,now"
+		mozconfig_use_enable hardened hardening
+	fi
 
 	# Modifications to better support ARM, bug 553364
 	if use neon ; then
 		mozconfig_annotate '' --with-fpu=neon
-		mozconfig_annotate '' --with-thumb=yes
-		mozconfig_annotate '' --with-thumb-interwork=no
+
+		if ! tc-is-clang ; then
+			# thumb options aren't supported when using clang, bug 666966
+			mozconfig_annotate '' --with-thumb=yes
+			mozconfig_annotate '' --with-thumb-interwork=no
+		fi
 	fi
-	if [[ ${CHOST} == armv* ]] ; then
+	if [[ ${CHOST} == armv*h* ]] ; then
 		mozconfig_annotate '' --with-float-abi=hard
 		if ! use system-libvpx ; then
 			sed -i -e "s|softfp|hard|" \
@@ -277,15 +332,15 @@ src_configure() {
 	mozconfig_annotate '' --with-system-nss --with-nss-prefix="${SYSROOT}${EPREFIX}"/usr
 	mozconfig_annotate '' --x-includes="${SYSROOT}${EPREFIX}"/usr/include \
 		--x-libraries="${SYSROOT}${EPREFIX}"/usr/$(get_libdir)
-        mozconfig_annotate '' --prefix="${EPREFIX}"/usr
-        mozconfig_annotate '' --libdir="${EPREFIX}"/usr/$(get_libdir)
-        mozconfig_annotate 'Gentoo default' --enable-system-hunspell
-        mozconfig_annotate '' --disable-crashreporter
-        mozconfig_annotate 'Gentoo default' --with-system-png
-        mozconfig_annotate '' --enable-system-ffi
-        mozconfig_annotate '' --disable-gconf
-        mozconfig_annotate '' --with-intl-api
-        mozconfig_annotate '' --enable-system-pixman
+	mozconfig_annotate '' --prefix="${EPREFIX}"/usr
+	mozconfig_annotate '' --libdir="${EPREFIX}"/usr/$(get_libdir)
+	mozconfig_annotate 'Gentoo default' --enable-system-hunspell
+	mozconfig_annotate '' --disable-crashreporter
+	mozconfig_annotate 'Gentoo default' --with-system-png
+	mozconfig_annotate '' --enable-system-ffi
+	mozconfig_annotate '' --disable-gconf
+	mozconfig_annotate '' --with-intl-api
+	mozconfig_annotate '' --enable-system-pixman
 	# Instead of the standard --build= and --host=, mozilla uses --host instead
 	# of --build, and --target intstead of --host.
 	# Note, mozilla also has --build but it does not do what you think it does.
@@ -319,17 +374,17 @@ src_configure() {
 		mozconfig_annotate '-pulseaudio' --enable-alsa
 	fi
 
+	mozconfig_use_enable dbus
+
+	mozconfig_use_enable wifi necko-wifi
+
+	# enable JACK, bug 600002
+	mozconfig_use_enable jack
 
 	# Other tb-specific settings
 	mozconfig_annotate '' --with-user-appdir=.thunderbird
 
 	mozconfig_annotate '' --enable-ldap
-	if use hardened; then
-		append-ldflags "-Wl,-z,relro,-z,now"
-		mozconfig_use_enable hardened hardening
-	fi
-
-	mozlinguas_mozconfig
 
 	# Bug #72667
 	if use mozdom; then
@@ -337,7 +392,28 @@ src_configure() {
 	fi
 
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
+
 	mozconfig_annotate '' --enable-calendar
+
+	# Disable built-in ccache support to avoid sandbox violation, #665420
+	# Use FEATURES=ccache instead!
+	mozconfig_annotate '' --without-ccache
+	sed -i -e 's/ccache_stats = None/return None/' \
+		python/mozbuild/mozbuild/controller/building.py || \
+		die "Failed to disable ccache stats call"
+
+	# Stylo is only broken on x86 builds
+	use x86 && mozconfig_annotate 'Upstream bug 1341234' --disable-stylo
+
+	# Stylo is horribly broken on arm, renders GUI unusable
+	use arm && mozconfig_annotate 'breaks UI on arm' --disable-stylo
+
+	if use clang ; then
+		# libprldap60.so: terminate called after throwing an instance of 'std::runtime_error', bug 667186
+		mozconfig_annotate 'elf-hack is broken when using clang' --disable-elf-hack
+	elif use arm ; then
+		mozconfig_annotate 'elf-hack is broken on arm' --disable-elf-hack
+	fi
 
 	# Use an objdir to keep things organized.
 	echo "mk_add_options MOZ_OBJDIR=${BUILD_OBJ_DIR}" >> "${S}"/.mozconfig
@@ -381,24 +457,23 @@ src_install() {
 		"${BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
 
+	# set dictionary path, to use system hunspell
+	echo "pref(\"spellchecker.dictionary_path\", \"${EPREFIX}/usr/share/myspell\");" \
+		>>"${BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" || die
 
-        # set dictionary path, to use system hunspell
-        echo "pref(\"spellchecker.dictionary_path\", \"${EPREFIX}/usr/share/myspell\");" \
-                >>"${BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" || die
+	# force the graphite pref if system-harfbuzz is enabled, since the pref cant disable it
+	if use system-harfbuzz ; then
+		echo "sticky_pref(\"gfx.font_rendering.graphite.enabled\",true);" \
+			>>"${BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" || die
+	fi
 
-        # force the graphite pref if system-harfbuzz is enabled, since the pref cant disable it
-        if use system-harfbuzz ; then
-                echo "sticky_pref(\"gfx.font_rendering.graphite.enabled\",true);" \
-	                >>"${BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" || die
-        fi
-
-        # force cairo as the canvas renderer on platforms without skia support
-        if [[ $(tc-endian) == "big" ]] ; then
-                echo "sticky_pref(\"gfx.canvas.azure.backends\",\"cairo\");" \
-	                >>"${BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" || die
-                echo "sticky_pref(\"gfx.content.azure.backends\",\"cairo\");" \
-	                >>"${BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" || die
-        fi
+	# force cairo as the canvas renderer on platforms without skia support
+	if [[ $(tc-endian) == "big" ]] ; then
+		echo "sticky_pref(\"gfx.canvas.azure.backends\",\"cairo\");" \
+			>>"${BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" || die
+		echo "sticky_pref(\"gfx.content.azure.backends\",\"cairo\");" \
+			>>"${BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" || die
+	fi
 
 	# dev-db/sqlite does not have FTS3_TOKENIZER support.
 	# gloda needs it to function, and bad crashes happen when its enabled and doesn't work
@@ -409,10 +484,10 @@ src_install() {
 
 	cd "${S}" || die
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX}/bin/bash}" MOZ_NOSPAM=1 \
-	DESTDIR="${D}" ./mach install
+	DESTDIR="${D}" ./mach install || die
 
 	# Install language packs
-	mozlinguas_src_install
+	MOZ_INSTALL_L10N_XPIFILE="1" mozlinguas_src_install
 
 	local size sizes icon_path icon
 	if ! use bindist; then
@@ -465,8 +540,12 @@ src_install() {
 		doins -r "${T}/${emid}"
 	fi
 
+	# thunderbird and thunderbird-bin are identical
+	rm "${ED%/}"${MOZILLA_FIVE_HOME}/thunderbird-bin || die
+	dosym thunderbird ${MOZILLA_FIVE_HOME}/thunderbird-bin
+
 	# Required in order to use plugins and even run thunderbird on hardened.
-	pax-mark pm "${ED}"${MOZILLA_FIVE_HOME}/{thunderbird,thunderbird-bin,plugin-container}
+	pax-mark pm "${ED%/}"${MOZILLA_FIVE_HOME}/{thunderbird,plugin-container}
 }
 
 pkg_preinst() {
@@ -474,32 +553,11 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
-	xdg_desktop_database_update
 	gnome2_icon_cache_update
-
-	if use crypt; then
-		elog
-		elog "USE=crypt will be dropped from thunderbird with version 52.6.0 as"
-		elog "x11-plugins/enigmail-1.9.8.3-r1 and above is now a fully standalone"
-		elog "package.  For continued enigmail support in thunderbird please add"
-		elog "x11-plugins/enigmail to your @world set."
-	fi
-
-	elog
-	elog "If you experience problems with plugins please issue the"
-	elog "following command : rm \${HOME}/.thunderbird/*/extensions.sqlite ,"
-	elog "then restart thunderbird"
-
-	if ! use lightning; then
-		elog
-		elog "If calendar fails to show up in extensions please open config editor"
-		elog "and set extensions.lastAppVersion to 38.0.0 to force a reload. If this"
-		elog "fails to show the calendar extension after restarting with above change"
-		elog "please file a bug report."
-	fi
+	xdg_desktop_database_update
 }
 
 pkg_postrm() {
-	xdg_desktop_database_update
 	gnome2_icon_cache_update
+	xdg_desktop_database_update
 }

@@ -8,13 +8,17 @@
 <use>
 	<flag name="bindist">Disable official Firefox branding (icons, name) which 
 		are not binary-redistributable according to upstream.</flag>
+	<flag name="clang">Use Clang compiler instead of GCC</flag>
 	<flag name="custom-optimization">Build with user-specified compiler optimizations
 		(-Os, -O0, -O1, -O2, -O3) from CFLAGS (unsupported)</flag>
 	<flag name="eme-free">Disable EME (DRM plugin) cabability at build time</flag>
+	<flag name="geckodriver">Enable WebDriver support</flag>
 	<flag name="gmp-autoupdate">Allow Gecko Media Plugins (binary blobs) to be automatically
 		downloaded and kept up-to-date in user profiles</flag>
 	<flag name="hwaccel">Force-enable hardware-accelerated rendering (Mozilla bug 594876)</flag>
-	<flag name="screenshot"> Allow to disable screenshot extension in global profile</flag>
+	<flag name="lto">Enable Link Time Optimization (LTO). Requires Gold linker when using GCC
+		or LDD linker when using Clang</flag>
+	<flag name="screenshot">Allow to disable screenshot extension in global profile</flag>
 	<flag name="system-harfbuzz">Use the system-wide <pkg>media-libs/harfbuzz</pkg>
 		and <pkg>media-gfx/graphite2</pkg> instead of bundled.</flag>
 	<flag name="system-icu">Use the system-wide <pkg>dev-libs/icu</pkg>

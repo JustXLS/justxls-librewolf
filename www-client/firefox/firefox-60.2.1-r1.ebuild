@@ -1,13 +1,10 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 VIRTUALX_REQUIRED="pgo"
 WANT_AUTOCONF="2.1"
-MOZ_ESR=""
-
-PYTHON_COMPAT=( python3_{5,6} )
-PYTHON_REQ_USE='ncurses,sqlite,ssl,threads'
+MOZ_ESR="1"
 
 # This list can be updated with scripts/get_langs.sh from the mozilla overlay
 MOZ_LANGS=( ach af an ar as ast az bg bn-BD bn-IN br bs ca cak cs cy da de dsb
@@ -27,7 +24,7 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-62.0-patches-01"
+PATCH="${PN}-60.0-patches-03"
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 
 MOZCONFIG_OPTIONAL_WIFI=1
@@ -36,20 +33,19 @@ inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils llvm \
 		mozconfig-v6.60 pax-utils xdg-utils autotools mozlinguas-v2
 
 DESCRIPTION="Firefox Web Browser"
-HOMEPAGE="http://www.mozilla.com/firefox"
+HOMEPAGE="https://www.mozilla.com/firefox"
 
 KEYWORDS="~amd64 ~x86"
 
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist eme-free +gmp-autoupdate hardened hwaccel jack +screenshot selinux test"
+IUSE="bindist eme-free geckodriver +gmp-autoupdate hardened hwaccel jack +screenshot selinux test"
 RESTRICT="!bindist? ( bindist )"
 
-SRCHASH=239e434d6d2b8e1e2b697c3416d1e96d48fe98e5
 SDIR="release"
 [[ ${PV} = *_beta* ]] && SDIR="beta"
 
-PATCH_URIS=( https://dev.gentoo.org/~{anarchy,axs,polynomial-c}/mozilla/patchsets/${PATCH}.tar.xz )
+PATCH_URIS=( https://dev.gentoo.org/~whissi/dist/firefox/${PATCH}.tar.xz https://dev.gentoo.org/~{anarchy,axs,polynomial-c}/mozilla/patchsets/${PATCH}.tar.xz )
 SRC_URI="${SRC_URI}
 	${MOZ_HTTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.xz
 	${PATCH_URIS[@]}"
@@ -59,7 +55,7 @@ ASM_DEPEND=">=dev-lang/yasm-1.1"
 RDEPEND="
 	system-icu? ( >=dev-libs/icu-60.2 )
 	jack? ( virtual/jack )
-	>=dev-libs/nss-3.38
+	>=dev-libs/nss-3.36.4
 	>=dev-libs/nspr-4.19
 	selinux? ( sec-policy/selinux-mozilla )"
 
@@ -125,7 +121,11 @@ src_unpack() {
 }
 
 src_prepare() {
+	rm "${WORKDIR}/firefox/2005_ffmpeg4.patch"
 	eapply "${WORKDIR}/firefox"
+
+	eapply "${FILESDIR}"/bug_1461221.patch
+	eapply "${FILESDIR}"/${PN}-60.0-blessings-TERM.patch # 654316
 
 	# Enable gnomebreakpad
 	if use debug ; then
@@ -188,6 +188,14 @@ src_configure() {
 	# get your own set of keys.
 	_google_api_key=AIzaSyDEAOvatFo0eTgsV_ZlEzx0ObmepsMzfAc
 
+	# Add information about TERM to output (build.log) to aid debugging
+	# blessings problems
+	if [[ -n "${TERM}" ]] ; then
+		einfo "TERM is set to: \"${TERM}\""
+	else
+		einfo "TERM is unset."
+	fi
+
 	####################################
 	#
 	# mozconfig, CFLAGS and CXXFLAGS setup
@@ -196,6 +204,8 @@ src_configure() {
 
 	mozconfig_init
 	mozconfig_config
+
+	mozconfig_use_enable geckodriver
 
 	# enable JACK, bug 600002
 	mozconfig_use_enable jack
@@ -212,6 +222,13 @@ src_configure() {
 		mozconfig_use_enable hardened hardening
 	fi
 
+	# Disable built-in ccache support to avoid sandbox violation, #665420
+	# Use FEATURES=ccache instead!
+	mozconfig_annotate '' --without-ccache
+	sed -i -e 's/ccache_stats = None/return None/' \
+		python/mozbuild/mozbuild/controller/building.py || \
+		die "Failed to disable ccache stats call"
+
 	# Setup api key for location services
 	echo -n "${_google_api_key}" > "${S}"/google-api-key
 	mozconfig_annotate '' --with-google-api-keyfile="${S}/google-api-key"
@@ -221,9 +238,8 @@ src_configure() {
 	echo "mk_add_options MOZ_OBJDIR=${BUILD_OBJ_DIR}" >> "${S}"/.mozconfig
 	echo "mk_add_options XARGS=/usr/bin/xargs" >> "${S}"/.mozconfig
 
-	# Default mozilla_five_home, system-hunspell no longer valid option
+	# Default mozilla_five_home no longer valid option
 	sed '/with-default-mozilla-five-home=/d' -i "${S}"/.mozconfig
-	sed '/enable-system-hunspell/d' -i "${S}"/.mozconfig
 
 	# Finalize and report settings
 	mozconfig_final
@@ -278,7 +294,14 @@ src_install() {
 
 	cd "${S}"
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX}/bin/bash}" MOZ_NOSPAM=1 \
-	DESTDIR="${D}" ./mach install
+	DESTDIR="${D}" ./mach install || die
+
+	if use geckodriver ; then
+		cp "${BUILD_OBJ_DIR}"/dist/bin/geckodriver "${ED%/}"${MOZILLA_FIVE_HOME} || die
+		pax-mark m "${ED%/}"${MOZILLA_FIVE_HOME}/geckodriver
+
+		dosym ${MOZILLA_FIVE_HOME}/geckodriver /usr/bin/geckodriver
+	fi
 
 	# Install language packs
 	mozlinguas_src_install
@@ -327,8 +350,16 @@ PROFILE_EOF
 			|| die
 	fi
 
+	# Don't install llvm-symbolizer from sys-devel/llvm package
+	[[ -f "${ED%/}${MOZILLA_FIVE_HOME}/llvm-symbolizer" ]] && \
+		rm "${ED%/}${MOZILLA_FIVE_HOME}/llvm-symbolizer"
+
+	# firefox and firefox-bin are identical
+	rm "${ED%/}"${MOZILLA_FIVE_HOME}/firefox-bin || die
+	dosym firefox ${MOZILLA_FIVE_HOME}/firefox-bin
+
 	# Required in order to use plugins and even run firefox on hardened.
-	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{firefox,firefox-bin,plugin-container}
+	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{firefox,plugin-container}
 }
 
 pkg_preinst() {
@@ -352,9 +383,8 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
-	# Update mimedb for the new .desktop file
-	xdg_desktop_database_update
 	gnome2_icon_cache_update
+	xdg_desktop_database_update
 
 	if ! use gmp-autoupdate && ! use eme-free ; then
 		elog "USE='-gmp-autoupdate' has disabled the following plugins from updating or"
@@ -374,4 +404,5 @@ pkg_postinst() {
 
 pkg_postrm() {
 	gnome2_icon_cache_update
+	xdg_desktop_database_update
 }
