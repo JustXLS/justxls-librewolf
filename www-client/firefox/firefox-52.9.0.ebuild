@@ -1,13 +1,10 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 VIRTUALX_REQUIRED="pgo"
 WANT_AUTOCONF="2.1"
-MOZ_ESR="1"
-
-PYTHON_COMPAT=( python3_{5,6,7} )
-PYTHON_REQ_USE='ncurses,sqlite,ssl,threads(+)'
+MOZ_ESR=1
 
 # This list can be updated with scripts/get_langs.sh from the mozilla overlay
 MOZ_LANGS=( ach af an ar as ast az bg bn-BD bn-IN br bs ca cak cs cy da de dsb
@@ -27,28 +24,25 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-60.0-patches-03"
+PATCH="${PN}-52.5-patches-02"
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 
+MOZCONFIG_OPTIONAL_GTK2ONLY=1
 MOZCONFIG_OPTIONAL_WIFI=1
 
-inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils llvm \
-		mozconfig-v6.60 pax-utils xdg-utils autotools mozlinguas-v2
+inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils mozconfig-v6.52 pax-utils xdg-utils autotools virtualx mozlinguas-v2
 
 DESCRIPTION="Firefox Web Browser"
-HOMEPAGE="https://www.mozilla.com/firefox"
+HOMEPAGE="https://www.mozilla.org/firefox"
 
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~ia64 ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux"
 
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist eme-free geckodriver +gmp-autoupdate hardened hwaccel jack +screenshot selinux test"
+IUSE="bindist eme-free +gmp-autoupdate hardened hwaccel jack pgo rust selinux test"
 RESTRICT="!bindist? ( bindist )"
 
-SDIR="release"
-[[ ${PV} = *_beta* ]] && SDIR="beta"
-
-PATCH_URIS=( https://dev.gentoo.org/~whissi/dist/firefox/${PATCH}.tar.xz https://dev.gentoo.org/~{anarchy,axs,polynomial-c}/mozilla/patchsets/${PATCH}.tar.xz )
+PATCH_URIS=( https://dev.gentoo.org/~{anarchy,axs,polynomial-c}/mozilla/patchsets/${PATCH}.tar.xz )
 SRC_URI="${SRC_URI}
 	${MOZ_HTTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.xz
 	${PATCH_URIS[@]}"
@@ -56,19 +50,18 @@ SRC_URI="${SRC_URI}
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 RDEPEND="
-	system-icu? ( >=dev-libs/icu-60.2 )
 	jack? ( virtual/jack )
-	>=dev-libs/nss-3.36.4
-	>=dev-libs/nspr-4.19
+	>=dev-libs/nss-3.28.3
+	>=dev-libs/nspr-4.13.1
 	selinux? ( sec-policy/selinux-mozilla )"
 
 DEPEND="${RDEPEND}
-	>=sys-devel/llvm-4.0.1
-	>=sys-devel/clang-4.0.1
+	pgo? ( >=sys-devel/gcc-4.5 )
+	rust? ( virtual/rust )
 	amd64? ( ${ASM_DEPEND} virtual/opengl )
 	x86? ( ${ASM_DEPEND} virtual/opengl )"
 
-S="${WORKDIR}/firefox-${PV%_*}"
+S="${WORKDIR}/firefox-${MOZ_PV}"
 
 QA_PRESTRIPPED="usr/lib*/${PN}/firefox"
 
@@ -79,10 +72,6 @@ BUILD_OBJ_DIR="${S}/ff"
 if [[ -z $GMP_PLUGIN_LIST ]]; then
 	GMP_PLUGIN_LIST=( gmp-gmpopenh264 gmp-widevinecdm )
 fi
-
-llvm_check_deps() {
-	has_version "sys-devel/clang:${LLVM_SLOT}"
-}
 
 pkg_setup() {
 	moz_pkgsetup
@@ -104,15 +93,25 @@ pkg_setup() {
 		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
 	fi
 
-	addpredict /proc/self/oom_score_adj
+	if use pgo; then
+		einfo
+		ewarn "You will do a double build for profile guided optimization."
+		ewarn "This will result in your build taking at least twice as long as before."
+	fi
 
-	llvm_pkg_setup
+	if use rust; then
+		einfo
+		ewarn "This is very experimental, should only be used by those developing firefox."
+	fi
 }
 
 pkg_pretend() {
 	# Ensure we have enough disk space to compile
-	CHECKREQS_DISK_BUILD="4G"
-
+	if use pgo || use debug || use test ; then
+		CHECKREQS_DISK_BUILD="8G"
+	else
+		CHECKREQS_DISK_BUILD="4G"
+	fi
 	check-reqs_pkg_setup
 }
 
@@ -124,13 +123,11 @@ src_unpack() {
 }
 
 src_prepare() {
-	rm "${WORKDIR}/firefox/2005_ffmpeg4.patch"
+	# Apply our patches
+	rm -f "${WORKDIR}"/firefox/2007_fix_nvidia_latest.patch
 	eapply "${WORKDIR}/firefox"
 
-	eapply "${FILESDIR}"/bug_1461221.patch
-	eapply "${FILESDIR}"/${PN}-60.0-blessings-TERM.patch # 654316
-	eapply "${FILESDIR}"/${PN}-60.0-rust-1.29-comp.patch
-	eapply "${FILESDIR}"/${PN}-60.0-missing-errno_h-in-SandboxOpenedFiles_cpp.patch
+	eapply "${FILESDIR}"/${P}-blessings-TERM.patch # 654316
 
 	# Enable gnomebreakpad
 	if use debug ; then
@@ -184,6 +181,10 @@ src_prepare() {
 	# Must run autoconf in js/src
 	cd "${S}"/js/src || die
 	eautoconf old-configure.in
+
+	# Need to update jemalloc's configure
+	cd "${S}"/memory/jemalloc/src || die
+	WANT_AUTOCONF= eautoconf
 }
 
 src_configure() {
@@ -192,14 +193,6 @@ src_configure() {
 	# Note: These are for Gentoo Linux use ONLY. For your own distribution, please
 	# get your own set of keys.
 	_google_api_key=AIzaSyDEAOvatFo0eTgsV_ZlEzx0ObmepsMzfAc
-
-	# Add information about TERM to output (build.log) to aid debugging
-	# blessings problems
-	if [[ -n "${TERM}" ]] ; then
-		einfo "TERM is set to: \"${TERM}\""
-	else
-		einfo "TERM is unset."
-	fi
 
 	####################################
 	#
@@ -210,29 +203,19 @@ src_configure() {
 	mozconfig_init
 	mozconfig_config
 
-	mozconfig_use_enable geckodriver
-
 	# enable JACK, bug 600002
 	mozconfig_use_enable jack
 
-	# Enable/Disable eme support
 	use eme-free && mozconfig_annotate '+eme-free' --disable-eme
 
 	# It doesn't compile on alpha without this LDFLAGS
 	use alpha && append-ldflags "-Wl,--no-relax"
 
 	# Add full relro support for hardened
-	if use hardened; then
-		append-ldflags "-Wl,-z,relro,-z,now"
-		mozconfig_use_enable hardened hardening
-	fi
+	use hardened && append-ldflags "-Wl,-z,relro,-z,now"
 
-	# Disable built-in ccache support to avoid sandbox violation, #665420
-	# Use FEATURES=ccache instead!
-	mozconfig_annotate '' --without-ccache
-	sed -i -e 's/ccache_stats = None/return None/' \
-		python/mozbuild/mozbuild/controller/building.py || \
-		die "Failed to disable ccache stats call"
+	# Only available on mozilla-overlay for experimentation -- Removed in Gentoo repo per bug 571180
+	#use egl && mozconfig_annotate 'Enable EGL as GL provider' --with-gl-provider=EGL
 
 	# Setup api key for location services
 	echo -n "${_google_api_key}" > "${S}"/google-api-key
@@ -240,28 +223,57 @@ src_configure() {
 
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 
-	if use clang ; then
-		# https://bugzilla.mozilla.org/show_bug.cgi?id=1423822
-		mozconfig_annotate 'elf-hack is broken when using Clang' --disable-elf-hack
+	mozconfig_use_enable rust
+
+	# Allow for a proper pgo build
+	if use pgo; then
+		echo "mk_add_options PROFILE_GEN_SCRIPT='EXTRA_TEST_ARGS=10 \$(MAKE) -C \$(MOZ_OBJDIR) pgo-profile-run'" >> "${S}"/.mozconfig
 	fi
 
 	echo "mk_add_options MOZ_OBJDIR=${BUILD_OBJ_DIR}" >> "${S}"/.mozconfig
 	echo "mk_add_options XARGS=/usr/bin/xargs" >> "${S}"/.mozconfig
 
-	# Default mozilla_five_home no longer valid option
-	sed '/with-default-mozilla-five-home=/d' -i "${S}"/.mozconfig
-
 	# Finalize and report settings
 	mozconfig_final
 
+	if [[ $(gcc-major-version) -lt 4 ]]; then
+		append-cxxflags -fno-stack-protector
+	fi
+
 	# workaround for funky/broken upstream configure...
-	SHELL="${SHELL:-${EPREFIX}/bin/bash}" MOZ_NOSPAM=1 \
-	./mach configure || die
+	SHELL="${SHELL:-${EPREFIX%/}/bin/bash}" \
+	emake -f client.mk configure
 }
 
 src_compile() {
-	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX}/bin/bash}" MOZ_NOSPAM=1 \
-	./mach build --verbose || die
+	if use pgo; then
+		addpredict /root
+		addpredict /etc/gconf
+		# Reset and cleanup environment variables used by GNOME/XDG
+		gnome2_environment_reset
+
+		# Firefox tries to use dri stuff when it's run, see bug 380283
+		shopt -s nullglob
+		cards=$(echo -n /dev/dri/card* | sed 's/ /:/g')
+		if test -z "${cards}"; then
+			cards=$(echo -n /dev/ati/card* /dev/nvidiactl* | sed 's/ /:/g')
+			if test -n "${cards}"; then
+				# Binary drivers seem to cause access violations anyway, so
+				# let's use indirect rendering so that the device files aren't
+				# touched at all. See bug 394715.
+				export LIBGL_ALWAYS_INDIRECT=1
+			fi
+		fi
+		shopt -u nullglob
+		[[ -n "${cards}" ]] && addpredict "${cards}"
+
+		MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX%/}/bin/bash}" \
+		virtx emake -f client.mk profiledbuild || die "virtx emake failed"
+	else
+		MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX%/}/bin/bash}" \
+		emake -f client.mk realbuild
+	fi
+
 }
 
 src_install() {
@@ -271,7 +283,7 @@ src_install() {
 	pax-mark m "${BUILD_OBJ_DIR}"/dist/bin/xpcshell
 
 	# Add our default prefs for firefox
-	cp "${FILESDIR}"/gentoo-default-prefs.js-2 \
+	cp "${FILESDIR}"/gentoo-default-prefs.js-1 \
 		"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js" \
 		|| die
 
@@ -285,12 +297,6 @@ src_install() {
 		|| die
 	fi
 
-	if ! use screenshot; then
-		echo "pref(\"extensions.screenshots.disabled\", true);" >> \
-			"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js" \
-			|| die
-	fi
-
 	echo "pref(\"extensions.autoDisableScopes\", 3);" >> \
 		"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js" \
 		|| die
@@ -302,16 +308,8 @@ src_install() {
 			|| die
 	done
 
-	cd "${S}"
-	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX}/bin/bash}" MOZ_NOSPAM=1 \
-	DESTDIR="${D}" ./mach install || die
-
-	if use geckodriver ; then
-		cp "${BUILD_OBJ_DIR}"/dist/bin/geckodriver "${ED%/}"${MOZILLA_FIVE_HOME} || die
-		pax-mark m "${ED%/}"${MOZILLA_FIVE_HOME}/geckodriver
-
-		dosym ${MOZILLA_FIVE_HOME}/geckodriver /usr/bin/geckodriver
-	fi
+	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX%/}/bin/bash}" \
+	emake DESTDIR="${D}" install
 
 	# Install language packs
 	mozlinguas_src_install
@@ -336,7 +334,7 @@ sticky_pref("devtools.theme", "dark");
 PROFILE_EOF
 
 	else
-		sizes="16 22 24 32 48 64 128 256"
+		sizes="16 22 24 32 256"
 		icon_path="${S}/browser/branding/official"
 		icon="${PN}"
 		name="Mozilla Firefox"
@@ -347,8 +345,11 @@ PROFILE_EOF
 		insinto "/usr/share/icons/hicolor/${size}x${size}/apps"
 		newins "${icon_path}/default${size}.png" "${icon}.png"
 	done
+	# The 128x128 icon has a different name
+	insinto "/usr/share/icons/hicolor/128x128/apps"
+	newins "${icon_path}/mozicon128.png" "${icon}.png"
 	# Install a 48x48 icon into /usr/share/pixmaps for legacy DEs
-	newicon "${icon_path}/default48.png" "${icon}.png"
+	newicon "${icon_path}/content/icon48.png" "${icon}.png"
 	newmenu "${FILESDIR}/icon/${PN}.desktop" "${PN}.desktop"
 	sed -i -e "s:@NAME@:${name}:" -e "s:@ICON@:${icon}:" \
 		"${ED}/usr/share/applications/${PN}.desktop" || die
@@ -360,16 +361,8 @@ PROFILE_EOF
 			|| die
 	fi
 
-	# Don't install llvm-symbolizer from sys-devel/llvm package
-	[[ -f "${ED%/}${MOZILLA_FIVE_HOME}/llvm-symbolizer" ]] && \
-		rm "${ED%/}${MOZILLA_FIVE_HOME}/llvm-symbolizer"
-
-	# firefox and firefox-bin are identical
-	rm "${ED%/}"${MOZILLA_FIVE_HOME}/firefox-bin || die
-	dosym firefox ${MOZILLA_FIVE_HOME}/firefox-bin
-
 	# Required in order to use plugins and even run firefox on hardened.
-	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{firefox,plugin-container}
+	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{firefox,firefox-bin,plugin-container}
 }
 
 pkg_preinst() {
@@ -393,26 +386,24 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
-	gnome2_icon_cache_update
+	# Update mimedb for the new .desktop file
 	xdg_desktop_database_update
+	gnome2_icon_cache_update
 
 	if ! use gmp-autoupdate && ! use eme-free ; then
 		elog "USE='-gmp-autoupdate' has disabled the following plugins from updating or"
 		elog "installing into new profiles:"
 		local plugin
 		for plugin in "${GMP_PLUGIN_LIST[@]}"; do elog "\t ${plugin}" ; done
-		elog
 	fi
 
-	if use pulseaudio && has_version ">=media-sound/apulse-0.1.9"; then
+	if use pulseaudio && has_version ">=media-sound/apulse-0.1.9" ; then
 		elog "Apulse was detected at merge time on this system and so it will always be"
 		elog "used for sound.  If you wish to use pulseaudio instead please unmerge"
 		elog "media-sound/apulse."
-		elog
 	fi
 }
 
 pkg_postrm() {
 	gnome2_icon_cache_update
-	xdg_desktop_database_update
 }
