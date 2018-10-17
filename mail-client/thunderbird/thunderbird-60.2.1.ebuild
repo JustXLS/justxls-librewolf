@@ -522,11 +522,11 @@ src_install() {
 
 	local emid
 	# stage extra locales for lightning and install over existing
+	emid='{e2fda1a4-762b-4020-b5ad-a41df1933103}'
 	rm -f "${ED}"/${MOZILLA_FIVE_HOME}/distribution/extensions/${emid}.xpi || die
 	mozlinguas_xpistage_langpacks "${BUILD_OBJ_DIR}"/dist/bin/distribution/extensions/${emid} \
 		"${WORKDIR}"/lightning-${MOZ_LIGHTNING_VER} lightning calendar
 
-	emid='{e2fda1a4-762b-4020-b5ad-a41df1933103}'
 	mkdir -p "${T}/${emid}" || die
 	cp -RLp -t "${T}/${emid}" "${BUILD_OBJ_DIR}"/dist/bin/distribution/extensions/${emid}/* || die
 	insinto ${MOZILLA_FIVE_HOME}/distribution/extensions
