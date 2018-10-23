@@ -1,10 +1,10 @@
 # Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI="6"
 VIRTUALX_REQUIRED="pgo"
 WANT_AUTOCONF="2.1"
-MOZ_ESR="1"
+MOZ_ESR=""
 
 PYTHON_COMPAT=( python3_{5,6,7} )
 PYTHON_REQ_USE='ncurses,sqlite,ssl,threads(+)'
@@ -27,13 +27,11 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 
 # Patch version
-PATCH="${PN}-60.0-patches-03"
+PATCH="${PN}-62.0-patches-01"
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 
-MOZCONFIG_OPTIONAL_WIFI=1
-
 inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils llvm \
-		mozconfig-v6.60 pax-utils xdg-utils autotools mozlinguas-v2
+		mozcoreconf-v6 pax-utils xdg-utils autotools mozlinguas-v2
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="https://www.mozilla.com/firefox"
@@ -42,31 +40,91 @@ KEYWORDS="~amd64 ~x86"
 
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist eme-free geckodriver +gmp-autoupdate hardened hwaccel jack +screenshot selinux test"
+IUSE="bindist clang dbus debug eme-free geckodriver +gmp-autoupdate hardened hwaccel
+	jack lto neon pulseaudio +screenshot selinux startup-notification
+	system-harfbuzz system-icu system-jpeg system-libevent system-sqlite
+	system-libvpx test wifi"
 RESTRICT="!bindist? ( bindist )"
 
-SDIR="release"
-[[ ${PV} = *_beta* ]] && SDIR="beta"
-
-PATCH_URIS=( https://dev.gentoo.org/~whissi/dist/firefox/${PATCH}.tar.xz https://dev.gentoo.org/~{anarchy,axs,polynomial-c}/mozilla/patchsets/${PATCH}.tar.xz )
+PATCH_URIS=( https://dev.gentoo.org/~{anarchy,axs,polynomial-c}/mozilla/patchsets/${PATCH}.tar.xz )
 SRC_URI="${SRC_URI}
 	${MOZ_HTTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.xz
 	${PATCH_URIS[@]}"
 
-ASM_DEPEND=">=dev-lang/yasm-1.1"
-
-RDEPEND="
-	system-icu? ( >=dev-libs/icu-60.2 )
-	jack? ( virtual/jack )
-	>=dev-libs/nss-3.36.4
+CDEPEND="
+	>=dev-libs/nss-3.38
 	>=dev-libs/nspr-4.19
+	>=app-text/hunspell-1.5.4:=
+	dev-libs/atk
+	dev-libs/expat
+	>=x11-libs/cairo-1.10[X]
+	>=x11-libs/gtk+-2.18:2
+	>=x11-libs/gtk+-3.4.0:3
+	x11-libs/gdk-pixbuf
+	>=x11-libs/pango-1.22.0
+	>=media-libs/libpng-1.6.34:0=[apng]
+	>=media-libs/mesa-10.2:*
+	media-libs/fontconfig
+	>=media-libs/freetype-2.4.10
+	kernel_linux? ( !pulseaudio? ( media-libs/alsa-lib ) )
+	virtual/freedesktop-icon-theme
+	dbus? ( >=sys-apps/dbus-0.60
+		>=dev-libs/dbus-glib-0.72 )
+	startup-notification? ( >=x11-libs/startup-notification-0.8 )
+	>=x11-libs/pixman-0.19.2
+	>=dev-libs/glib-2.26:2
+	>=sys-libs/zlib-1.2.3
+	>=virtual/libffi-3.0.10:=
+	virtual/ffmpeg
+	x11-libs/libX11
+	x11-libs/libXcomposite
+	x11-libs/libXdamage
+	x11-libs/libXext
+	x11-libs/libXfixes
+	x11-libs/libXrender
+	x11-libs/libXt
+	system-icu? ( >=dev-libs/icu-60.2:= )
+	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
+	system-libevent? ( >=dev-libs/libevent-2.0:0= )
+	system-sqlite? ( >=dev-db/sqlite-3.24.0:3[secure-delete,debug=] )
+	system-libvpx? ( >=media-libs/libvpx-1.5.0:0=[postproc] )
+	system-harfbuzz? ( >=media-libs/harfbuzz-1.4.2:0= >=media-gfx/graphite2-1.3.9-r1 )
+	wifi? ( kernel_linux? ( >=sys-apps/dbus-0.60
+			>=dev-libs/dbus-glib-0.72
+			net-misc/networkmanager ) )
+	jack? ( virtual/jack )
 	selinux? ( sec-policy/selinux-mozilla )"
 
-DEPEND="${RDEPEND}
+RDEPEND="${CDEPEND}
+	jack? ( virtual/jack )
+	pulseaudio? ( || ( media-sound/pulseaudio
+		>=media-sound/apulse-0.1.9 ) )
+	selinux? ( sec-policy/selinux-mozilla )"
+
+DEPEND="${CDEPEND}
+	app-arch/zip
+	app-arch/unzip
+	>=sys-devel/binutils-2.30
+	sys-apps/findutils
 	>=sys-devel/llvm-4.0.1
 	>=sys-devel/clang-4.0.1
-	amd64? ( ${ASM_DEPEND} virtual/opengl )
-	x86? ( ${ASM_DEPEND} virtual/opengl )"
+	clang? (
+		>=sys-devel/llvm-4.0.1[gold]
+		>=sys-devel/lld-4.0.1
+	)
+	pulseaudio? ( media-sound/pulseaudio )
+	elibc_glibc? (
+		virtual/cargo
+		virtual/rust
+	)
+	elibc_musl? (
+		virtual/cargo
+		virtual/rust
+	)
+	amd64? ( >=dev-lang/yasm-1.1 virtual/opengl )
+	x86? ( >=dev-lang/yasm-1.1 virtual/opengl )"
+
+REQUIRED_USE="wifi? ( dbus )"
 
 S="${WORKDIR}/firefox-${PV%_*}"
 
@@ -100,8 +158,8 @@ pkg_setup() {
 		einfo
 		elog "You are enabling official branding. You may not redistribute this build"
 		elog "to any users on your network or the internet. Doing so puts yourself into"
-		elog "a legal problem with Mozilla Foundation"
-		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag"
+		elog "a legal problem with Mozilla Foundation."
+		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag."
 	fi
 
 	addpredict /proc/self/oom_score_adj
@@ -124,12 +182,11 @@ src_unpack() {
 }
 
 src_prepare() {
-	rm "${WORKDIR}/firefox/2005_ffmpeg4.patch"
 	eapply "${WORKDIR}/firefox"
 
-	eapply "${FILESDIR}"/bug_1461221.patch
 	eapply "${FILESDIR}"/${PN}-60.0-blessings-TERM.patch # 654316
-	eapply "${FILESDIR}"/${PN}-60.0-rust-1.29-comp.patch
+	eapply "${FILESDIR}"/${PN}-60.0-do-not-force-lld.patch
+	eapply "${FILESDIR}"/${PN}-60.0-sandbox-lto.patch # 666580
 	eapply "${FILESDIR}"/${PN}-60.0-missing-errno_h-in-SandboxOpenedFiles_cpp.patch
 
 	# Enable gnomebreakpad
@@ -201,6 +258,20 @@ src_configure() {
 		einfo "TERM is unset."
 	fi
 
+	if use clang && ! tc-is-clang ; then
+		# Force clang
+		einfo "Enforcing the use of clang due to USE=clang ..."
+		CC=${CHOST}-clang
+		CXX=${CHOST}-clang++
+		strip-unsupported-flags
+	elif ! use clang && ! tc-is-gcc ; then
+		# Force gcc
+		einfo "Enforcing the use of gcc due to USE=-clang ..."
+		CC=${CHOST}-gcc
+		CXX=${CHOST}-g++
+		strip-unsupported-flags
+	fi
+
 	####################################
 	#
 	# mozconfig, CFLAGS and CXXFLAGS setup
@@ -208,15 +279,38 @@ src_configure() {
 	####################################
 
 	mozconfig_init
-	mozconfig_config
+	# common config components
+	mozconfig_annotate 'system_libs' \
+		--with-system-zlib \
+		--with-system-bz2
 
-	mozconfig_use_enable geckodriver
+	# Must pass release in order to properly select linker
+	mozconfig_annotate 'Enable by Gentoo' --enable-release
 
-	# enable JACK, bug 600002
-	mozconfig_use_enable jack
+	# Don't let user's LTO flags clash with upstream's flags
+	filter-flags -flto*
 
-	# Enable/Disable eme support
-	use eme-free && mozconfig_annotate '+eme-free' --disable-eme
+	if use lto ; then
+		if use clang ; then
+			# Upstream only supports lld when using clang
+			mozconfig_annotate "forcing ld=lld due to USE=clang and USE=lto" --enable-linker=lld
+		else
+			# Linking only works when using ld.gold when LTO is enabled
+			mozconfig_annotate "forcing ld=gold due to USE=lto" --enable-linker=gold
+		fi
+
+		mozconfig_annotate '+lto' --enable-lto=thin
+	else
+		# Avoid auto-magic on linker
+		if use clang ; then
+			# This is upstream's default
+			mozconfig_annotate "forcing ld=lld due to USE=clang" --enable-linker=lld
+		elif tc-ld-is-gold ; then
+			mozconfig_annotate "linker is set to gold" --enable-linker=gold
+		else
+			mozconfig_annotate "linker is set to bfd" --enable-linker=bfd
+		fi
+	fi
 
 	# It doesn't compile on alpha without this LDFLAGS
 	use alpha && append-ldflags "-Wl,--no-relax"
@@ -227,6 +321,81 @@ src_configure() {
 		mozconfig_use_enable hardened hardening
 	fi
 
+	# Modifications to better support ARM, bug 553364
+	if use neon ; then
+		mozconfig_annotate '' --with-fpu=neon
+
+		if ! tc-is-clang ; then
+			# thumb options aren't supported when using clang, bug 666966
+			mozconfig_annotate '' --with-thumb=yes
+			mozconfig_annotate '' --with-thumb-interwork=no
+		fi
+	fi
+	if [[ ${CHOST} == armv*h* ]] ; then
+		mozconfig_annotate '' --with-float-abi=hard
+		if ! use system-libvpx ; then
+			sed -i -e "s|softfp|hard|" \
+				"${S}"/media/libvpx/moz.build
+		fi
+	fi
+
+	mozconfig_use_enable !bindist official-branding
+	# Enable position independent executables
+	mozconfig_annotate 'enabled by Gentoo' --enable-pie
+
+	mozconfig_use_enable debug
+	mozconfig_use_enable debug tests
+	if ! use debug ; then
+		mozconfig_annotate 'disabled by Gentoo' --disable-debug-symbols
+	else
+		mozconfig_annotate 'enabled by Gentoo' --enable-debug-symbols
+	fi
+	# These are enabled by default in all mozilla applications
+	mozconfig_annotate '' --with-system-nspr --with-nspr-prefix="${SYSROOT}${EPREFIX}"/usr
+	mozconfig_annotate '' --with-system-nss --with-nss-prefix="${SYSROOT}${EPREFIX}"/usr
+	mozconfig_annotate '' --x-includes="${SYSROOT}${EPREFIX}"/usr/include \
+		--x-libraries="${SYSROOT}${EPREFIX}"/usr/$(get_libdir)
+	mozconfig_annotate '' --prefix="${EPREFIX}"/usr
+	mozconfig_annotate '' --libdir="${EPREFIX}"/usr/$(get_libdir)
+	mozconfig_annotate '' --disable-crashreporter
+	mozconfig_annotate 'Gentoo default' --with-system-png
+	mozconfig_annotate '' --enable-system-ffi
+	mozconfig_annotate '' --disable-gconf
+	mozconfig_annotate '' --with-intl-api
+	mozconfig_annotate '' --enable-system-pixman
+	# Instead of the standard --build= and --host=, mozilla uses --host instead
+	# of --build, and --target intstead of --host.
+	# Note, mozilla also has --build but it does not do what you think it does.
+	# Set both --target and --host as mozilla uses python to guess values otherwise
+	mozconfig_annotate '' --target="${CHOST}"
+	mozconfig_annotate '' --host="${CBUILD:-${CHOST}}"
+	if use system-libevent; then
+		mozconfig_annotate '' --with-system-libevent="${SYSROOT}${EPREFIX}"/usr
+	fi
+
+	# skia has no support for big-endian platforms
+	if [[ $(tc-endian) == "big" ]]; then
+		mozconfig_annotate 'big endian target' --disable-skia
+	else
+		mozconfig_annotate '' --enable-skia
+	fi
+
+	# use the gtk3 toolkit (the only one supported at this point)
+	mozconfig_annotate '' --enable-default-toolkit=cairo-gtk3
+
+	mozconfig_use_enable startup-notification
+	mozconfig_use_enable system-sqlite
+	mozconfig_use_with system-jpeg
+	mozconfig_use_with system-icu
+	mozconfig_use_with system-libvpx
+	mozconfig_use_with system-harfbuzz
+	mozconfig_use_with system-harfbuzz system-graphite2
+	mozconfig_use_enable pulseaudio
+	# force the deprecated alsa sound code if pulseaudio is disabled
+	if use kernel_linux && ! use pulseaudio ; then
+		mozconfig_annotate '-pulseaudio' --enable-alsa
+	fi
+
 	# Disable built-in ccache support to avoid sandbox violation, #665420
 	# Use FEATURES=ccache instead!
 	mozconfig_annotate '' --without-ccache
@@ -234,11 +403,26 @@ src_configure() {
 		python/mozbuild/mozbuild/controller/building.py || \
 		die "Failed to disable ccache stats call"
 
+	mozconfig_use_enable dbus
+
+	mozconfig_use_enable wifi necko-wifi
+
+	mozconfig_use_enable geckodriver
+
+	# enable JACK, bug 600002
+	mozconfig_use_enable jack
+
+	# Enable/Disable eme support
+	use eme-free && mozconfig_annotate '+eme-free' --disable-eme
+
 	# Setup api key for location services
 	echo -n "${_google_api_key}" > "${S}"/google-api-key
 	mozconfig_annotate '' --with-google-api-keyfile="${S}/google-api-key"
 
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
+
+	# disable webrtc for now, bug 667642
+	use arm && mozconfig_annotate 'broken on arm' --disable-webrtc
 
 	if use clang ; then
 		# https://bugzilla.mozilla.org/show_bug.cgi?id=1423822
@@ -247,9 +431,6 @@ src_configure() {
 
 	echo "mk_add_options MOZ_OBJDIR=${BUILD_OBJ_DIR}" >> "${S}"/.mozconfig
 	echo "mk_add_options XARGS=/usr/bin/xargs" >> "${S}"/.mozconfig
-
-	# Default mozilla_five_home no longer valid option
-	sed '/with-default-mozilla-five-home=/d' -i "${S}"/.mozconfig
 
 	# Finalize and report settings
 	mozconfig_final
@@ -275,8 +456,23 @@ src_install() {
 		"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js" \
 		|| die
 
-	mozconfig_install_prefs \
-		"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js"
+	# set dictionary path, to use system hunspell
+	echo "pref(\"spellchecker.dictionary_path\", \"${EPREFIX}/usr/share/myspell\");" \
+		>>"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js" || die
+
+	# force the graphite pref if system-harfbuzz is enabled, since the pref cant disable it
+	if use system-harfbuzz ; then
+		echo "sticky_pref(\"gfx.font_rendering.graphite.enabled\",true);" \
+			>>"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js" || die
+	fi
+
+	# force cairo as the canvas renderer on platforms without skia support
+	if [[ $(tc-endian) == "big" ]] ; then
+		echo "sticky_pref(\"gfx.canvas.azure.backends\",\"cairo\");" \
+			>>"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js" || die
+		echo "sticky_pref(\"gfx.content.azure.backends\",\"cairo\");" \
+			>>"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js" || die
+	fi
 
 	# Augment this with hwaccel prefs
 	if use hwaccel ; then
@@ -314,7 +510,7 @@ src_install() {
 	fi
 
 	# Install language packs
-	mozlinguas_src_install
+	MOZ_INSTALL_L10N_XPIFILE="1" mozlinguas_src_install
 
 	local size sizes icon_path icon name
 	if use bindist; then

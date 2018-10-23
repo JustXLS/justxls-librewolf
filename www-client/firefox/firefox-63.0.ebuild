@@ -10,11 +10,11 @@ PYTHON_COMPAT=( python3_{5,6,7} )
 PYTHON_REQ_USE='ncurses,sqlite,ssl,threads(+)'
 
 # This list can be updated with scripts/get_langs.sh from the mozilla overlay
-MOZ_LANGS=(ach af an ar as ast az be bg bn-BD bn-IN br bs ca cak cs cy da de dsb
-el en en-CA en-GB en-US en-ZA eo es-AR es-CL es-ES es-MX et eu fa ff fi fr fy-NL
-ga-IE gd gl gn gu-IN he hi-IN hr hsb hu hy-AM ia id is it ja ka kab kk km kn ko
-lij lt lv mai mk ml mr ms my nb-NO ne-NP nl nn-NO oc or pa-IN pl pt-BR pt-PT rm
-ro ru si sk sl son sq sr sv-SE ta te th tr uk ur uz vi xh zh-CN zh-TW )
+MOZ_LANGS=( ach af an ar as ast az bg bn-BD bn-IN br bs ca cak cs cy da de dsb
+el en en-GB en-US en-ZA eo es-AR es-CL es-ES es-MX et eu fa ff fi fr fy-NL ga-IE
+gd gl gn gu-IN he hi-IN hr hsb hu hy-AM id is it ja ka kab kk km kn ko lij lt lv
+mai mk ml mr ms nb-NO nl nn-NO or pa-IN pl pt-BR pt-PT rm ro ru si sk sl son sq
+sr sv-SE ta te th tr uk uz vi xh zh-CN zh-TW )
 
 # Convert the ebuild version to the upstream mozilla version, used by mozlinguas
 MOZ_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
@@ -105,7 +105,7 @@ DEPEND="${CDEPEND}
 	app-arch/zip
 	app-arch/unzip
 	dev-util/cbindgen
-	net-libs/nodejs
+	>=net-libs/nodejs-8.11.0
 	>=sys-devel/binutils-2.30
 	sys-apps/findutils
 	>=sys-devel/llvm-4.0.1
@@ -296,7 +296,7 @@ src_configure() {
 			mozconfig_annotate "forcing ld=gold due to USE=lto" --enable-linker=gold
 		fi
 
-		mozconfig_annotate '+lto' --enable-lto=full
+		mozconfig_annotate '+lto' --enable-lto=thin
 	else
 		# Avoid auto-magic on linker
 		if use clang ; then
@@ -418,10 +418,8 @@ src_configure() {
 
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 
-	if use clang ; then
-		# https://bugzilla.mozilla.org/show_bug.cgi?id=1423822
-		mozconfig_annotate 'elf-hack is broken when using Clang' --disable-elf-hack
-	fi
+	# disable webrtc for now, bug 667642
+	use arm && mozconfig_annotate 'broken on arm' --disable-webrtc
 
 	echo "mk_add_options MOZ_OBJDIR=${BUILD_OBJ_DIR}" >> "${S}"/.mozconfig
 	echo "mk_add_options XARGS=/usr/bin/xargs" >> "${S}"/.mozconfig
