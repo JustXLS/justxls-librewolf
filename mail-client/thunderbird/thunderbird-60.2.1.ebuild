@@ -9,7 +9,7 @@ MOZ_LIGHTNING_VER="6.2.2.1"
 MOZ_LIGHTNING_GDATA_VER="4.4.1"
 
 PYTHON_COMPAT=( python3_{5,6,7} )
-PYTHON_REQ_USE='ncurses,sqlite,ssl,threads'
+PYTHON_REQ_USE='ncurses,sqlite,ssl,threads(+)'
 
 # This list can be updated using scripts/get_langs.sh from the mozilla overlay
 MOZ_LANGS=(ar ast be bg br ca cs cy da de el en en-GB en-US es-AR
@@ -22,7 +22,7 @@ MOZ_PV="${PV/_beta/b}"
 
 # Patches
 PATCHTB="thunderbird-60.0-patches-0"
-PATCHFF="firefox-60.0-patches-03"
+PATCHFF="firefox-60.0-patches-04"
 
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 
@@ -45,7 +45,7 @@ IUSE="bindist clang dbus debug hardened jack lightning mozdom neon pulseaudio
 	system-libevent system-libvpx system-sqlite wifi"
 RESTRICT="!bindist? ( bindist )"
 
-PATCH_URIS=( https://dev.gentoo.org/~{anarchy,axs,polynomial-c}/mozilla/patchsets/{${PATCHTB},${PATCHFF}}.tar.xz )
+PATCH_URIS=( https://dev.gentoo.org/~whissi/dist/firefox/${PATCHFF}.tar.xz https://dev.gentoo.org/~{anarchy,axs,polynomial-c}/mozilla/patchsets/{${PATCHTB},${PATCHFF}}.tar.xz )
 SRC_URI="${SRC_URI}
 	${MOZ_HTTP_URI}/${MOZ_PV}/source/${MOZ_P}.source.tar.xz
 	https://dev.gentoo.org/~axs/distfiles/lightning-${MOZ_LIGHTNING_VER}.tar.xz
@@ -79,7 +79,7 @@ CDEPEND="
 	>=x11-libs/pixman-0.19.2
 	>=dev-libs/glib-2.26:2
 	>=sys-libs/zlib-1.2.3
-	>=virtual/libffi-3.0.10
+	>=virtual/libffi-3.0.10:=
 	virtual/ffmpeg
 	x11-libs/libX11
 	x11-libs/libXcomposite
@@ -197,7 +197,6 @@ src_prepare() {
 		"${WORKDIR}"/firefox/2005_ffmpeg4.patch \
 		|| die
 	eapply "${WORKDIR}/firefox"
-	eapply "${FILESDIR}"/${PN}-60.0-blessings-TERM.patch # 654316
 	eapply "${FILESDIR}"/${PN}-60.0-rust-1.29-comp.patch
 
 	# Ensure that are plugins dir is enabled as default
@@ -264,7 +263,7 @@ src_configure() {
 		# Force gcc
 		einfo "Enforcing the use of gcc due to USE=-clang ..."
 		CC=${CHOST}-gcc
-		CXX=${CHOST}-gcc++
+		CXX=${CHOST}-g++
 		strip-unsupported-flags
 	fi
 
