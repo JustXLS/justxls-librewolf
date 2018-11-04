@@ -180,6 +180,8 @@ src_unpack() {
 src_prepare() {
 	eapply "${WORKDIR}/firefox"
 
+	eapply "${FILESDIR}"/${P}-support-latest-cbindgen.patch
+
 	# Allow user to apply any additional patches without modifing ebuild
 	eapply_user
 
