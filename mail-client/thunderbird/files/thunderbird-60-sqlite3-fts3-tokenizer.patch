@@ -11,6 +11,8 @@ tokenizers enabled by default. This allows to use system SQLite in
 distributions which provide SQLite configured in this way (which is SQLite
 upstream's default configuration due to security concerns).
 
+Requires exposing the sqlite3_db_config symbol in bundled SQLite.
+
 Disable no longer needed setting of SQLITE_ENABLE_FTS3_TOKENIZER macro in
 bundled SQLite build.
 
@@ -27,6 +29,16 @@ bundled SQLite build.
  # Turn on SQLite's assertions in debug builds.
  if CONFIG['MOZ_DEBUG']:
      DEFINES['SQLITE_DEBUG'] = 1
+--- a/db/sqlite3/src/sqlite.symbols     Thu Nov 29 19:08:28 2018 +0000
++++ b/db/sqlite3/src/sqlite.symbols     Thu Nov 29 23:02:10 2018 +0000
+@@ -45,6 +45,7 @@
+ sqlite3_create_function16
+ sqlite3_create_module
+ sqlite3_data_count
++sqlite3_db_config
+ sqlite3_db_filename
+ sqlite3_db_handle
+ sqlite3_db_mutex
 --- a/storage/mozStorageConnection.cpp	Thu Nov 29 19:08:28 2018 +0000
 +++ b/storage/mozStorageConnection.cpp	Thu Nov 29 23:02:10 2018 +0000
 @@ -679,6 +679,10 @@
