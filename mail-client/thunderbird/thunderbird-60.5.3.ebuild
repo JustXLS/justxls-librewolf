@@ -1,11 +1,11 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 VIRTUALX_REQUIRED="pgo"
 WANT_AUTOCONF="2.1"
 MOZ_ESR=""
-MOZ_LIGHTNING_VER="6.2.2.1"
+MOZ_LIGHTNING_VER="6.2.5"
 MOZ_LIGHTNING_GDATA_VER="4.4.1"
 
 PYTHON_COMPAT=( python3_{5,6,7} )
@@ -13,16 +13,16 @@ PYTHON_REQ_USE='ncurses,sqlite,ssl,threads(+)'
 
 # This list can be updated using scripts/get_langs.sh from the mozilla overlay
 MOZ_LANGS=(ar ast be bg br ca cs cy da de el en en-GB en-US es-AR
-es-ES et eu fi fr fy-NL ga-IE gd gl he hr hsb hu hy-AM id is it ja ko lt
-nb-NO nl nn-NO pl pt-BR pt-PT rm ro ru si sk sl sq sr sv-SE tr
-uk vi zh-CN zh-TW )
+es-ES et eu fi fr fy-NL ga-IE gd gl he hr hsb hu hy-AM id is it
+ja ko lt nb-NO nl nn-NO pl pt-BR pt-PT rm ro ru si sk sl sq sr
+sv-SE tr uk vi zh-CN zh-TW )
 
 # Convert the ebuild version to the upstream mozilla version, used by mozlinguas
 MOZ_PV="${PV/_beta/b}"
 
 # Patches
 PATCHTB="thunderbird-60.0-patches-0"
-PATCHFF="firefox-60.0-patches-04"
+PATCHFF="firefox-60.5-patches-01"
 
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 
@@ -32,6 +32,8 @@ if [[ ${MOZ_ESR} == 1 ]]; then
 fi
 MOZ_P="${PN}-${MOZ_PV}"
 
+LLVM_MAX_SLOT=8
+
 inherit check-reqs flag-o-matic toolchain-funcs gnome2-utils llvm mozcoreconf-v6 pax-utils xdg-utils autotools mozlinguas-v2
 
 DESCRIPTION="Thunderbird Mail Client"
@@ -40,7 +42,7 @@ HOMEPAGE="https://www.mozilla.org/thunderbird"
 KEYWORDS="~amd64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist clang dbus debug hardened jack lightning mozdom neon pulseaudio
+IUSE="bindist clang dbus debug hardened jack lightning neon pulseaudio
 	selinux startup-notification system-harfbuzz system-icu system-jpeg
 	system-libevent system-libvpx system-sqlite wifi"
 RESTRICT="!bindist? ( bindist )"
@@ -55,7 +57,7 @@ SRC_URI="${SRC_URI}
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 CDEPEND="
-	>=dev-libs/nss-3.36.4
+	>=dev-libs/nss-3.36.7
 	>=dev-libs/nspr-4.19
 	>=app-text/hunspell-1.5.4:=
 	dev-libs/atk
@@ -95,7 +97,10 @@ CDEPEND="
 	system-icu? ( >=dev-libs/icu-59.1:= )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1:= )
 	system-libevent? ( >=dev-libs/libevent-2.0:0= )
-	system-libvpx? ( >=media-libs/libvpx-1.5.0:0=[postproc] )
+	system-libvpx? (
+		>=media-libs/libvpx-1.5.0:0=[postproc]
+		<media-libs/libvpx-1.8:0=[postproc]
+	)
 	system-sqlite? ( >=dev-db/sqlite-3.23.1:3[secure-delete,debug=] )
 	wifi? (
 		kernel_linux? (
@@ -111,11 +116,31 @@ DEPEND="${CDEPEND}
 	app-arch/unzip
 	>=sys-devel/binutils-2.30
 	sys-apps/findutils
-	>=sys-devel/llvm-4.0.1
-	>=sys-devel/clang-4.0.1
-	clang? (
-		>=sys-devel/llvm-4.0.1[gold]
-		>=sys-devel/lld-4.0.1
+	|| (
+		(
+			sys-devel/clang:8
+			!clang? ( sys-devel/llvm:8 )
+			clang? (
+				=sys-devel/lld-8*
+				sys-devel/llvm:8[gold]
+			)
+		)
+		(
+			sys-devel/clang:7
+			!clang? ( sys-devel/llvm:7 )
+			clang? (
+				=sys-devel/lld-7*
+				sys-devel/llvm:7[gold]
+			)
+		)
+		(
+			sys-devel/clang:6
+			!clang? ( sys-devel/llvm:6 )
+			clang? (
+				=sys-devel/lld-6*
+				sys-devel/llvm:6[gold]
+			)
+		)
 	)
 	pulseaudio? ( media-sound/pulseaudio )
 	elibc_glibc? (
@@ -152,6 +177,22 @@ REQUIRED_USE="wifi? ( dbus )"
 S="${WORKDIR}/${MOZ_P%b[0-9]*}"
 
 BUILD_OBJ_DIR="${S}/tbird"
+
+llvm_check_deps() {
+	if ! has_version "sys-devel/clang:${LLVM_SLOT}" ; then
+		ewarn "sys-devel/clang:${LLVM_SLOT} is missing! Cannot use LLVM slot ${LLVM_SLOT} ..."
+		return 1
+	fi
+
+	if use clang ; then
+		if ! has_version "=sys-devel/lld-${LLVM_SLOT}*" ; then
+			ewarn "=sys-devel/lld-${LLVM_SLOT}* is missing! Cannot use LLVM slot ${LLVM_SLOT} ..."
+			return 1
+		fi
+	fi
+
+	einfo "Will use LLVM slot ${LLVM_SLOT}!"
+}
 
 pkg_setup() {
 	moz_pkgsetup
@@ -195,9 +236,11 @@ src_prepare() {
 	# Apply our patchset from firefox to thunderbird as well
 	rm -f   "${WORKDIR}"/firefox/2007_fix_nvidia_latest.patch \
 		"${WORKDIR}"/firefox/2005_ffmpeg4.patch \
+		"${WORKDIR}"/firefox/2012_update-cc-to-honor-CC.patch \
 		|| die
 	eapply "${WORKDIR}/firefox"
-	eapply "${FILESDIR}"/${PN}-60.0-rust-1.29-comp.patch
+
+	eapply "${FILESDIR}"/thunderbird-60-sqlite3-fts3-tokenizer.patch
 
 	# Ensure that are plugins dir is enabled as default
 	sed -i -e "s:/usr/lib/mozilla/plugins:/usr/lib/nsbrowser/plugins:" \
@@ -218,14 +261,17 @@ src_prepare() {
 	pushd "${S}"/comm &>/dev/null || die
 	eapply "${WORKDIR}"/thunderbird
 
+	# NOT TRIGGERED starting with 60.3, as script just maps ${PV} without any actual
+	# check on lightning version or changes:
+	#
 	# Confirm the version of lightning being grabbed for langpacks is the same
 	# as that used in thunderbird
-	local THIS_MOZ_LIGHTNING_VER=$(${PYTHON} calendar/lightning/build/makeversion.py ${PV})
-	if [[ ${MOZ_LIGHTNING_VER} != ${THIS_MOZ_LIGHTNING_VER} ]]; then
-		eqawarn "The version of lightning used for localization differs from the version"
-		eqawarn "in thunderbird.  Please update MOZ_LIGHTNING_VER in the ebuild from ${MOZ_LIGHTNING_VER}"
-		eqawarn "to ${THIS_MOZ_LIGHTNING_VER}"
-	fi
+	#local THIS_MOZ_LIGHTNING_VER=$(${PYTHON} calendar/lightning/build/makeversion.py ${PV})
+	#if [[ ${MOZ_LIGHTNING_VER} != ${THIS_MOZ_LIGHTNING_VER} ]]; then
+	#	eqawarn "The version of lightning used for localization differs from the version"
+	#	eqawarn "in thunderbird.  Please update MOZ_LIGHTNING_VER in the ebuild from ${MOZ_LIGHTNING_VER}"
+	#	eqawarn "to ${THIS_MOZ_LIGHTNING_VER}"
+	#fi
 
 	popd &>/dev/null || die
 
@@ -243,8 +289,6 @@ src_prepare() {
 }
 
 src_configure() {
-	MEXTENSIONS="default"
-
 	# Add information about TERM to output (build.log) to aid debugging
 	# blessings problems
 	if [[ -n "${TERM}" ]] ; then
@@ -386,16 +430,7 @@ src_configure() {
 
 	# Other tb-specific settings
 	mozconfig_annotate '' --with-user-appdir=.thunderbird
-
 	mozconfig_annotate '' --enable-ldap
-
-	# Bug #72667
-	if use mozdom; then
-		MEXTENSIONS="${MEXTENSIONS},inspector"
-	fi
-
-	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
-
 	mozconfig_annotate '' --enable-calendar
 
 	# Disable built-in ccache support to avoid sandbox violation, #665420
@@ -480,13 +515,6 @@ src_install() {
 			>>"${BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" || die
 	fi
 
-	# dev-db/sqlite does not have FTS3_TOKENIZER support.
-	# gloda needs it to function, and bad crashes happen when its enabled and doesn't work
-	if use system-sqlite ; then
-		echo "sticky_pref(\"mailnews.database.global.indexer.enabled\", false);" \
-			>>"${BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" || die
-	fi
-
 	cd "${S}" || die
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX}/bin/bash}" MOZ_NOSPAM=1 \
 	DESTDIR="${D}" ./mach install || die
@@ -541,6 +569,12 @@ src_install() {
 		emid='{a62ef8ec-5fdc-40c2-873c-223b8a6925cc}'
 		mkdir -p "${T}/${emid}" || die
 		cp -RLp -t "${T}/${emid}" "${BUILD_OBJ_DIR}"/dist/xpi-stage/gdata-provider/* || die
+
+		# manifest.json does not allow the addon to load, put install.rdf in place
+		# note, version number needs to be set properly
+		cp -RLp -t "${T}/${emid}" "${WORKDIR}"/gdata-provider-${MOZ_LIGHTNING_GDATA_VER}/install.rdf
+		sed -i -e '/em:version/ s/>[^<]*</>4.1</' "${T}/${emid}"/install.rdf
+
 		insinto ${MOZILLA_FIVE_HOME}/extensions
 		doins -r "${T}/${emid}"
 	fi
