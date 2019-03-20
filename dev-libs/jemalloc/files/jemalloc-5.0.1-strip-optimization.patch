@@ -1,15 +1,5 @@
-From bbae65cff977568549efe03f05b2ef16cd283550 Mon Sep 17 00:00:00 2001
-From: "Jory A. Pratt" <anarchy@gentoo.org>
-Date: Sun, 8 Oct 2017 08:47:25 -0500
-Subject: [PATCH 1/2] Strip all optimization, let portage handle.
-
-Signed-off-by: Jory A. Pratt <anarchy@gentoo.org>
----
- configure.ac | 15 ---------------
- 1 file changed, 15 deletions(-)
-
 diff --git a/configure.ac b/configure.ac
-index 1551ded..2f47067 100644
+index 1551ded8..2f470672 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -976,21 +976,6 @@ if test "x$enable_debug" = "x1" ; then
@@ -34,6 +24,3 @@ index 1551ded..2f47067 100644
  dnl Enable statistics calculation by default.
  AC_ARG_ENABLE([stats],
    [AS_HELP_STRING([--disable-stats],
--- 
-2.14.2
-

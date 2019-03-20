@@ -39,7 +39,7 @@ inherit check-reqs flag-o-matic toolchain-funcs gnome2-utils llvm mozcoreconf-v6
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="https://www.mozilla.org/thunderbird"
 
-KEYWORDS="~amd64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
+KEYWORDS="amd64 x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="bindist clang dbus debug hardened jack lightning neon pulseaudio
@@ -96,7 +96,7 @@ CDEPEND="
 	)
 	system-icu? ( >=dev-libs/icu-59.1:= )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1:= )
-	system-libevent? ( >=dev-libs/libevent-2.0:0= )
+	system-libevent? ( >=dev-libs/libevent-2.0:0=[threads] )
 	system-libvpx? (
 		>=media-libs/libvpx-1.5.0:0=[postproc]
 		<media-libs/libvpx-1.8:0=[postproc]

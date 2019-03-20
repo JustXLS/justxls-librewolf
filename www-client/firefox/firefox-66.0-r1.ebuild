@@ -19,7 +19,7 @@ sr sv-SE ta te th tr uk uz vi xh zh-CN zh-TW )
 # Convert the ebuild version to the upstream mozilla version, used by mozlinguas
 MOZ_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
 MOZ_PV="${MOZ_PV/_beta/b}" # Handle beta for SRC_URI
-MOZ_PV="${MOZ_PV/_rc/rc}" # Handle rc for SRC_URI
+MOZ_PV="${MOZ_PV%%_rc*}" # Handle rc for SRC_URI
 
 if [[ ${MOZ_ESR} == 1 ]] ; then
 	# ESR releases have slightly different version numbers
@@ -27,8 +27,16 @@ if [[ ${MOZ_ESR} == 1 ]] ; then
 fi
 
 # Patch version
-PATCH="${PN}-65.0-patches-04"
+PATCH="${PN}-66.0-patches-06"
+
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
+MOZ_SRC_URI="${MOZ_HTTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.xz"
+
+if [[ "${PV}" == *_rc* ]]; then
+	MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/candidates/${MOZ_PV}-candidates/build${PV##*_rc}"
+	MOZ_LANGPACK_PREFIX="linux-i686/xpi/"
+	MOZ_SRC_URI="${MOZ_HTTP_URI}/source/${PN}-${MOZ_PV}.source.tar.xz -> $P.tar.xz"
+fi
 
 LLVM_MAX_SLOT=8
 
@@ -45,18 +53,18 @@ SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="bindist clang cpu_flags_x86_avx2 dbus debug eme-free geckodriver
 	+gmp-autoupdate hardened hwaccel jack lto neon pgo pulseaudio
-	+screenshot selinux startup-notification +system-harfbuzz
-	+system-icu +system-jpeg +system-libevent +system-sqlite
-	+system-libvpx +system-webp test wayland wifi"
+	+screenshot selinux startup-notification +system-av1
+	+system-harfbuzz +system-icu +system-jpeg +system-libevent
+	+system-sqlite +system-libvpx +system-webp test wayland wifi"
 RESTRICT="!bindist? ( bindist )"
 
 PATCH_URIS=( https://dev.gentoo.org/~{anarchy,axs,polynomial-c,whissi}/mozilla/patchsets/${PATCH}.tar.xz )
 SRC_URI="${SRC_URI}
-	${MOZ_HTTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.xz
+	${MOZ_SRC_URI}
 	${PATCH_URIS[@]}"
 
 CDEPEND="
-	>=dev-libs/nss-3.41
+	>=dev-libs/nss-3.42
 	>=dev-libs/nspr-4.19
 	>=app-text/hunspell-1.5.4:*
 	dev-libs/atk
@@ -87,15 +95,19 @@ CDEPEND="
 	x11-libs/libXfixes
 	x11-libs/libXrender
 	x11-libs/libXt
-	system-harfbuzz? ( >=media-libs/harfbuzz-1.4.2:0= >=media-gfx/graphite2-1.3.9-r1 )
-	system-icu? ( >=dev-libs/icu-60.2:= )
+	system-av1? (
+		>=media-libs/dav1d-0.2.0:=
+		>=media-libs/libaom-1.0.0:=
+	)
+	system-harfbuzz? ( >=media-libs/harfbuzz-2.3.1:0= >=media-gfx/graphite2-1.3.13 )
+	system-icu? ( >=dev-libs/icu-63.1:= )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
-	system-libevent? ( >=dev-libs/libevent-2.0:0= )
+	system-libevent? ( >=dev-libs/libevent-2.0:0=[threads] )
 	system-libvpx? (
 		>=media-libs/libvpx-1.7.0:0=[postproc]
 		<media-libs/libvpx-1.8:0=[postproc]
 	)
-	system-sqlite? ( >=dev-db/sqlite-3.25.3:3[secure-delete,debug=] )
+	system-sqlite? ( >=dev-db/sqlite-3.26:3[secure-delete,debug=] )
 	system-webp? ( >=media-libs/libwebp-1.0.1:0= )
 	wifi? ( kernel_linux? ( >=sys-apps/dbus-0.60
 			>=dev-libs/dbus-glib-0.72
@@ -112,7 +124,7 @@ RDEPEND="${CDEPEND}
 DEPEND="${CDEPEND}
 	app-arch/zip
 	app-arch/unzip
-	>=dev-util/cbindgen-0.6.7
+	>=dev-util/cbindgen-0.6.8
 	>=net-libs/nodejs-8.11.0
 	>=sys-devel/binutils-2.30
 	sys-apps/findutils
@@ -150,7 +162,8 @@ DEPEND="${CDEPEND}
 	>=virtual/rust-1.30.0
 	wayland? ( >=x11-libs/gtk+-3.11:3[wayland] )
 	amd64? ( >=dev-lang/yasm-1.1 virtual/opengl )
-	x86? ( >=dev-lang/yasm-1.1 virtual/opengl )"
+	x86? ( >=dev-lang/yasm-1.1 virtual/opengl )
+	!system-av1? ( dev-lang/nasm )"
 
 # Due to a bug in GCC, profile guided optimization will produce
 # AVX2 instructions, bug #677052
@@ -170,19 +183,19 @@ if [[ -z $GMP_PLUGIN_LIST ]] ; then
 fi
 
 llvm_check_deps() {
-	if ! has_version "sys-devel/clang:${LLVM_SLOT}" ; then
+	if ! has_version --host-root "sys-devel/clang:${LLVM_SLOT}" ; then
 		ewarn "sys-devel/clang:${LLVM_SLOT} is missing! Cannot use LLVM slot ${LLVM_SLOT} ..."
 		return 1
 	fi
 
 	if use clang ; then
-		if ! has_version "=sys-devel/lld-${LLVM_SLOT}*" ; then
+		if ! has_version --host-root "=sys-devel/lld-${LLVM_SLOT}*" ; then
 			ewarn "=sys-devel/lld-${LLVM_SLOT}* is missing! Cannot use LLVM slot ${LLVM_SLOT} ..."
 			return 1
 		fi
 
 		if use pgo ; then
-			if ! has_version "=sys-libs/compiler-rt-sanitizers-${LLVM_SLOT}*" ; then
+			if ! has_version --host-root "=sys-libs/compiler-rt-sanitizers-${LLVM_SLOT}*" ; then
 				ewarn "=sys-libs/compiler-rt-sanitizers-${LLVM_SLOT}* is missing! Cannot use LLVM slot ${LLVM_SLOT} ..."
 				return 1
 			fi
@@ -481,6 +494,7 @@ src_configure() {
 
 	mozconfig_use_enable startup-notification
 	mozconfig_use_enable system-sqlite
+	mozconfig_use_with system-av1
 	mozconfig_use_with system-harfbuzz
 	mozconfig_use_with system-harfbuzz system-graphite2
 	mozconfig_use_with system-icu
@@ -512,9 +526,10 @@ src_configure() {
 	# Enable/Disable eme support
 	use eme-free && mozconfig_annotate '+eme-free' --disable-eme
 
-	# Setup api key for location services
+	# Setup api key for location services and safebrowsing, https://bugzilla.mozilla.org/show_bug.cgi?id=1531176#c34
 	echo -n "${_google_api_key}" > "${S}"/google-api-key
-	mozconfig_annotate '' --with-google-api-keyfile="${S}/google-api-key"
+	mozconfig_annotate '' --with-google-location-service-api-keyfile="${S}/google-api-key"
+	mozconfig_annotate '' --with-google-safebrowsing-api-keyfile="${S}/google-api-key"
 
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 
