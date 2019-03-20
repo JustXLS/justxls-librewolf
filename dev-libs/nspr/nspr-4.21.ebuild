@@ -35,6 +35,8 @@ src_prepare() {
 
 	default
 
+	use elibc_musl? && eapply "${FILESDIR}"/${PN}-4.21-ipv6-musl-support.patch
+
 	# rename configure.in to configure.ac for new autotools compatibility
 	if [[ -e "${S}"/nspr/configure.in ]] ; then
 		einfo "Renaming configure.in to configure.ac"
