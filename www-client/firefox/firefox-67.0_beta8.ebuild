@@ -27,7 +27,7 @@ if [[ ${MOZ_ESR} == 1 ]] ; then
 fi
 
 # Patch version
-PATCH="${PN}-67.0-patches-01"
+PATCH="${PN}-67.0-patches-02"
 
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 MOZ_SRC_URI="${MOZ_HTTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.xz"
@@ -551,6 +551,8 @@ src_configure() {
 
 	# Finalize and report settings
 	mozconfig_final
+
+	mkdir -p ${S}/third_party/rust/libloading/.deps
 
 	# workaround for funky/broken upstream configure...
 	SHELL="${SHELL:-${EPREFIX}/bin/bash}" MOZ_NOSPAM=1 \
