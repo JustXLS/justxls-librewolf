@@ -552,7 +552,7 @@ src_configure() {
 	# Finalize and report settings
 	mozconfig_final
 
-	mkdir -p ${S}/third_party/rust/libloading/.deps
+	mkdir -p "${S}"/third_party/rust/libloading/.deps
 
 	# workaround for funky/broken upstream configure...
 	SHELL="${SHELL:-${EPREFIX}/bin/bash}" MOZ_NOSPAM=1 \
