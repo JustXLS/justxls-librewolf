@@ -57,6 +57,8 @@ RESTRICT="primaryuri"
 ASM_DEPEND=">=dev-lang/yasm-1.1"
 
 RDEPEND="
+	>=dev-libs/nss-3.36.7
+	>=dev-libs/nspr-4.19
 	>=net-vpn/tor-0.3.3.9
 	system-icu? ( >=dev-libs/icu-60.2 )
 	jack? ( virtual/jack )
@@ -236,11 +238,6 @@ src_configure() {
 	mozconfig_annotate 'torbrowser' --with-tor-browser-version="${TOR_PV}"
 	mozconfig_annotate 'torbrowser' --disable-tor-browser-update
 
-	# torbrowser uses a patched nss library
-	# see https://gitweb.torproject.org/tor-browser.git/log/security/nss?h=tor-browser-60.2.0esr-8.0-1-build1
-	mozconfig_annotate 'torbrowser' --without-system-nspr
-	mozconfig_annotate 'torbrowser' --without-system-nss
-
 	echo "mk_add_options MOZ_OBJDIR=${BUILD_OBJ_DIR}" >> "${S}"/.mozconfig
 	echo "mk_add_options XARGS="${EPREFIX}"/usr/bin/xargs" >> "${S}"/.mozconfig
 
@@ -262,7 +259,6 @@ src_compile() {
 
 src_install() {
 	cd "${BUILD_OBJ_DIR}" || die
-	export LD_LIBRARY_PATH="${BUILD_OBJ_DIR}/dist/bin"
 
 	# Pax mark xpcshell for hardened support, only used for startupcache creation.
 	pax-mark m "${BUILD_OBJ_DIR}"/dist/bin/xpcshell
@@ -319,11 +315,6 @@ src_install() {
 	dodoc "${FILESDIR}/99torbrowser.example"
 
 	dodoc "${WORKDIR}/tor-browser_en-US/Browser/TorBrowser/Docs/ChangeLog.txt"
-
-	# Profile without the tor-launcher extension
-	# see: https://trac.torproject.org/projects/tor/ticket/10160
-	rm "${MOZILLA_FIVE_HOME}/defaults/profile/extensions/tor-launcher@torproject.org.xpi" || die \
-		"Failed to remove torlauncher extension"
 }
 
 pkg_preinst() {
