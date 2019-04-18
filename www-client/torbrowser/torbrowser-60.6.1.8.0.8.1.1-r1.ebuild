@@ -29,9 +29,8 @@ GIT_TAG="tor-browser-${MOZ_PV}-$(ver_rs 3 '-build' ${GIT_TAG})"
 
 DESCRIPTION="The Tor Browser"
 HOMEPAGE="
-https://www.torproject.org/projects/torbrowser.html
-https://gitweb.torproject.org/tor-browser.git
-"
+	https://www.torproject.org/projects/torbrowser.html
+	https://gitweb.torproject.org/tor-browser.git"
 
 SLOT="0"
 # BSD license applies to torproject-related code like the patches
@@ -39,8 +38,8 @@ SLOT="0"
 LICENSE="BSD CC-BY-3.0 MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="hardened hwaccel jack -screenshot selinux test"
 
-SRC_URI="mirror://tor/dist/${PN}/${TOR_PV}"
-PATCH="firefox-${PV%%.*}.6-patches-01"
+SRC_URI="mirror://tor/${PN}/${TOR_PV}"
+PATCH="firefox-${PV%%.*}.6-patches-05"
 PATCH=( https://dev.gentoo.org/~{anarchy,axs,polynomial-c}/mozilla/patchsets/${PATCH}.tar.xz )
 SRC_URI="
 	https://gitweb.torproject.org/tor-browser.git/snapshot/${GIT_TAG}.tar.gz
@@ -55,28 +54,24 @@ SRC_URI="
 "
 RESTRICT="primaryuri"
 
+ASM_DEPEND=">=dev-lang/yasm-1.1"
+
 RDEPEND="
+	>=net-vpn/tor-0.3.3.9
 	system-icu? ( >=dev-libs/icu-60.2 )
 	jack? ( virtual/jack )
-	selinux? ( sec-policy/selinux-mozilla )
-"
+	selinux? ( sec-policy/selinux-mozilla )"
+
 DEPEND="
 	${RDEPEND}
-	>=sys-devel/llvm-4.0.1
-	>=sys-devel/clang-4.0.1
-	>=dev-lang/yasm-1.1
-	virtual/opengl
-"
-RDEPEND="
-	${RDEPEND}
-	>=net-vpn/tor-0.3.3.9
-"
+	amd64? ( ${ASM_DEPEND} virtual/opengl )
+	x86? ( ${ASM_DEPEND} virtual/opengl )"
 
 S="${WORKDIR}/${GIT_TAG}"
 
-QA_PRESTRIPPED="usr/lib*/${PN}/${PN}/${PN}"
+QA_PRESTRIPPED="usr/lib*/${PN}/${PN}"
 
-BUILD_OBJ_DIR="${WORKDIR}/tb"
+BUILD_OBJ_DIR="${WORKDIR}/torb"
 
 llvm_check_deps() {
 	if ! has_version "sys-devel/clang:${LLVM_SLOT}" ; then
@@ -106,9 +101,6 @@ pkg_setup() {
 		XDG_SESSION_COOKIE \
 		XAUTHORITY
 
-	append-cppflags "-DTOR_BROWSER_DATA_IN_HOME_DIR"
-	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}/${PN}"
-
 	addpredict /proc/self/oom_score_adj
 
 	llvm_pkg_setup
@@ -124,14 +116,14 @@ pkg_pretend() {
 src_prepare() {
 	local PATCHES=(
 		"${WORKDIR}"/firefox
-		"${FILESDIR}"/${PN}-profiledir.patch
-		"${FILESDIR}"/${PN}-lto.patch
-		"${FILESDIR}"/${PN}-rust_missing_docs.patch
-	)
 
-	sed \
-		-e '/Unknown option: %s/ s:raise InvalidOptionError:print:' \
-		-i python/mozbuild/mozbuild/configure/__init__.py
+		# Revert "Change the default Firefox profile directory to be TBB-relative"
+		"${FILESDIR}"/torbrowser-60.5.0-Do_not_store_data_in_the_app_bundle.patch
+		"${FILESDIR}"/torbrowser-60.5.0-Change_the_default_Firefox_profile_directory.patch
+
+		# FIXME: prevent warnings in bundled nss
+		"${FILESDIR}"/torbrowser-60.5.0-nss-fixup-warnings.patch
+	)
 
 	# Enable gnomebreakpad
 	if use debug ; then
@@ -224,24 +216,36 @@ src_configure() {
 	fi
 
 	echo "mk_add_options MOZ_OBJDIR=${BUILD_OBJ_DIR}" >> "${S}"/.mozconfig
-	echo "mk_add_options XARGS=/usr/bin/xargs" >> "${S}"/.mozconfig
+	echo "mk_add_options XARGS="${EPREFIX}"/usr/bin/xargs" >> "${S}"/.mozconfig
+
+	# Use .mozconfig settings from torbrowser (setting this here since it gets overwritten by mozcoreconf-v6.eclass)
+	# see https://gitweb.torproject.org/tor-browser.git/tree/.mozconfig?h=tor-browser-60.2.0esr-8.0-1
+	echo "mk_add_options MOZ_APP_DISPLAYNAME=\"Tor Browser\"" >> "${S}"/.mozconfig
+	echo "mk_add_options MOZILLA_OFFICIAL=1" >> "${S}"/.mozconfig
+	echo "mk_add_options BUILD_OFFICIAL=1" >> "${S}"/.mozconfig
+	mozconfig_annotate 'torbrowser' --enable-official-branding
+	mozconfig_annotate 'torbrowser' --disable-webrtc
+	mozconfig_annotate 'torbrowser' --disable-eme
+	mozconfig_annotate 'torbrowser' --enable-proxy-bypass-protection
+
+	# Rename the binary and set the profile location
+	mozconfig_annotate 'torbrowser' --with-app-name="${PN}"
+	mozconfig_annotate 'torbrowser' --with-app-basename="${PN}"
+
+	# see https://gitweb.torproject.org/tor-browser.git/tree/old-configure.in?h=tor-browser-60.2.0esr-8.0-1#n3205
+	mozconfig_annotate 'torbrowser' --with-tor-browser-version="${TOR_PV}"
+	mozconfig_annotate 'torbrowser' --disable-tor-browser-update
+
+	# torbrowser uses a patched nss library
+	# see https://gitweb.torproject.org/tor-browser.git/log/security/nss?h=tor-browser-60.2.0esr-8.0-1-build1
+	mozconfig_annotate 'torbrowser' --without-system-nspr
+	mozconfig_annotate 'torbrowser' --without-system-nss
+
+	echo "mk_add_options MOZ_OBJDIR=${BUILD_OBJ_DIR}" >> "${S}"/.mozconfig
+	echo "mk_add_options XARGS="${EPREFIX}"/usr/bin/xargs" >> "${S}"/.mozconfig
 
 	# Default mozilla_five_home no longer valid option
 	sed '/with-default-mozilla-five-home=/d' -i "${S}"/.mozconfig
-	# Rename the install directory and the executable
-	mozconfig_annotate 'torbrowser' --libdir="${EPREFIX}"/usr/$(get_libdir)/${PN}
-	mozconfig_annotate 'torbrowser' --with-app-name=${PN}
-	mozconfig_annotate 'torbrowser' --with-app-basename=${PN}
-	mozconfig_annotate 'torbrowser' --disable-tor-browser-update
-	mozconfig_annotate 'torbrowser' --with-tor-browser-version=${TOR_PV}
-	mozconfig_annotate 'torbrowser' --disable-tor-browser-data-outside-app-dir
-	mozconfig_annotate 'torbrowser' --with-branding=browser/branding/official
-	mozconfig_annotate 'torbrowser' --disable-maintenance-service
-	mozconfig_annotate 'torbrowser' --disable-webrtc
-	mozconfig_annotate 'torbrowser' --disable-eme
-
-	mozconfig_annotate 'torbrowser' --without-system-nspr
-	mozconfig_annotate 'torbrowser' --without-system-nss
 
 	# Finalize and report settings
 	mozconfig_final
@@ -253,16 +257,12 @@ src_configure() {
 
 src_compile() {
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX}/bin/bash}" MOZ_NOSPAM=1 \
-	BUILD_VERBOSE_LOG=1 \
 	./mach build --verbose || die
 }
 
 src_install() {
-	local profile_dir="${WORKDIR}/tor-browser_en-US/Browser/TorBrowser/Data/Browser/profile.default"
 	cd "${BUILD_OBJ_DIR}" || die
-
-	cat "${profile_dir}"/bookmarks.html > \
-		dist/bin/browser/chrome/en-US/locale/browser/bookmarks.html
+	export LD_LIBRARY_PATH="${BUILD_OBJ_DIR}/dist/bin"
 
 	# Pax mark xpcshell for hardened support, only used for startupcache creation.
 	pax-mark m "${BUILD_OBJ_DIR}"/dist/bin/xpcshell
@@ -287,10 +287,7 @@ src_install() {
 			|| die
 	fi
 
-	sed -e '/extensions\.autoDisableScopes/s:\<0\>:3:' \
-		-i "${BUILD_OBJ_DIR}"/dist/bin/browser/defaults/preferences/000-tor-browser.js \
-		|| die
-
+	# Must ensure we use bundled nss/nspr during signing and not system
 	cd "${S}"
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX}/bin/bash}" MOZ_NOSPAM=1 \
 	DESTDIR="${D}" ./mach install || die
@@ -311,18 +308,22 @@ src_install() {
 	fi
 
 	# Required in order to use plugins and even run torbrowser on hardened.
-	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{${PN},${PN}-bin,plugin-container}
+	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{${PN},plugin-container}
+
+	# Profile with settings and extensions
+	insinto ${MOZILLA_FIVE_HOME}/defaults/profile
+	doins -r "${WORKDIR}"/tor-browser_en-US/Browser/TorBrowser/Data/Browser/profile.default/{extensions,bookmarks.html}
+
+	# see: https://trac.torproject.org/projects/tor/ticket/11751#comment:2
+	# see: https://github.com/Whonix/anon-ws-disable-stacked-tor/blob/master/usr/lib/anon-ws-disable-stacked-tor/torbrowser.sh
+	dodoc "${FILESDIR}/99torbrowser.example"
+
+	dodoc "${WORKDIR}/tor-browser_en-US/Browser/TorBrowser/Docs/ChangeLog.txt"
 
 	# Profile without the tor-launcher extension
 	# see: https://trac.torproject.org/projects/tor/ticket/10160
-
-	rm "${profile_dir}/extensions/tor-launcher@torproject.org.xpi" || die \
+	rm "${MOZILLA_FIVE_HOME}/defaults/profile/extensions/tor-launcher@torproject.org.xpi" || die \
 		"Failed to remove torlauncher extension"
-
-	insinto ${MOZILLA_FIVE_HOME}/browser
-	doins -r "${profile_dir}"/extensions
-
-	dodoc "${WORKDIR}/tor-browser_en-US/Browser/TorBrowser/Docs/ChangeLog.txt"
 }
 
 pkg_preinst() {
