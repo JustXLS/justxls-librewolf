@@ -10,8 +10,8 @@ MOZCONFIG_OPTIONAL_WIFI=1
 
 LLVM_MAX_SLOT=8
 
-inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils llvm \
-		mozconfig-v6.${PV%%.*} pax-utils xdg-utils autotools
+inherit check-reqs desktop flag-o-matic toolchain-funcs eutils gnome2-utils \
+	llvm mozconfig-v6.${PV%%.*} pax-utils xdg-utils autotools
 inherit eapi7-ver
 
 MOZ_PV="$(ver_cut 1-3)esr"
@@ -73,7 +73,7 @@ S="${WORKDIR}/${GIT_TAG}"
 
 QA_PRESTRIPPED="usr/lib*/${PN}/${PN}"
 
-BUILD_OBJ_DIR="${WORKDIR}/torb"
+BUILD_OBJ_DIR="${WORKDIR}/torbrowser-build"
 
 llvm_check_deps() {
 	if ! has_version "sys-devel/clang:${LLVM_SLOT}" ; then
@@ -122,9 +122,6 @@ src_prepare() {
 		# Revert "Change the default Firefox profile directory to be TBB-relative"
 		"${FILESDIR}"/torbrowser-60.5.0-Do_not_store_data_in_the_app_bundle.patch
 		"${FILESDIR}"/torbrowser-60.5.0-Change_the_default_Firefox_profile_directory.patch
-
-		# FIXME: prevent warnings in bundled nss
-		"${FILESDIR}"/torbrowser-60.5.0-nss-fixup-warnings.patch
 	)
 
 	# Enable gnomebreakpad
@@ -258,7 +255,11 @@ src_compile() {
 }
 
 src_install() {
+	local profile_dir="${WORKDIR}/tor-browser_en-US/Browser/TorBrowser/Data/Browser/profile.default"
 	cd "${BUILD_OBJ_DIR}" || die
+
+	cat "${profile_dir}"/bookmarks.html > \
+		dist/bin/browser/chrome/en-US/locale/browser/bookmarks.html
 
 	# Pax mark xpcshell for hardened support, only used for startupcache creation.
 	pax-mark m "${BUILD_OBJ_DIR}"/dist/bin/xpcshell
@@ -289,30 +290,34 @@ src_install() {
 	DESTDIR="${D}" ./mach install || die
 
 	# Install icons and .desktop for menu entry
-	local size icon_path
+	local size icon_path name
 	icon_path="${S}/browser/branding/official"
+	name="Tor Browser"
 	for size in 16 32 48 64 128 256; do
 		newicon -s ${size} "${icon_path}/default${size}.png" ${PN}.png
 	done
-	make_desktop_entry ${PN} "Tor Browser" ${PN} "Network;WebBrowser" "StartupWMClass=Torbrowser"
+	newicon "${icon_path}/default48.png" "${icon}.png"
+	newmenu "${FILESDIR}/icon/${PN}.desktop" "${PN}.desktop"
+	sed -i -e "s:@NAME@:${name}:" -e "s:@ICON@:${PN}:" \
+		"${ED}/usr/share/applications/${PN}.desktop" || die
 
 	# Add StartupNotify=true bug 237317
 	if use startup-notification ; then
 		echo "StartupNotify=true"\
-			 >> "${ED}/usr/share/applications/${PN}-${PN}.desktop" \
+			 >> "${ED}/usr/share/applications/${PN}.desktop" \
 			|| die
 	fi
 
 	# Required in order to use plugins and even run torbrowser on hardened.
 	pax-mark m "${ED}"${MOZILLA_FIVE_HOME}/{${PN},plugin-container}
 
-	# Profile with settings and extensions
-	insinto ${MOZILLA_FIVE_HOME}/defaults/profile
-	doins -r "${WORKDIR}"/tor-browser_en-US/Browser/TorBrowser/Data/Browser/profile.default/{extensions,bookmarks.html}
+	# Profile without the tor-launcher extension
+	# see: https://trac.torproject.org/projects/tor/ticket/10160
+	rm "${profile_dir}/extensions/tor-launcher@torproject.org.xpi" || die \
+		"Failed to remove torlauncher extension"
 
-	# see: https://trac.torproject.org/projects/tor/ticket/11751#comment:2
-	# see: https://github.com/Whonix/anon-ws-disable-stacked-tor/blob/master/usr/lib/anon-ws-disable-stacked-tor/torbrowser.sh
-	dodoc "${FILESDIR}/99torbrowser.example"
+	insinto ${MOZILLA_FIVE_HOME}/browser
+	doins -r "${profile_dir}"/extensions
 
 	dodoc "${WORKDIR}/tor-browser_en-US/Browser/TorBrowser/Docs/ChangeLog.txt"
 }
