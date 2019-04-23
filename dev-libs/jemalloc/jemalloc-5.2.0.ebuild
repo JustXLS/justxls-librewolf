@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -14,9 +14,8 @@ SLOT="0/2"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~ppc ~ppc64 ~s390 ~x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
 IUSE="debug hardened lazy-lock static-libs stats xmalloc"
 HTML_DOCS=( doc/jemalloc.html )
-PATCHES=( "${FILESDIR}/${PN}-5.0.1-strip-optimization.patch"
-	"${FILESDIR}/${PN}-4.5.0-fix_html_install.patch"
-)
+PATCHES=( "${FILESDIR}/${PN}-5.2.0-gentoo-fixups.patch" )
+
 MULTILIB_WRAPPED_HEADERS=( /usr/include/jemalloc/jemalloc.h )
 # autotools-utils.eclass auto-adds configure options when static-libs is in IUSE
 # but jemalloc doesn't implement them in its configure; need this here to
