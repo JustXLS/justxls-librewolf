@@ -64,8 +64,8 @@ SRC_URI="${SRC_URI}
 	${PATCH_URIS[@]}"
 
 CDEPEND="
-	>=dev-libs/nss-3.42
-	>=dev-libs/nspr-4.19
+	>=dev-libs/nss-3.43
+	>=dev-libs/nspr-4.21
 	>=app-text/hunspell-1.5.4:*
 	dev-libs/atk
 	dev-libs/expat
