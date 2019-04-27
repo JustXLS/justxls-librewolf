@@ -285,6 +285,14 @@ multilib_src_install() {
 	# Always enabled because we need it for chk generation.
 	nssutils=( shlibsign )
 
+	if multilib_is_native_abi ; then
+		pushd dist/*/bin >/dev/null || die
+		for f in ${nssutils[@]}; do
+			dobin ${f}
+		done
+		popd >/dev/null || die
+	fi
+
 	# Prelink breaks the CHK files. We don't have any reliable way to run
 	# shlibsign after prelink.
 	dodir /etc/prelink.conf.d
