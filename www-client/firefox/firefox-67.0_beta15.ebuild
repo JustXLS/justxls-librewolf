@@ -27,7 +27,7 @@ if [[ ${MOZ_ESR} == 1 ]] ; then
 fi
 
 # Patch version
-PATCH="${PN}-67.0-patches-04"
+PATCH="${PN}-67.0-patches-05"
 
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 MOZ_SRC_URI="${MOZ_HTTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.xz"
@@ -248,6 +248,7 @@ src_unpack() {
 }
 
 src_prepare() {
+	use !wayland && rm -f "${WORKDIR}/firefox/2019_mozilla-bug1539471.patch"
 	eapply "${WORKDIR}/firefox"
 
 	# Allow user to apply any additional patches without modifing ebuild
@@ -490,7 +491,7 @@ src_configure() {
 	# use the gtk3 toolkit (the only one supported at this point)
 	# TODO: Will this result in automagic dependency on x11-libs/gtk+[wayland]?
 	if use wayland ; then
-		mozconfig_annotate '' --enable-default-toolkit-cairo-gtk-wayland
+		mozconfig_annotate '' --enable-default-toolkit=cairo-gtk3-wayland
 	else
 		mozconfig_annotate '' --enable-default-toolkit=cairo-gtk3
 	fi
