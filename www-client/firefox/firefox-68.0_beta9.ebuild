@@ -27,7 +27,7 @@ if [[ ${MOZ_ESR} == 1 ]] ; then
 fi
 
 # Patch version
-PATCH="${PN}-68.0-patches-04"
+PATCH="${PN}-68.0-patches-05"
 
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 MOZ_SRC_URI="${MOZ_HTTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.xz"
@@ -162,7 +162,7 @@ DEPEND="${CDEPEND}
 	wayland? ( >=x11-libs/gtk+-3.11:3[wayland] )
 	amd64? ( >=dev-lang/yasm-1.1 virtual/opengl )
 	x86? ( >=dev-lang/yasm-1.1 virtual/opengl )
-	!system-av1? ( dev-lang/nasm )"
+	!system-av1? ( >=dev-lang/nasm-2.13 )"
 
 # Due to a bug in GCC, profile guided optimization will produce
 # AVX2 instructions, bug #677052
@@ -190,7 +190,7 @@ llvm_check_deps() {
 	if use pgo ; then
 		if ! has usersandbox $FEATURES ; then
 			eerror "You must enable usersandbox as X server can not run as root!"
-		fi	
+		fi
 	fi
 
 	if use clang ; then
