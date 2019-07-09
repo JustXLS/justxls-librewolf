@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # vim: set sts=2 sw=2 et tw=0 :
 
 if test -z "${2}"; then
