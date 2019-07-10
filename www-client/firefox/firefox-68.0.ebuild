@@ -64,7 +64,7 @@ SRC_URI="${SRC_URI}
 	${PATCH_URIS[@]}"
 
 CDEPEND="
-	>=dev-libs/nss-3.43
+	>=dev-libs/nss-3.44.1
 	>=dev-libs/nspr-4.21
 	dev-libs/atk
 	dev-libs/expat
@@ -95,10 +95,10 @@ CDEPEND="
 	x11-libs/libXrender
 	x11-libs/libXt
 	system-av1? (
-		>=media-libs/dav1d-0.2.0:=
+		>=media-libs/dav1d-0.3.0:=
 		>=media-libs/libaom-1.0.0:=
 	)
-	system-harfbuzz? ( >=media-libs/harfbuzz-2.3.1:0= >=media-gfx/graphite2-1.3.13 )
+	system-harfbuzz? ( >=media-libs/harfbuzz-2.4.0:0= >=media-gfx/graphite2-1.3.13 )
 	system-icu? ( >=dev-libs/icu-63.1:= )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-libevent? ( >=dev-libs/libevent-2.0:0=[threads] )
@@ -106,7 +106,7 @@ CDEPEND="
 		>=media-libs/libvpx-1.7.0:0=[postproc]
 		<media-libs/libvpx-1.8:0=[postproc]
 	)
-	system-sqlite? ( >=dev-db/sqlite-3.27.2:3[secure-delete,debug=] )
+	system-sqlite? ( >=dev-db/sqlite-3.28.0:3[secure-delete,debug=] )
 	system-webp? ( >=media-libs/libwebp-1.0.2:0= )
 	wifi? ( kernel_linux? ( >=sys-apps/dbus-0.60
 			>=dev-libs/dbus-glib-0.72
