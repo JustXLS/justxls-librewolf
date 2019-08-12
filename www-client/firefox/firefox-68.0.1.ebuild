@@ -27,7 +27,7 @@ if [[ ${MOZ_ESR} == 1 ]] ; then
 fi
 
 # Patch version
-PATCH="${PN}-68.0-patches-07"
+PATCH="${PN}-68.0-patches-09"
 
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 MOZ_SRC_URI="${MOZ_HTTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.xz"
@@ -47,7 +47,7 @@ inherit check-reqs eapi7-ver flag-o-matic toolchain-funcs eutils \
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="https://www.mozilla.com/firefox"
 
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
@@ -157,17 +157,19 @@ DEPEND="${CDEPEND}
 		)
 	)
 	pulseaudio? ( media-sound/pulseaudio )
-	>=virtual/cargo-1.31.0
-	>=virtual/rust-1.31.0
+	>=virtual/cargo-1.34.0
+	>=virtual/rust-1.34.0
 	wayland? ( >=x11-libs/gtk+-3.11:3[wayland] )
 	amd64? ( >=dev-lang/yasm-1.1 virtual/opengl )
 	x86? ( >=dev-lang/yasm-1.1 virtual/opengl )
 	!system-av1? ( >=dev-lang/nasm-2.13 )"
 
-# Due to a bug in GCC, profile guided optimization will produce
-# AVX2 instructions, bug #677052
+# We use virtx eclass which cannot handle wayland
 REQUIRED_USE="wifi? ( dbus )
-	pgo? ( lto )"
+	pgo? (
+		lto
+		!wayland
+	)"
 
 S="${WORKDIR}/firefox-${PV%_*}"
 
@@ -353,6 +355,12 @@ src_configure() {
 
 	# Must pass release in order to properly select linker
 	mozconfig_annotate 'Enable by Gentoo' --enable-release
+
+	if use pgo ; then
+		if ! has userpriv $FEATURES ; then
+			eerror "Building firefox with USE=pgo and FEATURES=-userpriv is not supported!"
+		fi
+	fi
 
 	# Don't let user's LTO flags clash with upstream's flags
 	filter-flags -flto*
