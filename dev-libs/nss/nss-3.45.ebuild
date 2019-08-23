@@ -255,23 +255,23 @@ multilib_src_install() {
 	pushd dist >/dev/null || die
 
 	dodir /usr/$(get_libdir)
-	cp -L */lib/*$(get_libname) "${ED%/}"/usr/$(get_libdir) || die "copying shared libs failed"
+	cp -L */lib/*$(get_libname) "${ED%}"/usr/$(get_libdir) || die "copying shared libs failed"
 	local i
 	for i in crmf freebl nssb nssckfw ; do
-		cp -L */lib/lib${i}.a "${ED%/}"/usr/$(get_libdir) || die "copying libs failed"
+		cp -L */lib/lib${i}.a "${ED%}"/usr/$(get_libdir) || die "copying libs failed"
 	done
 
 	# Install nss-config and pkgconfig file
 	dodir /usr/bin
-	cp -L */bin/nss-config "${ED%/}"/usr/bin || die
+	cp -L */bin/nss-config "${ED%}"/usr/bin || die
 	dodir /usr/$(get_libdir)/pkgconfig
-	cp -L */lib/pkgconfig/nss.pc "${ED%/}"/usr/$(get_libdir)/pkgconfig || die
+	cp -L */lib/pkgconfig/nss.pc "${ED%}"/usr/$(get_libdir)/pkgconfig || die
 
 	# create an nss-softokn.pc from nss.pc for libfreebl and some private headers
 	# bug 517266
 	sed 	-e 's#Libs:#Libs: -lfreebl#' \
 		-e 's#Cflags:#Cflags: -I${includedir}/private#' \
-		*/lib/pkgconfig/nss.pc >"${ED%/}"/usr/$(get_libdir)/pkgconfig/nss-softokn.pc \
+		*/lib/pkgconfig/nss.pc >"${ED%}"/usr/$(get_libdir)/pkgconfig/nss-softokn.pc \
 		|| die "could not create nss-softokn.pc"
 
 	# all the include files
@@ -346,7 +346,7 @@ multilib_src_install() {
 	# shlibsign after prelink.
 	dodir /etc/prelink.conf.d
 	printf -- "-b ${EPREFIX}/usr/$(get_libdir)/lib%s.so\n" ${NSS_CHK_SIGN_LIBS} \
-		> "${ED%/}"/etc/prelink.conf.d/nss.conf
+		> "${ED%}"/etc/prelink.conf.d/nss.conf
 }
 
 pkg_postinst() {
