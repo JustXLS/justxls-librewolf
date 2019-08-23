@@ -102,6 +102,8 @@ DEPEND="
 		virtual/opengl )
 "
 
+RESTRICT="!test? ( test )"
+
 BUILD_OBJ_DIR="${S}/seamonk"
 
 # allow GMP_PLUGIN_LIST to be set in an eclass or

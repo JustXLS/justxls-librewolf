@@ -69,6 +69,8 @@ DEPEND="
 	amd64? ( ${ASM_DEPEND} virtual/opengl )
 	x86? ( ${ASM_DEPEND} virtual/opengl )"
 
+RESTRICT="!test? ( test )"
+
 S="${WORKDIR}/${GIT_TAG}"
 
 QA_PRESTRIPPED="usr/lib*/${PN}/${PN}"

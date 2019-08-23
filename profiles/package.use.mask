@@ -1,9 +1,0 @@
-# mask crypt flag until enigmail releases something compatible
-# we do not want to try and play with the enigmail nightlies
-=mail-client/thunderbird-31.0_beta1 crypt
-
-# cairo-qt builds but it's runtime support really isn't good enough for
-# normal usage; seems there is a very long list of fixes needed, probably
-# similar to the 'Port gtk2 to gtk3' list.
-www-client/firefox qt5
-www-client/torbrowser system-cairo

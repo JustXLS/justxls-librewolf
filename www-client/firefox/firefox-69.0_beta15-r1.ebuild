@@ -174,6 +174,8 @@ REQUIRED_USE="wifi? ( dbus )
 		!wayland
 	)"
 
+RESTRICT="!test? ( test )"
+
 S="${WORKDIR}/firefox-${PV%_*}"
 
 QA_PRESTRIPPED="usr/lib*/${PN}/firefox"
