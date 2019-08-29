@@ -1,0 +1,2 @@
+# lightning/gdata must be updated before we unmask
+~mail-client/thunderbird-68.0
