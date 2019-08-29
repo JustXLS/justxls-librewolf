@@ -39,10 +39,13 @@ HOMEPAGE="https://www.mozilla.org/thunderbird"
 KEYWORDS="~amd64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist clang dbus debug hardened jack lightning neon pulseaudio
-	selinux startup-notification system-harfbuzz system-icu system-jpeg
-	system-libevent system-libvpx system-sqlite wifi"
-RESTRICT="!bindist? ( bindist )"
+IUSE="bindist clang cpu_flags_x86_avx2 dbus debug eme-free geckodriver
+	+gmp-autoupdate hardened jack lightning lto neon pgo pulseaudio
+	+screenshot selinux startup-notification +system-av1 +system-harfbuzz
+	+system-icu +system-jpeg +system-libevent +system-sqlite +system-libvpx
+	+system-webp test wayland wifi"
+RESTRICT="!bindist? ( bindist )
+	!test? ( test )"
 
 PATCH_URIS=( https://dev.gentoo.org/~{anarchy,axs,polynomial-c,whissi}/mozilla/patchsets/${PATCHFF}.tar.xz )
 SRC_URI="${SRC_URI}
@@ -51,17 +54,9 @@ SRC_URI="${SRC_URI}
 	lightning? ( https://dev.gentoo.org/~axs/distfiles/gdata-provider-${MOZ_LIGHTNING_GDATA_VER}.tar.xz )
 	${PATCH_URIS[@]}"
 
-
 inherit check-reqs eapi7-ver flag-o-matic toolchain-funcs eutils \
 		gnome2-utils llvm mozcoreconf-v6 pax-utils xdg-utils \
 		autotools mozlinguas-v2 virtualx
-
-IUSE="bindist clang cpu_flags_x86_avx2 dbus debug eme-free geckodriver
-	+gmp-autoupdate hardened hwaccel jack lightning lto neon pgo pulseaudio
-	+screenshot selinux startup-notification +system-av1 +system-harfbuzz 
-	+system-icu +system-jpeg +system-libevent +system-sqlite +system-libvpx 
-	+system-webp test wayland wifi"
-RESTRICT="!bindist? ( bindist )"
 
 CDEPEND="
 	>=dev-libs/nss-3.44.1
