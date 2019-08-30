@@ -41,8 +41,8 @@ SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="bindist clang cpu_flags_x86_avx2 dbus debug eme-free geckodriver
 	+gmp-autoupdate hardened jack lightning lto neon pgo pulseaudio
-	+screenshot selinux startup-notification +system-av1 +system-harfbuzz
-	+system-icu +system-jpeg +system-libevent +system-sqlite +system-libvpx
+	 selinux startup-notification +system-av1 +system-harfbuzz +system-icu
+	+system-jpeg +system-libevent +system-sqlite +system-libvpx
 	+system-webp test wayland wifi"
 RESTRICT="!bindist? ( bindist )
 	!test? ( test )"
@@ -595,6 +595,7 @@ src_compile() {
 }
 
 src_install() {
+	MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 	cd "${BUILD_OBJ_DIR}" || die
 
 	# Pax mark xpcshell for hardened support, only used for startupcache creation.
@@ -618,19 +619,19 @@ src_install() {
 	# force cairo as the canvas renderer on platforms without skia support
 	if [[ $(tc-endian) == "big" ]] ; then
 		echo "sticky_pref(\"gfx.canvas.azure.backends\",\"cairo\");" \
-			>>"{BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" || die
+			>>"${BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" || die
 		echo "sticky_pref(\"gfx.content.azure.backends\",\"cairo\");" \
-			>>"{BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" || die
+			>>"${BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" || die
 	fi
 
 	echo "pref(\"extensions.autoDisableScopes\", 3);" >> \
-		"{BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" \
+		"${BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" \
 		|| die
 
 	local plugin
 	use gmp-autoupdate || use eme-free || for plugin in "${GMP_PLUGIN_LIST[@]}" ; do
 		echo "pref(\"media.${plugin}.autoupdate\", false);" >> \
-			"{BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" \
+			"${BUILD_OBJ_DIR}/dist/bin/defaults/pref/all-gentoo.js" \
 			|| die
 	done
 
