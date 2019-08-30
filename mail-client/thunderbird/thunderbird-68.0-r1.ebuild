@@ -21,7 +21,7 @@ sv-SE tr uk vi zh-CN zh-TW )
 MOZ_PV="${PV/_beta/b}"
 
 # Patches
-PATCHFF="firefox-68.0-patches-10"
+PATCHFF="firefox-68.0-patches-11"
 
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 
@@ -252,6 +252,7 @@ src_unpack() {
 src_prepare() {
 	# Apply firefox patchset then apply thunderbird patches
 	eapply "${WORKDIR}/firefox"
+	eapply "${FILESDIR}/mozilla-bug1554949-linux-headers-5.2.patch"
 	pushd "${S}"/comm &>/dev/null || die
 	eapply "${FILESDIR}/1000_fix_gentoo_preferences.patch"
 	popd &>/dev/null || die
