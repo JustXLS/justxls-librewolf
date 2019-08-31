@@ -285,7 +285,7 @@ src_prepare() {
 	# Don't exit with error when some libs are missing which we have in
 	# system.
 	sed '/^MOZ_PKG_FATAL_WARNINGS/s@= 1@= 0@' \
-		-i "${S}"/browser/installer/Makefile.in || die
+		-i "${S}"/comm/mail/installer/Makefile.in || die
 
 	# Don't error out when there's no files to be removed:
 	sed 's@\(xargs rm\)$@\1 -f@' \
