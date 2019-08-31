@@ -732,8 +732,6 @@ src_install() {
 }
 
 pkg_preinst() {
-	gnome2_icon_savelist
-
 	# if the apulse libs are available in MOZILLA_FIVE_HOME then apulse
 	# doesn't need to be forced into the LD_LIBRARY_PATH
 	if use pulseaudio && has_version ">=media-sound/apulse-0.1.9" ; then
@@ -752,8 +750,8 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
-	gnome2_icon_cache_update
 	xdg_desktop_database_update
+	xdg_icon_cache_update
 
 	if ! use gmp-autoupdate && ! use eme-free ; then
 		elog "USE='-gmp-autoupdate' has disabled the following plugins from updating or"
@@ -772,6 +770,6 @@ pkg_postinst() {
 }
 
 pkg_postrm() {
-	gnome2_icon_cache_update
 	xdg_desktop_database_update
+	xdg_icon_cache_update
 }
