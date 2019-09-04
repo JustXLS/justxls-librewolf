@@ -64,7 +64,7 @@ SRC_URI="${SRC_URI}
 	${PATCH_URIS[@]}"
 
 CDEPEND="
-	>=dev-libs/nss-3.46
+	>=dev-libs/nss-3.45
 	>=dev-libs/nspr-4.22
 	dev-libs/atk
 	dev-libs/expat
@@ -79,8 +79,8 @@ CDEPEND="
 	>=media-libs/freetype-2.4.10
 	kernel_linux? ( !pulseaudio? ( media-libs/alsa-lib ) )
 	virtual/freedesktop-icon-theme
-	|| ( >=sys-apps/dbus-0.60
-		>=dev-libs/dbus-glib-0.72 )
+	sys-apps/dbus
+	dev-libs/dbus-glib
 	startup-notification? ( >=x11-libs/startup-notification-0.8 )
 	>=x11-libs/pixman-0.19.2
 	>=dev-libs/glib-2.26:2
@@ -98,17 +98,18 @@ CDEPEND="
 		>=media-libs/dav1d-0.3.0:=
 		>=media-libs/libaom-1.0.0:=
 	)
-	system-harfbuzz? ( >=media-libs/harfbuzz-2.4.0:0= >=media-gfx/graphite2-1.3.13 )
+	system-harfbuzz? ( >=media-libs/harfbuzz-2.5.3:0= >=media-gfx/graphite2-1.3.13 )
 	system-icu? ( >=dev-libs/icu-63.1:= )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-libevent? ( >=dev-libs/libevent-2.0:0=[threads] )
-	system-libvpx? (
-		>=media-libs/libvpx-1.7.0:0=[postproc]
-		<media-libs/libvpx-1.8:0=[postproc]
-	)
+	system-libvpx? ( =media-libs/libvpx-1.7*:0=[postproc] )
 	system-sqlite? ( >=dev-db/sqlite-3.28.0:3[secure-delete,debug=] )
 	system-webp? ( >=media-libs/libwebp-1.0.2:0= )
-	wifi? ( kernel_linux? ( net-misc/networkmanager ) )
+	wifi? (
+		kernel_linux? (
+			net-misc/networkmanager
+		)
+	)
 	jack? ( virtual/jack )
 	selinux? ( sec-policy/selinux-mozilla )"
 
@@ -165,12 +166,7 @@ DEPEND="${CDEPEND}
 		x86? ( >=dev-lang/nasm-2.13 )
 	)"
 
-# We use virtx eclass which cannot handle wayland
-REQUIRED_USE="
-	pgo? (
-		lto
-		!wayland
-	)"
+REQUIRED_USE="pgo? ( lto )"
 
 RESTRICT="!test? ( test )"
 
@@ -388,6 +384,7 @@ src_configure() {
 				show_old_compiler_warning=1
 			fi
 
+			# Bug 689358
 			append-cxxflags -flto
 
 			if ! use cpu_flags_x86_avx2 ; then
@@ -490,7 +487,6 @@ src_configure() {
 	mozconfig_annotate '' --disable-gconf
 	mozconfig_annotate '' --with-intl-api
 	mozconfig_annotate '' --enable-system-pixman
-	mozconfig_annotate '' --enable-dbus
 	# Instead of the standard --build= and --host=, mozilla uses --host instead
 	# of --build, and --target intstead of --host.
 	# Note, mozilla also has --build but it does not do what you think it does.
@@ -590,8 +586,13 @@ src_compile() {
 		addpredict /etc/gconf
 	fi
 
-	MOZ_MAKE_FLAGS="${MAKEOPTS} -O" SHELL="${SHELL:-${EPREFIX}/bin/bash}" MOZ_NOSPAM=1 ${_virtx} \
-	./mach build --verbose || die
+	GDK_BACKEND=x11 \
+		MOZ_MAKE_FLAGS="${MAKEOPTS} -O" \
+		SHELL="${SHELL:-${EPREFIX}/bin/bash}" \
+		MOZ_NOSPAM=1 \
+		${_virtx} \
+		./mach build --verbose \
+		|| die
 }
 
 src_install() {
