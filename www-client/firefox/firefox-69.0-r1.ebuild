@@ -257,6 +257,7 @@ src_unpack() {
 src_prepare() {
 	use !wayland && rm -f "${WORKDIR}/firefox/2019_mozilla-bug1539471.patch"
 	eapply "${WORKDIR}/firefox"
+	eapply "${FILESDIR}${PN}-69.0-lto-gcc-fix.patch"
 
 	# Allow user to apply any additional patches without modifing ebuild
 	eapply_user
@@ -384,9 +385,6 @@ src_configure() {
 				show_old_compiler_warning=1
 			fi
 
-			# Bug 689358
-			append-cxxflags -flto
-
 			if ! use cpu_flags_x86_avx2 ; then
 				local _gcc_version_with_ipa_cdtor_fix="8.3"
 				local _current_gcc_version="$(gcc-major-version).$(gcc-minor-version)"
@@ -431,7 +429,7 @@ src_configure() {
 		if use clang ; then
 			# This is upstream's default
 			mozconfig_annotate "forcing ld=lld due to USE=clang" --enable-linker=lld
-		elif tc-ld-is-gold ; then
+		elif tc-ld-is-gold || use lto ; then
 			mozconfig_annotate "linker is set to gold" --enable-linker=gold
 		else
 			mozconfig_annotate "linker is set to bfd" --enable-linker=bfd
