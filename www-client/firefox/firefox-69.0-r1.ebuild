@@ -257,7 +257,7 @@ src_unpack() {
 src_prepare() {
 	use !wayland && rm -f "${WORKDIR}/firefox/2019_mozilla-bug1539471.patch"
 	eapply "${WORKDIR}/firefox"
-	eapply "${FILESDIR}${PN}-69.0-lto-gcc-fix.patch"
+	eapply "${FILESDIR}/${PN}-69.0-lto-gcc-fix.patch"
 
 	# Allow user to apply any additional patches without modifing ebuild
 	eapply_user
@@ -429,7 +429,7 @@ src_configure() {
 		if use clang ; then
 			# This is upstream's default
 			mozconfig_annotate "forcing ld=lld due to USE=clang" --enable-linker=lld
-		elif tc-ld-is-gold || use lto ; then
+		elif tc-ld-is-gold ; then
 			mozconfig_annotate "linker is set to gold" --enable-linker=gold
 		else
 			mozconfig_annotate "linker is set to bfd" --enable-linker=bfd
