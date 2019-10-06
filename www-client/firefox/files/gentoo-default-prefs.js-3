@@ -15,3 +15,4 @@ pref("general.useragent.locale",           "chrome://global/locale/intl.properti
 pref("intl.locale.requested",              "");
 pref("extensions.autoDisableScopes",       0);
 pref("layout.css.dpi",                     0);
+pref("network.trr.mode",                   5);
