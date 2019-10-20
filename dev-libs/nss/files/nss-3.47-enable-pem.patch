@@ -1,10 +1,10 @@
---- nss/lib/ckfw/manifest.mn
-+++ nss/lib/ckfw/manifest.mn
+--- a/lib/ckfw/manifest.mn
++++ b/lib/ckfw/manifest.mn
 @@ -5,7 +5,7 @@
  
  CORE_DEPTH = ../..
  
--DIRS = builtins 
+-DIRS = builtins
 +DIRS = builtins pem
  
  PRIVATE_EXPORTS = \

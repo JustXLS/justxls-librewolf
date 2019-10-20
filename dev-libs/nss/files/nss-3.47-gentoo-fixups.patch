@@ -1,53 +1,4 @@
-From 8e49e1c92dadc2e7a41cad44637f4a224e4f5b39 Mon Sep 17 00:00:00 2001
-From: "Jory A. Pratt" <anarchy@gentoo.org>
-Date: Fri, 28 Jul 2017 14:00:41 -0500
-Subject: [PATCH] add pkg-config file
-
-Signed-off-by: Jory A. Pratt <anarchy@gentoo.org>
----
- Makefile             |  11 +---
- config/Makefile      |  40 ++++++++++++++
- config/nss-config.in | 145 +++++++++++++++++++++++++++++++++++++++++++++++++++
- config/nss.pc.in     |  12 +++++
- manifest.mn          |   2 +-
- 5 files changed, 199 insertions(+), 11 deletions(-)
- create mode 100644 config/Makefile
- create mode 100644 config/nss-config.in
- create mode 100644 config/nss.pc.in
-
-diff --git a/Makefile b/Makefile
-index 48bae37..9850883 100644
---- a/Makefile
-+++ b/Makefile
-@@ -47,7 +47,7 @@ include $(CORE_DEPTH)/coreconf/rules.mk
- # (7) Execute "local" rules. (OPTIONAL).                              #
- #######################################################################
- 
--nss_build_all: build_nspr all latest
-+nss_build_all: all latest
- 
- nss_clean_all: clobber_nspr clobber
- 
-@@ -135,15 +135,6 @@ $(NSPR_CONFIG_STATUS): $(NSPR_CONFIGURE)
- 	--prefix='$(NSS_GYP_PREFIX)'
- endif
- 
--build_nspr: $(NSPR_CONFIG_STATUS)
--	$(MAKE) -C $(CORE_DEPTH)/../nspr/$(OBJDIR_NAME)
--
--install_nspr: build_nspr
--	$(MAKE) -C $(CORE_DEPTH)/../nspr/$(OBJDIR_NAME) install
--
--clobber_nspr: $(NSPR_CONFIG_STATUS)
--	$(MAKE) -C $(CORE_DEPTH)/../nspr/$(OBJDIR_NAME) clobber
--
- build_docs:
- 	$(MAKE) -C $(CORE_DEPTH)/doc
- 
-diff --git a/config/Makefile b/config/Makefile
-new file mode 100644
-index 0000000..600fe48
---- /dev/null
+--- a/config/Makefile
 +++ b/config/Makefile
 @@ -0,0 +1,40 @@
 +CORE_DEPTH = ..
@@ -90,10 +41,7 @@ index 0000000..600fe48
 +
 +dummy: all export libs
 +
-diff --git a/config/nss-config.in b/config/nss-config.in
-new file mode 100644
-index 0000000..1d7c444
---- /dev/null
+--- a/config/nss-config.in
 +++ b/config/nss-config.in
 @@ -0,0 +1,145 @@
 +#!/bin/sh
@@ -241,10 +189,7 @@ index 0000000..1d7c444
 +      echo $libdirs
 +fi      
 +
-diff --git a/config/nss.pc.in b/config/nss.pc.in
-new file mode 100644
-index 0000000..df9e2cf
---- /dev/null
+--- a/config/nss.pc.in
 +++ b/config/nss.pc.in
 @@ -0,0 +1,12 @@
 +prefix=@prefix@
@@ -259,16 +204,39 @@ index 0000000..df9e2cf
 +Libs: -lssl3 -lsmime3 -lnss3 -lnssutil3
 +Cflags: -I${includedir}
 +
-diff --git a/manifest.mn b/manifest.mn
-index 500a5ad..87c905e 100644
+--- a/Makefile
++++ b/Makefile
+@@ -47,7 +47,7 @@
+ # (7) Execute "local" rules. (OPTIONAL).                              #
+ #######################################################################
+ 
+-nss_build_all: build_nspr all latest
++nss_build_all: all latest
+ 
+ nss_clean_all: clobber_nspr clobber
+ 
+@@ -133,16 +133,6 @@
+ 	--prefix='$(NSS_GYP_PREFIX)'
+ endif
+ 
+-build_nspr: $(NSPR_CONFIG_STATUS)
+-	$(MAKE) -C $(CORE_DEPTH)/../nspr/$(OBJDIR_NAME)
+-	$(MAKE) -C $(CORE_DEPTH)/../nspr/$(OBJDIR_NAME)/pr/tests
+-
+-install_nspr: build_nspr
+-	$(MAKE) -C $(CORE_DEPTH)/../nspr/$(OBJDIR_NAME) install
+-
+-clobber_nspr: $(NSPR_CONFIG_STATUS)
+-	$(MAKE) -C $(CORE_DEPTH)/../nspr/$(OBJDIR_NAME) clobber
+-
+ build_docs:
+ 	$(MAKE) -C $(CORE_DEPTH)/doc
+ 
 --- a/manifest.mn
 +++ b/manifest.mn
-@@ -10,4 +10,4 @@ IMPORTS =	nspr20/v4.8 \
+@@ -10,4 +10,4 @@
  
  RELEASE = nss
  
 -DIRS = coreconf lib cmd cpputil gtests
 +DIRS = coreconf lib cmd cpputil config
--- 
-2.13.3
-
