@@ -182,35 +182,35 @@ fi
 
 llvm_check_deps() {
 	if ! has_version --host-root "sys-devel/clang:${LLVM_SLOT}" ; then
-		ewarn "sys-devel/clang:${LLVM_SLOT} is missing! Cannot use LLVM slot ${LLVM_SLOT} ..."
+		ewarn "sys-devel/clang:${LLVM_SLOT} is missing! Cannot use LLVM slot ${LLVM_SLOT} ..." >&2
 		return 1
-	fi
-
-	if use pgo ; then
-		if ! has usersandbox $FEATURES ; then
-			eerror "You must enable usersandbox as X server can not run as root!"
-		fi
 	fi
 
 	if use clang ; then
 		if ! has_version --host-root "=sys-devel/lld-${LLVM_SLOT}*" ; then
-			ewarn "=sys-devel/lld-${LLVM_SLOT}* is missing! Cannot use LLVM slot ${LLVM_SLOT} ..."
+			ewarn "=sys-devel/lld-${LLVM_SLOT}* is missing! Cannot use LLVM slot ${LLVM_SLOT} ..." >&2
 			return 1
 		fi
 
 		if use pgo ; then
 			if ! has_version --host-root "=sys-libs/compiler-rt-sanitizers-${LLVM_SLOT}*" ; then
-				ewarn "=sys-libs/compiler-rt-sanitizers-${LLVM_SLOT}* is missing! Cannot use LLVM slot ${LLVM_SLOT} ..."
+				ewarn "=sys-libs/compiler-rt-sanitizers-${LLVM_SLOT}* is missing! Cannot use LLVM slot ${LLVM_SLOT} ..." >&2
 				return 1
 			fi
 		fi
 	fi
 
-	einfo "Will use LLVM slot ${LLVM_SLOT}!"
+	einfo "Will use LLVM slot ${LLVM_SLOT}!" >&2
 }
 
 pkg_setup() {
 	moz_pkgsetup
+
+	if use pgo ; then
+		if ! has usersandbox $FEATURES ; then
+			die "You must enable usersandbox as X server can not run as root!"
+		fi
+	fi
 
 	# Avoid PGO profiling problems due to enviroment leakage
 	# These should *always* be cleaned up anyway
@@ -255,6 +255,7 @@ src_unpack() {
 src_prepare() {
 	# Apply firefox patchset then apply thunderbird patches
 	rm "${WORKDIR}"/firefox/2013_avoid_noinline_on_GCC_with_skcms.patch || die
+	rm "${WORKDIR}"/firefox/2015_fix_cssparser.patch || die
 	eapply "${WORKDIR}/firefox"
 	pushd "${S}"/comm &>/dev/null || die
 	eapply "${FILESDIR}/1000_fix_gentoo_preferences.patch"
