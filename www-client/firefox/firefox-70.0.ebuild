@@ -42,7 +42,7 @@ LLVM_MAX_SLOT=9
 
 inherit check-reqs eapi7-ver flag-o-matic toolchain-funcs eutils \
 		gnome2-utils llvm mozcoreconf-v6 pax-utils xdg-utils \
-		autotools mozlinguas-v2 virtualx multiprocessing
+		autotools mozlinguas-v2 virtualx multiprocessing eapi7-ver
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="https://www.mozilla.com/firefox"
@@ -192,35 +192,35 @@ fi
 
 llvm_check_deps() {
 	if ! has_version --host-root "sys-devel/clang:${LLVM_SLOT}" ; then
-		ewarn "sys-devel/clang:${LLVM_SLOT} is missing! Cannot use LLVM slot ${LLVM_SLOT} ..."
+		ewarn "sys-devel/clang:${LLVM_SLOT} is missing! Cannot use LLVM slot ${LLVM_SLOT} ..." >&2
 		return 1
-	fi
-
-	if use pgo ; then
-		if ! has usersandbox $FEATURES ; then
-			eerror "You must enable usersandbox as X server can not run as root!"
-		fi
 	fi
 
 	if use clang ; then
 		if ! has_version --host-root "=sys-devel/lld-${LLVM_SLOT}*" ; then
-			ewarn "=sys-devel/lld-${LLVM_SLOT}* is missing! Cannot use LLVM slot ${LLVM_SLOT} ..."
+			ewarn "=sys-devel/lld-${LLVM_SLOT}* is missing! Cannot use LLVM slot ${LLVM_SLOT} ..." >&2
 			return 1
 		fi
 
 		if use pgo ; then
 			if ! has_version --host-root "=sys-libs/compiler-rt-sanitizers-${LLVM_SLOT}*" ; then
-				ewarn "=sys-libs/compiler-rt-sanitizers-${LLVM_SLOT}* is missing! Cannot use LLVM slot ${LLVM_SLOT} ..."
+				ewarn "=sys-libs/compiler-rt-sanitizers-${LLVM_SLOT}* is missing! Cannot use LLVM slot ${LLVM_SLOT} ..." >&2
 				return 1
 			fi
 		fi
 	fi
 
-	einfo "Will use LLVM slot ${LLVM_SLOT}!"
+	einfo "Will use LLVM slot ${LLVM_SLOT}!" >&2
 }
 
 pkg_setup() {
 	moz_pkgsetup
+
+	if use pgo ; then
+		if ! has usersandbox $FEATURES ; then
+			die "You must enable usersandbox as X server can not run as root!"
+		fi
+	fi
 
 	# Avoid PGO profiling problems due to enviroment leakage
 	# These should *always* be cleaned up anyway
@@ -766,6 +766,32 @@ pkg_postinst() {
 		elog "used for sound.  If you wish to use pulseaudio instead please unmerge"
 		elog "media-sound/apulse."
 		elog
+	fi
+
+	local show_doh_information
+
+	if [[ -z "${REPLACING_VERSIONS}" ]] ; then
+		# New install; Tell user that DoH is disabled by default
+		show_doh_information=yes
+	else
+		local replacing_version
+		for replacing_version in ${REPLACING_VERSIONS} ; do
+			if ver_test "${replacing_version}" -lt 70 ; then
+				# Tell user only once about our DoH default
+				show_doh_information=yes
+				break
+			fi
+		done
+	fi
+
+	if [[ -n "${show_doh_information}" ]] ; then
+		elog
+		elog "Note regarding Trusted Recursive Resolver aka DNS-over-HTTPS (DoH):"
+		elog "Due to privacy concerns (encrypting DNS might be a good thing, sending all"
+		elog "DNS traffic to Cloudflare by default is not a good idea and applications"
+		elog "should respect OS configured settings), \"network.trr.mode\" was set to 5"
+		elog "(\"Off by choice\") by default."
+		elog "You can enable DNS-over-HTTPS in ${PN^}'s preferences."
 	fi
 }
 
