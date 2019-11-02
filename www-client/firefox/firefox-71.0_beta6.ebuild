@@ -27,7 +27,7 @@ if [[ ${MOZ_ESR} == 1 ]] ; then
 fi
 
 # Patch version
-PATCH="${PN}-70.0-patches-03"
+PATCH="${PN}-71.0-patches-03"
 
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 MOZ_SRC_URI="${MOZ_HTTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.xz"
@@ -56,7 +56,6 @@ IUSE="bindist clang cpu_flags_x86_avx2 debug eme-free geckodriver
 	+screenshot selinux startup-notification +system-av1
 	+system-harfbuzz +system-icu +system-jpeg +system-libevent
 	+system-sqlite +system-libvpx +system-webp test wayland wifi"
-RESTRICT="!bindist? ( bindist )"
 
 PATCH_URIS=( https://dev.gentoo.org/~{anarchy,axs,polynomial-c,whissi}/mozilla/patchsets/${PATCH}.tar.xz )
 SRC_URI="${SRC_URI}
@@ -176,7 +175,8 @@ DEPEND="${CDEPEND}
 
 REQUIRED_USE="pgo? ( lto )"
 
-RESTRICT="!test? ( test )"
+RESTRICT="!test? ( test )
+	!bindist? ( bindist )"
 
 S="${WORKDIR}/firefox-${PV%_*}"
 
