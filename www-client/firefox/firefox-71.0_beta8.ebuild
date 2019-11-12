@@ -69,7 +69,7 @@ SRC_URI="${SRC_URI}
 
 CDEPEND="
 	>=dev-libs/nss-3.47
-	>=dev-libs/nspr-4.22
+	>=dev-libs/nspr-4.23
 	dev-libs/atk
 	dev-libs/expat
 	>=x11-libs/cairo-1.10[X]
