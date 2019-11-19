@@ -52,8 +52,8 @@ KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="bindist clang cpu_flags_x86_avx2 debug eme-free geckodriver
-	+gmp-autoupdate hardened hwaccel jack lto neon pgo pulseaudio
-	+screenshot selinux startup-notification +system-av1
+	+gmp-autoupdate hardened hwaccel jack lto cpu_flags_arm_neon pgo
+	pulseaudio +screenshot selinux startup-notification +system-av1
 	+system-harfbuzz +system-icu +system-jpeg +system-libevent
 	+system-sqlite +system-libvpx +system-webp test wayland wifi"
 
@@ -460,8 +460,8 @@ src_configure() {
 	fi
 
 	# Modifications to better support ARM, bug 553364
-	if use neon ; then
-		mozconfig_annotate '' --with-fpu=neon
+	if use cpu_flags_arm_neon ; then
+		mozconfig_annotate '' --with-fpu=cpu_flags_arm_neon
 
 		if ! tc-is-clang ; then
 			# thumb options aren't supported when using clang, bug 666966
@@ -469,6 +469,7 @@ src_configure() {
 			mozconfig_annotate '' --with-thumb-interwork=no
 		fi
 	fi
+
 	if [[ ${CHOST} == armv*h* ]] ; then
 		mozconfig_annotate '' --with-float-abi=hard
 		if ! use system-libvpx ; then
