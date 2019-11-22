@@ -40,7 +40,7 @@ KEYWORDS="~amd64 ~ppc64 ~x86 ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="bindist clang cpu_flags_x86_avx2 dbus debug eme-free
-	+gmp-autoupdate hardened jack lightning lto neon pgo pulseaudio
+	+gmp-autoupdate hardened jack lightning lto cpu_flags_arm_neon pgo pulseaudio
 	 selinux startup-notification +system-av1 +system-harfbuzz +system-icu
 	+system-jpeg +system-libevent +system-sqlite +system-libvpx
 	+system-webp test wayland wifi"
@@ -261,6 +261,8 @@ src_prepare() {
 	eapply "${FILESDIR}/1000_fix_gentoo_preferences.patch"
 	popd &>/dev/null || die
 
+	eapply "${FILESDIR}"/${PN}-68.2.2-rust-1.39+.patch
+
 	# Allow user to apply any additional patches without modifing ebuild
 	eapply_user
 
@@ -454,7 +456,7 @@ src_configure() {
 	fi
 
 	# Modifications to better support ARM, bug 553364
-	if use neon ; then
+	if use cpu_flags_arm_neon ; then
 		mozconfig_annotate '' --with-fpu=neon
 
 		if ! tc-is-clang ; then
@@ -563,7 +565,7 @@ src_configure() {
 	# when they would normally be larger than 2GiB.
 	append-ldflags "-Wl,--compress-debug-sections=zlib"
 
-	if use clang ; then
+	if use clang && ! use arm64; then
 		# https://bugzilla.mozilla.org/show_bug.cgi?id=1482204
 		# https://bugzilla.mozilla.org/show_bug.cgi?id=1483822
 		mozconfig_annotate 'elf-hack is broken when using Clang' --disable-elf-hack
