@@ -461,7 +461,7 @@ src_configure() {
 
 	# Modifications to better support ARM, bug 553364
 	if use cpu_flags_arm_neon ; then
-		mozconfig_annotate '' --with-fpu=cpu_flags_arm_neon
+		mozconfig_annotate '' --with-fpu=neon
 
 		if ! tc-is-clang ; then
 			# thumb options aren't supported when using clang, bug 666966
