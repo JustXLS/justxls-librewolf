@@ -322,7 +322,7 @@ src_prepare() {
 	eautoconf old-configure.in
 
 	# Clear checksums that present a problem
-	sed -i 's/\("files":{\)[^}]*/\1/' ${S}/third_party/rust/backtrace-sys/.cargo-checksum.json || die
+	sed -i 's/\("files":{\)[^}]*/\1/' "${S}"/third_party/rust/backtrace-sys/.cargo-checksum.json || die
 }
 
 src_configure() {
