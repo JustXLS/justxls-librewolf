@@ -40,10 +40,10 @@ KEYWORDS="~amd64 ~ppc64 ~x86 ~amd64-linux ~x86-linux"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="bindist clang cpu_flags_x86_avx2 dbus debug eme-free
-	+gmp-autoupdate hardened jack lightning lto cpu_flags_arm_neon pgo pulseaudio
-	 selinux startup-notification +system-av1 +system-harfbuzz +system-icu
-	+system-jpeg +system-libevent +system-sqlite +system-libvpx
-	+system-webp test wayland wifi"
+	+gmp-autoupdate hardened jack lightning lto cpu_flags_arm_neon pgo
+	pulseaudio selinux startup-notification +system-av1 +system-harfbuzz
+	+system-icu +system-jpeg +system-libevent +system-sqlite
+	+system-libvpx +system-webp test wayland wifi"
 RESTRICT="!bindist? ( bindist )
 	!test? ( test )"
 
@@ -145,15 +145,6 @@ DEPEND="${CDEPEND}
 				=sys-devel/lld-7*
 				sys-devel/llvm:7[gold]
 				pgo? ( =sys-libs/compiler-rt-sanitizers-7*[profile] )
-			)
-		)
-		(
-			sys-devel/clang:6
-			!clang? ( sys-devel/llvm:6 )
-			clang? (
-				=sys-devel/lld-6*
-				sys-devel/llvm:6[gold]
-				pgo? ( =sys-libs/compiler-rt-sanitizers-6*[profile] )
 			)
 		)
 	)
@@ -465,6 +456,7 @@ src_configure() {
 			mozconfig_annotate '' --with-thumb-interwork=no
 		fi
 	fi
+
 	if [[ ${CHOST} == armv*h* ]] ; then
 		mozconfig_annotate '' --with-float-abi=hard
 		if ! use system-libvpx ; then
@@ -565,7 +557,7 @@ src_configure() {
 	# when they would normally be larger than 2GiB.
 	append-ldflags "-Wl,--compress-debug-sections=zlib"
 
-	if use clang && ! use arm64; then
+	if use clang ; then
 		# https://bugzilla.mozilla.org/show_bug.cgi?id=1482204
 		# https://bugzilla.mozilla.org/show_bug.cgi?id=1483822
 		mozconfig_annotate 'elf-hack is broken when using Clang' --disable-elf-hack
