@@ -27,7 +27,7 @@ if [[ ${MOZ_ESR} == 1 ]] ; then
 fi
 
 # Patch version
-PATCH="${PN}-72.0-patches-02"
+PATCH="${PN}-73.0-patches-02"
 
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 MOZ_SRC_URI="${MOZ_HTTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.xz"
@@ -71,7 +71,7 @@ SRC_URI="${SRC_URI}
 # remove harfbuzz graphite dep until new working patch is generated for system libs
 #	system-harfbuzz? ( >=media-libs/harfbuzz-2.5.3:0= >=media-gfx/graphite2-1.3.13 )
 CDEPEND="
-	>=dev-libs/nss-3.48
+	>=dev-libs/nss-3.49
 	>=dev-libs/nspr-4.24
 	dev-libs/atk
 	dev-libs/expat
@@ -128,7 +128,7 @@ RDEPEND="${CDEPEND}
 DEPEND="${CDEPEND}
 	app-arch/zip
 	app-arch/unzip
-	>=dev-util/cbindgen-0.10.1
+	>=dev-util/cbindgen-0.12.0
 	>=net-libs/nodejs-8.11.0
 	>=sys-devel/binutils-2.30
 	sys-apps/findutils
