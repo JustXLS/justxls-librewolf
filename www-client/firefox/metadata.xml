@@ -25,6 +25,8 @@
 		and <pkg>media-libs/libaom</pkg> library instead of bundled.</flag>
 	<flag name="system-icu">Use the system-wide <pkg>dev-libs/icu</pkg>
 		instead of bundled.</flag>
+	<flag name="system-harfbuzz">Use the system-wide <pkg>media-libs/harfbuzz</pkg>
+		and <pkg>media-gfx/graphite2</pkg> instead of bundled.</flag>
 	<flag name="system-jpeg">Use the system-wide <pkg>media-libs/libjpeg-turbo</pkg>
 		instead of bundled.</flag>
 	<flag name="system-libevent">Use the system-wide <pkg>dev-libs/libevent</pkg>
