@@ -1,0 +1,3 @@
+# dev-libs/sqlite-3.31.1 is not avaliable in tree yet
+# Mask system-sqlite useflag until properly supported.
+>=www-client/firefox-74.0_beta system-sqlite
