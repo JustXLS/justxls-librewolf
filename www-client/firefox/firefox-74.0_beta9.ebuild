@@ -27,7 +27,7 @@ if [[ ${MOZ_ESR} == 1 ]] ; then
 fi
 
 # Patch version
-PATCH="${PN}-74.0-patches-02"
+PATCH="${PN}-74.0-patches-04"
 
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 MOZ_SRC_URI="${MOZ_HTTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.xz"
@@ -106,9 +106,9 @@ CDEPEND="
 	system-icu? ( >=dev-libs/icu-64.1:= )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-libevent? ( >=dev-libs/libevent-2.0:0=[threads] )
-	system-libvpx? ( =media-libs/libvpx-1.7*:0=[postproc] )
+	system-libvpx? ( >=media-libs/libvpx-1.8.2:0=[postproc] )
 	system-sqlite? ( >=dev-db/sqlite-3.31.1:3[secure-delete,debug=] )
-	system-webp? ( >=media-libs/libwebp-1.0.2:0= )
+	system-webp? ( >=media-libs/libwebp-1.1.0:0= )
 	wifi? (
 		kernel_linux? (
 			net-misc/networkmanager
