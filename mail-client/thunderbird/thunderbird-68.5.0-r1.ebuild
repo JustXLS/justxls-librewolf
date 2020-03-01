@@ -8,7 +8,7 @@ MOZ_ESR=""
 MOZ_LIGHTNING_VER="6.2.5"
 MOZ_LIGHTNING_GDATA_VER="4.4.1"
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{6,7} )
 PYTHON_REQ_USE='ncurses,sqlite,ssl,threads(+)'
 
 # This list can be updated using scripts/get_langs.sh from the mozilla overlay
@@ -52,6 +52,7 @@ SRC_URI="${SRC_URI}
 	${MOZ_HTTP_URI}/${MOZ_PV}/source/${MOZ_P}.source.tar.xz
 	https://dev.gentoo.org/~axs/distfiles/lightning-${MOZ_LIGHTNING_VER}.tar.xz
 	lightning? ( https://dev.gentoo.org/~axs/distfiles/gdata-provider-${MOZ_LIGHTNING_GDATA_VER}.tar.xz )
+	system-libvpx? ( https://dev.gentoo.org/~anarchy/patches/2013_update_libvpx_esr.patch )
 	${PATCH_URIS[@]}"
 
 inherit check-reqs eapi7-ver flag-o-matic toolchain-funcs eutils \
@@ -97,7 +98,7 @@ CDEPEND="
 	system-icu? ( >=dev-libs/icu-63.1:= )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-libevent? ( >=dev-libs/libevent-2.0:0=[threads] )
-	system-libvpx? ( =media-libs/libvpx-1.7*:0=[postproc] )
+	system-libvpx? ( >=media-libs/libvpx-1.8.2:0=[postproc] )
 	system-sqlite? ( >=dev-db/sqlite-3.28.0:3[secure-delete,debug=] )
 	system-webp? ( >=media-libs/libwebp-1.0.2:0= )
 	wifi? ( kernel_linux? ( >=sys-apps/dbus-0.60
@@ -145,6 +146,15 @@ DEPEND="${CDEPEND}
 				=sys-devel/lld-7*
 				sys-devel/llvm:7[gold]
 				pgo? ( =sys-libs/compiler-rt-sanitizers-7*[profile] )
+			)
+		)
+		(
+			sys-devel/clang:6
+			!clang? ( sys-devel/llvm:6 )
+			clang? (
+				=sys-devel/lld-6*
+				sys-devel/llvm:6[gold]
+				pgo? ( =sys-libs/compiler-rt-sanitizers-6*[profile] )
 			)
 		)
 	)
@@ -248,11 +258,10 @@ src_prepare() {
 	rm "${WORKDIR}"/firefox/2013_avoid_noinline_on_GCC_with_skcms.patch || die
 	rm "${WORKDIR}"/firefox/2015_fix_cssparser.patch || die
 	eapply "${WORKDIR}/firefox"
+	use system-libvpx && eapply "${DISTDIR}/2013_update_libvpx_esr.patch"
 	pushd "${S}"/comm &>/dev/null || die
 	eapply "${FILESDIR}/1000_fix_gentoo_preferences.patch"
 	popd &>/dev/null || die
-
-	eapply "${FILESDIR}"/${PN}-68.2.2-rust-1.39+.patch
 
 	# Allow user to apply any additional patches without modifing ebuild
 	eapply_user
