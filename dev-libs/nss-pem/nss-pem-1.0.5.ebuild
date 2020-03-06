@@ -5,7 +5,7 @@ EAPI=7
 
 inherit cmake-multilib
 
-DESCRIPTION="PEM file reader for Network Security Services (NSS), implemented as a PKCS#11 module "
+DESCRIPTION="PEM file reader for Network Security Services (NSS)"
 HOMEPAGE="https://github.com/kdudka/nss-pem"
 SRC_URI="https://github.com/kdudka/${PN}/releases/download/${P}/${P}.tar.xz"
 
@@ -14,9 +14,10 @@ SLOT="0"
 KEYWORDS="~amd64 ~arm64"
 IUSE=""
 
-BDEPEND=" dev-libs/nss "
+BDEPEND=" >=dev-libs/nss-3.50-r1 "
 RDEPEND="${BDEPEND}"
 
-DEPEND="${RDEPEND}"
+DEPEND="<=dev-libs/nss-3.50
+	${RDEPEND}"
 
 S="${WORKDIR}/${P}/src"
