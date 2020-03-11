@@ -27,7 +27,7 @@ if [[ ${MOZ_ESR} == 1 ]] ; then
 fi
 
 # Patch version
-PATCH="${PN}-74.0-patches-04"
+PATCH="${PN}-75.0-patches-01"
 
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 MOZ_SRC_URI="${MOZ_HTTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.xz"
@@ -54,8 +54,8 @@ LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="bindist clang cpu_flags_x86_avx2 debug eme-free geckodriver
 	+gmp-autoupdate hardened hwaccel jack lto cpu_flags_arm_neon pgo
 	pulseaudio +screenshot selinux startup-notification +system-av1
-	+system-harfbuzz +system-icu +system-jpeg +system-libevent  +system-sqlite
-	 +system-libvpx +system-webp test wayland wifi"
+	+system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx
+	+system-webp test wayland wifi"
 
 REQUIRED_USE="pgo? ( lto )"
 
@@ -68,7 +68,7 @@ SRC_URI="${SRC_URI}
 	${PATCH_URIS[@]}"
 
 CDEPEND="
-	>=dev-libs/nss-3.50
+	>=dev-libs/nss-3.51
 	>=dev-libs/nspr-4.25
 	dev-libs/atk
 	dev-libs/expat
@@ -107,7 +107,6 @@ CDEPEND="
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-libevent? ( >=dev-libs/libevent-2.0:0=[threads] )
 	system-libvpx? ( >=media-libs/libvpx-1.8.2:0=[postproc] )
-	system-sqlite? ( >=dev-db/sqlite-3.31.1:3[secure-delete,debug=] )
 	system-webp? ( >=media-libs/libwebp-1.1.0:0= )
 	wifi? (
 		kernel_linux? (
@@ -160,7 +159,7 @@ DEPEND="${CDEPEND}
 		)
 	)
 	pulseaudio? ( media-sound/pulseaudio )
-	>=virtual/rust-1.39.0
+	>=virtual/rust-1.41.0
 	wayland? ( >=x11-libs/gtk+-3.11:3[wayland] )
 	amd64? ( >=dev-lang/yasm-1.1 virtual/opengl )
 	x86? ( >=dev-lang/yasm-1.1 virtual/opengl )
@@ -332,6 +331,8 @@ src_prepare() {
 
 	# Clear checksums that present a problem
 	sed -i 's/\("files":{\)[^}]*/\1/' "${S}"/third_party/rust/target-lexicon-0.9.0/.cargo-checksum.json || die
+	sed -i 's/\("files":{\)[^}]*/\1/' "${S}"/third_party/rust/packed_simd/.cargo-checksum.json || die
+	sed -i 's/\("files":{\)[^}]*/\1/' "${S}"/third_party/rust/failure/.cargo-checksum.json || die
 }
 
 src_configure() {
@@ -528,7 +529,6 @@ src_configure() {
 	fi
 
 	mozconfig_use_enable startup-notification
-	mozconfig_use_enable system-sqlite
 	mozconfig_use_with system-av1
 	mozconfig_use_with system-harfbuzz
 	mozconfig_use_with system-harfbuzz system-graphite2
