@@ -90,31 +90,9 @@ if [[ "$XDG_CURRENT_DESKTOP" == "GNOME" ]]; then
 	export GNOME_DISABLE_CRASH_DIALOG
 fi
 
-##
-## Enable Xinput2 (#617344)
-##
-
-# respect user settings
-MOZ_USE_XINPUT2=${MOZ_USE_XINPUT2:-auto}
-
-if [[ ${MOZ_USE_XINPUT2} == auto && -n ${WAYLAND_DISPLAY} ]]; then
-	# enabling XINPUT2 should be safe for all wayland users
-	MOZ_USE_XINPUT2=1
-elif [[ ${MOZ_USE_XINPUT2} == auto && ${XDG_CURRENT_DESKTOP^^} == KDE ]]; then
-	# XINPUT2 is known to cause problems for KWin users
-	MOZ_USE_XINPUT2=0
-elif [[ ${MOZ_USE_XINPUT2} == auto && ${XDG_CURRENT_DESKTOP^^} == LXQT ]]; then
-	# LXQt uses KWin
-	MOZ_USE_XINPUT2=0
-elif [[ ${MOZ_USE_XINPUT2} == auto ]]; then
-	# should work on Mate, Xfce, FluxBox, OpenBox and all the others ...
-	MOZ_USE_XINPUT2=1
-fi
-
-[[ ${MOZ_USE_XINPUT2} != 0 ]] && export MOZ_USE_XINPUT2=${MOZ_USE_XINPUT2}
 
 # Don't throw "old profile" dialog box.
-export MOZ_ALLOW_DOWNGRADE=1
+export MOZ_ALLOW_DOWNGRADE=0
 
 ##
 ## Route to the correct .desktop file to get proper
