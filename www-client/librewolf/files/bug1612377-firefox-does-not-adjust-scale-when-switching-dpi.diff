@@ -1,0 +1,20 @@
+diff --git a/widget/gtk/nsWindow.cpp b/widget/gtk/nsWindow.cpp
+index 15b87f5ccfb9..08e335cff32c 100644
+--- a/widget/gtk/nsWindow.cpp
++++ b/widget/gtk/nsWindow.cpp
+@@ -3702,6 +3702,15 @@ void nsWindow::OnScaleChanged(GtkAllocation* aAllocation) {
+   // Force scale factor recalculation
+   mWindowScaleFactorChanged = true;
+ 
++#ifdef MOZ_WAYLAND
++  if (mContainer) {
++    struct wl_surface* surface =
++        moz_container_get_wl_surface(MOZ_CONTAINER(mContainer));
++    if (surface != NULL) {
++      wl_surface_set_buffer_scale(surface, GdkScaleFactor());
++    }
++  }
++#endif
+   // This eventually propagate new scale to the PuppetWidgets
+   OnDPIChanged();
+ 

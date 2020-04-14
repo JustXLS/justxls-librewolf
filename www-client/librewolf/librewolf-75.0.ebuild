@@ -16,6 +16,9 @@ he hi-IN hr hsb hu hy-AM ia id is it ja ka kab kk km kn ko lij lt lv mk mr ms my
 nb-NO nl nn-NO oc pa-IN pl pt-BR pt-PT rm ro ru si sk sl son sq sr sv-SE ta te
 th tr uk ur uz vi xh zh-CN zh-TW )
 
+# MOZ_PN should be used in place of PN where this should refer to "firefox" instead of "librewolf"
+MOZ_PN="firefox"
+
 # Convert the ebuild version to the upstream mozilla version, used by mozlinguas
 MOZ_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
 MOZ_PV="${MOZ_PV/_beta/b}" # Handle beta for SRC_URI
@@ -27,22 +30,22 @@ if [[ ${MOZ_ESR} == 1 ]] ; then
 fi
 
 # Patch version
-PATCH="${PN}-75.0-patches-01"
+PATCH="${MOZ_PN}-75.0-patches-01"
 
-MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
+MOZ_HTTP_URI="https://archive.mozilla.org/pub/${MOZ_PN}/releases"
 MOZ_SRC_URI="${MOZ_HTTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.xz"
 
 if [[ "${PV}" == *_rc* ]]; then
-	MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/candidates/${MOZ_PV}-candidates/build${PV##*_rc}"
+	MOZ_HTTP_URI="https://archive.mozilla.org/pub/${MOZ_PN}/candidates/${MOZ_PV}-candidates/build${PV##*_rc}"
 	MOZ_LANGPACK_PREFIX="linux-i686/xpi/"
-	MOZ_SRC_URI="${MOZ_HTTP_URI}/source/${PN}-${MOZ_PV}.source.tar.xz -> $P.tar.xz"
+	MOZ_SRC_URI="${MOZ_HTTP_URI}/source/${MOZ_PN}-${MOZ_PV}.source.tar.xz -> $P.tar.xz"
 fi
 
 LLVM_MAX_SLOT=10
 
 inherit check-reqs eapi7-ver flag-o-matic toolchain-funcs eutils \
 		gnome2-utils llvm mozcoreconf-v6 pax-utils xdg-utils \
-		autotools mozlinguas-v2 virtualx eapi7-ver
+		autotools mozlinguas-v2 virtualx eapi7-ver librewolf-r0
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="https://www.mozilla.com/firefox"
@@ -52,7 +55,7 @@ KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="bindist clang cpu_flags_x86_avx2 debug eme-free geckodriver
-	+gmp-autoupdate hardened hwaccel jack lto cpu_flags_arm_neon pgo
+	+gmp-autoupdate hardened hwaccel jack lto cpu_flags_arm_neon pipewire pgo
 	pulseaudio +screenshot selinux startup-notification +system-av1
 	+system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx
 	+system-webp test wayland wifi"
@@ -171,6 +174,7 @@ DEPEND="${CDEPEND}
 			)
 		)
 	)
+	pipewire? ( <media-video/pipewire-0.3.0 )
 	pulseaudio? (
 		|| (
 			media-sound/pulseaudio
@@ -188,7 +192,7 @@ DEPEND="${CDEPEND}
 
 S="${WORKDIR}/firefox-${PV%_*}"
 
-QA_PRESTRIPPED="usr/lib*/${PN}/firefox"
+QA_PRESTRIPPED="usr/lib*/${PN}/${PN}"
 
 BUILD_OBJ_DIR="${S}/ff"
 
@@ -283,14 +287,6 @@ pkg_setup() {
 		XDG_SESSION_COOKIE \
 		XAUTHORITY
 
-	if ! use bindist ; then
-		einfo
-		elog "You are enabling official branding. You may not redistribute this build"
-		elog "to any users on your network or the internet. Doing so puts yourself into"
-		elog "a legal problem with Mozilla Foundation."
-		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag."
-	fi
-
 	addpredict /proc/self/oom_score_adj
 
 	llvm_pkg_setup
@@ -308,6 +304,8 @@ pkg_setup() {
 src_unpack() {
 	default
 
+	librewolf-r0_src_unpack
+
 	# Unpack language packs
 	mozlinguas_src_unpack
 }
@@ -315,8 +313,12 @@ src_unpack() {
 src_prepare() {
 	eapply "${WORKDIR}/firefox"
 
-	eapply "${FILESDIR}/${PN}-73.0_fix_lto_pgo_builds.patch"
-	eapply "${FILESDIR}/${PN}-73.0_fix_llvm9.patch"
+	# Extra patches applied to LibreWolf
+	eapply "${FILESDIR}/bug1612377-firefox-does-not-adjust-scale-when-switching-dpi.diff"
+	use pipewire && eapply "${FILESDIR}/fedora-firefox-pipewire.patch"
+
+	eapply "${FILESDIR}/${MOZ_PN}-73.0_fix_lto_pgo_builds.patch"
+	eapply "${FILESDIR}/${MOZ_PN}-73.0_fix_llvm9.patch"
 
 	# Allow user to apply any additional patches without modifing ebuild
 	eapply_user
@@ -523,8 +525,6 @@ src_configure() {
 		fi
 	fi
 
-	mozconfig_use_enable !bindist official-branding
-
 	mozconfig_use_enable debug
 	mozconfig_use_enable debug tests
 	if ! use debug ; then
@@ -617,6 +617,8 @@ src_configure() {
 
 	echo "mk_add_options MOZ_OBJDIR=${BUILD_OBJ_DIR}" >> "${S}"/.mozconfig
 	echo "mk_add_options XARGS=/usr/bin/xargs" >> "${S}"/.mozconfig
+
+	librewolf-r0_src_configure
 
 	# Finalize and report settings
 	mozconfig_final
@@ -717,30 +719,10 @@ src_install() {
 	MOZEXTENSION_TARGET="distribution/extensions" MOZ_INSTALL_L10N_XPIFILE="1" mozlinguas_src_install
 
 	local size sizes icon_path icon name
-	if use bindist ; then
-		sizes="16 32 48"
-		icon_path="${S}/browser/branding/aurora"
-		# Firefox's new rapid release cycle means no more codenames
-		# Let's just stick with this one...
-		icon="aurora"
-		name="Aurora"
-
-		# Override preferences to set the MOZ_DEV_EDITION defaults, since we
-		# don't define MOZ_DEV_EDITION to avoid profile debaucles.
-		# (source: browser/app/profile/firefox.js)
-		cat >>"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js" <<PROFILE_EOF
-pref("app.feedback.baseURL", "https://input.mozilla.org/%LOCALE%/feedback/firefoxdev/%VERSION%/");
-sticky_pref("lightweightThemes.selectedThemeID", "firefox-devedition@mozilla.org");
-sticky_pref("browser.devedition.theme.enabled", true);
-sticky_pref("devtools.theme", "dark");
-PROFILE_EOF
-
-	else
-		sizes="16 22 24 32 48 64 128 256"
-		icon_path="${S}/browser/branding/official"
-		icon="${PN}"
-		name="Mozilla Firefox"
-	fi
+	sizes="16 32 48 64 128"
+	icon_path="${S}/browser/branding/${PN}"
+	icon="${PN}"
+	name="LibreWolf"
 
 	# Disable built-in auto-update because we update firefox through package manager
 	insinto ${MOZILLA_FIVE_HOME}/distribution/
@@ -773,8 +755,8 @@ PROFILE_EOF
 
 		case ${display_protocol} in
 			Wayland)
-				exec_command='firefox-wayland --name firefox-wayland'
-				newbin "${FILESDIR}"/firefox-wayland.sh firefox-wayland
+				exec_command='librewolf-wayland --name librewolf-wayland'
+				newbin "${FILESDIR}"/firefox-wayland.sh librewolf-wayland
 				;;
 			X11)
 				if ! use wayland ; then
@@ -783,8 +765,8 @@ PROFILE_EOF
 					continue
 				fi
 
-				exec_command='firefox-x11 --name firefox-x11'
-				newbin "${FILESDIR}"/firefox-x11.sh firefox-x11
+				exec_command='librewolf-x11 --name librewolf-x11'
+				newbin "${FILESDIR}"/firefox-x11.sh librewolf-x11
 				;;
 			*)
 				app_name="${name}"
@@ -793,7 +775,7 @@ PROFILE_EOF
 				;;
 		esac
 
-		newmenu "${FILESDIR}/icon/${PN}-r1.desktop" "${desktop_filename}"
+		newmenu "${FILESDIR}/icon/${MOZ_PN}-r1.desktop" "${desktop_filename}"
 		sed -i \
 			-e "s:@NAME@:${app_name}:" \
 			-e "s:@EXEC@:${exec_command}:" \
@@ -802,14 +784,14 @@ PROFILE_EOF
 			"${ED%/}/usr/share/applications/${desktop_filename}" || die
 	done
 
-	rm "${ED%/}"/usr/bin/firefox || die
-	newbin "${FILESDIR}"/firefox.sh firefox
+	rm "${ED%/}"/usr/bin/librewolf || die
+	newbin "${FILESDIR}"/firefox.sh librewolf
 
 	local wrapper
 	for wrapper in \
-		"${ED%/}"/usr/bin/firefox \
-		"${ED%/}"/usr/bin/firefox-x11 \
-		"${ED%/}"/usr/bin/firefox-wayland \
+		"${ED%/}"/usr/bin/librewolf \
+		"${ED%/}"/usr/bin/librewolf-x11 \
+		"${ED%/}"/usr/bin/librewolf-wayland \
 	; do
 		[[ ! -f "${wrapper}" ]] && continue
 
@@ -823,12 +805,14 @@ PROFILE_EOF
 	[[ -f "${ED%/}${MOZILLA_FIVE_HOME}/llvm-symbolizer" ]] && \
 		rm "${ED%/}${MOZILLA_FIVE_HOME}/llvm-symbolizer"
 
-	# firefox and firefox-bin are identical
-	rm "${ED%/}"${MOZILLA_FIVE_HOME}/firefox-bin || die
-	dosym firefox ${MOZILLA_FIVE_HOME}/firefox-bin
+	# librewolf and librewolf-bin are identical
+	rm "${ED%/}"${MOZILLA_FIVE_HOME}/${PN}-bin || die
+	dosym ${PN} ${MOZILLA_FIVE_HOME}/${PN}-bin
 
-	# Required in order to use plugins and even run firefox on hardened.
-	pax-mark m "${ED%/}"${MOZILLA_FIVE_HOME}/{firefox,plugin-container}
+	# Required in order to use plugins and even run librewolf on hardened.
+	pax-mark m "${ED%/}"${MOZILLA_FIVE_HOME}/{librewolf,plugin-container}
+
+	librewolf-r0_src_install
 }
 
 pkg_preinst() {

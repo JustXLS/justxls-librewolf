@@ -1,0 +1,63 @@
+diff -up firefox-68.0/config/system-headers.mozbuild.firefox-pipewire firefox-68.0/config/system-headers.mozbuild
+--- firefox-68.0/config/system-headers.mozbuild.firefox-pipewire	2019-07-01 22:30:26.000000000 +0200
++++ firefox-68.0/config/system-headers.mozbuild	2019-07-08 15:26:15.397161627 +0200
+@@ -314,6 +314,7 @@ system_headers = [
+     'Gestalt.h',
+     'getopt.h',
+     'gio/gio.h',
++    'gio/gunixfdlist.h',
+     'glibconfig.h',
+     'glib.h',
+     'glib-object.h',
+@@ -607,6 +608,7 @@ system_headers = [
+     'Pgenerr.h',
+     'PGenErr.h',
+     'Ph.h',
++    'pipewire/pipewire.h',
+     'pixman.h',
+     'pk11func.h',
+     'pk11pqg.h',
+diff -up firefox-68.0/media/webrtc/trunk/webrtc/modules/desktop_capture/desktop_capture_generic_gn/moz.build.firefox-pipewire firefox-68.0/media/webrtc/trunk/webrtc/modules/desktop_capture/desktop_capture_generic_gn/moz.build
+--- firefox-68.0/media/webrtc/trunk/webrtc/modules/desktop_capture/desktop_capture_generic_gn/moz.build.firefox-pipewire	2019-07-01 22:30:33.000000000 +0200
++++ firefox-68.0/media/webrtc/trunk/webrtc/modules/desktop_capture/desktop_capture_generic_gn/moz.build	2019-07-08 15:26:15.397161627 +0200
+@@ -194,6 +194,28 @@ if CONFIG["OS_TARGET"] == "Linux":
+         "/media/webrtc/trunk/webrtc/modules/desktop_capture/window_capturer_linux.cc"
+     ]
+ 
++# PipeWire specific files
++if CONFIG["OS_TARGET"] == "Linux":
++
++    DEFINES["WEBRTC_USE_PIPEWIRE"] = "1"
++
++    OS_LIBS += [
++        "rt",
++        "pipewire-0.2",
++        "glib-2.0",
++        "gio-2.0",
++        "gobject-2.0"
++    ]
++
++    CXXFLAGS += CONFIG['TK_CFLAGS']
++
++    UNIFIED_SOURCES += [
++        "/media/webrtc/trunk/webrtc/modules/desktop_capture/linux/base_capturer_pipewire.cc",
++        "/media/webrtc/trunk/webrtc/modules/desktop_capture/linux/screen_capturer_pipewire.cc",
++        "/media/webrtc/trunk/webrtc/modules/desktop_capture/linux/window_capturer_pipewire.cc"
++    ]
++
++
+ if CONFIG["OS_TARGET"] == "NetBSD":
+ 
+     DEFINES["USE_X11"] = "1"
+diff -up firefox-68.0/media/webrtc/trunk/webrtc/modules/desktop_capture/desktop_capture_options.h.firefox-pipewire firefox-68.0/media/webrtc/trunk/webrtc/modules/desktop_capture/desktop_capture_options.h
+--- firefox-68.0/media/webrtc/trunk/webrtc/modules/desktop_capture/desktop_capture_options.h.firefox-pipewire	2019-07-08 16:42:13.936254926 +0200
++++ firefox-68.0/media/webrtc/trunk/webrtc/modules/desktop_capture/desktop_capture_options.h	2019-07-08 16:42:17.509264974 +0200
+@@ -141,7 +141,7 @@ class DesktopCaptureOptions {
+   bool disable_effects_ = true;
+   bool detect_updated_region_ = false;
+ #if defined(WEBRTC_USE_PIPEWIRE)
+-  bool allow_pipewire_ = false;
++  bool allow_pipewire_ = true;
+ #endif
+ };
+ 
