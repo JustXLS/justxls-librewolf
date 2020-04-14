@@ -11,7 +11,7 @@ Create the `/etc/portage/repos.conf/librewolf.conf` file as follows:
 priority = 50
 location = <repo-location>/librewolf
 sync-type = git
-sync-uri = https://gitlab.com/aidanharris/librewolf-gentoo.git
+sync-uri = https://gitlab.com/librewolf-community/browser/gentoo.git
 auto-sync = Yes
 ```
 
