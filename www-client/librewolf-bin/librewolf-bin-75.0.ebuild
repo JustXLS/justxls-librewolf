@@ -24,7 +24,7 @@ inherit nsplugins pax-utils xdg-utils eapi7-ver
 DESCRIPTION="LibreWolf Web Browser"
 SRC_URI="${SRC_URI}
 	amd64? ( https://gitlab.com/librewolf-community/browser/linux/uploads/e7bfcab39b5012bf06bf96c0c8ebe11a/librewolf-75.0-1-x86_64.pkg.tar.xz -> ${PN}_x86_64-${PV}.tar.xz )"
-HOMEPAGE="https://www.mozilla.org/en-US/firefox/"
+HOMEPAGE="https://librewolf-community.gitlab.io/"
 RESTRICT="strip mirror"
 
 KEYWORDS="-* amd64"

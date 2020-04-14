@@ -47,8 +47,8 @@ inherit check-reqs eapi7-ver flag-o-matic toolchain-funcs eutils \
 		gnome2-utils llvm mozcoreconf-v6 pax-utils xdg-utils \
 		autotools mozlinguas-v2 virtualx eapi7-ver librewolf-r0
 
-DESCRIPTION="Firefox Web Browser"
-HOMEPAGE="https://www.mozilla.com/firefox"
+DESCRIPTION="LibreWolf Web Browser"
+HOMEPAGE="https://librewolf-community.gitlab.io/"
 
 KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 
