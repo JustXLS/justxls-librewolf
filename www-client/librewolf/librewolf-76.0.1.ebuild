@@ -30,7 +30,7 @@ if [[ ${MOZ_ESR} == 1 ]] ; then
 fi
 
 # Patch version
-PATCH="${MOZ_PN}-75.0-patches-01"
+PATCH="${MOZ_PN}-76.0-patches-02"
 
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${MOZ_PN}/releases"
 MOZ_SRC_URI="${MOZ_HTTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.xz"
@@ -44,8 +44,9 @@ fi
 LLVM_MAX_SLOT=10
 
 inherit check-reqs eapi7-ver flag-o-matic toolchain-funcs eutils \
-		gnome2-utils llvm mozcoreconf-v6 pax-utils xdg-utils \
-		autotools mozlinguas-v2 virtualx eapi7-ver librewolf-r0
+		gnome2-utils llvm mozcoreconf-v6 multiprocessing \
+		pax-utils xdg-utils autotools mozlinguas-v2 virtualx \
+		eapi7-ver librewolf-r0
 
 DESCRIPTION="LibreWolf Web Browser"
 HOMEPAGE="https://librewolf-community.gitlab.io/"
@@ -65,13 +66,13 @@ REQUIRED_USE="pgo? ( lto )"
 RESTRICT="!bindist? ( bindist )
 	!test? ( test )"
 
-PATCH_URIS=( https://dev.gentoo.org/~{whissi,anarchy,polynomial-c,axs}/mozilla/patchsets/${PATCH}.tar.xz )
+PATCH_URIS=( https://dev.gentoo.org/~{whissi,polynomial-c,axs}/mozilla/patchsets/${PATCH}.tar.xz )
 SRC_URI="${SRC_URI}
 	${MOZ_SRC_URI}
 	${PATCH_URIS[@]}"
 
 CDEPEND="
-	>=dev-libs/nss-3.51
+	>=dev-libs/nss-3.52
 	>=dev-libs/nspr-4.25
 	dev-libs/atk
 	dev-libs/expat
@@ -93,7 +94,7 @@ CDEPEND="
 	>=dev-libs/glib-2.26:2
 	>=sys-libs/zlib-1.2.3
 	>=dev-libs/libffi-3.0.10:=
-	virtual/ffmpeg
+	media-video/ffmpeg
 	x11-libs/libX11
 	x11-libs/libXcomposite
 	x11-libs/libXdamage
@@ -133,7 +134,7 @@ DEPEND="${CDEPEND}
 	app-arch/zip
 	app-arch/unzip
 	>=dev-util/cbindgen-0.13.0
-	>=net-libs/nodejs-8.11.0
+	>=net-libs/nodejs-10.19.0
 	>=sys-devel/binutils-2.30
 	sys-apps/findutils
 	|| (
@@ -287,12 +288,24 @@ pkg_setup() {
 		XDG_SESSION_COOKIE \
 		XAUTHORITY
 
+	if ! use bindist ; then
+		einfo
+		elog "You are enabling official branding. You may not redistribute this build"
+		elog "to any users on your network or the internet. Doing so puts yourself into"
+		elog "a legal problem with Mozilla Foundation."
+		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag."
+	fi
+
 	addpredict /proc/self/oom_score_adj
 
 	llvm_pkg_setup
 
 	# Workaround for #627726
 	if has ccache ${FEATURES} ; then
+		if use clang && use pgo ; then
+			die "Using FEATURES=ccache with USE=clang and USE=pgo is currently known to be broken (bug #718632)."
+		fi
+
 		einfo "Fixing PATH for FEATURES=ccache ..."
 		PATH=$(fix_path 'ccache/bin')
 	elif has distcc ${FEATURES} ; then
@@ -314,14 +327,19 @@ src_prepare() {
 	eapply "${WORKDIR}/firefox"
 
 	# Extra patches applied to LibreWolf
-	eapply "${FILESDIR}/bug1612377-firefox-does-not-adjust-scale-when-switching-dpi.diff"
 	use pipewire && eapply "${FILESDIR}/fedora-firefox-pipewire.patch"
 
-	eapply "${FILESDIR}/${MOZ_PN}-73.0_fix_lto_pgo_builds.patch"
-	eapply "${FILESDIR}/${MOZ_PN}-73.0_fix_llvm9.patch"
+	# Make LTO respect MAKEOPTS
+	sed -i \
+		-e "s/multiprocessing.cpu_count()/$(makeopts_jobs)/" \
+		"${S}"/build/moz.configure/lto-pgo.configure \
+		|| die "sed failed to set num_cores"
 
 	# Allow user to apply any additional patches without modifing ebuild
 	eapply_user
+
+	einfo "Removing pre-built binaries ..."
+	find "${S}"/third_party -type f \( -name '*.so' -o -name '*.o' \) -print -delete || die
 
 	# Enable gnomebreakpad
 	if use debug ; then
@@ -524,6 +542,8 @@ src_configure() {
 				"${S}"/media/libvpx/moz.build
 		fi
 	fi
+
+	mozconfig_use_enable !bindist official-branding
 
 	mozconfig_use_enable debug
 	mozconfig_use_enable debug tests
