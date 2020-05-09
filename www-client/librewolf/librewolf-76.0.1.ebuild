@@ -288,14 +288,6 @@ pkg_setup() {
 		XDG_SESSION_COOKIE \
 		XAUTHORITY
 
-	if ! use bindist ; then
-		einfo
-		elog "You are enabling official branding. You may not redistribute this build"
-		elog "to any users on your network or the internet. Doing so puts yourself into"
-		elog "a legal problem with Mozilla Foundation."
-		elog "You can disable it by emerging ${PN} _with_ the bindist USE-flag."
-	fi
-
 	addpredict /proc/self/oom_score_adj
 
 	llvm_pkg_setup
