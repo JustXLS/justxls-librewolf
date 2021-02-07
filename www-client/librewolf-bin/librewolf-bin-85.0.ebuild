@@ -39,6 +39,12 @@ DEPEND="app-arch/unzip
 			media-sound/apulse
 		)
 	)"
+
+# librewolf's binary package needs x11-libs/gtk+:3 with wayland because of this error.
+#
+#   XPCOMGlueLoad error for file /opt/librewolf/libxul.so:
+#   /opt/librewolf/libxul.so: undefined symbol: gdk_wayland_display_get_wl_compositor
+#   Couldn't load XPCOM.
 RDEPEND="dev-libs/atk
 	>=sys-apps/dbus-0.60
 	>=dev-libs/dbus-glib-0.72
@@ -48,7 +54,7 @@ RDEPEND="dev-libs/atk
 	>=x11-libs/cairo-1.10[X]
 	x11-libs/gdk-pixbuf
 	>=x11-libs/gtk+-2.18:2
-	>=x11-libs/gtk+-3.4.0:3
+	>=x11-libs/gtk+-3.4.0:3[wayland]
 	x11-libs/libX11
 	x11-libs/libXcomposite
 	x11-libs/libXdamage
