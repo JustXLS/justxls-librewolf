@@ -19,7 +19,7 @@ MOZ_P="${MOZ_PN}-${MOZ_PV}"
 
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/mozilla.org/firefox/releases/"
 
-inherit nsplugins pax-utils xdg-utils eapi7-ver unpacker
+inherit nsplugins pax-utils xdg-utils eapi7-ver unpacker multilib
 
 DESCRIPTION="LibreWolf Web Browser"
 SRC_URI="${SRC_URI}
@@ -215,6 +215,9 @@ src_install() {
 
 	# Required in order to use plugins and even run firefox on hardened.
 	pax-mark mr "${ED%/}"${MOZILLA_FIVE_HOME}/{librewolf,librewolf-bin,plugin-container}
+
+	# Fix libnssckbi.so symlink
+	ln -svf /usr/$(get_libdir)/libnssckbi.so "${ED%/}"/opt/librewolf/libnssckbi.so || die
 }
 
 pkg_postinst() {
