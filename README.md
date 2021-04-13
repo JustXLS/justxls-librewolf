@@ -4,6 +4,8 @@ Librewolf packaging for Gentoo.
 
 ## Usage
 
+### Manual way
+
 Create the `/etc/portage/repos.conf/librewolf.conf` file as follows:
 
 ```
@@ -16,6 +18,16 @@ auto-sync = Yes
 ```
 
 Change `repo-location` to a path of your choosing and then run `emaint -r librewolf sync`, Portage should now find and update the repository.
+
+### eselect way
+
+On terminal:
+
+```bash
+sudo eselect repository add librewolf git https://gitlab.com/librewolf-community/browser/gentoo.git
+```
+
+And then run `emaint -r librewolf sync`, Portage should now find and update the repository.
 
 ## Packaging Workflow (for contributors)
 
