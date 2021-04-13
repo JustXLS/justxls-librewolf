@@ -19,7 +19,7 @@ auto-sync = Yes
 
 Change `repo-location` to a path of your choosing and then run `emaint -r librewolf sync`, Portage should now find and update the repository.
 
-### eselect way
+### Eselect way
 
 On terminal:
 
