@@ -27,7 +27,7 @@ SRC_URI="${SRC_URI}
 HOMEPAGE="https://librewolf-community.gitlab.io/"
 RESTRICT="strip mirror"
 
-KEYWORDS="-* amd64"
+KEYWORDS="-* ~amd64"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="+alsa +ffmpeg +pulseaudio selinux startup-notification wayland"
@@ -45,7 +45,10 @@ DEPEND="app-arch/unzip
 #   XPCOMGlueLoad error for file /opt/librewolf/libxul.so:
 #   /opt/librewolf/libxul.so: undefined symbol: gdk_wayland_display_get_wl_compositor
 #   Couldn't load XPCOM.
+#
+# As of 86.0 the Arch build of librewolf requires glibc-2.33.
 RDEPEND="dev-libs/atk
+	>=sys-libs/glibc-2.33
 	>=sys-apps/dbus-0.60
 	>=dev-libs/dbus-glib-0.72
 	>=dev-libs/glib-2.26:2
