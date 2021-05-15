@@ -46,13 +46,41 @@ mk_add_options MOZ_SERVICES_HEALTHREPORT=0
 mk_add_options MOZ_TELEMETRY_REPORTING=0
 END
 
+  # Remove some pre-installed addons that might be questionable
+  eapply "${WORKDIR}/common/patches/remove_addons.patch"
+
+  # Disable (some) megabar functionality
+  # Adapted from https://github.com/WesleyBranton/userChrome.css-Customizations
+  eapply "${WORKDIR}/common/patches/megabar.patch"
+
   # Disabling Pocket
   sed -i "s/'pocket'/#'pocket'/g" "${S}"/browser/components/moz.build
+
+  eapply "${WORKDIR}/common/patches/context-menu.patch"
+
+  # Remove mozilla vpn ads
+  eapply "${WORKDIR}/common/patches/mozilla-vpn-ad.patch"
+
   # this one only to remove an annoying error message:
   sed -i 's#SaveToPocket.init();#// SaveToPocket.init();#g' "${S}"/browser/components/BrowserGlue.jsm
 
+  # Remove Internal Plugin Certificates
+  _cert_sed='s#if (aCert.organizationalUnit == "Mozilla [[:alpha:]]\+") {\n'
+  _cert_sed+='[[:blank:]]\+return AddonManager\.SIGNEDSTATE_[[:upper:]]\+;\n'
+  _cert_sed+='[[:blank:]]\+}#'
+  _cert_sed+='// NOTE: removed#g'
+  sed -z "$_cert_sed" -i "${S}"/toolkit/mozapps/extensions/internal/XPIInstall.jsm
+
   # allow SearchEngines option in non-ESR builds
   sed -i 's#"enterprise_only": true,#"enterprise_only": false,#g' "${S}"/browser/components/enterprisepolicies/schemas/policies-schema.json
+
+  _settings_services_sed='s#firefox.settings.services.mozilla.com#f.s.s.m.c.qjz9zk#g'
+
+  # stop some undesired requests (https://gitlab.com/librewolf-community/browser/common/-/issues/10)
+  sed "$_settings_services_sed" -i "${S}"/browser/components/newtab/data/content/activity-stream.bundle.js
+  sed "$_settings_services_sed" -i "${S}"/modules/libpref/init/all.js
+  sed "$_settings_services_sed" -i "${S}"/services/settings/Utils.jsm
+  sed "$_settings_services_sed" -i "${S}"/toolkit/components/search/SearchUtils.jsm
 
   rm -f ${WORKDIR}/common/source_files/mozconfig
   cp -r ${WORKDIR}/common/source_files/* "${S}"/
