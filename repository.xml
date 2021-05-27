@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+
+<repostories version="1.0">
+  <repo priority="50" quality="experimental" status="unofficial">
+    <name>librewolf</name>
+    <description>Librewolf packaging for Gentoo.</description>
+    <homepage>https://gitlab.com/librewolf-community/browser/gentoo</homepage>
+    <source type="git">https://gitlab.com/librewolf-community/browser/gentoo.git</source>
+    <feed>https://gitlab.com/librewolf-community/browser/gentoo/commits/master.atom</feed>
+  </repo>
+</repostories>
