@@ -47,19 +47,19 @@ mk_add_options MOZ_TELEMETRY_REPORTING=0
 END
 
   # Remove some pre-installed addons that might be questionable
-  eapply "${WORKDIR}/common/patches/remove_addons.patch"
+  eapply "${WORKDIR}/patches/remove_addons.patch"
 
   # Disable (some) megabar functionality
   # Adapted from https://github.com/WesleyBranton/userChrome.css-Customizations
-  eapply "${WORKDIR}/common/patches/megabar.patch"
+  eapply "${WORKDIR}/patches/megabar.patch"
 
   # Disabling Pocket
   sed -i "s/'pocket'/#'pocket'/g" "${S}"/browser/components/moz.build
 
-  eapply "${WORKDIR}/common/patches/context-menu.patch"
+  eapply "${WORKDIR}/patches/context-menu.patch"
 
   # Remove mozilla vpn ads
-  eapply "${WORKDIR}/common/patches/mozilla-vpn-ad.patch"
+  eapply "${WORKDIR}/patches/mozilla-vpn-ad.patch"
 
   # this one only to remove an annoying error message:
   sed -i 's#SaveToPocket.init();#// SaveToPocket.init();#g' "${S}"/browser/components/BrowserGlue.jsm
@@ -110,6 +110,34 @@ librewolf-r1_src_unpack() {
 		git-r3_checkout "$repo" "${WORKDIR}/${_repo}"
 	done
 	popd
+
+	# Grab patches
+	# pre-89 patches can be grabed from the 'linux' librewolf repository
+	# after 89 patches were moved to 'common'
+	patch_list=(
+		"remove_addons.patch"
+    	"megabar.patch"
+    	"context-menu.patch"
+    	"mozilla-vpn-ad.patch"
+	)
+
+	if ver_test -lt "89.0"; then
+		git-r3_fetch "https://gitlab.com/librewolf-community/browser/linux.git" \
+			"v${LIBREWOLF_PV}"
+		git-r3_checkout "https://gitlab.com/librewolf-community/browser/linux.git" \
+			"${WORKDIR}/linux"
+
+		mkdir "${WORKDIR}/patches"
+
+		for patch in ${patch_list[@]}; do
+			cp "${WORKDIR}/linux/${patch}" "${WORKDIR}/patches"
+		done
+	else
+		mkdir "${WORKDIR}/patches"
+		for patch in ${patch_list[@]}; do
+			cp "${WORKDIR}/common/patches/${patch}" "${WORKDIR}/patches"
+		done
+	fi
 }
 
 librewolf-r1_src_install() {
