@@ -19,11 +19,11 @@ MOZ_P="${MOZ_PN}-${MOZ_PV}"
 
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/mozilla.org/firefox/releases/"
 
-inherit pax-utils xdg-utils eapi7-ver unpacker multilib
+inherit desktop pax-utils xdg-utils eapi7-ver unpacker multilib
 
 DESCRIPTION="LibreWolf Web Browser"
 SRC_URI="${SRC_URI}
-	amd64? ( https://download.opensuse.org/repositories/home:/bgstack15:/aftermozilla/Debian_Unstable/amd64/librewolf_88.0.1-1_amd64.deb -> ${PN}_amd64-${PV}.deb )"
+	amd64? ( https://gitlab.com/librewolf-community/browser/arch/-/jobs/1262460657/artifacts/raw/librewolf-88.0.1-2-x86_64.pkg.tar.zst -> ${PN}_x86_64-${PV}.tar.zst )"
 HOMEPAGE="https://librewolf-community.gitlab.io/"
 RESTRICT="strip mirror"
 
@@ -46,7 +46,9 @@ DEPEND="app-arch/unzip
 #   /opt/librewolf/libxul.so: undefined symbol: gdk_wayland_display_get_wl_compositor
 #   Couldn't load XPCOM.
 #
+# As of 86.0 the Arch build of librewolf requires glibc-2.33.
 RDEPEND="dev-libs/atk
+	>=sys-libs/glibc-2.33
 	>=sys-apps/dbus-0.60
 	>=dev-libs/dbus-glib-0.72
 	>=dev-libs/glib-2.26:2
@@ -97,25 +99,6 @@ src_unpack() {
 	unpacker "${A}"
 }
 
-src_prepare() {
-	# Restore symlinks.
-	rm "${S}/usr/lib/librewolf/distribution" || die
-
-	cp -r "${S}/usr/share/librewolf/distribution" \
-		"${S}/usr/lib/librewolf" || die
-
-	rm "${S}/usr/lib/librewolf/browser/chrome" \
-		"${S}/usr/lib/librewolf/browser/defaults" || die
-
-	cp -r "${S}/usr/share/librewolf/browser/chrome" \
-		"${S}/usr/lib/librewolf/browser/chrome" || die
-
-	cp -r "${S}/usr/share/librewolf/browser/defaults" \
-		"${S}/usr/lib/librewolf/browser/defaults" || die
-
-	eapply_user
-}
-
 src_install() {
 	local MOZILLA_FIVE_HOME=/opt/${MOZ_PN}
 
@@ -138,7 +121,7 @@ src_install() {
 	sizes="16 32 48 128"
 	icon_path="${MOZILLA_FIVE_HOME}/browser/chrome/icons/default"
 	icon="${PN}"
-	name="LibreWolf (bin)"
+	name="Mozilla Firefox (bin)"
 
 	local apulselib=
 	if use alsa && ! use pulseaudio; then
@@ -229,9 +212,6 @@ src_install() {
 	insinto /etc/revdep-rebuild
 	echo "SEARCH_DIRS_MASK=${MOZILLA_FIVE_HOME}" >> ${T}/10${PN}
 	doins "${T}"/10${PN}
-
-	# Plugins dir, still used for flash
-	share_plugins_dir
 
 	# Required in order to use plugins and even run firefox on hardened.
 	pax-mark mr "${ED%/}"${MOZILLA_FIVE_HOME}/{librewolf,librewolf-bin,plugin-container}
