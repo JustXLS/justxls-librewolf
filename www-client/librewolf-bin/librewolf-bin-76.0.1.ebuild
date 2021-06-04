@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -19,7 +19,7 @@ MOZ_P="${MOZ_PN}-${MOZ_PV}"
 
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/mozilla.org/firefox/releases/"
 
-inherit nsplugins pax-utils xdg-utils eapi7-ver
+inherit pax-utils xdg-utils eapi7-ver
 
 DESCRIPTION="LibreWolf Web Browser"
 SRC_URI="${SRC_URI}
