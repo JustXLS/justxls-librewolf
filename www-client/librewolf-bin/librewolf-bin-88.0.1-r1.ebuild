@@ -112,10 +112,10 @@ src_install() {
 		die
 	fi
 
-	cat "${FILESDIR}"/local-settings.js >> "${ED%/}/${MOZILLA_FIVE_HOME}/defaults/pref/local-settings.js"
+	# cat "${FILESDIR}"/local-settings.js >> "${ED%/}/${MOZILLA_FIVE_HOME}/defaults/pref/local-settings.js"
 
 	insinto ${MOZILLA_FIVE_HOME}
-	newins "${FILESDIR}"/all-gentoo-3.js all-gentoo.js
+	# newins "${FILESDIR}"/all-gentoo-3.js all-gentoo.js
 
 	local size sizes icon_path icon name
 	sizes="16 32 48 128"
