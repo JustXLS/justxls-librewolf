@@ -14,6 +14,10 @@ WANT_AUTOCONF="2.1"
 
 VIRTUALX_REQUIRED="pgo"
 
+# Librewolf version (please rev-bump if changed)
+# Used when cloning patches repository.
+LIBREWOLF_PV="${PV}-1"
+
 MOZ_ESR=
 
 MOZ_PV=${PV}
