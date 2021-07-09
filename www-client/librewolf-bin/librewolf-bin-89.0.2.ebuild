@@ -104,7 +104,7 @@ src_install() {
 
 	# Install firefox in /opt
 	dodir ${MOZILLA_FIVE_HOME%/*}
-	mv "${S}"/usr/lib/librewolf/ "${ED%/}"${MOZILLA_FIVE_HOME} || die
+	mv "${S}"/ "${ED%/}"${MOZILLA_FIVE_HOME} || die
 	cd "${WORKDIR}" || die
 
 	if ! grep -q '"DisableAppUpdate": true' "${ED%/}${MOZILLA_FIVE_HOME}"/distribution/policies.json
