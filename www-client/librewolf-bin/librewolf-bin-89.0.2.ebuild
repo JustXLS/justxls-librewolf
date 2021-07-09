@@ -23,7 +23,7 @@ inherit desktop pax-utils xdg-utils eapi7-ver unpacker multilib
 
 DESCRIPTION="LibreWolf Web Browser"
 SRC_URI="${SRC_URI}
-	amd64? ( https://gitlab.com/librewolf-community/browser/linux/-/jobs/1373756742/artifacts/raw/LibreWolf-89.0.2-1.x86_64.tar.bz2 -> ${PN}_x86_64-${PV}.tar.zst )"
+	amd64? ( https://gitlab.com/librewolf-community/browser/linux/-/jobs/1373756742/artifacts/raw/LibreWolf-89.0.2-1.x86_64.tar.bz2 -> ${PN}_x86_64-${PV}.tar.bz2 )"
 HOMEPAGE="https://librewolf-community.gitlab.io/"
 RESTRICT="strip mirror"
 
