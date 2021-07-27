@@ -23,7 +23,7 @@ inherit desktop pax-utils xdg-utils eapi7-ver unpacker multilib
 
 DESCRIPTION="LibreWolf Web Browser"
 SRC_URI="${SRC_URI}
-	amd64? ( https://gitlab.com/librewolf-community/browser/linux/-/jobs/1373756742/artifacts/raw/LibreWolf-89.0.2-1.x86_64.tar.bz2 -> ${PN}_x86_64-${PV}.tar.bz2 )"
+	amd64? ( https://gitlab.com/librewolf-community/browser/ubuntu/-/jobs/1406555580/artifacts/raw/librewolf_89.0.2+build1-0ubuntu0.20.04.1_amd64.deb )"
 HOMEPAGE="https://librewolf-community.gitlab.io/"
 RESTRICT="strip mirror"
 
@@ -99,12 +99,21 @@ src_unpack() {
 	unpacker "${A}"
 }
 
+src_prepare() {
+	eapply_user # Ebuild will complain without this.
+
+	rm -r "${S}/usr/lib/librewolf/browser/extensions"
+	rm -r "${S}/usr/lib/librewolf/browser/plugins"
+	rm -r "${S}/usr/lib/librewolf/distribution/extensions"
+	rm -r "${S}/usr/lib/librewolf/browser/defaults/preferences/syspref.js"
+}
+
 src_install() {
 	local MOZILLA_FIVE_HOME=/opt/${MOZ_PN}
 
 	# Install firefox in /opt
 	dodir ${MOZILLA_FIVE_HOME%/*}
-	mv "${S}"/ "${ED%/}"${MOZILLA_FIVE_HOME} || die
+	mv "${S}/usr/lib/${MOZ_PN}" "${ED%/}"${MOZILLA_FIVE_HOME} || die
 	cd "${WORKDIR}" || die
 
 	if ! grep -q '"DisableAppUpdate": true' "${ED%/}${MOZILLA_FIVE_HOME}"/distribution/policies.json
