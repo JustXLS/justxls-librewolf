@@ -1,7 +1,7 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# @ECLASS: librewolf-r0.eclass
+# @ECLASS: librewolf-r2.eclass
 # @MAINTAINER:
 # aidanharris
 # @AUTHOR:
@@ -9,7 +9,7 @@
 # @BLURB:
 # @DESCRIPTION: librewolf customisation/configuration
 
-if [[ ! ${_LIBREWOLF_R1} ]]; then
+if [[ ! ${_LIBREWOLF_R2} ]]; then
 
 inherit git-r3
 
@@ -60,6 +60,9 @@ END
 
   # Remove mozilla vpn ads
   eapply "${WORKDIR}/patches/mozilla-vpn-ad.patch"
+
+  # Prevent creation of '.mozilla' (Will need to be symlinked for some browser plugins)
+  eapply "${WORKDIR}/patches/mozilla_dirs.patch"
 
   # this one only to remove an annoying error message:
   sed -i 's#SaveToPocket.init();#// SaveToPocket.init();#g' "${S}"/browser/components/BrowserGlue.jsm
@@ -119,6 +122,7 @@ librewolf-r1_src_unpack() {
 		"megabar.patch"
 		"context-menu.patch"
 		"mozilla-vpn-ad.patch"
+		"mozilla_dirs.patch"
 	)
 
 	if ver_test -lt "89.0"; then
@@ -168,5 +172,5 @@ app.partner.librewolf=${PN}
 END
 }
 
-_LIBREWOLF_R1=1
+_LIBREWOLF_R2=1
 fi
