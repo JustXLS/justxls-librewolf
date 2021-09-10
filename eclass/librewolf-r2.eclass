@@ -100,19 +100,15 @@ librewolf-r1_src_unpack() {
 	then
 		mercurial_src_unpack
 	fi
-	local git_repos=(
-		"https://gitlab.com/librewolf-community/browser/common.git"
-		"https://gitlab.com/librewolf-community/settings.git"
-	)
-	pushd "${WORKDIR}"
-	for repo in ${git_repos[@]}
-	do
-		local _repo="${repo##*/}"
-		_repo="${_repo%.git}"
-		git-r3_fetch "$repo"
-		git-r3_checkout "$repo" "${WORKDIR}/${_repo}"
-	done
-	popd
+
+	git-r3_fetch "https://gitlab.com/librewolf-community/browser/common.git" \
+				 "v${LIBREWOLF_PV}"
+	git-r3_checkout "https://gitlab.com/librewolf-community/browser/common.git" \
+					"${WORKDIR}/common"
+
+	git-r3_fetch "https://gitlab.com/librewolf-community/settings.git"
+	git-r3_checkout "https://gitlab.com/librewolf-community/settings.git" \
+					"${WORKDIR}/settings"
 
 	# Grab patches
 	# pre-89 patches can be grabed from the 'linux' librewolf repository
