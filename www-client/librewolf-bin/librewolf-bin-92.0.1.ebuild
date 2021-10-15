@@ -291,15 +291,15 @@ src_install() {
 pkg_postinst() {
 	xdg_pkg_postinst
 
-	if ! use gmp-autoupdate ; then
-		elog "USE='-gmp-autoupdate' has disabled the following plugins from updating or"
-		elog "installing into new profiles:"
-		local plugin
-		for plugin in "${MOZ_GMP_PLUGIN_LIST[@]}" ; do
-			elog "\t ${plugin}"
-		done
-		elog
-	fi
+	# if ! use gmp-autoupdate ; then
+	# 	elog "USE='-gmp-autoupdate' has disabled the following plugins from updating or"
+	# 	elog "installing into new profiles:"
+	# 	local plugin
+	# 	for plugin in "${MOZ_GMP_PLUGIN_LIST[@]}" ; do
+	# 		elog "\t ${plugin}"
+	# 	done
+	# 	elog
+	# fi
 
 	if ! has_version 'gnome-base/gconf' || ! has_version 'gnome-base/orbit' \
 		|| ! has_version 'net-misc/curl'; then
