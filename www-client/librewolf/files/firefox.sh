@@ -29,28 +29,24 @@ MOZ_FIREFOX_FILE="librewolf"
 if [[ ! -r ${MOZ_LIB_DIR}/librewolf/${MOZ_FIREFOX_FILE} ]]; then
 	if [[ ! -r ${SECONDARY_LIB_DIR}/librewolf/${MOZ_FIREFOX_FILE} ]]; then
 		echo "Error: ${MOZ_LIB_DIR}/librewolf/${MOZ_FIREFOX_FILE} not found" >&2
-		if [[ -d $SECONDARY_LIB_DIR ]]; then
+		if [[ -d ${SECONDARY_LIB_DIR} ]]; then
 			echo "       ${SECONDARY_LIB_DIR}/librewolf/${MOZ_FIREFOX_FILE} not found" >&2
 		fi
 		exit 1
 	fi
-	MOZ_LIB_DIR="$SECONDARY_LIB_DIR"
+	MOZ_LIB_DIR="${SECONDARY_LIB_DIR}"
 fi
 MOZILLA_FIVE_HOME="${MOZ_LIB_DIR}/librewolf"
 MOZ_EXTENSIONS_PROFILE_DIR="${HOME}/.mozilla/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
 MOZ_PROGRAM="${MOZILLA_FIVE_HOME}/${MOZ_FIREFOX_FILE}"
-DESKTOP_FILE="librewolf"
 
 ##
 ## Enable Wayland backend?
 ##
 if @DEFAULT_WAYLAND@ && [[ -z ${MOZ_DISABLE_WAYLAND} ]]; then
-	if [[ -n "$WAYLAND_DISPLAY" ]]; then
-		DESKTOP_FILE="librewolf-wayland"
+	if [[ -n "${WAYLAND_DISPLAY}" ]]; then
 		export MOZ_ENABLE_WAYLAND=1
 	fi
-elif [[ -n ${MOZ_DISABLE_WAYLAND} ]]; then
-	DESKTOP_FILE="librewolf-x11"
 fi
 
 ##
@@ -83,9 +79,9 @@ export MOZ_PLUGIN_PATH
 export MOZ_APP_LAUNCHER="@PREFIX@/bin/${cmdname}"
 
 ##
-## Disable the GNOME crash dialog, Moz has it's own
+## Disable the GNOME crash dialog, Mozilla has its own
 ##
-if [[ "$XDG_CURRENT_DESKTOP" == "GNOME" ]]; then
+if [[ "${XDG_CURRENT_DESKTOP}" == "GNOME" ]]; then
 	GNOME_DISABLE_CRASH_DIALOG=1
 	export GNOME_DISABLE_CRASH_DIALOG
 fi
@@ -116,13 +112,5 @@ fi
 # Don't throw "old profile" dialog box.
 export MOZ_ALLOW_DOWNGRADE=1
 
-##
-## Route to the correct .desktop file to get proper
-## name and actions
-##
-if [[ $@ != *"--name "* ]]; then
-	set -- --name "${DESKTOP_FILE}" "$@"
-fi
-
 # Run the browser
-exec ${MOZ_PROGRAM} "$@"
+exec ${MOZ_PROGRAM} "${@}"
