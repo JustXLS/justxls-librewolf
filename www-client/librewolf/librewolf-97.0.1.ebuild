@@ -729,6 +729,20 @@ src_configure() {
 		--x-includes="${SYSROOT}${EPREFIX}/usr/include" \
 		--x-libraries="${SYSROOT}${EPREFIX}/usr/$(get_libdir)"
 
+	# Librewolf
+	mozconfig_add_options_ac 'LibreWolf Branding' \
+		--with-app-name="librewolf" \
+		--with-app-basename="LibreWolf" \
+		--with-branding=browser/branding/librewolf \
+
+	mozconfig_add_options_mk 'Librewolf Disable Telemetry' \
+		MOZ_CRASHREPORTER=0 \
+		MOZ_DATA_REPORTING=0 \
+		MOZ_SERVICES_HEALTHREPORT=0 \
+		MOZ_TELEMETRY_REPORTING=0
+
+	export MOZ_REQUIRE_SIGNING=
+
 	# Set update channel
 	local update_channel=release
 	[[ -n ${MOZ_ESR} ]] && update_channel=esr
