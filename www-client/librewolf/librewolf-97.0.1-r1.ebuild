@@ -66,7 +66,7 @@ KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 
 SLOT="0/$(ver_cut 1)"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="+clang cpu_flags_arm_neon dbus debug eme-free hardened hwaccel"
+IUSE="+clang cpu_flags_arm_neon dbus debug eme-free +hardened hwaccel"
 IUSE+=" jack libproxy lto +openh264 pgo pulseaudio sndio selinux"
 IUSE+=" +system-av1 +system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx system-png +system-webp"
 IUSE+=" wayland wifi"
@@ -733,7 +733,7 @@ src_configure() {
 	mozconfig_add_options_ac 'LibreWolf Branding' \
 		--with-app-name="librewolf" \
 		--with-app-basename="LibreWolf" \
-		--with-branding=browser/branding/librewolf \
+		--with-branding=browser/branding/librewolf
 
 	mozconfig_add_options_mk 'Librewolf Disable Telemetry' \
 		MOZ_CRASHREPORTER=0 \
@@ -1064,6 +1064,12 @@ src_install() {
 
 	DESTDIR="${D}" ./mach install || die
 
+	## LibreWolf
+	# For some reason 'local-settings.js' doesn't get properly packaged.
+	# Install it manually
+	insinto "${MOZILLA_FIVE_HOME}/defaults/pref"
+	doins "${S}/lw/local-settings.js"
+
 	# Upstream cannot ship symlink but we can (bmo#658850)
 	rm "${ED}${MOZILLA_FIVE_HOME}/${PN}-bin" || die
 	dosym ${PN} ${MOZILLA_FIVE_HOME}/${PN}-bin
@@ -1073,9 +1079,10 @@ src_install() {
 		rm -v "${ED}${MOZILLA_FIVE_HOME}/llvm-symbolizer" || die
 	fi
 
+	## Disabled for LibreWolf
 	# Install policy (currently only used to disable application updates)
-	insinto "${MOZILLA_FIVE_HOME}/distribution"
-	newins "${FILESDIR}"/disable-auto-update.policy.json policies.json
+	# insinto "${MOZILLA_FIVE_HOME}/distribution"
+	# newins "${FILESDIR}"/disable-auto-update.policy.json policies.json
 
 	# Install system-wide preferences
 	local PREFS_DIR="${MOZILLA_FIVE_HOME}/browser/defaults/preferences"
