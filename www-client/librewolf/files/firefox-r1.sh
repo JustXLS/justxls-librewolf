@@ -37,7 +37,7 @@ if [[ ! -r ${MOZ_LIB_DIR}/librewolf/${MOZ_FIREFOX_FILE} ]]; then
 	MOZ_LIB_DIR="${SECONDARY_LIB_DIR}"
 fi
 MOZILLA_FIVE_HOME="${MOZ_LIB_DIR}/librewolf"
-MOZ_EXTENSIONS_PROFILE_DIR="${HOME}/.mozilla/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
+MOZ_EXTENSIONS_PROFILE_DIR="${HOME}/.librewolf/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
 MOZ_PROGRAM="${MOZILLA_FIVE_HOME}/${MOZ_FIREFOX_FILE}"
 
 ##
@@ -62,13 +62,13 @@ fi
 MOZ_PLUGIN_DIR="plugins"
 
 if [[ -n "${MOZ_PLUGIN_PATH}" ]]; then
-	MOZ_PLUGIN_PATH=${MOZ_PLUGIN_PATH}:${MOZ_LIB_DIR}/mozilla/${MOZ_PLUGIN_DIR}
+	MOZ_PLUGIN_PATH=${MOZ_PLUGIN_PATH}:${MOZ_LIB_DIR}/librewolf/${MOZ_PLUGIN_DIR}
 else
-	MOZ_PLUGIN_PATH=${MOZ_LIB_DIR}/mozilla/${MOZ_PLUGIN_DIR}
+	MOZ_PLUGIN_PATH=${MOZ_LIB_DIR}/librewolf/${MOZ_PLUGIN_DIR}
 fi
 
-if [[ -d "${SECONDARY_LIB_DIR}/mozilla/${MOZ_PLUGIN_DIR}" ]]; then
-	MOZ_PLUGIN_PATH=${MOZ_PLUGIN_PATH}:${SECONDARY_LIB_DIR}/mozilla/${MOZ_PLUGIN_DIR}
+if [[ -d "${SECONDARY_LIB_DIR}/librewolf/${MOZ_PLUGIN_DIR}" ]]; then
+	MOZ_PLUGIN_PATH=${MOZ_PLUGIN_PATH}:${SECONDARY_LIB_DIR}/librewolf/${MOZ_PLUGIN_DIR}
 fi
 
 export MOZ_PLUGIN_PATH
@@ -79,7 +79,7 @@ export MOZ_PLUGIN_PATH
 export MOZ_APP_LAUNCHER="@PREFIX@/bin/${cmdname}"
 
 ##
-## Disable the GNOME crash dialog, Mozilla has its own
+## Disable the GNOME crash dialog, LibreWolf has its own
 ##
 if [[ "${XDG_CURRENT_DESKTOP}" == "GNOME" ]]; then
 	GNOME_DISABLE_CRASH_DIALOG=1
