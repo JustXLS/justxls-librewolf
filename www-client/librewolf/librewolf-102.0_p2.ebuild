@@ -16,17 +16,11 @@ VIRTUALX_REQUIRED="pgo"
 
 # Librewolf version (please rev-bump if changed)
 # Used when cloning patches repository.
-LIBREWOLF_PV="${PV}"
-
-# add revision number if it exists
-if [[ -n ${PR} ]] ; then
-  # e.g. PV=102.0 PR=r2 to '102.0-2'
-  LIBREWOLF_PV="${LIBREWOLF_PV}-${PR:1}"
-fi
+LIBREWOLF_PV="${PV/_p/-}"
 
 MOZ_ESR=
 
-MOZ_PV=${PV}
+MOZ_PV=${PV/_p[0-9]/}
 MOZ_PV_SUFFIX=
 if [[ ${PV} =~ (_(alpha|beta|rc).*)$ ]] ; then
 	MOZ_PV_SUFFIX=${BASH_REMATCH[1]}
