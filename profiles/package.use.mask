@@ -1,4 +1,0 @@
-# Thomas Deutschmann <whissi@gentoo.org> (2021-12-03)
-# Requires newer media-libs/dav1d which isn't available yet,
-# see https://bugzilla.mozilla.org/1734058
->=www-client/librewolf-95.0 system-av1
