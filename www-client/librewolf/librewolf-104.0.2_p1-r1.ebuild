@@ -84,9 +84,7 @@ REQUIRED_USE+=" || ( X wayland )"
 REQUIRED_USE+=" pgo? ( X )"
 REQUIRED_USE+=" screencast? ( wayland )"
 
-FF_ONLY_DEPEND="!www-client/firefox:0
-	!www-client/firefox:esr
-	screencast? ( media-video/pipewire:= )
+FF_ONLY_DEPEND="screencast? ( media-video/pipewire:= )
 	selinux? ( sec-policy/selinux-mozilla )"
 BDEPEND="${PYTHON_DEPS}
 	app-arch/unzip
