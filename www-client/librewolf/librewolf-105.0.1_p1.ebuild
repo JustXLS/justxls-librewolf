@@ -3,7 +3,7 @@
 
 EAPI=8
 
-FIREFOX_PATCHSET="firefox-105-patches-04j.tar.xz"
+FIREFOX_PATCHSET="firefox-105-patches-05j.tar.xz"
 
 LLVM_MAX_SLOT=14
 
@@ -709,6 +709,7 @@ src_configure() {
 		--enable-release \
 		--enable-system-ffi \
 		--enable-system-pixman \
+		--enable-system-policies \
 		--host="${CBUILD:-${CHOST}}" \
 		--libdir="${EPREFIX}/usr/$(get_libdir)" \
 		--prefix="${EPREFIX}/usr" \
