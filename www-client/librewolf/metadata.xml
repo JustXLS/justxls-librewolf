@@ -39,4 +39,7 @@
 	<flag name="system-webp">Use the system-wide <pkg>media-libs/libwebp</pkg>
 		instead of bundled</flag>
 </use>
+<upstream>
+	<remote-id type="gitlab">librewolf-community/browser/source</remote-id>
+</upstream>
 </pkgmetadata>
