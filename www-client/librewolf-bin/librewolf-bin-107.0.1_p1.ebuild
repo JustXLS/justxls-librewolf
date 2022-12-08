@@ -32,14 +32,9 @@ inherit desktop linux-info pax-utils xdg
 
 MOZ_SRC_BASE_URI="https://archive.mozilla.org/pub/${MOZ_PN}/releases/${MOZ_PV}"
 
-# SRC_URI="${SRC_URI}
-# 	amd64? ( https://gitlab.com/api/v4/projects/12829184/packages/generic/librewolf/${LIBREWOLF_PV}/LibreWolf-${LIBREWOLF_PV}.x86_64.tar.bz2 )
-# 	arm64? ( https://gitlab.com/api/v4/projects/12829184/packages/generic/librewolf/${LIBREWOLF_PV}/LibreWolf-${LIBREWOLF_PV}.aarch64.tar.bz2 )"
-
-# Upstream hasn't properly tagged 107.0.1-1 on the release page yet.
 SRC_URI="${SRC_URI}
-	amd64? ( https://gitlab.com/librewolf-community/browser/linux/-/jobs/3418979313/artifacts/raw/LibreWolf-107.0.1-1.x86_64.tar.bz2 )
-	arm64? ( https://gitlab.com/librewolf-community/browser/linux/-/jobs/3418979314/artifacts/raw/LibreWolf-107.0.1-1.aarch64.tar.bz2 )"
+	amd64? ( https://gitlab.com/api/v4/projects/12829184/packages/generic/librewolf/${LIBREWOLF_PV}/LibreWolf-${LIBREWOLF_PV}.x86_64.tar.bz2 )
+	arm64? ( https://gitlab.com/api/v4/projects/12829184/packages/generic/librewolf/${LIBREWOLF_PV}/LibreWolf-${LIBREWOLF_PV}.aarch64.tar.bz2 )"
 
 DESCRIPTION="LibreWolf Web Browser"
 HOMEPAGE="https://librewolf-community.gitlab.io/"
