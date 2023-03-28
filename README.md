@@ -37,6 +37,12 @@ sudo layman -o https://gitlab.com/librewolf-community/browser/gentoo/-/raw/maste
 
 And then run `emerge --sync librewolf`, Portage should now find and update the repository.
 
-## Packaging Workflow (for contributors)
+## Contributing
 
-The upstream branch contains a mirror of the [Gentoo mozilla overlay](https://gitweb.gentoo.org/proj/mozilla.git/) we want to re-use as much as possible from Gentoo (the mozilla eclasses) and make as litttle changes as possible. This should make it easier to update in the future. The upstream branch should be periodically updated with any necessary changes merged into master.
+Before submitting an issue please verify that the issue doesn't occur on Gentoo's `www-client/firefox` package.
+
+## Packaging Workflow
+
+To make things easy to update the `www-client/librewolf` and `www-client/librewolf-bin` ebuilds are based on the `www-client/firefox(-bin)` ebuilds from Gentoo's default repository.
+
+_Personally I use `diff -aur <librewolf ebuild> <firefox ebuild>` when making version bumps._
