@@ -17,7 +17,7 @@ sync-uri = https://gitlab.com/librewolf-community/browser/gentoo.git
 auto-sync = Yes
 ```
 
-Change `repo-location` to a path of your choosing and then run `emaint -r librewolf sync`, Portage should now find and update the repository.
+Change `repo-location` to a path of your choosing and then run `emerge --sync librewolf`, Portage should now find and update the repository.
 
 ### Eselect way
 
@@ -27,7 +27,15 @@ On terminal:
 sudo eselect repository add librewolf git https://gitlab.com/librewolf-community/browser/gentoo.git
 ```
 
-And then run `emaint -r librewolf sync`, Portage should now find and update the repository.
+### Layman way
+
+On terminal:
+
+```bash
+sudo layman -o https://gitlab.com/librewolf-community/browser/gentoo/-/raw/master/repository.xml -f -a librewolf
+```
+
+And then run `emerge --sync librewolf`, Portage should now find and update the repository.
 
 ## Packaging Workflow (for contributors)
 
