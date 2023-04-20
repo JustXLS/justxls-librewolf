@@ -61,7 +61,6 @@ COMMON_DEPEND="alsa? (
 
 DEPEND="${COMMON_DEPEND}"
 
-# x11-libs/gtk+ needs wayland and X
 RDEPEND="${COMMON_DEPEND}
 	>=app-accessibility/at-spi2-core-2.46.0:2
 	dev-libs/dbus-glib
@@ -73,7 +72,7 @@ RDEPEND="${COMMON_DEPEND}
 	virtual/freedesktop-icon-theme
 	>=x11-libs/cairo-1.10[X]
 	x11-libs/gdk-pixbuf:2
-	>=x11-libs/gtk+-3.11:3[wayland,X]
+	>=x11-libs/gtk+-3.11:3[wayland?]
 	x11-libs/libX11
 	x11-libs/libXcomposite
 	x11-libs/libXcursor
