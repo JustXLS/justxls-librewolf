@@ -1,0 +1,5 @@
+# Joonas Niilola <juippis@gentoo.org> (2022-05-03)
+# sndio is currently broken in Gentoo, #842420.
+# system-python-libs is HIGHLY EXPERIMENTAL according to upstream, and
+# still being worked on in Gentoo.
+>=www-client/librewolf-100.0 sndio system-python-libs
