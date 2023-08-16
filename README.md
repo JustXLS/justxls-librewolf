@@ -6,14 +6,14 @@ Librewolf packaging for Gentoo.
 
 ### Manual way
 
-Create the `/etc/portage/repos.conf/librewolf.conf` file as follows:
+Create the `/etc/portage/repos.conf/justxls-librewolf.conf` file as follows:
 
 ```
 [librewolf]
 priority = 50
-location = <repo-location>/librewolf
+location = <repo-location>/justxls-librewolf
 sync-type = git
-sync-uri = https://gitlab.com/librewolf-community/browser/gentoo.git
+sync-uri = https://github.com/JustXLS/justxls-librewolf.git
 auto-sync = Yes
 ```
 
@@ -24,7 +24,7 @@ Change `repo-location` to a path of your choosing and then run `emerge --sync li
 On terminal:
 
 ```bash
-sudo eselect repository add librewolf git https://gitlab.com/librewolf-community/browser/gentoo.git
+sudo eselect repository add justxls-librewolf git https://github.com/JustXLS/justxls-librewolf.git
 ```
 
 ### Layman way
@@ -32,10 +32,10 @@ sudo eselect repository add librewolf git https://gitlab.com/librewolf-community
 On terminal:
 
 ```bash
-sudo layman -o https://gitlab.com/librewolf-community/browser/gentoo/-/raw/master/repository.xml -f -a librewolf
+sudo layman -o https://github.com/JustXLS/justxls-librewolf/-/raw/master/repository.xml -f -a justxls-librewolf
 ```
 
-And then run `emerge --sync librewolf`, Portage should now find and update the repository.
+And then run `emerge --sync justxls-librewolf`, Portage should now find and update the repository.
 
 ## Contributing
 

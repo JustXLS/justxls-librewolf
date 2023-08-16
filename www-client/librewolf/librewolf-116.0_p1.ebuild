@@ -98,15 +98,15 @@ BDEPEND="${PYTHON_DEPS}
 			)
 		)
 		(
-			sys-devel/clang:15
-			sys-devel/llvm:15
+			sys-devel/clang:16
+			sys-devel/llvm:16
 			clang? (
 				|| (
-					sys-devel/lld:15
+					sys-devel/lld:16
 					sys-devel/mold
 				)
-				virtual/rust:0/llvm-15
-				pgo? ( =sys-libs/compiler-rt-sanitizers-15*[profile] )
+				virtual/rust:0/llvm-16
+				pgo? ( =sys-libs/compiler-rt-sanitizers-16*[profile] )
 			)
 		)
 	)

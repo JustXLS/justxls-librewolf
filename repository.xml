@@ -2,10 +2,10 @@
 
 <repostories version="1.0">
   <repo priority="50" quality="experimental" status="unofficial">
-    <name>librewolf</name>
+    <name>justxls-librewolf</name>
     <description>Librewolf packaging for Gentoo.</description>
-    <homepage>https://gitlab.com/librewolf-community/browser/gentoo</homepage>
-    <source type="git">https://gitlab.com/librewolf-community/browser/gentoo.git</source>
-    <feed>https://gitlab.com/librewolf-community/browser/gentoo/commits/master.atom</feed>
+    <homepage>https://github.com/JustXLS/justxls-librewolf</homepage>
+    <source type="git">https://github.com/JustXLS/justxls-librewolf.git</source>
+    <feed>https://github.com/JustXLS/justxls-librewolf/commits/master.atom</feed>
   </repo>
 </repostories>
