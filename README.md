@@ -17,7 +17,7 @@ sync-uri = https://github.com/JustXLS/justxls-librewolf.git
 auto-sync = Yes
 ```
 
-Change `repo-location` to a path of your choosing and then run `emerge --sync librewolf`, Portage should now find and update the repository.
+Change `repo-location` to a path of your choosing and then run `emerge --sync justxls-librewolf`, Portage should now find and update the repository.
 
 ### Eselect way
 
