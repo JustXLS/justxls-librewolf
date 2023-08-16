@@ -2,6 +2,8 @@
 
 Librewolf packaging for Gentoo.
 
+fork from: https://gitlab.com/librewolf-community/browser/gentoo
+
 ## Usage
 
 ### Manual way
