@@ -9,7 +9,7 @@ Librewolf packaging for Gentoo.
 Create the `/etc/portage/repos.conf/justxls-librewolf.conf` file as follows:
 
 ```
-[librewolf]
+[justxls-librewolf]
 priority = 50
 location = <repo-location>/justxls-librewolf
 sync-type = git
